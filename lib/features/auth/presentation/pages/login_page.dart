@@ -120,7 +120,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(AppRadius.lg),
                   ),
-                  child: const Icon(Icons.eco, size: 40, color: Colors.white),
+                  child: const Icon(Icons.eco, size: 40, color: AppColors.onPrimary),
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
@@ -253,7 +253,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   onPressed: _phoneLogin,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.onPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppRadius.sm),
                     ),
@@ -388,7 +388,7 @@ class _SliderCaptchaState extends State<_SliderCaptcha> {
                         width: _thumbSize,
                         height: _thumbSize,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppColors.surface,
                           borderRadius: BorderRadius.circular(AppRadius.sm),
                           boxShadow: [
                             BoxShadow(
@@ -410,7 +410,7 @@ class _SliderCaptchaState extends State<_SliderCaptcha> {
                     const Center(
                       child: Text(
                         '拖动滑块验证',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                        style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant),
                       ),
                     ),
                   ],

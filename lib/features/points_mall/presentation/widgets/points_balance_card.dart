@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
@@ -30,7 +31,7 @@ class PointsBalanceCard extends ConsumerWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              Text(data.currentPoints.toString(), style: AppTextStyles.headlineLarge.copyWith(color: Colors.white, fontSize: 36)),
+              Text(data.currentPoints.toString(), style: AppTextStyles.headlineLarge.copyWith(color: AppColors.onPrimary, fontSize: 36)),
               const SizedBox(width: 8),
               Text('积分', style: AppTextStyles.bodyMedium.copyWith(color: const Color(0xFFB3DFC7))),
             ],

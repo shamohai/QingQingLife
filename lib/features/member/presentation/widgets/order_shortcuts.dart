@@ -28,7 +28,7 @@ class OrderShortcuts extends StatelessWidget {
       margin: const EdgeInsets.all(AppSpacing.lg),
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.md),
         boxShadow: [const BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, 1))],
       ),
@@ -73,7 +73,7 @@ class _OrderShortcutCell extends StatelessWidget {
                 padding: const EdgeInsets.all(2),
                 decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
                 constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                child: Text(item.count.toString(), style: const TextStyle(fontSize: 9, color: Colors.white, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                child: Text(item.count.toString(), style: const TextStyle(fontSize: 9, color: AppColors.surface, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
               )),
           ],
         ),

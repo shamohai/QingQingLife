@@ -12,5 +12,5 @@ abstract final class AppConfig {
 
   /// 微信 AppID（需要在微信开放平台申请，此处为占位符）
   /// TODO: 替换为真实的微信 AppID
-  static const String wechatAppId = 'wxplaceholder12345678';
+  static const String wechatAppId = 'wx64999b13fa01a983';
 }

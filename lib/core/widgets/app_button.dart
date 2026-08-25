@@ -1,4 +1,5 @@
 ﻿import 'package:flutter/material.dart';
+import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_radius.dart';
 
 /// 统一按钮组件，支持 loading 状态和防重复点击
@@ -49,7 +50,7 @@ class AppButton extends StatelessWidget {
         onPressed: isEnabled ? onPressed : null,
         style: OutlinedButton.styleFrom(
           foregroundColor: _textColor,
-          side: const BorderSide(color: Color(0xFF2E7D52)),
+          side: const BorderSide(color: AppColors.primary),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.sm),
           ),
@@ -78,9 +79,9 @@ class AppButton extends StatelessWidget {
   Color get _bgColor {
     switch (style) {
       case AppButtonStyle.primary:
-        return const Color(0xFF2E7D52);
+        return AppColors.primary;
       case AppButtonStyle.secondary:
-        return const Color(0xFFDFF4C9);
+        return AppColors.secondaryContainer;
       case AppButtonStyle.ghost:
         return Colors.transparent;
     }
@@ -89,11 +90,11 @@ class AppButton extends StatelessWidget {
   Color get _textColor {
     switch (style) {
       case AppButtonStyle.primary:
-        return Colors.white;
+        return AppColors.onPrimary;
       case AppButtonStyle.secondary:
-        return const Color(0xFF5B6E4E);
+        return AppColors.secondary;
       case AppButtonStyle.ghost:
-        return const Color(0xFF2E7D52);
+        return AppColors.primary;
     }
   }
 }

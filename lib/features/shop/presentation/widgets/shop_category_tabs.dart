@@ -40,9 +40,9 @@ class ShopCategoryTabs extends ConsumerWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(cat.icon, size: 14, color: isSelected ? Colors.white : AppColors.onSurfaceVariant),
+                  Icon(cat.icon, size: 14, color: isSelected ? AppColors.onPrimary : AppColors.onSurfaceVariant),
                   const SizedBox(width: 4),
-                  Text(cat.label, style: AppTextStyles.labelSmall.copyWith(color: isSelected ? Colors.white : AppColors.onSurface)),
+                  Text(cat.label, style: AppTextStyles.labelSmall.copyWith(color: isSelected ? AppColors.onPrimary : AppColors.onSurface)),
                 ],
               ),
             ),

@@ -47,7 +47,7 @@ class HomeNewUserGiftCard extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
               decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(AppRadius.sm)),
-              child: Text('立即领取', style: AppTextStyles.labelSmall.copyWith(color: Colors.white)),
+              child: Text('立即领取', style: AppTextStyles.labelSmall.copyWith(color: AppColors.onPrimary)),
             ),
           ],
         ),

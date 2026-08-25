@@ -30,14 +30,15 @@ final appRouter = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RouteNames.home,
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: HomePage(),
-                ),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: HomePage()),
                 routes: [
                   GoRoute(
                     path: 'product/:id',
                     pageBuilder: (context, state) => MaterialPage(
-                      child: ProductDetailPage(productId: state.pathParameters['id']!),
+                      child: ProductDetailPage(
+                        productId: state.pathParameters['id']!,
+                      ),
                     ),
                   ),
                 ],
@@ -48,9 +49,8 @@ final appRouter = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RouteNames.shop,
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: ShopPage(),
-                ),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: ShopPage()),
               ),
             ],
           ),
@@ -58,9 +58,8 @@ final appRouter = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RouteNames.points,
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: PointsMallPage(),
-                ),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: PointsMallPage()),
               ),
             ],
           ),
@@ -68,9 +67,8 @@ final appRouter = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RouteNames.cart,
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: CartPage(),
-                ),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: CartPage()),
               ),
             ],
           ),
@@ -78,9 +76,8 @@ final appRouter = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RouteNames.profile,
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: ProfilePage(),
-                ),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: ProfilePage()),
               ),
             ],
           ),
@@ -98,9 +95,18 @@ class MainShell extends StatelessWidget {
 
   static const _tabBarItems = [
     BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: '首页'),
-    BottomNavigationBarItem(icon: Icon(Icons.storefront_outlined), label: '特色商城'),
-    BottomNavigationBarItem(icon: Icon(Icons.point_of_sale_outlined), label: '积分商城'),
-    BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: '购物车'),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.point_of_sale_outlined),
+      label: '积分商城',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.storefront_outlined),
+      label: '特色商城',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.shopping_cart_outlined),
+      label: '购物车',
+    ),
     BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '我的'),
   ];
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 
 class HomeBanner extends StatefulWidget {
@@ -35,8 +36,8 @@ class _HomeBannerState extends State<HomeBanner> {
               itemCount: widget.imageUrls.length,
               itemBuilder: (context, index) => CachedNetworkImage(
                 imageUrl: widget.imageUrls[index], fit: BoxFit.cover,
-                placeholder: (_, __) => Container(color: Colors.grey[200], child: const Center(child: CircularProgressIndicator())),
-                errorWidget: (_, __, ___) => Container(color: Colors.grey[200], child: const Icon(Icons.image_not_supported)),
+                placeholder: (_, __) => Container(color: AppColors.surfaceVariant, child: const Center(child: CircularProgressIndicator())),
+                errorWidget: (_, __, ___) => Container(color: AppColors.surfaceVariant, child: const Icon(Icons.image_not_supported)),
               ),
             ),
           ),

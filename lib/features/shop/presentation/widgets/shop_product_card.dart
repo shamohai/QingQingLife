@@ -20,7 +20,7 @@ class ShopProductCard extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppRadius.md),
         child: Container(
-          color: Colors.white,
+          color: AppColors.surface,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,

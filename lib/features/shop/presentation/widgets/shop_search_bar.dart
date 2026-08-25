@@ -48,7 +48,7 @@ class ShopSearchBar extends StatelessWidget {
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(AppRadius.sm),
                   ),
-                  child: Text('搜索', style: AppTextStyles.labelSmall.copyWith(color: Colors.white)),
+                  child: Text('搜索', style: AppTextStyles.labelSmall.copyWith(color: AppColors.onPrimary)),
                 ),
               ),
             ],
