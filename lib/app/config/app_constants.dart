@@ -7,6 +7,11 @@ abstract final class AppConstants {
   static const String isLoggedInKey = 'is_logged_in';
   static const String themeModeKey = 'theme_mode';
 
+  // 热更新相关存储 Key
+  static const String lastSuggestUpdateTsKey = 'last_suggest_update_ts';
+  static const String resourceManifestVersionKey = 'resource_manifest_version';
+  static const String resourceLastCheckTsKey = 'resource_last_check_ts';
+
   // 分页默认值
   static const int defaultPageSize = 20;
   static const int maxPageSize = 100;

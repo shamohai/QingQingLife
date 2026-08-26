@@ -4,15 +4,27 @@ import 'package:fluwx/fluwx.dart' as fluwx;
 
 import 'config/app_config.dart';
 import 'app.dart';
+import '../core/update/shiply/shiply_initializer.dart';
 
-/// App 启动入口，初始化 ProviderScope、fluwx 并运行 App
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // 注册 fluwx（使用占位 AppID，真实 AppID 替换 AppConfig.wechatAppId 后生效）
+
+  // 注册 fluwx
   try {
     await fluwx.Fluwx().registerApi(appId: AppConfig.wechatAppId);
   } catch (e) {
-    debugPrint('[Bootstrap] fluwx register failed (expected with placeholder): ');
+    debugPrint('[Bootstrap] fluwx register failed (expected with placeholder): $e');
   }
+
+  // 初始化 Shiply SDK
+  try {
+    await ShiplyInitializer.initialize(
+      appVersion: AppConfig.appVersionName,
+      appVersionCode: AppConfig.appVersionCode,
+    );
+  } catch (e) {
+    debugPrint('[Bootstrap] Shiply init failed: $e');
+  }
+
   runApp(const ProviderScope(child: App()));
 }

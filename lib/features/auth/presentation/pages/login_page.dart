@@ -84,7 +84,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       _showToast('请先完成滑块验证');
       return;
     }
-    ref.read(authProvider.notifier).phoneLogin();
+    ref.read(authProvider.notifier).phoneLogin(phone: phone, code: code);
   }
 
   void _showToast(String msg) {
@@ -120,7 +120,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(AppRadius.lg),
                   ),
-                  child: const Icon(Icons.eco, size: 40, color: AppColors.onPrimary),
+                  child: const Icon(
+                    Icons.eco,
+                    size: 40,
+                    color: AppColors.onPrimary,
+                  ),
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
@@ -410,7 +414,10 @@ class _SliderCaptchaState extends State<_SliderCaptcha> {
                     const Center(
                       child: Text(
                         '拖动滑块验证',
-                        style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.onSurfaceVariant,
+                        ),
                       ),
                     ),
                   ],

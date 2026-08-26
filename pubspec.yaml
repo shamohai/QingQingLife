@@ -48,6 +48,8 @@ dependencies:
   url_launcher: ^6.3.2
   image_picker: ^1.2.3
 
+  path_provider: ^2.1.0
+
   # Social login
   fluwx: ^6.0.2
 

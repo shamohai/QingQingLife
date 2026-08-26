@@ -24,7 +24,9 @@ class UserInfo {
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated }
 
-final authProvider = NotifierProvider<AuthNotifier, AuthStatus>(() => AuthNotifier());
+final authProvider = NotifierProvider<AuthNotifier, AuthStatus>(
+  () => AuthNotifier(),
+);
 
 class AuthNotifier extends Notifier<AuthStatus> {
   final SecureStorage _storage = SecureStorage();
@@ -50,7 +52,10 @@ class AuthNotifier extends Notifier<AuthStatus> {
     _authSubscriber = fluwx.Fluwx().addSubscriber(_handleWeChatResponse);
     try {
       final success = await fluwx.Fluwx().authBy(
-        which: fluwx.NormalAuth(scope: 'snsapi_userinfo', state: 'wechat_login'),
+        which: fluwx.NormalAuth(
+          scope: 'snsapi_userinfo',
+          state: 'wechat_login',
+        ),
       );
       if (!success) {
         debugPrint('[Auth] wechat authBy failed');
@@ -77,7 +82,7 @@ class AuthNotifier extends Notifier<AuthStatus> {
     }
   }
 
-  Future<void> phoneLogin() async {
+  Future<void> phoneLogin({required String phone, required String code}) async {
     state = AuthStatus.loading;
     await _mockLogin();
   }
