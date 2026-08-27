@@ -26,13 +26,11 @@ class UpdateInfo {
     this.minVersionCode,
   });
 
-  factory UpdateInfo.fromJson(Map<String, dynamic> json) =>
-      _$UpdateInfoFromJson(json);
+  factory UpdateInfo.fromJson(Map<String, dynamic> json) => _$UpdateInfoFromJson(json);
 
   Map<String, dynamic> toJson() => _$UpdateInfoToJson(this);
 
-  bool get shouldShowDialog =>
-      updateType == UpdateType.force || updateType == UpdateType.suggest;
+  bool get shouldShowDialog => updateType == UpdateType.force || updateType == UpdateType.suggest;
 
   bool get isForceUpdate => updateType == UpdateType.force;
 

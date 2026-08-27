@@ -47,6 +47,8 @@ devtools_options.yaml
 /scripts/
 /web/
 /windows/
+/extracted/
+/outputs/
 
 # Symbolication related
 app.*.symbols
