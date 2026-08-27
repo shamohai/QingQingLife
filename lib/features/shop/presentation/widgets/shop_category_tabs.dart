@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -10,44 +11,63 @@ class ShopCategoryTabs extends ConsumerWidget {
   final String selectedCategoryId;
   final ValueChanged<String> onCategoryChanged;
 
-  const ShopCategoryTabs({
-    super.key,
-    required this.selectedCategoryId,
-    required this.onCategoryChanged,
-  });
+  const ShopCategoryTabs({super.key, required this.selectedCategoryId, required this.onCategoryChanged});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final categories = ref.read(shopDataProvider).categories;
-    return SizedBox(
-      height: 44,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          final cat = categories[index];
-          final isSelected = cat.id == selectedCategoryId;
-          return GestureDetector(
-            onTap: () => onCategoryChanged(cat.id),
-            child: Container(
-              margin: const EdgeInsets.only(right: AppSpacing.md),
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : AppColors.surfaceVariant,
-                borderRadius: BorderRadius.circular(AppRadius.sm),
+    final shopDataAsync = ref.watch(shopDataProvider);
+
+    return shopDataAsync.when(
+      // 1. 数据加载成功时的UI（你原本的代码）
+      data: (shopData) => SizedBox(
+        height: 44,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          itemCount: shopData.categories.length,
+          itemBuilder: (context, index) {
+            final cat = shopData.categories[index];
+            final isSelected = cat.id == selectedCategoryId;
+            return GestureDetector(
+              onTap: () => onCategoryChanged(cat.id),
+              child: Container(
+                margin: const EdgeInsets.only(right: AppSpacing.md),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppColors.primary : AppColors.surfaceVariant,
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(cat.icon, size: 14, color: isSelected ? AppColors.onPrimary : AppColors.onSurfaceVariant),
+                    const SizedBox(width: 4),
+                    Text(
+                      cat.label,
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: isSelected ? AppColors.onPrimary : AppColors.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(cat.icon, size: 14, color: isSelected ? AppColors.onPrimary : AppColors.onSurfaceVariant),
-                  const SizedBox(width: 4),
-                  Text(cat.label, style: AppTextStyles.labelSmall.copyWith(color: isSelected ? AppColors.onPrimary : AppColors.onSurface)),
-                ],
-              ),
-            ),
-          );
-        },
+            );
+          },
+        ),
+      ),
+
+      // 2. 加载中的占位UI（新增）
+      loading: () => const SizedBox(
+        height: 44,
+        child: Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))),
+      ),
+
+      // 3. 发生错误时的占位UI（新增）
+      error: (error, stackTrace) => SizedBox(
+        height: 44,
+        child: Center(
+          child: Text('加载分类失败', style: AppTextStyles.labelSmall.copyWith(color: AppColors.error)),
+        ),
       ),
     );
   }

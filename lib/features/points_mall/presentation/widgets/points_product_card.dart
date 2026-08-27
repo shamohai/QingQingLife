@@ -1,24 +1,17 @@
 ﻿import 'package:flutter/material.dart';
+
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_image.dart';
+import '../../data/models/points_mall_home_data.dart';
 
 /// 积分商城商品卡片
 class PointsProductCard extends StatelessWidget {
-  final String imageUrl;
-  final String name;
-  final int points;
-  final int stock;
+  final PointsProduct product;
 
-  const PointsProductCard({
-    super.key,
-    required this.imageUrl,
-    required this.name,
-    required this.points,
-    required this.stock,
-  });
+  const PointsProductCard({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +28,7 @@ class PointsProductCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.md)),
-            child: AppNetworkImage(url: imageUrl, width: 160, height: 120, fit: BoxFit.cover),
+            child: AppNetworkImage(url: product.imageUrl, width: 160, height: 120, fit: BoxFit.cover),
           ),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.sm),
@@ -43,7 +36,7 @@ class PointsProductCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(name, style: AppTextStyles.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+                Text(product.name, style: AppTextStyles.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
                 const SizedBox(height: AppSpacing.xs),
                 Row(
                   children: [
@@ -51,14 +44,17 @@ class PointsProductCard extends StatelessWidget {
                     const SizedBox(width: 2),
                     Flexible(
                       child: Text(
-                        '\${points}积分',
+                        '\${product.points}积分',
                         style: AppTextStyles.priceSmall.copyWith(color: const Color(0xFFFF8F00)),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 2),
-                Text('剩余\${stock}件', style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                Text(
+                  '剩余\${product.stock}件',
+                  style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
               ],
             ),
           ),

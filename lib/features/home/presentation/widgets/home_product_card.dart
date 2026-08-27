@@ -1,14 +1,15 @@
 ﻿import 'package:flutter/material.dart';
+
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../product/domain/repositories/product_repository.dart';
 import '../../../../core/utils/money.dart';
 import '../../../../core/widgets/app_image.dart';
-import '../../data/models/product_card_model.dart';
 
 class HomeProductCard extends StatelessWidget {
-  final ProductCardModel product;
+  final ProductCard product;
   const HomeProductCard({super.key, required this.product});
 
   @override
@@ -28,11 +29,18 @@ class HomeProductCard extends StatelessWidget {
                 children: [
                   AppNetworkImage(url: product.imageUrl, width: 160, height: 120, fit: BoxFit.cover),
                   if (product.tag != null)
-                    Positioned(top: 6, left: 6, child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(AppRadius.xs)),
-                      child: Text(product.tag!, style: AppTextStyles.tagStyle),
-                    )),
+                    Positioned(
+                      top: 6,
+                      left: 6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(AppRadius.xs),
+                        ),
+                        child: Text(product.tag!, style: AppTextStyles.tagStyle),
+                      ),
+                    ),
                 ],
               ),
               Expanded(
@@ -53,7 +61,10 @@ class HomeProductCard extends StatelessWidget {
                       ),
                       if (product.salesCount != null) ...[
                         const SizedBox(height: 2),
-                        Text('\${product.salesCount}人付款', style: AppTextStyles.labelSmall.copyWith(color: AppColors.onSurfaceVariant)),
+                        Text(
+                          '\${product.salesCount}人付款',
+                          style: AppTextStyles.labelSmall.copyWith(color: AppColors.onSurfaceVariant),
+                        ),
                       ],
                     ],
                   ),

@@ -9,12 +9,7 @@ class ApiResponse<T> {
   final T? data;
   final bool success;
 
-  const ApiResponse({
-    required this.code,
-    required this.message,
-    this.data,
-    required this.success,
-  });
+  const ApiResponse({required this.code, required this.message, this.data, required this.success});
 
   /// 从后端标准 JSON 构建：{"code":0,"message":"success","data":...}
   factory ApiResponse.fromJson(Map<String, dynamic> json, T Function(dynamic)? fromJsonT) {
@@ -34,6 +29,13 @@ class ApiResponse<T> {
     if (data == null) throw const ApiException(message: 'data is null');
     return data!;
   }
+
+  /// 成功响应
+  factory ApiResponse.success(T data) => ApiResponse<T>(code: 0, message: 'success', data: data, success: true);
+
+  /// 失败响应
+  factory ApiResponse.error(String message, {int code = -1}) =>
+      ApiResponse<T>(code: code, message: message, data: null, success: false);
 
   @override
   String toString() => 'ApiResponse(success:$success, code:$code, message:"$message")';

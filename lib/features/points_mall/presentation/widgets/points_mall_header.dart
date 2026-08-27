@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_image.dart';
-import '../providers/points_mall_provider.dart';
+import '../../data/models/points_mall_home_data.dart';
 
 /// 积分商城 Banner + 规则按钮
-class PointsMallHeader extends ConsumerWidget {
-  const PointsMallHeader({super.key});
+class PointsMallHeader extends StatelessWidget {
+  final String bannerUrl;
+  final List<PointsCategory> categories;
+  final String rulesText;
+
+  const PointsMallHeader({super.key, required this.bannerUrl, required this.categories, required this.rulesText});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final data = ref.read(pointsMallDataProvider);
+  Widget build(BuildContext context) {
     return Column(
       children: [
         ClipRRect(
           borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
-          child: AppNetworkImage(url: data.bannerUrl, width: double.infinity, height: 140, fit: BoxFit.cover),
+          child: AppNetworkImage(url: bannerUrl, width: double.infinity, height: 140, fit: BoxFit.cover),
         ),
         const SizedBox(height: AppSpacing.md),
         Padding(
@@ -27,7 +30,7 @@ class PointsMallHeader extends ConsumerWidget {
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () => _showRulesDialog(context, data.rulesText),
+                  onTap: () => _showRulesDialog(context, rulesText),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
                     decoration: BoxDecoration(
@@ -59,9 +62,7 @@ class PointsMallHeader extends ConsumerWidget {
       builder: (ctx) => AlertDialog(
         title: const Text('积分规则'),
         content: Text(rules, style: Theme.of(context).textTheme.bodyMedium),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('知道了')),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('知道了'))],
       ),
     );
   }

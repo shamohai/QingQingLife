@@ -1,18 +1,19 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
-import '../providers/home_provider.dart';
+import '../../../product/domain/repositories/product_repository.dart';
 
 /// 新人礼优惠券卡片
-class HomeNewUserGiftCard extends ConsumerWidget {
-  const HomeNewUserGiftCard({super.key});
+class HomeNewUserGiftCard extends StatelessWidget {
+  final List<HomeNewUserGift> gifts;
+
+  const HomeNewUserGiftCard({super.key, required this.gifts});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final gifts = ref.read(homeDataProvider).newUserGifts;
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Container(
@@ -33,13 +34,12 @@ class HomeNewUserGiftCard extends ConsumerWidget {
                 children: [
                   Text('新人专享福利', style: AppTextStyles.headlineSmall.copyWith(color: AppColors.warning)),
                   const SizedBox(height: AppSpacing.sm),
-                  ...gifts.map((g) => Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          '\\',
-                          style: AppTextStyles.bodySmall,
-                        ),
-                      )),
+                  ...gifts.map(
+                    (g) => Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(g.title, style: AppTextStyles.bodySmall),
+                    ),
+                  ),
                 ],
               ),
             ),

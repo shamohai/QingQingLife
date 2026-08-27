@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../product/domain/repositories/product_repository.dart';
+import '../../../../core/presentation/paging/paging_list_view.dart';
+import '../providers/home_paging_providers.dart';
 import 'home_product_card.dart';
-import '../providers/home_provider.dart';
 
-/// 热卖商品横向滚动列表
+/// 热卖商品横向滚动列表（支持分页加载更多）
 class HomeHotProducts extends ConsumerWidget {
   const HomeHotProducts({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final products = ref.read(homeDataProvider).hotProducts;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -22,21 +24,43 @@ class HomeHotProducts extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('热卖商品', style: AppTextStyles.headlineSmall),
-              TextButton(onPressed: () {}, child: Text('查看更多', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary))),
+              Consumer(
+                builder: (context, ref, _) {
+                  final pagingData = ref.watch(homeHotProductsProvider);
+                  if (!pagingData.hasMore && pagingData.items.isNotEmpty) {
+                    return TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        '已加载全部',
+                        style: AppTextStyles.labelMedium.copyWith(color: AppColors.onSurfaceVariant),
+                      ),
+                    );
+                  }
+                  return TextButton(
+                    onPressed: pagingData.isLoading
+                        ? null
+                        : () => ref.read(homeHotProductsProvider.notifier).loadMore(),
+                    child: Text('查看更多', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary)),
+                  );
+                },
+              ),
             ],
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
         SizedBox(
           height: 220,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            itemCount: products.length,
-            itemBuilder: (context, index) => Padding(
-              padding: EdgeInsets.only(right: index < products.length - 1 ? AppSpacing.md : 0),
-              child: HomeProductCard(product: products[index]),
+          child: PagingListView<ProductCard>(
+            provider: homeHotProductsProvider,
+            itemBuilder: (context, product, index) => Padding(
+              padding: EdgeInsets.only(left: index == 0 ? AppSpacing.lg : 0, right: AppSpacing.md),
+              child: HomeProductCard(product: product),
             ),
+            shrinkWrap: true,
+            physics: const BouncingScrollPhysics(),
+            separatorBuilder: const SizedBox.shrink(),
+            padding: EdgeInsets.zero,
+            enablePullToRefresh: false, // 横向列表禁用下拉刷新
           ),
         ),
       ],

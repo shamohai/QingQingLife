@@ -48,18 +48,18 @@ final appRouter = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: RouteNames.shop,
+                path: RouteNames.points,
                 pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: ShopPage()),
+                    const NoTransitionPage(child: PointsMallPage()),
               ),
             ],
           ),
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: RouteNames.points,
+                path: RouteNames.shop,
                 pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: PointsMallPage()),
+                    const NoTransitionPage(child: ShopPage()),
               ),
             ],
           ),

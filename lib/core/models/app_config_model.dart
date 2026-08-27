@@ -11,14 +11,9 @@ class AppConfigModel {
   final String version;
   final bool maintenanceMode;
 
-  const AppConfigModel({
-    required this.appName,
-    required this.version,
-    required this.maintenanceMode,
-  });
+  const AppConfigModel({required this.appName, required this.version, required this.maintenanceMode});
 
-  factory AppConfigModel.fromJson(Map<String, dynamic> json) =>
-      _$AppConfigModelFromJson(json);
+  factory AppConfigModel.fromJson(Map<String, dynamic> json) => _$AppConfigModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$AppConfigModelToJson(this);
 }

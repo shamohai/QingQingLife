@@ -249,6 +249,7 @@ class StatementItem {
 
   const StatementItem({
     required this.id,
+    required this.type,
     required this.amountCents,
     required this.balanceCents,
     required this.description,
