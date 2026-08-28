@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -11,85 +10,179 @@ import '../../data/models/sign_in_result.dart';
 class MockPointsDataSource implements PointsRepository {
   final _uuid = const Uuid();
 
-  // 模拟数据
   static final _mockHomeData = PointsMallHomeData(
     bannerUrl: 'https://picsum.photos/750/200?random=99',
-    currentPoints: 3580,
-    expiringPoints: 200,
-    expiryDate: DateTime(2025, 12, 31),
+    bannerUrls: const [
+      'https://picsum.photos/750/200?random=99',
+      'https://picsum.photos/750/200?random=100',
+      'https://picsum.photos/750/200?random=101',
+    ],
+    currentPoints: 143588,
+    expiringPoints: 1200,
+    expiryDate: DateTime(2026, 12, 31),
     rulesText: '1. 积分有效期为当年1月1日至次年12月31日\n2. 积分不可兑现、不可转让\n3. 积分兑换商品需支付运费\n4. 兑换成功后积分实时扣除',
     categories: const [
       PointsCategory(id: 'all', label: '全部', iconUrl: ''),
-      PointsCategory(id: 'gift', label: '礼品兑换', iconUrl: ''),
-      PointsCategory(id: 'coupon', label: '优惠券', iconUrl: ''),
-      PointsCategory(id: 'service', label: '增值服务', iconUrl: ''),
+      PointsCategory(id: 'local', label: '本地服务', iconUrl: ''),
+      PointsCategory(id: 'coupon', label: '充值卡券', iconUrl: ''),
+      PointsCategory(id: 'media', label: '影视会员', iconUrl: ''),
+      PointsCategory(id: 'sports', label: '运动户外', iconUrl: ''),
     ],
-    recommendedProducts: [
+    hotProducts: [
       const PointsProduct(
-        id: 'p1',
+        id: 'h1',
         imageUrl: 'https://picsum.photos/300/300?random=80',
-        name: '天佑德青稞酒 经典款 500ml',
-        points: 5800,
-        originalPoints: 6800,
-        stock: 100,
+        name: '专供青稞酒特别版 本42度500ml',
+        points: 1000,
+        stock: 500,
         salesCount: 123,
         tag: '热门',
         type: PointsProductType.physical,
       ),
       const PointsProduct(
-        id: 'p2',
+        id: 'h2',
         imageUrl: 'https://picsum.photos/300/300?random=81',
-        name: '青藏特产牛肉干 100g',
-        points: 2800,
-        originalPoints: 3200,
+        name: '专供青稞酒特别版 本42度500ml',
+        points: 1000,
         stock: 200,
         salesCount: 456,
-        tag: '特产',
+        tag: '爆款',
         type: PointsProductType.physical,
       ),
       const PointsProduct(
-        id: 'p3',
+        id: 'h3',
         imageUrl: 'https://picsum.photos/300/300?random=82',
-        name: '满100减20 优惠券',
-        points: 500,
-        originalPoints: null,
-        stock: 999,
-        salesCount: 888,
-        tag: '优惠',
-        type: PointsProductType.virtual,
-      ),
-      const PointsProduct(
-        id: 'p4',
-        imageUrl: 'https://picsum.photos/300/300?random=83',
-        name: '首单包邮 权益卡',
+        name: '专供青稞酒特别版 本42度500ml',
         points: 1000,
-        originalPoints: 1500,
-        stock: 500,
-        salesCount: 234,
-        tag: '权益',
-        type: PointsProductType.service,
-      ),
-      const PointsProduct(
-        id: 'p5',
-        imageUrl: 'https://picsum.photos/300/300?random=84',
-        name: '天佑德礼盒装 500ml×2',
-        points: 12800,
-        originalPoints: 15800,
-        stock: 50,
-        salesCount: 67,
-        tag: '礼盒',
-        type: PointsProductType.physical,
-      ),
-      const PointsProduct(
-        id: 'p6',
-        imageUrl: 'https://picsum.photos/300/300?random=85',
-        name: '高原枸杞 特级 250g',
-        points: 3800,
-        originalPoints: 4200,
         stock: 150,
-        salesCount: 345,
-        tag: '特产',
+        salesCount: 88,
+        tag: '新品',
         type: PointsProductType.physical,
+      ),
+    ],
+    redeemableGroups: [
+      PointsRedeemGroup(
+        rangeLabel: '0-1000',
+        products: [
+          const PointsProduct(
+            id: 'r1',
+            imageUrl: 'https://picsum.photos/300/300?random=83',
+            name: '专供青稞酒特别版 本42度500ml',
+            points: 1000,
+            stock: 500,
+            salesCount: 123,
+            type: PointsProductType.physical,
+          ),
+          const PointsProduct(
+            id: 'r2',
+            imageUrl: 'https://picsum.photos/300/300?random=84',
+            name: '满100减20 优惠券',
+            points: 500,
+            stock: 999,
+            salesCount: 888,
+            type: PointsProductType.virtual,
+          ),
+        ],
+      ),
+      PointsRedeemGroup(
+        rangeLabel: '1000-5000',
+        products: [
+          const PointsProduct(
+            id: 'r3',
+            imageUrl: 'https://picsum.photos/300/300?random=85',
+            name: '青藏特产牛肉干 100g',
+            points: 2800,
+            stock: 200,
+            salesCount: 345,
+            tag: '特产',
+            type: PointsProductType.physical,
+          ),
+          const PointsProduct(
+            id: 'r4',
+            imageUrl: 'https://picsum.photos/300/300?random=86',
+            name: '高原枸杞 特级 250g',
+            points: 3800,
+            stock: 150,
+            salesCount: 234,
+            tag: '特产',
+            type: PointsProductType.physical,
+          ),
+        ],
+      ),
+      PointsRedeemGroup(
+        rangeLabel: '5000-10000',
+        products: [
+          const PointsProduct(
+            id: 'r5',
+            imageUrl: 'https://picsum.photos/300/300?random=87',
+            name: '天佑德青稞酒 经典款 500ml',
+            points: 5800,
+            originalPoints: 6800,
+            stock: 100,
+            salesCount: 567,
+            tag: '热门',
+            type: PointsProductType.physical,
+          ),
+          const PointsProduct(
+            id: 'r6',
+            imageUrl: 'https://picsum.photos/300/300?random=88',
+            name: '首单包邮 权益卡',
+            points: 5000,
+            stock: 500,
+            salesCount: 123,
+            type: PointsProductType.service,
+          ),
+        ],
+      ),
+      PointsRedeemGroup(
+        rangeLabel: '10000-20000',
+        products: [
+          const PointsProduct(
+            id: 'r7',
+            imageUrl: 'https://picsum.photos/300/300?random=89',
+            name: '天佑德礼盒装 500ml×2',
+            points: 12800,
+            originalPoints: 15800,
+            stock: 50,
+            salesCount: 67,
+            tag: '礼盒',
+            type: PointsProductType.physical,
+          ),
+          const PointsProduct(
+            id: 'r8',
+            imageUrl: 'https://picsum.photos/300/300?random=90',
+            name: '视频会员年卡',
+            points: 15000,
+            stock: 300,
+            salesCount: 89,
+            type: PointsProductType.virtual,
+          ),
+        ],
+      ),
+      PointsRedeemGroup(
+        rangeLabel: '20000以上',
+        products: [
+          const PointsProduct(
+            id: 'r9',
+            imageUrl: 'https://picsum.photos/300/300?random=91',
+            name: '高端青稞酒礼盒 500ml×6',
+            points: 28800,
+            originalPoints: 35800,
+            stock: 20,
+            salesCount: 12,
+            tag: '旗舰',
+            type: PointsProductType.physical,
+          ),
+          const PointsProduct(
+            id: 'r10',
+            imageUrl: 'https://picsum.photos/300/300?random=92',
+            name: '智能家居套装',
+            points: 25000,
+            stock: 10,
+            salesCount: 5,
+            type: PointsProductType.physical,
+          ),
+        ],
       ),
     ],
   );
@@ -109,15 +202,19 @@ class MockPointsDataSource implements PointsRepository {
   }) async {
     await Future.delayed(const Duration(milliseconds: 500));
 
-    var products = List<PointsProduct>.from(_mockHomeData.recommendedProducts);
+    var products = List<PointsProduct>.from(_mockHomeData.hotProducts);
 
     if (categoryId != null && categoryId != 'all') {
-      if (categoryId == 'gift') {
-        products = products.where((p) => p.type == PointsProductType.physical).toList();
-      } else if (categoryId == 'coupon') {
-        products = products.where((p) => p.type == PointsProductType.virtual).toList();
-      } else if (categoryId == 'service') {
-        products = products.where((p) => p.type == PointsProductType.service).toList();
+      switch (categoryId) {
+        case 'local':
+          products = products.where((p) => p.type == PointsProductType.physical).toList();
+        case 'coupon':
+          products = products.where((p) => p.type == PointsProductType.virtual).toList();
+        case 'media':
+        case 'sports':
+          products = products.where((p) => p.type == PointsProductType.service).toList();
+        default:
+          break;
       }
     }
 
@@ -127,18 +224,20 @@ class MockPointsDataSource implements PointsRepository {
 
     final start = (page - 1) * pageSize;
     final end = start + pageSize;
-    final List<PointsProduct> paginated = start < products.length 
-        ? products.sublist(start, end.clamp(0, products.length)) 
+    final List<PointsProduct> paginated = start < products.length
+        ? products.sublist(start, end.clamp(0, products.length))
         : [];
 
     final result = PointsMallHomeData(
       bannerUrl: _mockHomeData.bannerUrl,
+      bannerUrls: _mockHomeData.bannerUrls,
       currentPoints: _mockHomeData.currentPoints,
       expiringPoints: _mockHomeData.expiringPoints,
       expiryDate: _mockHomeData.expiryDate,
       rulesText: _mockHomeData.rulesText,
       categories: _mockHomeData.categories,
-      recommendedProducts: paginated,
+      hotProducts: paginated,
+      redeemableGroups: _mockHomeData.redeemableGroups,
     );
 
     return ApiResponse.success(result);
@@ -147,9 +246,9 @@ class MockPointsDataSource implements PointsRepository {
   @override
   Future<ApiResponse<PointsProductDetail>> getProductDetail(String productId) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    final product = _mockHomeData.recommendedProducts.firstWhere(
+    final product = _mockHomeData.hotProducts.firstWhere(
       (p) => p.id == productId,
-      orElse: () => _mockHomeData.recommendedProducts.first,
+      orElse: () => _mockHomeData.hotProducts.first,
     );
 
     return ApiResponse.success(
@@ -198,10 +297,10 @@ class MockPointsDataSource implements PointsRepository {
       PointsExchangeRecord(
         id: 'r1',
         exchangeNo: 'EX20250101001',
-        productId: 'p1',
-        productName: '天佑德青稞酒 经典款 500ml',
+        productId: 'h1',
+        productName: '专供青稞酒特别版 本42度500ml',
         productImageUrl: 'https://picsum.photos/300/300?random=80',
-        pointsDeducted: 5800,
+        pointsDeducted: 1000,
         quantity: 1,
         status: ExchangeStatus.completed,
         statusText: '已完成',
@@ -210,22 +309,6 @@ class MockPointsDataSource implements PointsRepository {
         receiveTime: DateTime.now().subtract(const Duration(days: 5)),
         logisticsCompany: '顺丰速运',
         logisticsNo: 'SF1234567890',
-      ),
-      PointsExchangeRecord(
-        id: 'r2',
-        exchangeNo: 'EX20250101002',
-        productId: 'p3',
-        productName: '满100减20 优惠券',
-        productImageUrl: 'https://picsum.photos/300/300?random=82',
-        pointsDeducted: 500,
-        quantity: 1,
-        status: ExchangeStatus.completed,
-        statusText: '已完成',
-        createTime: DateTime.now().subtract(const Duration(days: 5)),
-        shipTime: null,
-        receiveTime: null,
-        logisticsCompany: null,
-        logisticsNo: null,
       ),
     ]);
   }
@@ -248,14 +331,14 @@ class MockPointsDataSource implements PointsRepository {
     await Future.delayed(const Duration(milliseconds: 300));
     return ApiResponse.success(
       SignInCalendarResult(
-        year: year, 
-        month: month, 
-        records: [
-          const SignInDayRecord(day: 1, isSigned: true, pointsEarned: 10, isToday: false),
-          const SignInDayRecord(day: 2, isSigned: true, pointsEarned: 10, isToday: false),
-        ], 
-        totalSignedDays: 5, 
-        consecutiveDays: 5
+        year: year,
+        month: month,
+        records: const [
+          SignInDayRecord(day: 1, isSigned: true, pointsEarned: 10, isToday: false),
+          SignInDayRecord(day: 2, isSigned: true, pointsEarned: 10, isToday: false),
+        ],
+        totalSignedDays: 5,
+        consecutiveDays: 5,
       ),
     );
   }

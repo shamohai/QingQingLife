@@ -1,119 +1,93 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_spacing.dart';
-import '../../../../app/theme/app_text_styles.dart';
-import '../../../../core/presentation/paging/paging_controller_mixin.dart';
-import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../providers/points_mall_paging_providers.dart';
+import '../widgets/hot_products_section.dart';
 import '../widgets/points_balance_card.dart';
-import '../widgets/points_mall_header.dart';
-import '../widgets/points_product_card.dart';
+import '../widgets/points_banner_carousel.dart';
+import '../widgets/points_category_tab_bar.dart';
+import '../widgets/points_search_app_bar.dart';
+import '../widgets/redeemable_section.dart';
 
-class PointsMallPage extends ConsumerWidget {
+class PointsMallPage extends ConsumerStatefulWidget {
   const PointsMallPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PointsMallPage> createState() => _PointsMallPageState();
+}
+
+class _PointsMallPageState extends ConsumerState<PointsMallPage> {
+  final _searchController = TextEditingController();
+  String _activeCategoryId = 'all';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onCategoryChanged(String categoryId) {
+    setState(() => _activeCategoryId = categoryId);
+    ref.read(pointsMallProductListProvider.notifier).setCategoryId(categoryId);
+    ref.read(pointsMallProductListProvider.notifier).loadFirstPage();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final staticDataAsync = ref.watch(pointsMallStaticDataProvider);
 
     return Scaffold(
+      appBar: PointsSearchAppBar(searchController: _searchController),
       body: staticDataAsync.when(
         loading: () => const Center(child: AppLoading()),
         error: (error, stackTrace) => Center(
           child: AppError(message: '加载失败: $error', onRetry: () => ref.invalidate(pointsMallStaticDataProvider)),
         ),
-        data: (staticData) => CustomScrollView(
-          slivers: [
-            SliverSafeArea(
-              sliver: SliverToBoxAdapter(
+        data: (staticData) => RefreshIndicator(
+          onRefresh: () async => ref.invalidate(pointsMallStaticDataProvider),
+          child: CustomScrollView(
+            slivers: [
+              // 轮播图
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  child: PointsBannerCarousel(imageUrls: staticData.bannerUrls),
+                ),
+              ),
+              // 积分余额卡片
+              SliverToBoxAdapter(
+                child: PointsBalanceCard(
+                  currentPoints: staticData.currentPoints,
+                  expiringPoints: staticData.expiringPoints,
+                  expiryDate: staticData.expiryDate,
+                  onDetailTap: () {},
+                ),
+              ),
+              // 热门兑换商品
+              const SliverToBoxAdapter(child: HotProductsSection()),
+              // 分类 Tab + 我能兑换
+              SliverToBoxAdapter(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    PointsBalanceCard(
-                      currentPoints: staticData.currentPoints,
-                      expiringPoints: staticData.expiringPoints,
-                      expiryDate: staticData.expiryDate,
-                      rulesText: staticData.rulesText,
-                    ),
-                    PointsMallHeader(
-                      bannerUrl: staticData.bannerUrl,
+                    PointsCategoryTabBar(
                       categories: staticData.categories,
-                      rulesText: staticData.rulesText,
+                      activeCategoryId: _activeCategoryId,
+                      onCategoryTap: _onCategoryChanged,
                     ),
+                    const SizedBox(height: AppSpacing.md),
+                    RedeemableSection(groups: staticData.redeemableGroups),
+                    const SizedBox(height: AppSpacing.xxxl),
                   ],
                 ),
               ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: Text('积分兑换', style: AppTextStyles.headlineSmall),
-              ),
-            ),
-            Consumer(
-              builder: (context, ref, _) {
-                final productsData = ref.watch(pointsMallProductListProvider);
-
-                if (productsData.status == PagingStatus.loading && productsData.items.isEmpty) {
-                  return const SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: AppSpacing.md),
-                      child: Center(child: CircularProgressIndicator()),
-                    ),
-                  );
-                }
-
-                if (productsData.status == PagingStatus.error && productsData.items.isEmpty) {
-                  return SliverToBoxAdapter(child: Center(child: Text('加载失败: ${productsData.errorMessage}')));
-                }
-
-                if (productsData.items.isEmpty) {
-                  return const SliverToBoxAdapter(child: AppEmpty(message: '暂无商品'));
-                }
-
-                return SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-                  sliver: SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: AppSpacing.md,
-                      mainAxisSpacing: AppSpacing.md,
-                      childAspectRatio: 0.75,
-                    ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        if (index == productsData.items.length) {
-                          return _buildFooter(ref, productsData);
-                        }
-                        return PointsProductCard(product: productsData.items[index]);
-                      },
-                      childCount: productsData.items.length + (productsData.hasMore ? 1 : 0),
-                    ),
-                  ),
-                );
-              },
-            ),
-            SliverToBoxAdapter(child: const SizedBox(height: AppSpacing.xxxl)),
-          ],
+            ],
+          ),
         ),
       ),
     );
-  }
-
-  Widget _buildFooter(WidgetRef ref, PagingData pagingData) {
-    if (pagingData.status == PagingStatus.loading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (pagingData.hasMore) {
-      return Center(
-        child: TextButton(
-          onPressed: () => ref.read(pointsMallProductListProvider.notifier).loadMore(),
-          child: const Text('加载更多'),
-        ),
-      );
-    }
-    return const SizedBox.shrink();
   }
 }

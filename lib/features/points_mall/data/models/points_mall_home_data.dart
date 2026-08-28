@@ -2,25 +2,28 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'points_mall_home_data.g.dart';
 
-/// 积分商城首页聚合数据模型
 @JsonSerializable()
 class PointsMallHomeData {
   final String bannerUrl;
+  final List<String> bannerUrls;
   final int currentPoints;
   final int expiringPoints;
   final DateTime expiryDate;
   final String rulesText;
   final List<PointsCategory> categories;
-  final List<PointsProduct> recommendedProducts;
+  final List<PointsProduct> hotProducts;
+  final List<PointsRedeemGroup> redeemableGroups;
 
   const PointsMallHomeData({
     required this.bannerUrl,
+    required this.bannerUrls,
     required this.currentPoints,
     required this.expiringPoints,
     required this.expiryDate,
     required this.rulesText,
     required this.categories,
-    required this.recommendedProducts,
+    required this.hotProducts,
+    required this.redeemableGroups,
   });
 
   factory PointsMallHomeData.fromJson(Map<String, dynamic> json) => _$PointsMallHomeDataFromJson(json);
@@ -28,7 +31,6 @@ class PointsMallHomeData {
   Map<String, dynamic> toJson() => _$PointsMallHomeDataToJson(this);
 }
 
-/// 积分商城分类模型
 @JsonSerializable()
 class PointsCategory {
   final String id;
@@ -42,7 +44,6 @@ class PointsCategory {
   Map<String, dynamic> toJson() => _$PointsCategoryToJson(this);
 }
 
-/// 积分商品模型
 @JsonSerializable()
 class PointsProduct {
   final String id;
@@ -72,5 +73,16 @@ class PointsProduct {
   Map<String, dynamic> toJson() => _$PointsProductToJson(this);
 }
 
-/// 积分商品类型枚举
 enum PointsProductType { physical, virtual, service }
+
+@JsonSerializable()
+class PointsRedeemGroup {
+  final String rangeLabel;
+  final List<PointsProduct> products;
+
+  const PointsRedeemGroup({required this.rangeLabel, required this.products});
+
+  factory PointsRedeemGroup.fromJson(Map<String, dynamic> json) => _$PointsRedeemGroupFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PointsRedeemGroupToJson(this);
+}

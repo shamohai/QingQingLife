@@ -9,6 +9,9 @@ part of 'points_mall_home_data.dart';
 PointsMallHomeData _$PointsMallHomeDataFromJson(Map<String, dynamic> json) =>
     PointsMallHomeData(
       bannerUrl: json['bannerUrl'] as String,
+      bannerUrls: (json['bannerUrls'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
       currentPoints: (json['currentPoints'] as num).toInt(),
       expiringPoints: (json['expiringPoints'] as num).toInt(),
       expiryDate: DateTime.parse(json['expiryDate'] as String),
@@ -16,20 +19,25 @@ PointsMallHomeData _$PointsMallHomeDataFromJson(Map<String, dynamic> json) =>
       categories: (json['categories'] as List<dynamic>)
           .map((e) => PointsCategory.fromJson(e as Map<String, dynamic>))
           .toList(),
-      recommendedProducts: (json['recommendedProducts'] as List<dynamic>)
+      hotProducts: (json['hotProducts'] as List<dynamic>)
           .map((e) => PointsProduct.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      redeemableGroups: (json['redeemableGroups'] as List<dynamic>)
+          .map((e) => PointsRedeemGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
 Map<String, dynamic> _$PointsMallHomeDataToJson(PointsMallHomeData instance) =>
     <String, dynamic>{
       'bannerUrl': instance.bannerUrl,
+      'bannerUrls': instance.bannerUrls,
       'currentPoints': instance.currentPoints,
       'expiringPoints': instance.expiringPoints,
       'expiryDate': instance.expiryDate.toIso8601String(),
       'rulesText': instance.rulesText,
       'categories': instance.categories,
-      'recommendedProducts': instance.recommendedProducts,
+      'hotProducts': instance.hotProducts,
+      'redeemableGroups': instance.redeemableGroups,
     };
 
 PointsCategory _$PointsCategoryFromJson(Map<String, dynamic> json) =>
@@ -77,3 +85,17 @@ const _$PointsProductTypeEnumMap = {
   PointsProductType.virtual: 'virtual',
   PointsProductType.service: 'service',
 };
+
+PointsRedeemGroup _$PointsRedeemGroupFromJson(Map<String, dynamic> json) =>
+    PointsRedeemGroup(
+      rangeLabel: json['rangeLabel'] as String,
+      products: (json['products'] as List<dynamic>)
+          .map((e) => PointsProduct.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+Map<String, dynamic> _$PointsRedeemGroupToJson(PointsRedeemGroup instance) =>
+    <String, dynamic>{
+      'rangeLabel': instance.rangeLabel,
+      'products': instance.products,
+    };

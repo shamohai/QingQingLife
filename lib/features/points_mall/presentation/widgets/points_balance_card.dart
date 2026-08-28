@@ -1,74 +1,91 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 
+/// 积分余额卡片（白色背景 + 蓝色到期信息条）
 class PointsBalanceCard extends StatelessWidget {
   final int currentPoints;
   final int expiringPoints;
   final DateTime expiryDate;
-  final String rulesText;
+  final VoidCallback? onDetailTap;
 
   const PointsBalanceCard({
     super.key,
     required this.currentPoints,
     required this.expiringPoints,
     required this.expiryDate,
-    required this.rulesText,
+    this.onDetailTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(AppSpacing.lg),
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl, vertical: AppSpacing.xxl),
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF2E7D52), Color(0xFF4A9C6F)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [const BoxShadow(color: Color(0x292E7D52), blurRadius: 12, offset: Offset(0, 4))],
+        boxShadow: [const BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, 1))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('我的积分', style: AppTextStyles.labelMedium.copyWith(color: const Color(0xFFB3DFC7))),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text(
-                currentPoints.toString(),
-                style: AppTextStyles.headlineLarge.copyWith(color: AppColors.onPrimary, fontSize: 36),
-              ),
-              const SizedBox(width: 8),
-              Text('积分', style: AppTextStyles.bodyMedium.copyWith(color: const Color(0xFFB3DFC7))),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
           if (expiringPoints > 0)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+              margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFFFF8F00).withAlpha(51),
-                borderRadius: BorderRadius.circular(AppRadius.round),
+                color: const Color(0xFF1976D2).withAlpha(20),
+                borderRadius: BorderRadius.circular(4),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.warning_amber_rounded, size: 14, color: Color(0xFFFF8F00)),
+                  const Icon(Icons.info_outline, size: 12, color: Color(0xFF1976D2)),
                   const SizedBox(width: 4),
-                  Text(
-                    '${expiringPoints}积分即将过期',
-                    style: AppTextStyles.labelSmall.copyWith(color: const Color(0xFFFF8F00)),
+                  Flexible(
+                    child: Text(
+                      '您有$expiringPoints积分将于${expiryDate.month}月${expiryDate.day}日到期',
+                      style: const TextStyle(fontSize: 10, color: Color(0xFF1976D2)),
+                    ),
                   ),
                 ],
               ),
             ),
+          Row(
+            children: [
+              Text('积分余额', style: AppTextStyles.labelMedium.copyWith(color: AppColors.onSurfaceVariant, fontSize: 11)),
+              const SizedBox(width: AppSpacing.sm),
+              Text(
+                NumberFormat('#,##0').format(currentPoints),
+                style: AppTextStyles.headlineLarge.copyWith(color: AppColors.onPrimary, fontSize: 24),
+              ),
+              const SizedBox(width: 4),
+              GestureDetector(
+                onTap: onDetailTap,
+                child: const Icon(Icons.info_outline, size: 14, color: AppColors.outline),
+              ),
+              const Spacer(),
+              SizedBox(
+                height: 28,
+                child: OutlinedButton(
+                  onPressed: onDetailTap,
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppColors.primary, width: 0.8),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    shape: const StadiumBorder(),
+                  ),
+                  child: Text(
+                    '积分明细',
+                    style: AppTextStyles.labelSmall.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

@@ -14,6 +14,10 @@ class MockPointsDataSource implements PointsRepository {
     return ApiResponse.success(
       PointsMallHomeData(
         bannerUrl: 'https://picsum.photos/750/240?random=30',
+        bannerUrls: const [
+          'https://picsum.photos/750/240?random=31',
+          'https://picsum.photos/750/240?random=32',
+        ],
         currentPoints: 3580,
         expiringPoints: 800,
         expiryDate: DateTime.now().add(const Duration(days: 45)),
@@ -24,7 +28,7 @@ class MockPointsDataSource implements PointsRepository {
           const PointsCategory(id: 'virtual', label: '虚拟卡券', iconUrl: ''),
           const PointsCategory(id: 'service', label: '本地服务', iconUrl: ''),
         ],
-        recommendedProducts: [
+        hotProducts: [
           const PointsProduct(
             id: 'pp1',
             imageUrl: 'https://picsum.photos/300/300?random=40',
@@ -51,6 +55,22 @@ class MockPointsDataSource implements PointsRepository {
             stock: 32,
             salesCount: 567,
             type: PointsProductType.physical,
+          ),
+        ],
+        redeemableGroups: [
+          PointsRedeemGroup(
+            rangeLabel: '1000-2000积分',
+            products: [
+              const PointsProduct(
+                id: 'pp4',
+                imageUrl: 'https://picsum.photos/300/300?random=43',
+                name: '积分专享饼干',
+                points: 1200,
+                stock: 99,
+                salesCount: 100,
+                type: PointsProductType.physical,
+              ),
+            ],
           ),
         ],
       ),

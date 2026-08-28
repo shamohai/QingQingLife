@@ -22,6 +22,7 @@ abstract class PagingNotifier<T> extends Notifier<PagingData<T>> {
     state = state.copyWith(status: PagingStatus.loading, errorMessage: null);
     try {
       final result = await fetchPage(1, pageSize);
+      if (!ref.mounted) return;
       state = PagingData<T>(
         status: result.items.isEmpty ? PagingStatus.empty : PagingStatus.loaded,
         items: result.items,
@@ -31,6 +32,7 @@ abstract class PagingNotifier<T> extends Notifier<PagingData<T>> {
         totalPages: result.totalPages,
       );
     } catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(status: PagingStatus.error, errorMessage: e.toString());
     }
   }
@@ -43,6 +45,7 @@ abstract class PagingNotifier<T> extends Notifier<PagingData<T>> {
 
     try {
       final result = await fetchPage(nextPage, pageSize);
+      if (!ref.mounted) return;
       final newItems = [...state.items, ...result.items];
       state = PagingData<T>(
         status: PagingStatus.loaded,
@@ -53,6 +56,7 @@ abstract class PagingNotifier<T> extends Notifier<PagingData<T>> {
         totalPages: result.totalPages,
       );
     } catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(status: PagingStatus.error, errorMessage: e.toString());
     }
   }

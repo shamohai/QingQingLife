@@ -16,7 +16,7 @@ class PointsProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 160,
+      width: 150, // 恢复基础宽度，解决横向滚动列表崩溃问题
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppRadius.md),
@@ -26,9 +26,12 @@ class PointsProductCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.md)),
-            child: AppNetworkImage(url: product.imageUrl, width: 160, height: 120, fit: BoxFit.cover),
+          AspectRatio(
+            aspectRatio: 1.2, // 调回 1.2，降低图片高度
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.md)),
+              child: AppNetworkImage(url: product.imageUrl, fit: BoxFit.cover),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(AppSpacing.sm),
@@ -36,7 +39,15 @@ class PointsProductCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(product.name, style: AppTextStyles.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+                SizedBox(
+                  height: 32, // 固定标题区域高度，防止溢出
+                  child: Text(
+                    product.name,
+                    style: AppTextStyles.bodySmall.copyWith(fontSize: 11, height: 1.2),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
                 const SizedBox(height: AppSpacing.xs),
                 Row(
                   children: [
@@ -44,16 +55,22 @@ class PointsProductCard extends StatelessWidget {
                     const SizedBox(width: 2),
                     Flexible(
                       child: Text(
-                        '\${product.points}积分',
-                        style: AppTextStyles.priceSmall.copyWith(color: const Color(0xFFFF8F00)),
+                        '${product.points}',
+                        style: AppTextStyles.priceSmall.copyWith(
+                          color: const Color(0xFFFF8F00),
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '剩余\${product.stock}件',
-                  style: AppTextStyles.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  '剩${product.stock}件',
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 10,
+                  ),
                 ),
               ],
             ),
