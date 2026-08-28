@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,6 +7,7 @@ import '../../features/shop/presentation/pages/shop_page.dart';
 import '../../features/points_mall/presentation/pages/points_mall_page.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/member/presentation/pages/profile_page.dart';
+import '../../features/service/presentation/pages/service_page.dart';
 import '../../features/product/presentation/pages/product_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
@@ -71,9 +72,9 @@ final appRouter = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: RouteNames.cart,
+                path: RouteNames.service,
                 pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: CartPage()),
+                    const NoTransitionPage(child: ServicePage()),
               ),
             ],
           ),
@@ -88,11 +89,20 @@ final appRouter = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      // 购物车保持可访问路由（通过 deep link 或内部跳转），不在底部导航栏显示
+      GoRoute(
+        path: RouteNames.cart,
+        pageBuilder: (context, state) => const MaterialPage(child: CartPage()),
+      ),
+      GoRoute(
+        path: RouteNames.checkout,
+        pageBuilder: (context, state) => const MaterialPage(child: CartPage()),
+      ),
     ],
   );
 });
 
-/// 底部 Tab 主框架（顺序：首页/特色商城/积分商城/购物车/我的）
+/// 底部 Tab 主框架（顺序：首页/积分商城/特色商城/服务预约/我的）
 class MainShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
@@ -109,8 +119,8 @@ class MainShell extends StatelessWidget {
       label: '特色商城',
     ),
     BottomNavigationBarItem(
-      icon: Icon(Icons.shopping_cart_outlined),
-      label: '购物车',
+      icon: Icon(Icons.calendar_today_outlined),
+      label: '服务预约',
     ),
     BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '我的'),
   ];
@@ -135,4 +145,3 @@ class MainShell extends StatelessWidget {
     );
   }
 }
-
