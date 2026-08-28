@@ -20,9 +20,10 @@ class AuthPage extends ConsumerWidget {
       return const Scaffold(body: AppLoading());
     }
 
-    if (authStatus == AuthStatus.authenticated && sessionState == SessionState.authenticated) {
-      // 登录成功，跳转到首页（由路由处理）
-      context.go(RouteNames.home);
+    if (authStatus == AuthStatus.wechatAuthenticated) {
+      context.push(RouteNames.phoneBind);
+    } else if (authStatus == AuthStatus.authenticated && sessionState == SessionState.authenticated) {
+      context.go(RouteNames.profile);
     }
 
     return const LoginPage();

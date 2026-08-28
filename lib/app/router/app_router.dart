@@ -9,6 +9,7 @@ import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/member/presentation/pages/profile_page.dart';
 import '../../features/product/presentation/pages/product_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/phone_bind_page.dart';
 import 'route_names.dart';
 
 /// 主应用路由器，使用 StatefulShellRoute 保持各 Tab 独立导航栈
@@ -20,6 +21,10 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.login,
         pageBuilder: (context, state) => const MaterialPage(child: LoginPage()),
+      ),
+      GoRoute(
+        path: RouteNames.phoneBind,
+        pageBuilder: (context, state) => const MaterialPage(child: PhoneBindPage()),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -130,3 +135,4 @@ class MainShell extends StatelessWidget {
     );
   }
 }
+

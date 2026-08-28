@@ -31,6 +31,7 @@ abstract final class RouteNames {
 
   // 登录
   static const String login = '/login';
+  static const String phoneBind = '/phone-bind';
 
   // 客服
   static const String customerService = '/customer-service';
