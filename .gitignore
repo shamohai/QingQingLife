@@ -49,6 +49,8 @@ devtools_options.yaml
 /windows/
 /extracted/
 /outputs/
+/references/
+/design-to-code-inputs/
 
 # Symbolication related
 app.*.symbols

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -10,14 +10,12 @@ import '../providers/cart_provider.dart';
 class CartItemCard extends StatelessWidget {
   final CartItem item;
   final VoidCallback onToggle;
-  final VoidCallback onDelete;
   final ValueChanged<int> onQuantityChanged;
 
   const CartItemCard({
     super.key,
     required this.item,
     required this.onToggle,
-    required this.onDelete,
     required this.onQuantityChanged,
   });
 
@@ -41,7 +39,7 @@ class CartItemCard extends StatelessWidget {
           const SizedBox(width: AppSpacing.sm),
           ClipRRect(
             borderRadius: BorderRadius.circular(AppRadius.sm),
-            child: AppNetworkImage(url: item.imageUrl, width: 96, height: 96, fit: BoxFit.cover),
+            child: AppNetworkImage(url: item.imageUrl, width: 80, height: 80, fit: BoxFit.cover),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -54,27 +52,17 @@ class CartItemCard extends StatelessWidget {
               ],
             ),
           ),
-          Column(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.remove_circle_outline, size: 20),
-                onPressed: () => onQuantityChanged(item.quantity - 1),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-              Text(item.quantity.toString(), style: AppTextStyles.bodyMedium),
-              IconButton(
-                icon: const Icon(Icons.add_circle_outline, size: 20),
-                onPressed: () => onQuantityChanged(item.quantity + 1),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-            ],
+          const SizedBox(width: AppSpacing.md),
+          InkWell(
+            onTap: () => onQuantityChanged(item.quantity - 1),
+            child: const Icon(Icons.remove_circle_outline, size: 20),
           ),
           const SizedBox(width: AppSpacing.sm),
-          GestureDetector(
-            onTap: onDelete,
-            child: const Icon(Icons.delete_outline, size: 20, color: AppColors.error),
+          Text(item.quantity.toString(), style: AppTextStyles.bodyMedium),
+          const SizedBox(width: AppSpacing.sm),
+          InkWell(
+            onTap: () => onQuantityChanged(item.quantity + 1),
+            child: const Icon(Icons.add_circle_outline, size: 20),
           ),
         ],
       ),

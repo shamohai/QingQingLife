@@ -1,20 +1,58 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../domain/repositories/member_repository.dart';
+import '../../../../core/providers/repository_providers.dart';
 
-
-class MemberInfo {
-  final int level;
-  final String levelName;
+class UserProfileState {
+  final String nickname;
+  final String? avatarUrl;
+  final String phoneMasked;
+  final MemberInfo memberInfo;
   final int points;
-  final int exp;
-  final int nextLevelExp;
-  const MemberInfo({this.level = 2, this.levelName = '银卡会员', this.points = 3580, this.exp = 680, this.nextLevelExp = 1000});
+  final int couponCount;
+  final int? expiringPoints;
+  final DateTime? expiringDate;
+
+  const UserProfileState({
+    this.nickname = '青轻用户_9527',
+    this.avatarUrl,
+    this.phoneMasked = '150****9999',
+    required this.memberInfo,
+    required this.points,
+    required this.couponCount,
+    this.expiringPoints,
+    this.expiringDate,
+  });
 }
 
-final userProfileProvider = Provider<UserProfileProvider>((ref) => const UserProfileProvider());
+final userProfileProvider = NotifierProvider<UserProfileNotifier, UserProfileState>(
+  () => UserProfileNotifier(),
+);
 
-class UserProfileProvider {
-  const UserProfileProvider();
-  MemberInfo get memberInfo => const MemberInfo();
-  String get nickname => '青轻用户_9527';
-  String? get avatarUrl => null;
+class UserProfileNotifier extends Notifier<UserProfileState> {
+  @override
+  UserProfileState build() {
+    return const UserProfileState(memberInfo: MemberInfo.empty(), points: 0, couponCount: 0);
+  }
+
+  Future<void> load() async {
+    final repository = ref.read(memberRepositoryProvider);
+    try {
+      final memberResp = await repository.getMemberInfo();
+      final pointsResp = await repository.getPointsAccount();
+      if (memberResp.success && pointsResp.success) {
+        state = UserProfileState(
+          nickname: memberResp.data!.nickname,
+          avatarUrl: memberResp.data!.avatarUrl,
+          memberInfo: memberResp.data!,
+          points: pointsResp.data!.availablePoints,
+          couponCount: memberResp.data!.availableCoupons,
+          expiringPoints: pointsResp.data!.expiringPoints > 0 ? pointsResp.data!.expiringPoints : null,
+          expiringDate: pointsResp.data!.expiringDate,
+        );
+      }
+    } catch (e) {
+      debugPrint('[UserProfile] load error: ');
+    }
+  }
 }

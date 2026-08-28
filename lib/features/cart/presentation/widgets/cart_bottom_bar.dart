@@ -12,7 +12,7 @@ class CartBottomBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.read(cartDataProvider);
+    final state = ref.watch(cartDataProvider);
     final selectedTotal = Money.fromCents(state.selectedTotalCents);
     final allSelected = state.allSelected;
 
@@ -37,18 +37,24 @@ class CartBottomBar extends ConsumerWidget {
           const Spacer(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text('合计', style: AppTextStyles.bodySmall.copyWith(color: AppColors.onSurfaceVariant)),
               Text(
                 selectedTotal.format(),
                 style: AppTextStyles.priceLarge.copyWith(color: AppColors.error),
               ),
+              if (state.items.isNotEmpty && !allSelected)
+                Text(
+                  '已优惠：30.00',
+                  style: AppTextStyles.labelSmall.copyWith(color: AppColors.onSurfaceVariant),
+                ),
             ],
           ),
           const SizedBox(width: AppSpacing.md),
           Container(
-            width: 100,
-            height: 48,
+            width: 88,
+            height: 44,
             decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(AppRadius.sm)),
             child: const Center(
               child: Text('去结算', style: AppTextStyles.labelMedium),

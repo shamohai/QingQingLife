@@ -57,6 +57,8 @@ class MemberInfo {
   final String? housekeeperName;
   final String? housekeeperPhone;
 
+  const MemberInfo.empty() : id='', nickname='', avatarUrl=null, memberLevel=0, levelName='未登录', growthValue=0, nextLevelGrowthValue=0, points=0, availableCoupons=0, hasHousekeeper=false, housekeeperName=null, housekeeperPhone=null;
+
   const MemberInfo({
     required this.id,
     required this.nickname,
@@ -328,3 +330,4 @@ class CustomerServiceInfo {
 
   const CustomerServiceInfo({required this.phone, required this.onlineUrl, required this.workTime, this.qrCodeUrl});
 }
+
