@@ -50,16 +50,15 @@ class PointsProductCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(Icons.stars, size: 12, color: Color(0xFFFF8F00)),
                     const SizedBox(width: 2),
-                    Flexible(
-                      child: Text(
-                        '${product.points}',
-                        style: AppTextStyles.priceSmall.copyWith(
-                          color: const Color(0xFFFF8F00),
-                          fontSize: 13,
-                        ),
+                    Text(
+                      '${product.points}',
+                      style: AppTextStyles.priceSmall.copyWith(
+                        color: const Color(0xFFFF8F00),
+                        fontSize: 13,
                       ),
                     ),
                   ],
@@ -68,7 +67,7 @@ class PointsProductCard extends StatelessWidget {
                 Text(
                   '剩${product.stock}件',
                   style: AppTextStyles.labelSmall.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: AppColors.onSurfaceVariant,
                     fontSize: 10,
                   ),
                 ),

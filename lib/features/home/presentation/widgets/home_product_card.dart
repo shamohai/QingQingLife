@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
@@ -10,24 +10,32 @@ import '../../../../core/widgets/app_image.dart';
 
 class HomeProductCard extends StatelessWidget {
   final ProductCard product;
-  const HomeProductCard({super.key, required this.product});
+  final bool compact;
+
+  const HomeProductCard({super.key, required this.product, this.compact = false});
 
   @override
   Widget build(BuildContext context) {
+    final cardWidth = compact ? 108.0 : 160.0;
+    final imageHeight = compact ? 80.0 : 120.0;
     return SizedBox(
-      width: 160,
-      height: 210,
+      width: cardWidth,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppRadius.md),
         child: Container(
           color: AppColors.surface,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.max,
             children: [
               Stack(
                 children: [
-                  AppNetworkImage(url: product.imageUrl, width: 160, height: 120, fit: BoxFit.cover),
+                  AppNetworkImage(
+                    url: product.imageUrl,
+                    width: cardWidth,
+                    height: imageHeight,
+                    fit: BoxFit.cover,
+                  ),
                   if (product.tag != null)
                     Positioned(
                       top: 6,
@@ -48,22 +56,26 @@ class HomeProductCard extends StatelessWidget {
                   padding: const EdgeInsets.all(AppSpacing.sm),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(product.name, style: AppTextStyles.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      Text(
+                        product.name,
+                        style: AppTextStyles.bodySmall,
+                        maxLines: compact ? 1 : 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       const SizedBox(height: AppSpacing.xs),
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(Money.fromCents(product.priceCents).format(), style: AppTextStyles.priceMedium),
-                          ),
-                        ],
+                      Text(
+                        Money.fromCents(product.priceCents).format(),
+                        style: AppTextStyles.priceMedium,
                       ),
                       if (product.salesCount != null) ...[
                         const SizedBox(height: 2),
                         Text(
-                          '\${product.salesCount}人付款',
-                          style: AppTextStyles.labelSmall.copyWith(color: AppColors.onSurfaceVariant),
+                          '${product.salesCount}人付款',
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: AppColors.onSurfaceVariant,
+                          ),
                         ),
                       ],
                     ],

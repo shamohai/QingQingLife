@@ -36,6 +36,9 @@ class HomeProductData {
   final List<ProductCard> hotProducts;
   final List<String> hotSearchKeywords;
   final Map<String, String> topicActivities;
+  final List<HomeMonthlyBenefit> monthlyBenefits;
+  final List<HomeActivityBlock> activityBlocks;
+  final List<HomeTopicActivityBlock> topicActivityBlocks;
 
   const HomeProductData({
     required this.banners,
@@ -44,6 +47,9 @@ class HomeProductData {
     required this.hotProducts,
     required this.hotSearchKeywords,
     required this.topicActivities,
+    required this.monthlyBenefits,
+    required this.activityBlocks,
+    required this.topicActivityBlocks,
   });
 }
 
@@ -60,17 +66,62 @@ class HomeBanner {
 class HomeKingKongItem {
   final String iconUrl;
   final String label;
-  final String actionUrl;
+  final String? actionUrl;
 
-  const HomeKingKongItem({required this.iconUrl, required this.label, required this.actionUrl});
+  const HomeKingKongItem({required this.iconUrl, required this.label, this.actionUrl});
 }
 
 /// 首页新人礼
 class HomeNewUserGift {
   final String title;
-  final String desc;
+  final String? desc;
+  final String? imageUrl;
+  final String? actionUrl;
 
-  const HomeNewUserGift({required this.title, required this.desc});
+  const HomeNewUserGift({required this.title, this.desc, this.imageUrl, this.actionUrl});
+}
+
+/// 每月权益
+class HomeMonthlyBenefit {
+  final String id;
+  final String title;
+  final String? imageUrl;
+  final String? actionUrl;
+
+  const HomeMonthlyBenefit({required this.id, required this.title, this.imageUrl, this.actionUrl});
+}
+
+
+/// 活动模块块（左一右二非对称布局）
+class HomeActivityBlock {
+  final String id;
+  final String? imageUrl;
+  final String title;
+  final String? actionUrl;
+
+  const HomeActivityBlock({
+    required this.id,
+    this.imageUrl,
+    required this.title,
+    this.actionUrl,
+  });
+}
+
+/// 商品专题活动块（含商品卡片）
+class HomeTopicActivityBlock {
+  final String id;
+  final String? imageUrl;
+  final String title;
+  final String? actionUrl;
+  final ProductCard? product;
+
+  const HomeTopicActivityBlock({
+    required this.id,
+    this.imageUrl,
+    required this.title,
+    this.actionUrl,
+    this.product,
+  });
 }
 
 /// 商品卡片（列表展示用）
@@ -127,15 +178,9 @@ class ProductSku {
   final String name;
   final int priceCents;
   final int stock;
-  final Map<String, String> attributes; // 如 {"颜色": "红色", "规格": "500ml"}
+  final Map<String, String> attributes;
 
-  const ProductSku({
-    required this.id,
-    required this.name,
-    required this.priceCents,
-    required this.stock,
-    required this.attributes,
-  });
+  const ProductSku({required this.id, required this.name, required this.priceCents, required this.stock, required this.attributes});
 }
 
 /// 商品规格参数
@@ -154,13 +199,7 @@ class ProductListResult {
   final int pageSize;
   final bool hasMore;
 
-  const ProductListResult({
-    required this.products,
-    required this.total,
-    required this.page,
-    required this.pageSize,
-    required this.hasMore,
-  });
+  const ProductListResult({required this.products, required this.total, required this.page, required this.pageSize, required this.hasMore});
 }
 
 /// 商品分类

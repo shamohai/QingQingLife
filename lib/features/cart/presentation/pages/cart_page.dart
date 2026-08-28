@@ -125,27 +125,25 @@ class CartPage extends ConsumerWidget {
     );
   }
 
-  SliverToBoxAdapter _buildRecommendationsGrid() {
+  Widget _buildRecommendationsGrid() {
     final mockUrls = const [
       'https://picsum.photos/160/160?random=100',
       'https://picsum.photos/160/160?random=101',
       'https://picsum.photos/160/160?random=102',
       'https://picsum.photos/160/160?random=103',
     ];
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-        child: GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: AppSpacing.md,
-            mainAxisSpacing: AppSpacing.md,
-            childAspectRatio: 0.9,
-          ),
-          itemCount: mockUrls.length,
-          itemBuilder: (context, index) => _RecommendationCell(url: mockUrls[index]),
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      sliver: SliverGrid(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: AppSpacing.md,
+          mainAxisSpacing: AppSpacing.md,
+          childAspectRatio: 0.9,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => _RecommendationCell(url: mockUrls[index]),
+          childCount: mockUrls.length,
         ),
       ),
     );
@@ -179,6 +177,7 @@ class _RecommendationCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(AppRadius.md),

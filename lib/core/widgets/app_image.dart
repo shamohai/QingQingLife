@@ -1,6 +1,8 @@
 ﻿import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../../app/theme/app_colors.dart';
+
 /// 统一网络图片组件，封装 CachedNetworkImage 并统一错误/占位处理
 ///
 /// 业务页面禁止直接调用 Image.network，统一使用此组件。
@@ -28,14 +30,14 @@ class AppNetworkImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final defaultPlaceholder = placeholder ??
         Container(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          color: AppColors.surfaceVariant,
           child: const Center(child: SizedBox.shrink()),
         );
     final defaultError = errorWidget ??
         Icon(
           Icons.image_not_supported_outlined,
           size: width ?? height ?? 48,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          color: AppColors.onSurfaceVariant,
         );
 
     Widget image = CachedNetworkImage(

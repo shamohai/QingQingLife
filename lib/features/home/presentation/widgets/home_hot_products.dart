@@ -52,14 +52,12 @@ class HomeHotProducts extends ConsumerWidget {
           height: 220,
           child: PagingListView<ProductCard>(
             provider: homeHotProductsProvider,
-            itemBuilder: (context, product, index) => Padding(
-              padding: EdgeInsets.only(left: index == 0 ? AppSpacing.lg : 0, right: AppSpacing.md),
-              child: HomeProductCard(product: product),
-            ),
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, product, index) => HomeProductCard(product: product),
             shrinkWrap: true,
             physics: const BouncingScrollPhysics(),
-            separatorBuilder: const SizedBox.shrink(),
-            padding: EdgeInsets.zero,
+            separatorBuilder: const SizedBox(width: AppSpacing.md),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             enablePullToRefresh: false, // 横向列表禁用下拉刷新
           ),
         ),

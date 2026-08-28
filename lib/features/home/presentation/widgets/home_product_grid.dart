@@ -27,7 +27,7 @@ class HomeProductGrid extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('加载失败: ${pagingData.errorMessage}'),
+            Text('加载失败: .errorMessage'),
             const SizedBox(height: 8),
             ElevatedButton(
               onPressed: () => ref.read(homeProductGridProvider.notifier).refresh(),
@@ -38,16 +38,10 @@ class HomeProductGrid extends ConsumerWidget {
       );
     }
 
-    if (pagingData.items.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(AppSpacing.xl),
-        child: Center(child: Text('暂无商品')),
-      );
-    }
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           GridView.builder(
             shrinkWrap: true,

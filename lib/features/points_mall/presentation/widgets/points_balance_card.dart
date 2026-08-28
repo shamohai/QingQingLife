@@ -42,31 +42,50 @@ class PointsBalanceCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Row(
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(Icons.info_outline, size: 12, color: Color(0xFF1976D2)),
                   const SizedBox(width: 4),
-                  Flexible(
+                  Expanded(
                     child: Text(
                       '您有$expiringPoints积分将于${expiryDate.month}月${expiryDate.day}日到期',
                       style: const TextStyle(fontSize: 10, color: Color(0xFF1976D2)),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
             ),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text('积分余额', style: AppTextStyles.labelMedium.copyWith(color: AppColors.onSurfaceVariant, fontSize: 11)),
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(
+                  '积分余额',
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: AppColors.onSurfaceVariant,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
               const SizedBox(width: AppSpacing.sm),
               Text(
                 NumberFormat('#,##0').format(currentPoints),
-                style: AppTextStyles.headlineLarge.copyWith(color: AppColors.onPrimary, fontSize: 24),
+                style: AppTextStyles.headlineLarge.copyWith(
+                  color: AppColors.primary,
+                  fontSize: 24,
+                  height: 1.2,
+                  letterSpacing: 0,
+                ),
               ),
               const SizedBox(width: 4),
               GestureDetector(
                 onTap: onDetailTap,
-                child: const Icon(Icons.info_outline, size: 14, color: AppColors.outline),
+                child: const Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Icon(Icons.info_outline, size: 14, color: AppColors.outline),
+                ),
               ),
               const Spacer(),
               SizedBox(
@@ -77,10 +96,15 @@ class PointsBalanceCard extends StatelessWidget {
                     side: const BorderSide(color: AppColors.primary, width: 0.8),
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     shape: const StadiumBorder(),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   child: Text(
                     '积分明细',
-                    style: AppTextStyles.labelSmall.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600),
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),

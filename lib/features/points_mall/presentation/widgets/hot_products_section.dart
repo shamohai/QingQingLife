@@ -17,6 +17,7 @@ class HotProductsSection extends ConsumerWidget {
     final productsData = ref.watch(pointsMallHotProductsProvider);
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
@@ -33,11 +34,14 @@ class HotProductsSection extends ConsumerWidget {
               if (items.isEmpty) return const AppEmpty(message: '暂无热门商品');
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
+                physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 itemCount: items.length,
                 itemBuilder: (context, index) => Padding(
                   padding: EdgeInsets.only(right: index == items.length - 1 ? 0 : AppSpacing.md),
-                  child: PointsProductCard(product: items[index]),
+                  child: Center(
+                    child: PointsProductCard(product: items[index]),
+                  ),
                 ),
               );
             },

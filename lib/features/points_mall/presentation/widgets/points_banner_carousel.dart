@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -8,42 +9,51 @@ import '../../../../app/theme/app_radius.dart';
 class PointsBannerCarousel extends StatefulWidget {
   final List<String> imageUrls;
   final double height;
+  final Duration autoScrollDuration;
 
-  const PointsBannerCarousel({super.key, required this.imageUrls, this.height = 160});
+  const PointsBannerCarousel({
+    super.key,
+    required this.imageUrls,
+    this.height = 160,
+    this.autoScrollDuration = const Duration(seconds: 4),
+  });
 
   @override
   State<PointsBannerCarousel> createState() => _PointsBannerCarouselState();
 }
 
-class _PointsBannerCarouselState extends State<PointsBannerCarousel> with TickerProviderStateMixin {
+class _PointsBannerCarouselState extends State<PointsBannerCarousel> {
   late PageController _controller;
   int currentPage = 0;
-  late AnimationController _animationController;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     _controller = PageController(initialPage: 0);
-    _animationController = AnimationController(vsync: this, duration: const Duration(seconds: 4));
-    _animationController.addListener(() {
-      if (_animationController.isCompleted) {
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    if (widget.imageUrls.length <= 1) return;
+    
+    _timer = Timer.periodic(widget.autoScrollDuration, (timer) {
+      if (_controller.hasClients && widget.imageUrls.isNotEmpty) {
         final nextIndex = (currentPage + 1) % widget.imageUrls.length;
         _controller.animateToPage(
           nextIndex,
           duration: const Duration(milliseconds: 400),
           curve: Curves.easeInOut,
         );
-        setState(() => currentPage = nextIndex);
-        _animationController.reset();
       }
     });
-    _animationController.repeat();
   }
 
   @override
   void dispose() {
+    _timer?.cancel();
     _controller.dispose();
-    _animationController.dispose();
     super.dispose();
   }
 
@@ -53,6 +63,7 @@ class _PointsBannerCarouselState extends State<PointsBannerCarousel> with Ticker
     if (urls.isEmpty) return const SizedBox.shrink();
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(AppRadius.lg),

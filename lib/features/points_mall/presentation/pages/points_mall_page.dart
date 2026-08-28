@@ -41,19 +41,41 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
 
     return Scaffold(
       appBar: PointsSearchAppBar(searchController: _searchController),
-      body: staticDataAsync.when(
-        loading: () => const Center(child: AppLoading()),
-        error: (error, stackTrace) => Center(
-          child: AppError(message: '加载失败: $error', onRetry: () => ref.invalidate(pointsMallStaticDataProvider)),
-        ),
-        data: (staticData) => RefreshIndicator(
-          onRefresh: () async => ref.invalidate(pointsMallStaticDataProvider),
-          child: CustomScrollView(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(pointsMallStaticDataProvider);
+          ref.invalidate(pointsMallHotProductsProvider);
+        },
+        child: staticDataAsync.when(
+          loading: () => const CustomScrollView(
+            slivers: [
+              SliverFillRemaining(
+                child: Center(child: AppLoading()),
+              ),
+            ],
+          ),
+          error: (error, stackTrace) => CustomScrollView(
+            slivers: [
+              SliverFillRemaining(
+                child: Center(
+                  child: AppError(
+                    message: '加载失败: $error',
+                    onRetry: () => ref.invalidate(pointsMallStaticDataProvider),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          data: (staticData) => CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               // 轮播图
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.sm,
+                  ),
                   child: PointsBannerCarousel(imageUrls: staticData.bannerUrls),
                 ),
               ),
@@ -68,22 +90,20 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
               ),
               // 热门兑换商品
               const SliverToBoxAdapter(child: HotProductsSection()),
-              // 分类 Tab + 我能兑换
+              // 分类 Tab
               SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    PointsCategoryTabBar(
-                      categories: staticData.categories,
-                      activeCategoryId: _activeCategoryId,
-                      onCategoryTap: _onCategoryChanged,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    RedeemableSection(groups: staticData.redeemableGroups),
-                    const SizedBox(height: AppSpacing.xxxl),
-                  ],
+                child: PointsCategoryTabBar(
+                  categories: staticData.categories,
+                  activeCategoryId: _activeCategoryId,
+                  onCategoryTap: _onCategoryChanged,
                 ),
               ),
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+              // 我能兑换
+              SliverToBoxAdapter(
+                child: RedeemableSection(groups: staticData.redeemableGroups),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxxl)),
             ],
           ),
         ),

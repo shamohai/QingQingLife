@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 
-/// 首页顶部栏：Logo + 搜索框
+/// 首页顶部栏：首页标题 + 搜索框 + 消息按钮
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final TextEditingController? searchController;
+  final VoidCallback? onMessagesTap;
+  final ValueChanged<String>? onSearch;
 
-  const HomeAppBar({super.key, this.searchController});
+  const HomeAppBar({super.key, this.searchController, this.onMessagesTap, this.onSearch});
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -26,7 +29,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Row(
             children: [
               Text(
-                '青轻生活馆',
+                '首页',
                 style: AppTextStyles.headlineSmall.copyWith(color: AppColors.primary),
               ),
               const SizedBox(width: AppSpacing.md),
@@ -39,15 +42,29 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                   child: TextField(
                     controller: searchController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: '搜索青稞酒、牛肉干...',
                       hintStyle: AppTextStyles.bodySmall,
-                      prefixIcon: Icon(Icons.search, size: 18, color: AppColors.outline),
+                      prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.outline),
+                      suffixIcon: TextButton(
+                        onPressed: () {
+                          final text = searchController?.text ?? '';
+                          if (text.isNotEmpty && onSearch != null) onSearch!(text);
+                        },
+                        child: Text('搜索', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary)),
+                      ),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
                 ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined, size: 22),
+                onPressed: onMessagesTap,
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                padding: EdgeInsets.zero,
               ),
             ],
           ),

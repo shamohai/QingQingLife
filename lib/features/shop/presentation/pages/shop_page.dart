@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/theme/app_text_styles.dart';
 import '../../../product/domain/repositories/product_repository.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/widgets/app_loading.dart';
@@ -8,28 +12,47 @@ import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/presentation/paging/paging_controller_mixin.dart';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../providers/shop_paging_providers.dart';
 import '../widgets/shop_product_card.dart';
 import '../widgets/shop_search_bar.dart';
 
 class ShopPage extends ConsumerStatefulWidget {
-  const ShopPage({super.key});
+  final String? initialKeyword;
+
+  const ShopPage({super.key, this.initialKeyword});
 
   @override
   ConsumerState<ShopPage> createState() => _ShopPageState();
 }
 
 class _ShopPageState extends ConsumerState<ShopPage> {
-  final _searchController = TextEditingController();
+  late final TextEditingController _searchController;
   String _selectedCategory = 'all';
   bool _searching = false;
+  bool _hasSearched = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(text: widget.initialKeyword ?? '');
+    if (widget.initialKeyword != null && widget.initialKeyword!.isNotEmpty) {
+      _hasSearched = true;
+      _performSearch(widget.initialKeyword!);
+    }
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _performSearch(String keyword) {
+    _searchController.text = keyword;
+    setState(() => _searching = true);
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) setState(() => _searching = false);
+    });
   }
 
   void _onSearch() {
@@ -77,25 +100,52 @@ class _ShopPageState extends ConsumerState<ShopPage> {
       body: categoriesAsync.when(
         loading: () => const Center(child: AppLoading()),
         error: (error, stackTrace) => Center(
-          child: AppError(message: '加载失败: $error', onRetry: () => ref.invalidate(shopCategoriesProvider)),
+          child: AppError(message: '加载失败: ', onRetry: () => ref.invalidate(shopCategoriesProvider)),
         ),
         data: (categories) => Consumer(
           builder: (context, ref, _) {
             final selectedCategory = _selectedCategory;
             final productsData = ref.watch(shopProductListProvider(selectedCategory));
+            final searchKeyword = _searchController.text.trim();
 
             return CustomScrollView(
               slivers: [
                 SliverToBoxAdapter(
-                  child: ShopSearchBar(controller: _searchController, onSearch: _onSearch),
+                  child: ShopSearchBar(
+                    controller: _searchController,
+                    onSearch: _onSearch,
+                  ),
                 ),
+                if (_hasSearched && _searching)
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: AppSpacing.md),
+                      child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                    ),
+                  )
+                else if (_hasSearched && searchKeyword.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.search, size: 16, color: AppColors.outline),
+                          const SizedBox(width: 4),
+                          Text(
+                            '搜索 "" 的结果',
+                            style: AppTextStyles.labelMedium.copyWith(color: AppColors.onSurfaceVariant),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (selectedCategory != 'all') ...[
+                        if (selectedCategory != 'all' && !_hasSearched) ...[
                           Text(_getTitleForCategory(selectedCategory), style: Theme.of(context).textTheme.titleMedium),
                           const SizedBox(height: AppSpacing.md),
                         ],
@@ -112,7 +162,7 @@ class _ShopPageState extends ConsumerState<ShopPage> {
                   )
                 else if (productsData.status == PagingStatus.error && productsData.items.isEmpty)
                   SliverToBoxAdapter(
-                    child: Center(child: Text('加载失败: ${productsData.errorMessage}')),
+                    child: Center(child: Text('加载失败: ')),
                   )
                 else if (productsData.items.isEmpty)
                   const SliverToBoxAdapter(child: AppEmpty(message: '暂无商品'))

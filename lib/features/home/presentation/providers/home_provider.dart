@@ -9,16 +9,16 @@ class HomeData {
   final List<HomeKingKongItem> kingKongItems;
   final List<HomeNewUserGift> newUserGifts;
   final List<ProductCard> hotProducts;
-  final List<String> hotSearchKeywords;
   final Map<String, String> topicActivities;
+  final List<HomeMonthlyBenefit> monthlyBenefits;
 
   const HomeData({
     required this.banners,
     required this.kingKongItems,
     required this.newUserGifts,
     required this.hotProducts,
-    required this.hotSearchKeywords,
     required this.topicActivities,
+    required this.monthlyBenefits,
   });
 }
 
@@ -37,7 +37,7 @@ final homeDataProvider = FutureProvider<HomeData>((ref) async {
     kingKongItems: data.kingKongItems,
     newUserGifts: data.newUserGifts,
     hotProducts: data.hotProducts,
-    hotSearchKeywords: data.hotSearchKeywords,
     topicActivities: data.topicActivities,
+    monthlyBenefits: data.monthlyBenefits,
   );
 });

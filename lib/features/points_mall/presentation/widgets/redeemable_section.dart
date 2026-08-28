@@ -15,17 +15,20 @@ class RedeemableSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('我能兑换', style: AppTextStyles.headlineSmall),
-          const SizedBox(height: AppSpacing.sm),
-          ...groups.map((group) => _RedeemGroupRow(group: group)),
-          const SizedBox(height: AppSpacing.md),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: Text('我能兑换', style: AppTextStyles.headlineSmall),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        ...groups.map((group) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: _RedeemGroupRow(group: group),
+        )),
+      ],
     );
   }
 }
@@ -117,9 +120,9 @@ class _RedeemProductRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
-          // 右侧信息
           Expanded(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -133,6 +136,7 @@ class _RedeemProductRow extends StatelessWidget {
                 const SizedBox(height: 6),
                 // 右下：兑换积分
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(Icons.stars, size: 12, color: Color(0xFFFF8F00)),
                     const SizedBox(width: 2),

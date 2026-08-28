@@ -17,50 +17,65 @@ class PointsSearchAppBar extends StatelessWidget implements PreferredSizeWidget 
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.surface,
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.sm,
-          ),
-          child: Row(
-            children: [
-              Text(
-                '积分商城',
-                style: AppTextStyles.headlineSmall.copyWith(color: AppColors.primary),
+    return AppBar(
+      backgroundColor: AppColors.surface,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      automaticallyImplyLeading: false,
+      titleSpacing: 0,
+      title: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        child: Row(
+          children: [
+            Text(
+              '积分商城',
+              style: AppTextStyles.headlineSmall.copyWith(
+                color: AppColors.primary,
+                fontSize: 18,
               ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Container(
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant,
-                    borderRadius: BorderRadius.circular(AppRadius.round),
-                  ),
-                  child: TextField(
-                    controller: searchController,
-                    decoration: const InputDecoration(
-                      hintText: '搜索心仪好物',
-                      hintStyle: TextStyle(fontSize: 13, color: AppColors.outline),
-                      prefixIcon: Icon(Icons.search, size: 18, color: AppColors.outline),
-                      suffixIcon: Padding(
-                        padding: EdgeInsets.only(right: AppSpacing.md),
-                        child: Text(
-                          '搜索',
-                          style: TextStyle(fontSize: 13, color: AppColors.primary),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Container(
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceVariant,
+                  borderRadius: BorderRadius.circular(AppRadius.round),
+                ),
+                child: TextField(
+                  controller: searchController,
+                  textAlignVertical: TextAlignVertical.center,
+                  style: const TextStyle(fontSize: 14),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    hintText: '搜索心仪好物',
+                    hintStyle: const TextStyle(fontSize: 13, color: AppColors.outline),
+                    prefixIcon: const Icon(Icons.search, size: 18, color: AppColors.outline),
+                    suffixIcon: InkWell(
+                      onTap: onSearch,
+                      borderRadius: BorderRadius.circular(AppRadius.round),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '搜索',
+                              style: TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.w600),
+                            ),
+                          ],
                         ),
                       ),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
                     ),
-                    onSubmitted: (_) => onSearch?.call(),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
                   ),
+                  onSubmitted: (_) => onSearch?.call(),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

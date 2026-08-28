@@ -5,8 +5,9 @@ import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../product/domain/repositories/product_repository.dart';
+import '../../../../../core/widgets/app_image.dart';
 
-/// 金刚区：6格图标导航
+/// 金刚区：5格图标导航（使用 API iconUrl 图片）
 class HomeKingKongGrid extends StatelessWidget {
   final List<HomeKingKongItem> items;
 
@@ -14,27 +15,23 @@ class HomeKingKongGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final icons = <IconData>[
-      Icons.storefront_outlined,
-      Icons.local_florist,
-      Icons.coffee,
-      Icons.card_giftcard_outlined,
-      Icons.whatshot_outlined,
-      Icons.event_outlined,
-    ];
+    if (items.isEmpty) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      child: GridView.count(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        crossAxisCount: 6,
-        childAspectRatio: 0.85,
-        children: List.generate(
-          items.length,
-          (i) => _KingKongItem(
-            icon: Icon(icons[i], size: 28, color: AppColors.primary),
-            label: items[i].label,
-          ),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(AppRadius.lg)),
+        ),
+        child: GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 5,
+          childAspectRatio: 0.8,
+          crossAxisSpacing: AppSpacing.sm,
+          mainAxisSpacing: AppSpacing.sm,
+          children: List.generate(items.length, (i) => _KingKongItem(item: items[i])),
         ),
       ),
     );
@@ -42,9 +39,8 @@ class HomeKingKongGrid extends StatelessWidget {
 }
 
 class _KingKongItem extends StatelessWidget {
-  final Widget icon;
-  final String label;
-  const _KingKongItem({required this.icon, required this.label});
+  final HomeKingKongItem item;
+  const _KingKongItem({required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -58,10 +54,17 @@ class _KingKongItem extends StatelessWidget {
             color: AppColors.primaryContainer,
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
-          child: Center(child: icon),
+          child: item.iconUrl.isNotEmpty
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  child: AppNetworkImage(url: item.iconUrl, fit: BoxFit.cover),
+                )
+              : const Center(
+                  child: Icon(Icons.category_outlined, size: 26, color: AppColors.primary),
+                ),
         ),
         const SizedBox(height: 4),
-        Text(label, style: AppTextStyles.labelSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+        Text(item.label, style: AppTextStyles.labelSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
       ],
     );
   }

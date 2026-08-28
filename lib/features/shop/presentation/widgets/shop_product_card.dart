@@ -23,7 +23,6 @@ class ShopProductCard extends StatelessWidget {
           color: AppColors.surface,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
             children: [
               Stack(
                 children: [
@@ -63,7 +62,12 @@ class ShopProductCard extends StatelessWidget {
                       ),
                       if (product.salesCount != null) ...[
                         const SizedBox(height: 2),
-                        Text('\${product.salesCount}人付款', style: AppTextStyles.labelSmall.copyWith(color: AppColors.onSurfaceVariant)),
+                        Text(
+                          '${product.salesCount}人付款',
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: AppColors.onSurfaceVariant,
+                          ),
+                        ),
                       ],
                     ],
                   ),

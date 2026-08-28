@@ -105,6 +105,9 @@ class PagingListView<T> extends ConsumerStatefulWidget {
   /// 是否启用下拉刷新
   final bool enablePullToRefresh;
 
+  /// 滚动方向
+  final Axis scrollDirection;
+
   const PagingListView({
     required this.provider,
     required this.itemBuilder,
@@ -119,6 +122,7 @@ class PagingListView<T> extends ConsumerStatefulWidget {
     this.padding = const EdgeInsets.all(0),
     this.controller,
     this.enablePullToRefresh = true,
+    this.scrollDirection = Axis.vertical,
     super.key,
   });
 
@@ -216,11 +220,13 @@ class _PagingListViewState<T> extends ConsumerState<PagingListView<T>> {
 
     Widget listView = ListView.separated(
       controller: _scrollController,
+      scrollDirection: widget.scrollDirection,
       shrinkWrap: widget.shrinkWrap,
       physics: widget.physics,
       padding: widget.padding,
       itemCount: pagingData.items.length + (pagingData.hasMore ? 1 : (pagingData.items.isNotEmpty ? 1 : 0)),
-      separatorBuilder: (context, index) => widget.separatorBuilder ?? const SizedBox(height: 8),
+      separatorBuilder: (context, index) =>
+          widget.separatorBuilder ?? (widget.scrollDirection == Axis.vertical ? const SizedBox(height: 8) : const SizedBox(width: 8)),
       itemBuilder: (context, index) {
         if (index == pagingData.items.length) {
           return _buildFooter(pagingData);
