@@ -1,4 +1,6 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
+﻿import 'dart:math' as math;
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
@@ -28,6 +30,19 @@ class AppNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double? rawWidth = width;
+    final double? rawHeight = height;
+
+    // Use a finite size for the fallback icon.
+    // If width or height is provided and finite, use it (clamped to a reasonable max for icons).
+    // Otherwise default to 48.0.
+    double iconSize = 48.0;
+    if (rawWidth != null && rawWidth.isFinite) {
+      iconSize = math.min(rawWidth, 48.0);
+    } else if (rawHeight != null && rawHeight.isFinite) {
+      iconSize = math.min(rawHeight, 48.0);
+    }
+
     final defaultPlaceholder = placeholder ??
         Container(
           color: AppColors.surfaceVariant,
@@ -36,7 +51,7 @@ class AppNetworkImage extends StatelessWidget {
     final defaultError = errorWidget ??
         Icon(
           Icons.image_not_supported_outlined,
-          size: width ?? height ?? 48,
+          size: iconSize,
           color: AppColors.onSurfaceVariant,
         );
 

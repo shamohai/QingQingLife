@@ -127,10 +127,10 @@ class CartPage extends ConsumerWidget {
 
   Widget _buildRecommendationsGrid() {
     final mockUrls = const [
-      'https://picsum.photos/160/160?random=100',
-      'https://picsum.photos/160/160?random=101',
-      'https://picsum.photos/160/160?random=102',
-      'https://picsum.photos/160/160?random=103',
+      'https://loremflickr.com/160/160?random=100',
+      'https://loremflickr.com/160/160?random=101',
+      'https://loremflickr.com/160/160?random=102',
+      'https://loremflickr.com/160/160?random=103',
     ];
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),

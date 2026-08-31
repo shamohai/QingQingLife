@@ -11,11 +11,11 @@ class MockPointsDataSource implements PointsRepository {
   final _uuid = const Uuid();
 
   static final _mockHomeData = PointsMallHomeData(
-    bannerUrl: 'https://picsum.photos/750/200?random=99',
+    bannerUrl: 'https://loremflickr.com/750/200?random=99',
     bannerUrls: const [
-      'https://picsum.photos/750/200?random=99',
-      'https://picsum.photos/750/200?random=100',
-      'https://picsum.photos/750/200?random=101',
+      'https://loremflickr.com/750/200?random=99',
+      'https://loremflickr.com/750/200?random=100',
+      'https://loremflickr.com/750/200?random=101',
     ],
     currentPoints: 143588,
     expiringPoints: 1200,
@@ -31,7 +31,7 @@ class MockPointsDataSource implements PointsRepository {
     hotProducts: [
       const PointsProduct(
         id: 'h1',
-        imageUrl: 'https://picsum.photos/300/300?random=80',
+        imageUrl: 'https://loremflickr.com/300/300?random=80',
         name: '专供青稞酒特别版 本42度500ml',
         points: 1000,
         stock: 500,
@@ -41,7 +41,7 @@ class MockPointsDataSource implements PointsRepository {
       ),
       const PointsProduct(
         id: 'h2',
-        imageUrl: 'https://picsum.photos/300/300?random=81',
+        imageUrl: 'https://loremflickr.com/300/300?random=81',
         name: '专供青稞酒特别版 本42度500ml',
         points: 1000,
         stock: 200,
@@ -51,7 +51,7 @@ class MockPointsDataSource implements PointsRepository {
       ),
       const PointsProduct(
         id: 'h3',
-        imageUrl: 'https://picsum.photos/300/300?random=82',
+        imageUrl: 'https://loremflickr.com/300/300?random=82',
         name: '专供青稞酒特别版 本42度500ml',
         points: 1000,
         stock: 150,
@@ -66,7 +66,7 @@ class MockPointsDataSource implements PointsRepository {
         products: [
           const PointsProduct(
             id: 'r1',
-            imageUrl: 'https://picsum.photos/300/300?random=83',
+            imageUrl: 'https://loremflickr.com/300/300?random=83',
             name: '专供青稞酒特别版 本42度500ml',
             points: 1000,
             stock: 500,
@@ -75,7 +75,7 @@ class MockPointsDataSource implements PointsRepository {
           ),
           const PointsProduct(
             id: 'r2',
-            imageUrl: 'https://picsum.photos/300/300?random=84',
+            imageUrl: 'https://loremflickr.com/300/300?random=84',
             name: '满100减20 优惠券',
             points: 500,
             stock: 999,
@@ -89,7 +89,7 @@ class MockPointsDataSource implements PointsRepository {
         products: [
           const PointsProduct(
             id: 'r3',
-            imageUrl: 'https://picsum.photos/300/300?random=85',
+            imageUrl: 'https://loremflickr.com/300/300?random=85',
             name: '青藏特产牛肉干 100g',
             points: 2800,
             stock: 200,
@@ -99,7 +99,7 @@ class MockPointsDataSource implements PointsRepository {
           ),
           const PointsProduct(
             id: 'r4',
-            imageUrl: 'https://picsum.photos/300/300?random=86',
+            imageUrl: 'https://loremflickr.com/300/300?random=86',
             name: '高原枸杞 特级 250g',
             points: 3800,
             stock: 150,
@@ -114,7 +114,7 @@ class MockPointsDataSource implements PointsRepository {
         products: [
           const PointsProduct(
             id: 'r5',
-            imageUrl: 'https://picsum.photos/300/300?random=87',
+            imageUrl: 'https://loremflickr.com/300/300?random=87',
             name: '天佑德青稞酒 经典款 500ml',
             points: 5800,
             originalPoints: 6800,
@@ -125,7 +125,7 @@ class MockPointsDataSource implements PointsRepository {
           ),
           const PointsProduct(
             id: 'r6',
-            imageUrl: 'https://picsum.photos/300/300?random=88',
+            imageUrl: 'https://loremflickr.com/300/300?random=88',
             name: '首单包邮 权益卡',
             points: 5000,
             stock: 500,
@@ -139,7 +139,7 @@ class MockPointsDataSource implements PointsRepository {
         products: [
           const PointsProduct(
             id: 'r7',
-            imageUrl: 'https://picsum.photos/300/300?random=89',
+            imageUrl: 'https://loremflickr.com/300/300?random=89',
             name: '天佑德礼盒装 500ml×2',
             points: 12800,
             originalPoints: 15800,
@@ -150,7 +150,7 @@ class MockPointsDataSource implements PointsRepository {
           ),
           const PointsProduct(
             id: 'r8',
-            imageUrl: 'https://picsum.photos/300/300?random=90',
+            imageUrl: 'https://loremflickr.com/300/300?random=90',
             name: '视频会员年卡',
             points: 15000,
             stock: 300,
@@ -164,7 +164,7 @@ class MockPointsDataSource implements PointsRepository {
         products: [
           const PointsProduct(
             id: 'r9',
-            imageUrl: 'https://picsum.photos/300/300?random=91',
+            imageUrl: 'https://loremflickr.com/300/300?random=91',
             name: '高端青稞酒礼盒 500ml×6',
             points: 28800,
             originalPoints: 35800,
@@ -175,7 +175,7 @@ class MockPointsDataSource implements PointsRepository {
           ),
           const PointsProduct(
             id: 'r10',
-            imageUrl: 'https://picsum.photos/300/300?random=92',
+            imageUrl: 'https://loremflickr.com/300/300?random=92',
             name: '智能家居套装',
             points: 25000,
             stock: 10,
@@ -299,7 +299,7 @@ class MockPointsDataSource implements PointsRepository {
         exchangeNo: 'EX20250101001',
         productId: 'h1',
         productName: '专供青稞酒特别版 本42度500ml',
-        productImageUrl: 'https://picsum.photos/300/300?random=80',
+        productImageUrl: 'https://loremflickr.com/300/300?random=80',
         pointsDeducted: 1000,
         quantity: 1,
         status: ExchangeStatus.completed,

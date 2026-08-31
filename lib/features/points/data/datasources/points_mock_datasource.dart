@@ -13,10 +13,10 @@ class MockPointsDataSource implements PointsRepository {
 
     return ApiResponse.success(
       PointsMallHomeData(
-        bannerUrl: 'https://picsum.photos/750/240?random=30',
+        bannerUrl: 'https://loremflickr.com/750/240?random=30',
         bannerUrls: const [
-          'https://picsum.photos/750/240?random=31',
-          'https://picsum.photos/750/240?random=32',
+          'https://loremflickr.com/750/240?random=31',
+          'https://loremflickr.com/750/240?random=32',
         ],
         currentPoints: 3580,
         expiringPoints: 800,
@@ -31,7 +31,7 @@ class MockPointsDataSource implements PointsRepository {
         hotProducts: [
           const PointsProduct(
             id: 'pp1',
-            imageUrl: 'https://picsum.photos/300/300?random=40',
+            imageUrl: 'https://loremflickr.com/300/300?random=40',
             name: '天佑德青稞酒 500ml',
             points: 2000,
             stock: 56,
@@ -40,7 +40,7 @@ class MockPointsDataSource implements PointsRepository {
           ),
           const PointsProduct(
             id: 'pp2',
-            imageUrl: 'https://picsum.photos/300/300?random=41',
+            imageUrl: 'https://loremflickr.com/300/300?random=41',
             name: '青海牛肉干 100g',
             points: 1500,
             stock: 128,
@@ -49,7 +49,7 @@ class MockPointsDataSource implements PointsRepository {
           ),
           const PointsProduct(
             id: 'pp3',
-            imageUrl: 'https://picsum.photos/300/300?random=42',
+            imageUrl: 'https://loremflickr.com/300/300?random=42',
             name: '有机菜籽油 5L',
             points: 3000,
             stock: 32,
@@ -63,7 +63,7 @@ class MockPointsDataSource implements PointsRepository {
             products: [
               const PointsProduct(
                 id: 'pp4',
-                imageUrl: 'https://picsum.photos/300/300?random=43',
+                imageUrl: 'https://loremflickr.com/300/300?random=43',
                 name: '积分专享饼干',
                 points: 1200,
                 stock: 99,
@@ -95,7 +95,7 @@ class MockPointsDataSource implements PointsRepository {
         id: 'pp1',
         name: '天佑德青稞酒 500ml',
         description: '青海特产青稞酒',
-        images: ['https://picsum.photos/300/300?random=40'],
+        images: ['https://loremflickr.com/300/300?random=40'],
         points: 2000,
         stock: 56,
         skus: [],
@@ -137,7 +137,7 @@ class MockPointsDataSource implements PointsRepository {
         exchangeNo: 'EXC20240101001',
         productId: 'pp1',
         productName: '天佑德青稞酒 500ml',
-        productImageUrl: 'https://picsum.photos/300/300?random=40',
+        productImageUrl: 'https://loremflickr.com/300/300?random=40',
         pointsDeducted: 2000,
         quantity: 1,
         status: ExchangeStatus.shipped,
