@@ -5,6 +5,7 @@ import 'package:fluwx/fluwx.dart' as fluwx;
 import 'config/app_config.dart';
 import 'app.dart';
 import '../core/update/shiply/shiply_initializer.dart';
+import '../core/logging/logging_initializer.dart';
 
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +25,15 @@ Future<void> bootstrap() async {
     );
   } catch (e) {
     debugPrint('[Bootstrap] Shiply init failed: $e');
+  }
+
+  // 初始化日志系统（LogBuffer + RemoteLogUploader → 自建日志 API）
+  try {
+    await LoggingInitializer.initialize(
+      logEndpoint: '${AppConfig.baseUrl}/api/app-log/batch',
+    );
+  } catch (e) {
+    debugPrint('[Bootstrap] Logging init failed (non-fatal): $e');
   }
 
   runApp(const ProviderScope(child: App()));

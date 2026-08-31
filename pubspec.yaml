@@ -42,8 +42,6 @@ dependencies:
   # Utility
   intl: ^0.20.3
   uuid: ^4.6.0
-  logger: ^2.7.0
-
   # Device
   connectivity_plus: ^7.3.1
   url_launcher: ^6.3.2
@@ -53,7 +51,7 @@ dependencies:
 
   # Social login
   fluwx: ^6.0.2
-
+  talker_flutter: ^5.1.20
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -82,3 +80,4 @@ flutter:
   #       - asset: fonts/Schyler-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
+

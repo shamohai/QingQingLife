@@ -1,8 +1,8 @@
-﻿import 'package:dio/dio.dart';
+import 'package:dio/dio.dart';
 import 'api_response.dart';
 import 'interceptors/auth_interceptor.dart';
 import 'interceptors/error_interceptor.dart';
-import 'interceptors/logging_interceptor.dart';
+import '../../core/logging/interceptors/app_logging_interceptor.dart';
 import '../../app/config/app_config.dart';
 import '../storage/secure_storage.dart';
 
@@ -20,7 +20,7 @@ class ApiClient {
           headers: {'Content-Type': 'application/json; charset=UTF-8'},
         )) {
     dio.interceptors.addAll([
-      LoggingInterceptor(),
+      AppLoggingInterceptor(),
       AuthInterceptor(_storage),
       ErrorInterceptor(),
     ]);
