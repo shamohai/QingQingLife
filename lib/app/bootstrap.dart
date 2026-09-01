@@ -19,19 +19,14 @@ Future<void> bootstrap() async {
 
   // 初始化 Shiply SDK
   try {
-    await ShiplyInitializer.initialize(
-      appVersion: AppConfig.appVersionName,
-      appVersionCode: AppConfig.appVersionCode,
-    );
+    await ShiplyInitializer.initialize(appVersion: AppConfig.appVersionName, appVersionCode: AppConfig.appVersionCode);
   } catch (e) {
     debugPrint('[Bootstrap] Shiply init failed: $e');
   }
 
   // 初始化日志系统（LogBuffer + RemoteLogUploader → 自建日志 API）
   try {
-    await LoggingInitializer.initialize(
-      logEndpoint: '${AppConfig.baseUrl}/api/app-log/batch',
-    );
+    await LoggingInitializer.initialize(logEndpoint: '${AppConfig.baseUrl}/api/app-log/batch');
   } catch (e) {
     debugPrint('[Bootstrap] Logging init failed (non-fatal): $e');
   }

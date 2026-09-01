@@ -21,18 +21,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   void _onWechatAuth() {
     if (!_agreed) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('请先阅读并同意用户协议'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请先阅读并同意用户协议'), behavior: SnackBarBehavior.floating));
       return;
     }
     ref.read(authProvider.notifier).wechatLogin();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -70,12 +63,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 child: Icon(Icons.wechat, size: 40, color: Color(0xFF07C160)),
               ),
               const SizedBox(height: AppSpacing.sm),
-              Text(
-                'PIC',
-                style: AppTextStyles.headlineMedium.copyWith(
-                  color: AppColors.onSurface,
-                ),
-              ),
+              Text('PIC', style: AppTextStyles.headlineMedium.copyWith(color: AppColors.onSurface)),
               const SizedBox(height: AppSpacing.xxxl),
               SizedBox(
                 width: double.infinity,
@@ -85,14 +73,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
                   ),
-                  child: Text(
-                    '微信一键授权',
-                    style: AppTextStyles.labelLarge.copyWith(color: Colors.white),
-                  ),
+                  child: Text('微信一键授权', style: AppTextStyles.labelLarge.copyWith(color: Colors.white)),
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
@@ -109,9 +92,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       onTap: () => setState(() => _agreed = !_agreed),
                       child: Text(
                         '登录即代表您已同意《用户服务协议》、《用户隐私政策》，未注册的手机号验证后将自动创建青轻生活馆账号。',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.onSurfaceVariant,
-                        ),
+                        style: AppTextStyles.bodySmall.copyWith(color: AppColors.onSurfaceVariant),
                       ),
                     ),
                   ),

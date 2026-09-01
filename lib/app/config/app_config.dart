@@ -19,7 +19,6 @@ abstract final class AppConfig {
   /// 资源 CDN 基础域名（待配置真实 CDN 地址）
   static const String resourceCdnBaseUrl = 'https://cdn.example.com/qingqinglife';
 
-  /// 微信 AppID（需要在微信开放平台申请，此处为占位符）
-  /// TODO: 替换为真实的微信 AppID
+  /// 微信 AppID（中酒批APP）
   static const String wechatAppId = 'wx64999b13fa01a983';
 }

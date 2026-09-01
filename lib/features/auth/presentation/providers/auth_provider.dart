@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../app/config/app_config.dart';
 import '../../../../core/domain/repositories/auth_repository.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/providers/repository_providers.dart';
