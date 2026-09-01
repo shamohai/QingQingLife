@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="qingqinglife"
+        android:label="青轻生活馆"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

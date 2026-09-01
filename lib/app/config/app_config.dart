@@ -14,7 +14,7 @@ abstract final class AppConfig {
   static const int defaultReceiveTimeout = 30;
 
   /// API Base URL 占位符（待后端对接时替换）
-  static const String baseUrl = 'https://api.example.com';
+  static const String baseUrl = 'https://apitest.mall.qkj.com.cn';
 
   /// 资源 CDN 基础域名（待配置真实 CDN 地址）
   static const String resourceCdnBaseUrl = 'https://cdn.example.com/qingqinglife';
