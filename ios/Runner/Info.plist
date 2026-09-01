@@ -8,6 +8,26 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>需要获取您的地理位置以提供更准确的服务</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+			<string>weixin</string>
+			<string>wechat</string>
+			<string>weixinULAPI</string>
+			<string>weixinURLParamsAPI</string>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+			<dict>
+					<key>CFBundleTypeRole</key>
+					<string>Editor</string>
+					<key>CFBundleURLName</key>
+					<string>weixin</string>
+					<key>CFBundleSchemes</key>
+					<array>
+							<string>wx64999b13fa01a983</string>
+					</array>
+			</dict>
+	</array>
 	<key>CFBundleDisplayName</key>
 	<string>Qingqinglife</string>
 	<key>CFBundleExecutable</key>
