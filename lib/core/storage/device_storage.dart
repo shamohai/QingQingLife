@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/api_security_constants.dart';
@@ -20,7 +22,7 @@ class DeviceStorage {
     // 生成新 ID：时间戳 + 4位随机数（对齐 JS 版逻辑）
     final min = 1000;
     final max = 9999;
-    final rand = min + DateTime.now().millisecondsSinceEpoch.remainder(max - min);
+    final rand = min + Random().nextInt(9000) ;
     final deviceId = '${DateTime.now().millisecondsSinceEpoch}$rand';
     await prefs.setString(_key, deviceId);
     return deviceId;

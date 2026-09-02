@@ -118,8 +118,7 @@ class EncryptInterceptor extends Interceptor {
 
   /// 获取 OS 类型（0=iOS, 1=安卓/鸿蒙）
   static int _getOsNumber(int platform) {
-    if (platform == 1) return 1; // Android
-    return 0; // iOS / 其他
+    return Platform.isIOS ? 0 : 1;
   }
 
   /// 获取手机型号
