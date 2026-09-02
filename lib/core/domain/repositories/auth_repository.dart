@@ -2,47 +2,52 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../network/api_response.dart';
 
-/// 认证仓库接口
+/// 认证业务仓库接口
+/// 
+/// 定义了用户登录、登出、身份核验及个人信息获取的核心协议。
+/// 具体实现类（如 AuthRepositoryImpl）应负责与 ApiClient 交互并处理持久化（Token 存储）。
 abstract class AuthRepository {
-  /// 手机号验证码登录
+  /// 发起手机号 + 验证码的登录请求
   Future<ApiResponse<AuthResult>> loginWithPhone({required String phone, required String code});
 
-  /// 微信登录
+  /// 微信第三方登录授权请求
   Future<ApiResponse<AuthResult>> loginWithWeChat();
 
-  /// 发送验证码
+  /// 获取指定手机号的短信验证码
   Future<ApiResponse<void>> sendSmsCode({required String phone});
 
-  /// 登出
+  /// 退出当前会话，清理本地持久化的 Token 和用户信息
   Future<void> logout();
 
-  /// 获取当前用户信息
+  /// 获取当前已登录用户的详细资料
   Future<ApiResponse<UserInfo>> getCurrentUser();
 
-  /// 刷新 Token
+  /// 使用 RefreshToken 刷新已过期的 AccessToken，实现无感登录
   Future<ApiResponse<String>> refreshToken();
 
-  /// 检查登录态
+  /// 检查当前是否存在有效的登录状态（通常基于 Token 是否存在）
   Future<bool> isLoggedIn();
 }
 
-/// 登录结果
+/// 认证操作后的结果封装对象
 class AuthResult {
-  final String accessToken;
-  final String? refreshToken;
-  final UserInfo userInfo;
+  final String accessToken;  // 短期访问令牌
+  final String? refreshToken; // 长期刷新令牌（可选，部分环境可能不支持）
+  final UserInfo userInfo;    // 登录成功后的基础用户信息
 
   const AuthResult({required this.accessToken, this.refreshToken, required this.userInfo});
 }
 
-/// 用户信息实体
+/// 用户领域实体对象
+/// 
+/// 承载了业务层面的核心用户属性。
 class UserInfo {
-  final String id;
-  final String nickname;
-  final String? avatarUrl;
-  final int points;
-  final int memberLevel;
-  final String? phone;
+  final String id;           // 用户唯一标识符
+  final String nickname;     // 昵称
+  final String? avatarUrl;   // 头像地址
+  final int points;          // 当前积分余量
+  final int memberLevel;     // 会员等级 (e.g., 1:普通会员, 2:白银...)
+  final String? phone;       // 脱敏后的手机号
 
   const UserInfo({
     required this.id,
