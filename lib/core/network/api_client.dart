@@ -1,22 +1,28 @@
 import 'package:dio/dio.dart';
-import 'api_response.dart';
-import 'interceptors/auth_interceptor.dart';
-import 'interceptors/error_interceptor.dart';
-import '../../core/logging/interceptors/app_logging_interceptor.dart';
+
 import '../../app/config/app_config.dart';
 import '../storage/secure_storage.dart';
+import 'api_response.dart';
+import 'interceptors/auth_interceptor.dart';
+import 'interceptors/encrypt_interceptor.dart';
+import 'interceptors/error_interceptor.dart';
+import '../logging/interceptors/app_logging_interceptor.dart';
 
 /// 统一网络请求入口类
 /// 
-/// 基于 Dio 封装，集成了日志、认证和错误处理拦截器。
-/// 所有的业务 DataSource 都应该通过此类发起网络请求。
+/// 基于 Dio 封装，集成加密签名、日志和错误处理拦截器。
+/// 
+/// 拦截器执行顺序：
+/// 1. AppLoggingInterceptor  — 记录请求/响应日志
+/// 2. AuthInterceptor        — 注入 authtoken 到 options.extra
+/// 3. EncryptInterceptor     — 加密请求体、签名 URL、附加到请求
+/// 4. ErrorInterceptor       — 统一处理 HTTP 和业务错误
 class ApiClient {
   final Dio dio;
-  final SecureStorage _storage;
+  final SecureStorage storage;
 
-  ApiClient({required SecureStorage storage})
-      : _storage = storage,
-        dio = Dio(BaseOptions(
+  ApiClient({required this.storage})
+      : dio = Dio(BaseOptions(
           baseUrl: AppConfig.baseUrl,
           connectTimeout: const Duration(seconds: AppConfig.defaultConnectTimeout),
           receiveTimeout: const Duration(seconds: AppConfig.defaultReceiveTimeout),
@@ -25,14 +31,13 @@ class ApiClient {
     // 注入拦截器流水线
     dio.interceptors.addAll([
       AppLoggingInterceptor(), // 请求/响应日志记录
-      AuthInterceptor(_storage), // 自动注入 Token 和处理 401 无感刷新
+      AuthInterceptor(storage), // 自动注入 Token 到 extra
+      EncryptInterceptor(), // 请求加密 + MD5 签名
       ErrorInterceptor(), // 业务异常统一解析与转换
     ]);
   }
 
   /// 发起 GET 请求
-  /// [path]: 请求路径
-  /// [fromJson]: 可选的解析函数，用于将响应数据转换为业务模型
   Future<ApiResponse<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
@@ -49,7 +54,11 @@ class ApiClient {
     Map<String, dynamic>? queryParameters,
     T Function(dynamic)? fromJson,
   }) async {
-    final response = await dio.post(path, data: data, queryParameters: queryParameters);
+    final response = await dio.post(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+    );
     return _parse<T>(response, fromJson);
   }
 
@@ -60,7 +69,11 @@ class ApiClient {
     Map<String, dynamic>? queryParameters,
     T Function(dynamic)? fromJson,
   }) async {
-    final response = await dio.put(path, data: data, queryParameters: queryParameters);
+    final response = await dio.put(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+    );
     return _parse<T>(response, fromJson);
   }
 
@@ -74,7 +87,7 @@ class ApiClient {
     return _parse<T>(response, fromJson);
   }
 
-  /// 将 Dio 的 Response 对象解析为统一的业务 ApiResponse 模型
+  /// 解析响应为标准 ApiResponse
   ApiResponse<T> _parse<T>(Response<dynamic> response, T Function(dynamic)? fromJson) {
     final body = response.data as Map<String, dynamic>? ?? {};
     return ApiResponse.fromJson(body, fromJson);

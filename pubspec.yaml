@@ -1,4 +1,4 @@
-name: qingqinglife
+﻿name: qingqinglife
 description: 青轻生活馆 - 会员制电商 Flutter App
 
 publish_to: "none"
@@ -22,6 +22,8 @@ dependencies:
 
   # Network
   dio: ^5.11.0
+  crypto: ^3.0.7
+  encrypt: ^5.0.3
 
   #高德
   amap_flutter_location: ^3.0.0
@@ -53,6 +55,7 @@ dependencies:
   path_provider: ^2.1.0
   flutter_launcher_icons: ^0.14.4
   webview_flutter: ^4.14.1
+  package_info_plus: ^10.2.1
 
   platform_adaptive_widgets:
     hosted:
