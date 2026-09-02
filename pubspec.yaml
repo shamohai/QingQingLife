@@ -53,7 +53,11 @@ dependencies:
   path_provider: ^2.1.0
   flutter_launcher_icons: ^0.14.4
 
-  platform_adaptive_widgets: ^2.1.2
+  platform_adaptive_widgets:
+    hosted:
+      name: platform_adaptive_widgets
+      url: https://pub.dev
+    version: ^2.1.2
 
   # Social login
   fluwx: ^6.0.2
