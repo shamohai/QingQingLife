@@ -52,7 +52,7 @@ class _HomeBannerState extends State<HomeBanner> {
               width: _currentPage == index ? 16 : 6,
               height: 6,
               decoration: BoxDecoration(
-                color: _currentPage == index ? const Color(0xFF2E7D52) : const Color(0xFFC4C8BF),
+                color: _currentPage == index ? AppColors.primary : AppColors.outlineVariant,
                 borderRadius: BorderRadius.circular(3),
               ),
             ),

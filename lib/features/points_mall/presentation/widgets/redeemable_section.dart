@@ -138,11 +138,11 @@ class _RedeemProductRow extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.stars, size: 12, color: Color(0xFFFF8F00)),
+                    const Icon(Icons.stars, size: 12, color: AppColors.warning),
                     const SizedBox(width: 2),
                     Text(
                       '${product.points}积分',
-                      style: AppTextStyles.priceSmall.copyWith(color: const Color(0xFFFF8F00), fontSize: 13),
+                      style: AppTextStyles.priceSmall.copyWith(color: AppColors.warning, fontSize: 13),
                     ),
                   ],
                 ),

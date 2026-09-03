@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
@@ -52,12 +52,12 @@ class PointsProductCard extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.stars, size: 12, color: Color(0xFFFF8F00)),
+                    const Icon(Icons.stars, size: 12, color: AppColors.warning),
                     const SizedBox(width: 2),
                     Text(
                       '${product.points}',
                       style: AppTextStyles.priceSmall.copyWith(
-                        color: const Color(0xFFFF8F00),
+                        color: AppColors.warning,
                         fontSize: 13,
                       ),
                     ),

@@ -33,6 +33,9 @@ abstract final class RouteNames {
   static const String login = '/login';
   static const String phoneBind = '/phone-bind';
 
+  // 服务预约子路由
+  static const String serviceRecords = '/service/records';
+
   // 客服
   static const String customerService = '/customer-service';
 }

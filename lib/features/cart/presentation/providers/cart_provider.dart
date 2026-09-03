@@ -54,10 +54,10 @@ class CartDataProvider extends Notifier<CartState> {
   @override
   CartState build() {
     return const CartState(items: [
-      CartItem(id: 'c1', imageUrl: 'https://loremflickr.com/300/300?random=70', name: '天佑德青稞酒 海拔2900 46度500ml', priceCents: 13990, quantity: 1),
-      CartItem(id: 'c2', imageUrl: 'https://loremflickr.com/300/300?random=71', name: '青海藏牛肉干 原味 100g', priceCents: 5800, quantity: 2),
-      CartItem(id: 'c3', imageUrl: 'https://loremflickr.com/300/300?random=72', name: '有机菜籽油 非转基因 5L', priceCents: 7900, quantity: 1),
-      CartItem(id: 'c4', imageUrl: 'https://loremflickr.com/300/300?random=73', name: '高原枸杞 特级 250g', priceCents: 6800, quantity: 1),
+      CartItem(id: 'c1', imageUrl: 'assets/images/product/product1.jpg', name: '天佑德青稞酒 海拔2900 46度500ml', priceCents: 13990, quantity: 1),
+      CartItem(id: 'c2', imageUrl: 'assets/images/product/product3.jpg', name: '青海藏牛肉干 原味 100g', priceCents: 5800, quantity: 2),
+      CartItem(id: 'c3', imageUrl: 'assets/images/product/product4.jpg', name: '有机菜籽油 非转基因 5L', priceCents: 7900, quantity: 1),
+      CartItem(id: 'c4', imageUrl: 'assets/images/product/product5.jpg', name: '高原枸杞 特级 250g', priceCents: 6800, quantity: 1),
     ]);
   }
 

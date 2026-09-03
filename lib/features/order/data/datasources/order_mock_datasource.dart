@@ -104,7 +104,7 @@ class MockOrderDataSource implements OrderRepository {
           skuId: 'sku_1',
           productName: '天佑德电商专供海拔系列 2900青稞酒 46度500ml',
           skuName: '500ml 单瓶',
-          imageUrl: 'https://loremflickr.com/300/300?random=10',
+          imageUrl: 'assets/images/product/product1.jpg',
           priceCents: 13990,
           quantity: 2,
           totalCents: 27980,

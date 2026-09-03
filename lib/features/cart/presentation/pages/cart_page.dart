@@ -98,7 +98,7 @@ class CartPage extends ConsumerWidget {
         ),
         child: Row(
           children: [
-            const Icon(Icons.card_giftcard, size: 18, color: Color(0xFFFF8F00)),
+            const Icon(Icons.card_giftcard, size: 18, color: AppColors.warning),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -127,10 +127,10 @@ class CartPage extends ConsumerWidget {
 
   Widget _buildRecommendationsGrid() {
     final mockUrls = const [
-      'https://loremflickr.com/160/160?random=100',
-      'https://loremflickr.com/160/160?random=101',
-      'https://loremflickr.com/160/160?random=102',
-      'https://loremflickr.com/160/160?random=103',
+      'assets/images/product/product1.jpg',
+      'assets/images/product/product2.jpg',
+      'assets/images/product/product3.jpg',
+      'assets/images/product/product4.jpg',
     ];
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),

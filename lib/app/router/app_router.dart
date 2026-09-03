@@ -8,6 +8,7 @@ import '../../features/points_mall/presentation/pages/points_mall_page.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/member/presentation/pages/profile_page.dart';
 import '../../features/service/presentation/pages/service_page.dart';
+import '../../features/service/presentation/pages/service_records_page.dart';
 import '../../features/product/presentation/pages/product_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
@@ -75,6 +76,18 @@ final appRouter = Provider<GoRouter>((ref) {
                 path: RouteNames.service,
                 pageBuilder: (context, state) =>
                     const NoTransitionPage(child: ServicePage()),
+                routes: [
+                  GoRoute(
+                    path: 'records',
+                    pageBuilder: (context, state) {
+                      final activeTab =
+                          state.uri.queryParameters['activeTab'] ?? 'ongoing';
+                      return MaterialPage(
+                        child: ServiceRecordsPage(activeTab: activeTab),
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),
