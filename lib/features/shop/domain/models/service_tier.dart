@@ -58,31 +58,31 @@ class ShopSubCategory {
 class ShopProductMockData {
   static const List<ShopProductItem> products = [
     ShopProductItem(
-      id: 'p1',
+      id: 'p1', imageUrl: 'assets/images/service/ecommerce1.jpg',
       name: '天佑德电商专供海拔系列\n2900青稞酒46度500ml',
       price: 139.9,
       tag: '自营',
     ),
     ShopProductItem(
-      id: 'p2',
+      id: 'p2', imageUrl: 'assets/images/service/ecommerce2.jpg',
       name: '天佑德电商专供海拔系列\n2900青稞酒46度500ml',
       price: 139.9,
       tag: '自营',
     ),
     ShopProductItem(
-      id: 'p3',
+      id: 'p3', imageUrl: 'assets/images/service/ecommerce3.jpg',
       name: '天佑德电商专供海拔系列\n2900青稞酒46度500ml',
       price: 139.9,
       tag: '自营',
     ),
     ShopProductItem(
-      id: 'p4',
+      id: 'p4', imageUrl: 'assets/images/service/ecommerce4.jpg',
       name: '天佑德电商专供海拔系列\n2900青稞酒46度500ml',
       price: 139.9,
       tag: '自营',
     ),
     ShopProductItem(
-      id: 'p5',
+      id: 'p5', imageUrl: 'assets/images/service/ecommerce5.jpg',
       name: '天佑德电商专供海拔系列\n2900青稞酒46度500ml',
       price: 139.9,
       tag: '自营',
@@ -119,10 +119,10 @@ class ServiceCategory {
       label: '购酒享服务',
       icon: Icons.local_bar_outlined,
       serviceTiers: [
-        ServiceTier(id: 'w1', title: '服务一', description: '金牌服务：酒店住宿+接送机+旅游沿线餐饮券', minSpendCents: 100000),
-        ServiceTier(id: 'w2', title: '服务二', description: '金牌服务：酒店住宿+接送机+旅游沿线餐饮券', minSpendCents: 200000),
-        ServiceTier(id: 'w3', title: '服务三', description: '金牌服务：酒店住宿+接送机+旅游沿线餐饮券', minSpendCents: 300000),
-        ServiceTier(id: 'w4', title: '服务四', description: '金牌服务：酒店住宿+接送机+旅游沿线餐饮券', minSpendCents: 400000),
+        ServiceTier(id: 'w1', title: '服务一', description: '金牌服务：酒店住宿+接送机+旅游沿线餐饮券', minSpendCents: 100000, imageUrl: 'assets/images/service/tier_wine1.jpg'),
+        ServiceTier(id: 'w2', title: '服务二', description: '金牌服务：酒店住宿+接送机+旅游沿线餐饮券', minSpendCents: 200000, imageUrl: 'assets/images/service/tier_wine2.jpg'),
+        ServiceTier(id: 'w3', title: '服务三', description: '金牌服务：酒店住宿+接送机+旅游沿线餐饮券', minSpendCents: 300000, imageUrl: 'assets/images/service/tier_wine3.jpg'),
+        ServiceTier(id: 'w4', title: '服务四', description: '金牌服务：酒店住宿+接送机+旅游沿线餐饮券', minSpendCents: 400000, imageUrl: 'assets/images/service/tier_wine4.jpg'),
       ],
     ),
     ServiceCategory(
@@ -130,9 +130,9 @@ class ServiceCategory {
       label: '青藏特色',
       icon: Icons.nature_outlined,
       serviceTiers: [
-        ServiceTier(id: 'r1', title: '服务一', description: '青藏特产专属配送+定制礼盒包装', minSpendCents: 50000),
-        ServiceTier(id: 'r2', title: '服务二', description: '青藏特产专属配送+定制礼盒包装+产地溯源证书', minSpendCents: 100000),
-        ServiceTier(id: 'r3', title: '服务三', description: '青藏特产专属配送+定制礼盒包装+产地溯源证书+VIP客服', minSpendCents: 200000),
+        ServiceTier(id: 'r1', title: '服务一', description: '青藏特产专属配送+定制礼盒包装', minSpendCents: 50000, imageUrl: 'assets/images/service/tier_region1.jpg'),
+        ServiceTier(id: 'r2', title: '服务二', description: '青藏特产专属配送+定制礼盒包装+产地溯源证书', minSpendCents: 100000, imageUrl: 'assets/images/service/tier_region2.jpg'),
+        ServiceTier(id: 'r3', title: '服务三', description: '青藏特产专属配送+定制礼盒包装+产地溯源证书+VIP客服', minSpendCents: 200000, imageUrl: 'assets/images/service/tier_region3.jpg'),
       ],
     ),
     ServiceCategory(
@@ -148,8 +148,8 @@ class ServiceCategory {
       label: '丁香香油',
       icon: Icons.eco,
       serviceTiers: [
-        ServiceTier(id: 'd1', title: '服务一', description: '丁香香油单品特惠+新客礼包', minSpendCents: 30000),
-        ServiceTier(id: 'd2', title: '服务二', description: '丁香香油组合装特惠+赠品', minSpendCents: 60000),
+        ServiceTier(id: 'd1', title: '服务一', description: '丁香香油单品特惠+新客礼包', minSpendCents: 30000, imageUrl: 'assets/images/service/tier_dingxiang1.jpg'),
+        ServiceTier(id: 'd2', title: '服务二', description: '丁香香油组合装特惠+赠品', minSpendCents: 60000, imageUrl: 'assets/images/service/tier_dingxiang2.jpg'),
       ],
     ),
   ];

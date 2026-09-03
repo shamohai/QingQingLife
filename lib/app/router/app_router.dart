@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,6 +8,7 @@ import '../../features/points_mall/presentation/pages/points_mall_page.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/member/presentation/pages/profile_page.dart';
 import '../../features/service/presentation/pages/service_page.dart';
+import '../../features/service/presentation/pages/service_cart_page.dart';
 import '../../features/service/presentation/pages/service_records_page.dart';
 import '../../features/product/presentation/pages/product_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -111,6 +112,10 @@ final appRouter = Provider<GoRouter>((ref) {
         path: RouteNames.checkout,
         pageBuilder: (context, state) => const MaterialPage(child: CartPage()),
       ),
+      GoRoute(
+        path: RouteNames.serviceCart,
+        pageBuilder: (context, state) => const MaterialPage(child: ServiceCartPage()),
+      ),
     ],
   );
 });
@@ -141,7 +146,7 @@ class MainShell extends StatelessWidget {
   void _goBranch(int index) {
     navigationShell.goBranch(
       index,
-      initialLocation: index == navigationShell.currentIndex,
+      initialLocation: true,
     );
   }
 

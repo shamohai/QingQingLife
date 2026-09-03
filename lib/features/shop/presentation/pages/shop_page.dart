@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
@@ -37,7 +38,7 @@ class ShopPage extends ConsumerWidget {
           Expanded(
             child: activeCat.isProductList
                 ? _buildProductListLayout(ref, activeCat)
-                : _buildServiceTierLayout(ref, activeCat),
+                : _buildServiceTierLayout(ref, activeCat, context),
           ),
         ],
       ),
@@ -46,7 +47,7 @@ class ShopPage extends ConsumerWidget {
 
   // ─── 服务档位布局（购酒享服务 / 青藏特色 / 丁香香油） ─────────────
 
-  Widget _buildServiceTierLayout(WidgetRef ref, ServiceCategory cat) {
+  Widget _buildServiceTierLayout(WidgetRef ref, ServiceCategory cat, BuildContext context) {
     final tiers = cat.serviceTiers ?? [];
     return tiers.isEmpty
         ? const Center(child: Text('暂无服务', style: AppTextStyles.bodyMedium))
@@ -54,7 +55,10 @@ class ShopPage extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             itemCount: tiers.length,
             separatorBuilder: (_, _) => const SizedBox(height: 0),
-            itemBuilder: (context, index) => ServiceTierCard(tier: tiers[index]),
+            itemBuilder: (context, index) => ServiceTierCard(
+              tier: tiers[index],
+              onPurchasePressed: () => context.push('/service/cart'),
+            ),
           );
   }
 

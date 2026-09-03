@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -8,8 +8,9 @@ import '../../domain/models/service_tier.dart';
 
 class ServiceTierCard extends StatelessWidget {
   final ServiceTier tier;
+  final VoidCallback? onPurchasePressed;
 
-  const ServiceTierCard({super.key, required this.tier});
+  const ServiceTierCard({super.key, required this.tier, this.onPurchasePressed});
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +73,7 @@ class ServiceTierCard extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.sm),
           OutlinedButton(
-            onPressed: () {},
+            onPressed: onPurchasePressed,
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,
               side: const BorderSide(color: AppColors.primary),

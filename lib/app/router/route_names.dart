@@ -1,4 +1,4 @@
-/// 所有路由名称常量，避免魔法字符串
+﻿/// 所有路由名称常量，避免魔法字符串
 abstract final class RouteNames {
   // 主 Tab 路由
   static const String home = '/home';
@@ -14,6 +14,7 @@ abstract final class RouteNames {
   static const String cart = '/cart';
   static const String checkout = '/checkout';
   static const String paymentResult = '/payment-result';
+  static const String serviceCart = '/service/cart';
 
   // 订单相关
   static const String orders = '/orders';
