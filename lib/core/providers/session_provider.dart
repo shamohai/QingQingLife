@@ -21,6 +21,18 @@ class SessionNotifier extends Notifier<SessionState> {
     await _storage.clearTokens();
     state = SessionState.unauthenticated;
   }
+
+  Future<void> savePendingWechatCode(String code) async {
+    await _storage.put('pending_wechat_code', code);
+  }
+
+  Future<String?> readPendingWechatCode() async {
+    return await _storage.get('pending_wechat_code');
+  }
+
+  Future<void> clearPendingWechatCode() async {
+    await _storage.remove('pending_wechat_code');
+  }
 }
 
 final sessionProvider = NotifierProvider<SessionNotifier, SessionState>(

@@ -1,1 +1,487 @@
-﻿import 'package:flutter/material.dart';import 'package:flutter_riverpod/flutter_riverpod.dart';import 'package:go_router/go_router.dart';import '../../../../app/router/route_names.dart';import '../../../../app/theme/app_colors.dart';import '../../../../app/theme/app_radius.dart';import '../../../../app/theme/app_spacing.dart';import '../../../../app/theme/app_text_styles.dart';import '../providers/auth_provider.dart';class PhoneBindPage extends ConsumerStatefulWidget {  const PhoneBindPage({super.key});  @override  ConsumerState<PhoneBindPage> createState() => _PhoneBindPageState();}class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {  final _phoneController = TextEditingController();  final _codeController = TextEditingController();  int _countdown = 0;  bool _agreed = false;  @override  void dispose() {    _phoneController.dispose();    _codeController.dispose();    super.dispose();  }  void _startCountdown() {    setState(() => _countdown = 60);    Future.doWhile(() async {      if (_countdown <= 1) {        setState(() => _countdown = 0);        return false;      }      await Future.delayed(const Duration(seconds: 1));      setState(() => _countdown--);      return true;    });  }  void _sendCode() {    final phone = _phoneController.text.trim();    if (phone.isEmpty) {      _showToast('请输入手机号');      return;    }    if (!RegExp(r'^1[3-9]\d{9}').hasMatch(phone)) {      _showToast('请输入正确的手机号');      return;    }    if (!_agreed) {      _showToast('请先阅读并同意用户协议');      return;    }    _startCountdown();    debugPrint('[PhoneBind] send code');  }  void _bindPhone() {    final phone = _phoneController.text.trim();    final code = _codeController.text.trim();    if (phone.isEmpty) {      _showToast('请输入手机号');      return;    }    if (code.isEmpty) {      _showToast('请输入验证码');      return;    }    if (!_agreed) {      _showToast('请先阅读并同意用户协议');      return;    }    ref.read(authProvider.notifier).phoneBind(phone: phone, code: code);  }  void _showToast(String msg) {    ScaffoldMessenger.of(context).showSnackBar(      SnackBar(        content: Text(msg),        behavior: SnackBarBehavior.floating,      ),    );  }  @override  Widget build(BuildContext context) {    ref.listen<AuthStatus>(authProvider, (previous, next) {      if (previous == AuthStatus.loading && next == AuthStatus.authenticated) {        if (mounted) {          context.go(RouteNames.profile);        }      }    });    return Scaffold(      appBar: AppBar(        leading: IconButton(          icon: const Icon(Icons.arrow_back, color: AppColors.onSurfaceVariant),          onPressed: () => context.pop(),        ),        title: const Text(          '绑定手机号',          style: AppTextStyles.headlineSmall,        ),        centerTitle: true,      ),      body: SafeArea(        child: Padding(          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),          child: Column(            crossAxisAlignment: CrossAxisAlignment.stretch,            children: [              const Spacer(flex: 2),              // 微信图标占位              const Center(                child: CircleAvatar(                  radius: 32,                  backgroundColor: AppColors.surfaceVariant,                  child: Icon(Icons.wechat, size: 40, color: Color(0xFF07C160)),                ),              ),              const SizedBox(height: AppSpacing.lg),              const Center(                child: Text(                  '已微信授权，请绑定手机号',                  style: AppTextStyles.bodyLarge,                ),              ),              const SizedBox(height: AppSpacing.xxxl),              // 手机号输入              Row(                children: [                  Text('+86', style: AppTextStyles.labelMedium),                  const SizedBox(width: AppSpacing.sm),                  Expanded(                    child: TextField(                      controller: _phoneController,                      keyboardType: TextInputType.phone,                      maxLength: 11,                      style: AppTextStyles.bodyLarge,                      decoration: InputDecoration(                        hintText: '请输入手机号',                        hintStyle: AppTextStyles.bodySmall.copyWith(                          color: AppColors.onSurfaceVariant,                        ),                        counterText: '',                        border: OutlineInputBorder(                          borderRadius: BorderRadius.circular(AppRadius.sm),                          borderSide: const BorderSide(color: AppColors.outline),                        ),                        enabledBorder: OutlineInputBorder(                          borderRadius: BorderRadius.circular(AppRadius.sm),                          borderSide: const BorderSide(color: AppColors.outline),                        ),                        focusedBorder: OutlineInputBorder(                          borderRadius: BorderRadius.circular(AppRadius.sm),                          borderSide: BorderSide(                            color: Theme.of(context).colorScheme.primary,                            width: 2,                          ),                        ),                      ),                    ),                  ),                  const SizedBox(width: AppSpacing.sm),                  SizedBox(                    width: 96,                    child: OutlinedButton(                      onPressed: _countdown > 0 ? null : _sendCode,                      style: OutlinedButton.styleFrom(                        shape: RoundedRectangleBorder(                          borderRadius: BorderRadius.circular(AppRadius.sm),                        ),                      ),                      child: _countdown > 0                          ? Text('${_countdown}s', style: AppTextStyles.labelMedium)                          : const Text('获取验证码'),                    ),                  ),                ],              ),              const SizedBox(height: AppSpacing.md),              // 验证码输入              TextField(                controller: _codeController,                keyboardType: const TextInputType.numberWithOptions(signed: false),                maxLength: 6,                style: AppTextStyles.bodyLarge,                decoration: InputDecoration(                  hintText: '请输入验证码',                  hintStyle: AppTextStyles.bodySmall.copyWith(                    color: AppColors.onSurfaceVariant,                  ),                  counterText: '',                  border: OutlineInputBorder(                    borderRadius: BorderRadius.circular(AppRadius.sm),                    borderSide: const BorderSide(color: AppColors.outline),                  ),                  enabledBorder: OutlineInputBorder(                    borderRadius: BorderRadius.circular(AppRadius.sm),                    borderSide: const BorderSide(color: AppColors.outline),                  ),                  focusedBorder: OutlineInputBorder(                    borderRadius: BorderRadius.circular(AppRadius.sm),                    borderSide: BorderSide(                      color: Theme.of(context).colorScheme.primary,                      width: 2,                    ),                  ),                ),              ),              const SizedBox(height: AppSpacing.lg),              // 协议勾选              Row(                children: [                  Checkbox(                    value: _agreed,                    onChanged: (v) => setState(() => _agreed = v ?? false),                    side: const BorderSide(color: AppColors.outline),                  ),                  Expanded(                    child: GestureDetector(                      onTap: () => setState(() => _agreed = !_agreed),                      child: Text(                        '我已阅读并同意《用户服务协议》、《用户隐私政策》',                        style: AppTextStyles.bodySmall.copyWith(                          color: AppColors.onSurfaceVariant,                        ),                      ),                    ),                  ),                ],              ),              const Spacer(flex: 3),              SizedBox(                width: double.infinity,                height: 48,                child: ElevatedButton(                  onPressed: _bindPhone,                  style: ElevatedButton.styleFrom(                    backgroundColor: Theme.of(context).colorScheme.primary,                    foregroundColor: Colors.white,                    shape: RoundedRectangleBorder(                      borderRadius: BorderRadius.circular(AppRadius.sm),                    ),                  ),                  child: Text(                    '确认绑定',                    style: AppTextStyles.labelLarge.copyWith(color: Colors.white),                  ),                ),              ),              const SizedBox(height: AppSpacing.xxl),            ],          ),        ),      ),    );  }}
+﻿import 'package:flutter/material.dart';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:go_router/go_router.dart';
+
+
+
+import '../../../../app/router/route_names.dart';
+
+import '../../../../app/theme/app_colors.dart';
+
+import '../../../../app/theme/app_radius.dart';
+
+import '../../../../app/theme/app_spacing.dart';
+
+import '../../../../app/theme/app_text_styles.dart';
+
+import '../providers/auth_provider.dart';
+
+
+
+class PhoneBindPage extends ConsumerStatefulWidget {
+
+  const PhoneBindPage({super.key});
+
+
+
+  @override
+
+  ConsumerState<PhoneBindPage> createState() => _PhoneBindPageState();
+
+}
+
+
+
+class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
+
+  final _phoneController = TextEditingController();
+
+  final _codeController = TextEditingController();
+
+  int _countdown = 0;
+
+  bool _agreed = false;
+
+
+
+  @override
+
+  void dispose() {
+
+    _phoneController.dispose();
+
+    _codeController.dispose();
+
+    super.dispose();
+
+  }
+
+
+
+  void _startCountdown() {
+
+    setState(() => _countdown = 60);
+
+    Future.doWhile(() async {
+
+      if (_countdown <= 1) {
+
+        setState(() => _countdown = 0);
+
+        return false;
+
+      }
+
+      await Future.delayed(const Duration(seconds: 1));
+
+      setState(() => _countdown--);
+
+      return true;
+
+    });
+
+  }
+
+
+
+  void _sendCode() {
+
+    final phone = _phoneController.text.trim();
+
+    if (phone.isEmpty) {
+
+      _showToast('请输入手机号');
+
+      return;
+
+    }
+
+    if (!RegExp(r'^1[3-9]\d{9}').hasMatch(phone)) {
+
+      _showToast('请输入正确的手机号');
+
+      return;
+
+    }
+
+    if (!_agreed) {
+
+      _showToast('请先阅读并同意用户协议');
+
+      return;
+
+    }
+
+    _startCountdown();
+
+    debugPrint('[PhoneBind] send code');
+
+  }
+
+
+
+  void _bindPhone() {
+
+    final phone = _phoneController.text.trim();
+
+    final code = _codeController.text.trim();
+
+    if (phone.isEmpty) {
+
+      _showToast('请输入手机号');
+
+      return;
+
+    }
+
+    if (code.isEmpty) {
+
+      _showToast('请输入验证码');
+
+      return;
+
+    }
+
+    if (!_agreed) {
+
+      _showToast('请先阅读并同意用户协议');
+
+      return;
+
+    }
+
+    ref.read(authProvider.notifier).phoneBind(phone: phone, code: code);
+
+  }
+
+
+
+  void _showToast(String msg) {
+
+    ScaffoldMessenger.of(context).showSnackBar(
+
+      SnackBar(
+
+        content: Text(msg),
+
+        behavior: SnackBarBehavior.floating,
+
+      ),
+
+    );
+
+  }
+
+
+
+  @override
+
+  Widget build(BuildContext context) {
+
+    ref.listen<AuthStatus>(authProvider, (previous, next) {
+
+      if (previous == AuthStatus.loading && next == AuthStatus.authenticated) {
+
+        if (mounted) {
+
+          context.go(RouteNames.profile);
+
+        }
+
+      }
+
+    });
+
+
+
+    return Scaffold(
+
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.onSurfaceVariant),
+          onPressed: () => context.pop(),
+        ),
+
+        title: const Text(
+
+          '绑定手机号',
+
+          style: AppTextStyles.headlineSmall,
+
+        ),
+
+        centerTitle: true,
+
+      ),
+
+      body: SafeArea(
+
+        child: Padding(
+
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Spacer(flex: 2),
+              // 微信图标占位
+
+              const Center(
+
+                child: CircleAvatar(
+
+                  radius: 32,
+
+                  backgroundColor: AppColors.surfaceVariant,
+
+                  child: Icon(Icons.wechat, size: 40, color: Color(0xFF07C160)),
+
+                ),
+
+              ),
+
+              const SizedBox(height: AppSpacing.lg),
+
+              const Center(
+
+                child: Text(
+
+                  '已微信授权，请绑定手机号',
+
+                  style: AppTextStyles.bodyLarge,
+
+                ),
+
+              ),
+
+              const SizedBox(height: AppSpacing.xxxl),
+
+              // 手机号输入
+
+              Row(
+
+                children: [
+
+                  Text('+86', style: AppTextStyles.labelMedium),
+
+                  const SizedBox(width: AppSpacing.sm),
+
+                  Expanded(
+
+                    child: TextField(
+
+                      controller: _phoneController,
+
+                      keyboardType: TextInputType.phone,
+
+                      maxLength: 11,
+
+                      style: AppTextStyles.bodyLarge,
+
+                      decoration: InputDecoration(
+
+                        hintText: '请输入手机号',
+
+                        hintStyle: AppTextStyles.bodySmall.copyWith(
+
+                          color: AppColors.onSurfaceVariant,
+
+                        ),
+
+                        counterText: '',
+
+                        border: OutlineInputBorder(
+
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+
+                          borderSide: const BorderSide(color: AppColors.outline),
+
+                        ),
+
+                        enabledBorder: OutlineInputBorder(
+
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+
+                          borderSide: const BorderSide(color: AppColors.outline),
+
+                        ),
+
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2,
+                          ),
+                        ),
+
+                      ),
+
+                    ),
+
+                  ),
+
+                  const SizedBox(width: AppSpacing.sm),
+
+                  SizedBox(
+
+                    width: 96,
+
+                    child: OutlinedButton(
+
+                      onPressed: _countdown > 0 ? null : _sendCode,
+
+                      style: OutlinedButton.styleFrom(
+
+                        shape: RoundedRectangleBorder(
+
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+
+                        ),
+
+                      ),
+
+                      child: _countdown > 0
+                          ? Text('${_countdown}s', style: AppTextStyles.labelMedium)
+                          : const Text('获取验证码'),
+
+                    ),
+
+                  ),
+
+                ],
+
+              ),
+
+              const SizedBox(height: AppSpacing.md),
+
+              // 验证码输入
+
+              TextField(
+
+                controller: _codeController,
+
+                keyboardType: const TextInputType.numberWithOptions(signed: false),
+
+                maxLength: 6,
+
+                style: AppTextStyles.bodyLarge,
+
+                decoration: InputDecoration(
+
+                  hintText: '请输入验证码',
+
+                  hintStyle: AppTextStyles.bodySmall.copyWith(
+
+                    color: AppColors.onSurfaceVariant,
+
+                  ),
+
+                  counterText: '',
+
+                  border: OutlineInputBorder(
+
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+
+                    borderSide: const BorderSide(color: AppColors.outline),
+
+                  ),
+
+                  enabledBorder: OutlineInputBorder(
+
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+
+                    borderSide: const BorderSide(color: AppColors.outline),
+
+                  ),
+
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 2,
+                    ),
+                  ),
+
+                ),
+
+              ),
+
+              const SizedBox(height: AppSpacing.lg),
+
+              // 协议勾选
+
+              Row(
+
+                children: [
+
+                  Checkbox(
+
+                    value: _agreed,
+
+                    onChanged: (v) => setState(() => _agreed = v ?? false),
+
+                    side: const BorderSide(color: AppColors.outline),
+
+                  ),
+
+                  Expanded(
+
+                    child: GestureDetector(
+
+                      onTap: () => setState(() => _agreed = !_agreed),
+
+                      child: Text(
+
+                        '我已阅读并同意《用户服务协议》、《用户隐私政策》',
+
+                        style: AppTextStyles.bodySmall.copyWith(
+
+                          color: AppColors.onSurfaceVariant,
+
+                        ),
+
+                      ),
+
+                    ),
+
+                  ),
+                ],
+              ),
+              const Spacer(flex: 3),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: _bindPhone,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                    ),
+                  ),
+                  child: Text(
+                    '确认绑定',
+                    style: AppTextStyles.labelLarge.copyWith(color: Colors.white),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: AppSpacing.xxl),
+
+            ],
+
+          ),
+
+        ),
+
+      ),
+
+    );
+
+  }
+
+}
+

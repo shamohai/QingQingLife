@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../features/auth/data/datasources/auth_mock_datasource.dart';
+import '../../features/auth/data/datasources/auth_remote_datasource.dart';
 import '../domain/repositories/auth_repository.dart';
 import '../../features/cart/data/datasources/cart_mock_datasource.dart';
 import '../../features/cart/domain/repositories/cart_repository.dart';
@@ -23,7 +23,8 @@ part 'repository_providers.g.dart';
 /// Auth Repository Provider
 @riverpod
 AuthRepository authRepository(Ref ref) {
-  return MockAuthDataSource();
+  final ds = ref.read(remoteAuthDataSourceProvider);
+  return ds;
 }
 
 /// Product Repository Provider

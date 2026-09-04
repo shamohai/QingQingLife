@@ -65,6 +65,33 @@ class MockAuthDataSource implements AuthRepository {
   }
 
   @override
+  Future<ApiResponse<AuthResult>> loginWithWeChatCode({required String code}) async {
+    await Future.delayed(const Duration(milliseconds: 1000));
+    final accessToken = _uuid.v4();
+    final refreshToken = _uuid.v4();
+    await _storage.writeAccessToken(accessToken);
+    await _storage.writeRefreshToken(refreshToken);
+    await _localStorage.putString('access_token', accessToken);
+    await _localStorage.putString('refresh_token', refreshToken);
+    await _localStorage.putString('nickname', _mockUser.nickname);
+    await _localStorage.putBool('is_login', true);
+    return ApiResponse.success(AuthResult(accessToken: accessToken, refreshToken: refreshToken, userInfo: _mockUser));
+  }
+
+  @override
+  Future<ApiResponse<AuthResult>> phoneBind({required String phone, required String code, required String wechatCode}) async {
+    await Future.delayed(const Duration(milliseconds: 800));
+    final accessToken = _uuid.v4();
+    final refreshToken = _uuid.v4();
+    await _storage.writeAccessToken(accessToken);
+    await _storage.writeRefreshToken(refreshToken);
+    await _localStorage.putString('access_token', accessToken);
+    await _localStorage.putString('refresh_token', refreshToken);
+    await _localStorage.putBool('is_login', true);
+    return ApiResponse.success(AuthResult(accessToken: accessToken, refreshToken: refreshToken, userInfo: _mockUser));
+  }
+
+  @override
   Future<ApiResponse<void>> sendSmsCode({required String phone}) async {
     await Future.delayed(const Duration(milliseconds: 500));
 

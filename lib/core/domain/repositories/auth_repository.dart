@@ -1,5 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../network/api_response.dart';
 
 /// 认证业务仓库接口
@@ -12,6 +10,12 @@ abstract class AuthRepository {
 
   /// 微信第三方登录授权请求
   Future<ApiResponse<AuthResult>> loginWithWeChat();
+
+  /// 微信授权登录后传入 code 换取 Token，code 由 fluwx 授权回调获取
+  Future<ApiResponse<AuthResult>> loginWithWeChatCode({required String code});
+
+  /// 微信登录后绑定手机号
+  Future<ApiResponse<AuthResult>> phoneBind({required String phone, required String code, required String wechatCode});
 
   /// 获取指定手机号的短信验证码
   Future<ApiResponse<void>> sendSmsCode({required String phone});
@@ -36,6 +40,12 @@ class AuthResult {
   final UserInfo userInfo;    // 登录成功后的基础用户信息
 
   const AuthResult({required this.accessToken, this.refreshToken, required this.userInfo});
+
+  factory AuthResult.fromJson(Map<String, dynamic> json) => AuthResult(
+    accessToken: json['accessToken'] as String,
+    refreshToken: json['refreshToken'] as String?,
+    userInfo: UserInfo.fromJson(json['userInfo'] as Map<String, dynamic>),
+  );
 }
 
 /// 用户领域实体对象
@@ -57,4 +67,13 @@ class UserInfo {
     this.memberLevel = 1,
     this.phone,
   });
+
+  factory UserInfo.fromJson(Map<String, dynamic> json) => UserInfo(
+    id: json['id'] as String,
+    nickname: json['nickname'] as String,
+    avatarUrl: json['avatarUrl'] as String?,
+    points: json['points'] as int? ?? 0,
+    memberLevel: json['memberLevel'] as int? ?? 1,
+    phone: json['phone'] as String?,
+  );
 }

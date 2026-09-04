@@ -49,6 +49,22 @@ class SecureStorage {
     await _storage.write(key: AppConstants.refreshTokenKey, value: token);
   }
 
+  /// 通用字符串读写（用于非敏感临时数据，如 pendingWechatCode）
+  Future<String?> get(String key) async {
+    if (kIsWeb) return null;
+    return await _storage.read(key: key);
+  }
+
+  Future<void> put(String key, String value) async {
+    if (kIsWeb) return;
+    await _storage.write(key: key, value: value);
+  }
+
+  Future<void> remove(String key) async {
+    if (kIsWeb) return;
+    await _storage.delete(key: key);
+  }
+
   /// 清除所有令牌（登出时调用）
   Future<void> clearTokens() async {
     if (kIsWeb) {
