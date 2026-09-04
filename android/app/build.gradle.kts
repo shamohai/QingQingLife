@@ -38,7 +38,7 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
 
-        //applicationId = "com.qingkejiu.qingqinglife"
+        // applicationId = "com.qingkejiu.qingqinglife"
         applicationId = "cn.zhongjiubatch"
 
         // You can update the following values to match your application needs.
@@ -50,6 +50,9 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("release")
+        }
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.

@@ -25,10 +25,6 @@ dependencies:
   crypto: ^3.0.7
   encrypt: ^5.0.3
 
-  #高德
-  amap_flutter_location: ^3.0.0
-  amap_flutter_map: ^3.0.0
-
   #定位
   geolocator: ^14.0.3
   permission_handler: ^13.0.1
