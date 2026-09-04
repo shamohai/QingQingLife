@@ -6,8 +6,6 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>需要获取您的地理位置以提供更准确的服务</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 			<string>weixin</string>

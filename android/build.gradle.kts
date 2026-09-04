@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("org.jetbrains.kotlin.android") apply false
 }
@@ -24,6 +27,25 @@ subprojects {
 }
 subprojects {
     project.evaluationDependsOn(":app")
+
+    tasks.withType<JavaCompile>().configureEach {
+        sourceCompatibility = JavaVersion.VERSION_17.toString()
+        targetCompatibility = JavaVersion.VERSION_17.toString()
+        options.compilerArgs.add("-Xlint:-options")
+    }
+
+    // 这里手动配置 Kotlin 编译选项以解决插件的 Java 8 警告
+    tasks.configureEach {
+        if (this.name.contains("KotlinCompile")) {
+            try {
+                (this as KotlinCompile).compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_17)
+                }
+            } catch (e: Exception) {
+                // Ignore if not a KotlinCompile task
+            }
+        }
+    }
 }
 
 tasks.register<Delete>("clean") {

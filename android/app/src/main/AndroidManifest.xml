@@ -29,7 +29,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
-                <data android:scheme="wxplaceholder12345678"/>
+                <data android:scheme="wx64999b13fa01a983"/>
             </intent-filter>
         </activity>
         <meta-data

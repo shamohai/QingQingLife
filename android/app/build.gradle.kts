@@ -11,9 +11,9 @@ plugins {
 
 android {
     namespace = "com.qingkejiu.qingqinglife"
+    compileSdk = 36
     //compileSdk = flutter.compileSdkVersion
-    compileSdk = 37
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "28.2.13676358"
 
     val keystoreProperties = Properties()
     val keystorePropertiesFile = rootProject.file("key.properties")
@@ -59,6 +59,10 @@ android {
             signingConfig = signingConfigs.getByName("release")
         }
     }
+    buildFeatures {
+        viewBinding = true
+    }
+    buildToolsVersion = "36.0.0"
 }
 
 //kotlin {
