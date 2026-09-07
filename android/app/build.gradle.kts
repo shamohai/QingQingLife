@@ -11,7 +11,7 @@ plugins {
 
 android {
     namespace = "com.qingkejiu.qingqinglife"
-    compileSdk = 36
+    compileSdk = 37
     //compileSdk = flutter.compileSdkVersion
     ndkVersion = "28.2.13676358"
 
