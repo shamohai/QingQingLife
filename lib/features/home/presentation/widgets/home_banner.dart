@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
+import '../../../../core/widgets/app_image.dart';
 
 class HomeBanner extends StatefulWidget {
   final List<String> imageUrls;
@@ -34,10 +34,9 @@ class _HomeBannerState extends State<HomeBanner> {
               controller: _controller,
               onPageChanged: (i) => setState(() => _currentPage = i),
               itemCount: widget.imageUrls.length,
-              itemBuilder: (context, index) => CachedNetworkImage(
-                imageUrl: widget.imageUrls[index], fit: BoxFit.cover,
-                placeholder: (_, __) => Container(color: AppColors.surfaceVariant, child: const Center(child: CircularProgressIndicator())),
-                errorWidget: (_, __, ___) => Container(color: AppColors.surfaceVariant, child: const Icon(Icons.image_not_supported)),
+              itemBuilder: (context, index) => AppNetworkImage(
+                url: widget.imageUrls[index],
+                fit: BoxFit.cover,
               ),
             ),
           ),

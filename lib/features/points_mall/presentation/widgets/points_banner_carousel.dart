@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
+import '../../../../core/widgets/app_image.dart';
 
 /// 积分商城轮播图组件（支持自动轮播 + 圆点指示器）
 class PointsBannerCarousel extends StatefulWidget {
@@ -74,17 +73,9 @@ class _PointsBannerCarouselState extends State<PointsBannerCarousel> {
               controller: _controller,
               onPageChanged: (i) => setState(() => currentPage = i),
               itemCount: urls.length,
-              itemBuilder: (context, index) => CachedNetworkImage(
-                imageUrl: urls[index % urls.length],
+              itemBuilder: (context, index) => AppNetworkImage(
+                url: urls[index % urls.length],
                 fit: BoxFit.cover,
-                placeholder: (_, __) => Container(
-                  color: AppColors.surfaceVariant,
-                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                ),
-                errorWidget: (_, __, ___) => Container(
-                  color: AppColors.surfaceVariant,
-                  child: const Icon(Icons.image_not_supported_outlined, size: 40, color: AppColors.outline),
-                ),
               ),
             ),
           ),

@@ -6,6 +6,7 @@ import '../../domain/repositories/member_repository.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../providers/user_profile_provider.dart';
+import '../../../../core/widgets/app_image.dart';
 
 class UserInfoCard extends ConsumerWidget {
   const UserInfoCard({super.key});
@@ -84,7 +85,7 @@ class _AvatarWidget extends StatelessWidget {
         boxShadow: [const BoxShadow(color: Color(0x1A2E7D52), blurRadius: 8, offset: Offset(0, 2))],
       ),
       child: url != null
-          ? ClipOval(child: Image.network(url!, fit: BoxFit.cover))
+          ? AppNetworkImage(url: url!, fit: BoxFit.cover, radius: 28)
           : const Icon(Icons.person, size: 30, color: AppColors.primary),
     );
   }

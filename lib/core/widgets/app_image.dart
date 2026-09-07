@@ -62,14 +62,28 @@ class AppNetworkImage extends StatelessWidget {
           color: AppColors.onSurfaceVariant,
         );
 
-    Widget image = CachedNetworkImage(
-      imageUrl: url,
-      width: width,
-      height: height,
-      fit: fit,
-      placeholder: (_, __) => defaultPlaceholder,
-      errorWidget: (_, __, ___) => defaultError,
-    );
+    // 判断是否为本地资源路径
+    final bool isAsset = url.startsWith('assets/');
+
+    Widget image;
+    if (isAsset) {
+      image = Image.asset(
+        url,
+        width: width,
+        height: height,
+        fit: fit,
+        errorBuilder: (_, __, ___) => defaultError,
+      );
+    } else {
+      image = CachedNetworkImage(
+        imageUrl: url,
+        width: width,
+        height: height,
+        fit: fit,
+        placeholder: (_, __) => defaultPlaceholder,
+        errorWidget: (_, __, ___) => defaultError,
+      );
+    }
 
     // 如果设置了圆角，则使用 ClipRRect 进行裁剪
     if (radius > 0) {

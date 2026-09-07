@@ -5,6 +5,7 @@ import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../product/domain/repositories/product_repository.dart';
+import '../../../../core/widgets/app_image.dart';
 
 /// 每月权益展示卡片
 class HomeMonthlyBenefits extends StatelessWidget {
@@ -79,13 +80,10 @@ class _BenefitSlot extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppRadius.md),
             ),
             child: benefit.imageUrl != null && benefit.imageUrl!.isNotEmpty
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                    child: Image.network(
-                      benefit.imageUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Center(child: Icon(Icons.place, size: 24, color: AppColors.outline)),
-                    ),
+                ? AppNetworkImage(
+                    url: benefit.imageUrl!,
+                    fit: BoxFit.cover,
+                    radius: AppRadius.md,
                   )
                 : const Center(child: Icon(Icons.place, size: 24, color: AppColors.outline)),
           ),
