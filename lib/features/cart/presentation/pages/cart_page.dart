@@ -58,7 +58,7 @@ class CartPage extends ConsumerWidget {
       child: SafeArea(
         child: Container(
           color: AppColors.surface,
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
           child: Row(
             children: [
               Text('购物车', style: AppTextStyles.headlineSmall),

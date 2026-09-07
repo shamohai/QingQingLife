@@ -42,65 +42,63 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
 
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
-          child: Column(
-            children: [
-              // 返回按钮
-              Align(
-                alignment: Alignment.topLeft,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: AppColors.onSurfaceVariant),
-                  onPressed: () => context.pop(),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.onSurfaceVariant),
+          onPressed: () => context.pop(),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+        child: Column(
+          children: [
+            const Spacer(flex: 2),
+            // Logo 区域
+            const CircleAvatar(
+              radius: 32,
+              backgroundColor: AppColors.surfaceVariant,
+              child: Icon(Icons.wechat, size: 40, color: Color(0xFF07C160)),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text('PIC', style: AppTextStyles.headlineMedium.copyWith(color: AppColors.onSurface)),
+            const SizedBox(height: AppSpacing.xxxl),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: _onWechatAuth,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
                 ),
+                child: Text('微信一键授权', style: AppTextStyles.labelLarge.copyWith(color: Colors.white)),
               ),
-              const Spacer(flex: 2),
-              // Logo 区域
-              const CircleAvatar(
-                radius: 32,
-                backgroundColor: AppColors.surfaceVariant,
-                child: Icon(Icons.wechat, size: 40, color: Color(0xFF07C160)),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text('PIC', style: AppTextStyles.headlineMedium.copyWith(color: AppColors.onSurface)),
-              const SizedBox(height: AppSpacing.xxxl),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: _onWechatAuth,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
-                  ),
-                  child: Text('微信一键授权', style: AppTextStyles.labelLarge.copyWith(color: Colors.white)),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            // 协议勾选
+            Row(
+              children: [
+                Checkbox(
+                  value: _agreed,
+                  onChanged: (v) => setState(() => _agreed = v ?? false),
+                  side: const BorderSide(color: AppColors.outline),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              // 协议勾选
-              Row(
-                children: [
-                  Checkbox(
-                    value: _agreed,
-                    onChanged: (v) => setState(() => _agreed = v ?? false),
-                    side: const BorderSide(color: AppColors.outline),
-                  ),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => setState(() => _agreed = !_agreed),
-                      child: Text(
-                        '登录即代表您已同意《用户服务协议》、《用户隐私政策》，未注册的手机号验证后将自动创建青轻生活馆账号。',
-                        style: AppTextStyles.bodySmall.copyWith(color: AppColors.onSurfaceVariant),
-                      ),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _agreed = !_agreed),
+                    child: Text(
+                      '登录即代表您已同意《用户服务协议》、《用户隐私政策》，未注册的手机号验证后将自动创建青轻生活馆账号。',
+                      style: AppTextStyles.bodySmall.copyWith(color: AppColors.onSurfaceVariant),
                     ),
                   ),
-                ],
-              ),
-              const Spacer(flex: 3),
-            ],
-          ),
+                ),
+              ],
+            ),
+            const Spacer(flex: 3),
+          ],
         ),
       ),
     );

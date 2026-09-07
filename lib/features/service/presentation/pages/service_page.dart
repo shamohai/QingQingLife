@@ -17,46 +17,28 @@ class ServicePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      body: Column(
-        children: [
-          // 顶部留白：状态栏高度 + 额外间距，避免标题被状态栏遮挡
-          SizedBox(height: MediaQuery.of(context).padding.top + AppSpacing.lg),
-          _buildAppBar(context),
-          const SizedBox(height: AppSpacing.lg),
-          Expanded(
-            child: _buildCardList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 自定义 App Bar：标题居中 + 右上角记录链接
-  Widget _buildAppBar(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      child: Row(
-        children: [
-          const Spacer(),
-          Text(
-            '服务预约',
-            style: AppTextStyles.headlineSmall,
-          ),
-          const Spacer(),
-          GestureDetector(
-            onTap: () {
-              context.push(RouteNames.serviceRecords);
-            },
-            child: Text(
+      appBar: AppBar(
+        backgroundColor: AppColors.surface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        title: Text(
+          '服务预约',
+          style: AppTextStyles.headlineSmall.copyWith(fontSize: 18),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => context.push(RouteNames.serviceRecords),
+            child: const Text(
               '预约/报名记录',
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.primary,
-                decoration: TextDecoration.none,
-              ),
+              style: TextStyle(fontSize: 14, color: AppColors.primary),
             ),
           ),
         ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.only(top: AppSpacing.sm),
+        child: _buildCardList(),
       ),
     );
   }

@@ -77,7 +77,7 @@ class HomePage extends ConsumerWidget {
           slivers: [
             SliverToBoxAdapter(child: const HomeAppBar()),
             SliverPadding(
-              padding: const EdgeInsets.only(top: AppSpacing.md),
+              padding: const EdgeInsets.only(top: AppSpacing.sm),
               sliver: SliverToBoxAdapter(
                 child: home_widgets.HomeBanner(imageUrls: staticData.banners.map((b) => b.imageUrl).toList()),
               ),

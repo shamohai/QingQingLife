@@ -35,10 +35,24 @@ class ServiceRecordsPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        backgroundColor: AppColors.surface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.onSurface),
+          onPressed: () => context.pop(),
+        ),
+        title: Text(
+          '预约/报名记录',
+          style: AppTextStyles.headlineSmall.copyWith(fontSize: 18),
+        ),
+        centerTitle: true,
+      ),
       body: Column(
         children: [
           // 无 AppBar，顶部直接放置纯文字分段标签
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           _buildSegmentedTabs(context, ref, activeTab),
           const SizedBox(height: AppSpacing.sm),
           Expanded(

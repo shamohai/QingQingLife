@@ -25,21 +25,24 @@ class ServiceCartPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF2F3F5),
-      body: CustomScrollView(
-        slivers: [
-          _buildTopBar(context),
-          _buildBanner(),
-          _buildAddressBar(),
-          if (state.items.isEmpty)
-            const SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(child: AppEmpty(message: '购物车是空的，去逛逛吧')),
-            )
-          else
-            _buildCartItems(state.items, ref),
-          _buildContinueAddSection(ref),
-          const SliverToBoxAdapter(child: SizedBox(height: 96)),
-        ],
+      body: SafeArea(
+        bottom: false,
+        child: CustomScrollView(
+          slivers: [
+            _buildTopBar(context),
+            _buildBanner(),
+            _buildAddressBar(),
+            if (state.items.isEmpty)
+              const SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(child: AppEmpty(message: '购物车是空的，去逛逛吧')),
+              )
+            else
+              _buildCartItems(state.items, ref),
+            _buildContinueAddSection(ref),
+            const SliverToBoxAdapter(child: SizedBox(height: 96)),
+          ],
+        ),
       ),
       bottomNavigationBar: _buildBottomBar(context, state, allSelected, selectedTotal, ref),
     );
@@ -52,7 +55,7 @@ class ServiceCartPage extends ConsumerWidget {
       child: SafeArea(
         child: Container(
           color: AppColors.surface,
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
           child: Row(
             children: [
               IconButton(

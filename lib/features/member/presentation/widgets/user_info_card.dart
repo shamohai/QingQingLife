@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../app/router/route_names.dart';
 import '../../domain/repositories/member_repository.dart';
 import '../../../../app/theme/app_colors.dart';
@@ -18,8 +19,8 @@ class UserInfoCard extends ConsumerWidget {
     final avatarUrl = state.avatarUrl;
 
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -77,16 +78,15 @@ class _AvatarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 56, height: 56,
+      width: 56,
+      height: 56,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: AppColors.primaryContainer,
         border: Border.all(color: Colors.white, width: 2),
         boxShadow: [const BoxShadow(color: Color(0x1A2E7D52), blurRadius: 8, offset: Offset(0, 2))],
       ),
-      child: url != null
-          ? AppNetworkImage(url: url!, fit: BoxFit.cover, radius: 28)
-          : const Icon(Icons.person, size: 30, color: AppColors.primary),
+      child: url != null ? AppNetworkImage(url: url!, fit: BoxFit.cover, radius: 28) : const Icon(Icons.person, size: 30, color: AppColors.primary),
     );
   }
 }
@@ -104,7 +104,10 @@ class _MemberChip extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(20)),
-          child: Text(member.levelName, style: const TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600)),
+          child: Text(
+            member.levelName,
+            style: const TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600),
+          ),
         ),
         const SizedBox(width: 4),
         Text('天佑德值', style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
