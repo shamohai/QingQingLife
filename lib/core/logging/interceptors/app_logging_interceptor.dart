@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
+
 import '../app_logger.dart';
 
 /// Dio request/response logging interceptor.
@@ -28,11 +29,7 @@ class AppLoggingInterceptor extends Interceptor {
     options.extra[_traceIdHeader] = options.headers[_traceIdHeader];
     options.extra[_startTimeKey] = DateTime.now().millisecondsSinceEpoch;
 
-    final logData = <String, dynamic>{
-      'url': options.uri.toString(),
-      'method': options.method,
-      'headers': Map<String, dynamic>.from(options.headers),
-    };
+    final logData = <String, dynamic>{'url': options.uri.toString(), 'method': options.method, 'headers': Map<String, dynamic>.from(options.headers)};
     if (options.queryParameters.isNotEmpty) {
       logData['queryParameters'] = options.queryParameters;
     }
@@ -49,11 +46,7 @@ class AppLoggingInterceptor extends Interceptor {
       debugPrint('');
     }
 
-    AppLogger.debug(
-      '[HTTP] ' + options.method + ' ' + options.uri.path,
-      module: 'network',
-      data: logData,
-    );
+    AppLogger.debug('[HTTP] ' + options.method + ' ' + options.uri.path, module: 'network', data: logData);
     return handler.next(options);
   }
 
@@ -61,9 +54,7 @@ class AppLoggingInterceptor extends Interceptor {
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     final startTime = response.requestOptions.extra[_startTimeKey] as int?;
     final traceId = response.requestOptions.extra[_traceIdHeader] as String?;
-    final elapsed = startTime != null
-        ? DateTime.now().millisecondsSinceEpoch - startTime
-        : null;
+    final elapsed = startTime != null ? DateTime.now().millisecondsSinceEpoch - startTime : null;
     final uri = response.requestOptions.uri;
 
     if (kDebugMode) {
@@ -79,10 +70,19 @@ class AppLoggingInterceptor extends Interceptor {
       '[HTTP] ' + response.statusCode.toString() + ' ' + uri.path + ' (' + (elapsed?.toString() ?? '?') + 'ms)',
       module: 'network',
       event: 'http_success',
+      data: {'statusCode': response.statusCode, 'elapsedMs': elapsed, 'traceId': traceId},
+    );
+    AppLogger.rawInfo(
+      '[HTTP RESPONSE BODY] ' + uri.path + ': ' + _safeEncode(response.data),
+      module: 'network',
+      event: 'http_response_raw',
       data: {
+        'method': response.requestOptions.method,
+        'url': uri.toString(),
         'statusCode': response.statusCode,
         'elapsedMs': elapsed,
         'traceId': traceId,
+        'body': response.data,
       },
     );
     return handler.next(response);
@@ -92,14 +92,22 @@ class AppLoggingInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final startTime = err.requestOptions.extra[_startTimeKey] as int?;
     final traceId = err.requestOptions.extra[_traceIdHeader] as String?;
-    final elapsed = startTime != null
-        ? DateTime.now().millisecondsSinceEpoch - startTime
-        : null;
+    final elapsed = startTime != null ? DateTime.now().millisecondsSinceEpoch - startTime : null;
     final uri = err.requestOptions.uri;
 
     if (kDebugMode) {
       debugPrint('\u2550' * 38);
-      debugPrint('[HTTP ERROR] ' + err.type.toString() + ' ' + (err.response?.statusCode?.toString() ?? '?') + ' ' + uri.path + ' (' + (elapsed?.toString() ?? '?') + 'ms)');
+      debugPrint(
+        '[HTTP ERROR] ' +
+            err.type.toString() +
+            ' ' +
+            (err.response?.statusCode?.toString() ?? '?') +
+            ' ' +
+            uri.path +
+            ' (' +
+            (elapsed?.toString() ?? '?') +
+            'ms)',
+      );
       debugPrint('\u2550' * 38);
       if (err.response?.data != null) {
         debugPrint('[Error Response Body]');
@@ -113,13 +121,23 @@ class AppLoggingInterceptor extends Interceptor {
       module: 'network',
       event: 'http_error',
       error: err,
-      data: {
-        'dioType': err.type.name,
-        'statusCode': err.response?.statusCode,
-        'elapsedMs': elapsed,
-        'traceId': traceId,
-      },
+      data: {'dioType': err.type.name, 'statusCode': err.response?.statusCode, 'elapsedMs': elapsed, 'traceId': traceId},
     );
+    if (err.response?.data != null) {
+      AppLogger.rawInfo(
+        '[HTTP ERROR RESPONSE BODY] ' + uri.path + ': ' + _safeEncode(err.response!.data),
+        module: 'network',
+        event: 'http_error_response_raw',
+        data: {
+          'method': err.requestOptions.method,
+          'url': uri.toString(),
+          'statusCode': err.response?.statusCode,
+          'elapsedMs': elapsed,
+          'traceId': traceId,
+          'body': err.response!.data,
+        },
+      );
+    }
     return handler.next(err);
   }
 }

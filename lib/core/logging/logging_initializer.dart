@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
+
 import 'app_logger.dart';
 import 'log_buffer.dart';
 import 'log_entry.dart';
@@ -24,11 +25,7 @@ class LoggingInitializer {
   /// [logEndpoint]           - 自建日志 API 地址
   /// [batchSize]             - 触发上传的最小条数，默认 20
   /// [debugModuleThreshold]  - debug 模式下各模块的最低日志级别覆盖
-  static Future<void> initialize({
-    required String logEndpoint,
-    int batchSize = 20,
-    Map<String, AppLogLevel>? debugModuleThreshold,
-  }) async {
+  static Future<void> initialize({required String logEndpoint, int batchSize = 20, Map<String, AppLogLevel>? debugModuleThreshold}) async {
     if (_buffer != null) return;
 
     // 1. 初始化缓冲区
@@ -46,49 +43,28 @@ class LoggingInitializer {
     }
 
     // 4. 启动远程上传
-    RemoteLogUploader(
-      buffer: _buffer!,
-      dio: Dio(),
-      logEndpoint: logEndpoint,
-      batchSize: batchSize,
-    ).startAutoUpload();
+    RemoteLogUploader(buffer: _buffer!, dio: Dio(), logEndpoint: logEndpoint, batchSize: batchSize).startAutoUpload();
 
     // 5. 全局异常捕获
     _installGlobalHandlers();
 
-    AppLogger.info(
-      'Logging system initialized',
-      module: 'logging',
-      event: 'logging_init',
-      data: {'logEndpoint': logEndpoint, 'batchSize': batchSize},
-    );
+    AppLogger.info('Logging system initialized', module: 'logging', event: 'logging_init', data: {'logEndpoint': logEndpoint, 'batchSize': batchSize});
   }
 
   static void _installGlobalHandlers() {
     FlutterError.onError = (details) {
-      AppLogger.error(
-        'FlutterError: ${details.exception}',
-        module: 'flutter',
-        event: 'flutter_error',
-        error: details.exception,
-        stackTrace: details.stack,
-      );
+      AppLogger.error('FlutterError: ${details.exception}', module: 'flutter', event: 'flutter_error', error: details.exception, stackTrace: details.stack);
       FlutterError.dumpErrorToConsole(details, forceReport: true);
     };
 
     PlatformDispatcher.instance.onError = (error, stackTrace) {
-      AppLogger.error(
-        'PlatformDispatcher error: $error',
-        module: 'system',
-        event: 'platform_error',
-        error: error,
-        stackTrace: stackTrace,
-      );
+      AppLogger.error('PlatformDispatcher error: $error', module: 'system', event: 'platform_error', error: error, stackTrace: stackTrace);
       return true;
     };
   }
 
   static LogBuffer? get buffer => _buffer;
+  static String? get localFilePath => _buffer?.localFilePath;
 
   static void shutdown() {
     _buffer?.onNewEntries = null;

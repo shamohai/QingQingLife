@@ -1,4 +1,5 @@
 import 'package:talker_flutter/talker_flutter.dart';
+
 import 'log_entry.dart';
 import 'log_buffer.dart';
 import 'log_sanitizer.dart';
@@ -37,37 +38,19 @@ class AppLogger {
     _log(AppLogLevel.info, message, module: module, event: event, data: data);
   }
 
-  static void warning(
-    String message, {
-    String? module,
-    String? event,
-    Object? error,
-    StackTrace? stackTrace,
-    Map<String, dynamic>? data,
-  }) =>
-      _log(AppLogLevel.warning, message,
-          module: module, event: event, error: error, stackTrace: stackTrace, data: data);
+  /// 测试阶段记录第三方接口原始响应，不做字段脱敏。
+  static void rawInfo(String message, {String? module, String? event, Map<String, dynamic>? data}) {
+    _log(AppLogLevel.info, message, module: module, event: event, data: data, sanitize: false);
+  }
 
-  static void error(
-    String message, {
-    String? module,
-    String? event,
-    Object? error,
-    StackTrace? stackTrace,
-    Map<String, dynamic>? data,
-  }) =>
-      _log(AppLogLevel.error, message,
-          module: module, event: event, error: error, stackTrace: stackTrace, data: data);
+  static void warning(String message, {String? module, String? event, Object? error, StackTrace? stackTrace, Map<String, dynamic>? data}) =>
+      _log(AppLogLevel.warning, message, module: module, event: event, error: error, stackTrace: stackTrace, data: data);
 
-  static void critical(
-    String message, {
-    String? module,
-    Object? error,
-    StackTrace? stackTrace,
-    Map<String, dynamic>? data,
-  }) =>
-      _log(AppLogLevel.critical, message,
-          module: module, error: error, stackTrace: stackTrace, data: data);
+  static void error(String message, {String? module, String? event, Object? error, StackTrace? stackTrace, Map<String, dynamic>? data}) =>
+      _log(AppLogLevel.error, message, module: module, event: event, error: error, stackTrace: stackTrace, data: data);
+
+  static void critical(String message, {String? module, Object? error, StackTrace? stackTrace, Map<String, dynamic>? data}) =>
+      _log(AppLogLevel.critical, message, module: module, error: error, stackTrace: stackTrace, data: data);
 
   static void setModuleLevel(String module, AppLogLevel level) {
     _moduleLevels[module] = level;
@@ -83,6 +66,7 @@ class AppLogger {
     Object? error,
     StackTrace? stackTrace,
     Map<String, dynamic>? data,
+    bool sanitize = true,
   }) {
     if (module != null) {
       final threshold = _moduleLevels[module];
@@ -90,20 +74,22 @@ class AppLogger {
     }
     if (!const bool.fromEnvironment('flutter.debug') && level == AppLogLevel.debug) return;
 
-    final sanitizedMessage = LogSanitizer.sanitize(message);
-    final sanitizedData = data != null ? LogSanitizer.sanitizeData(data) : null;
+    final sanitizedMessage = sanitize ? LogSanitizer.sanitize(message) : message;
+    final sanitizedData = sanitize && data != null ? LogSanitizer.sanitizeData(data) : data;
 
     // 写入缓冲区 → RemoteLogUploader → 自建日志 API
-    _buffer?.add(LogEntry(
-      level: level,
-      message: sanitizedMessage,
-      module: module,
-      event: event,
-      error: error,
-      stackTrace: stackTrace,
-      data: sanitizedData,
-      timestamp: DateTime.now(),
-    ));
+    _buffer?.add(
+      LogEntry(
+        level: level,
+        message: sanitizedMessage,
+        module: module,
+        event: event,
+        error: error,
+        stackTrace: stackTrace,
+        data: sanitizedData,
+        timestamp: DateTime.now(),
+      ),
+    );
 
     // Talker 控制台输出
     final prefix = '[${module ?? "?"}]';

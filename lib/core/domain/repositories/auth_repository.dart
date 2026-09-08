@@ -1,7 +1,7 @@
 import '../../network/api_response.dart';
 
 /// 认证业务仓库接口
-/// 
+///
 /// 定义了用户登录、登出、身份核验及个人信息获取的核心协议。
 /// 具体实现类（如 AuthRepositoryImpl）应负责与 ApiClient 交互并处理持久化（Token 存储）。
 abstract class AuthRepository {
@@ -35,38 +35,37 @@ abstract class AuthRepository {
 
 /// 认证操作后的结果封装对象
 class AuthResult {
-  final String accessToken;  // 短期访问令牌
+  final String accessToken; // 短期访问令牌
   final String? refreshToken; // 长期刷新令牌（可选，部分环境可能不支持）
-  final UserInfo userInfo;    // 登录成功后的基础用户信息
+  final UserInfo userInfo; // 登录成功后的基础用户信息
 
   const AuthResult({required this.accessToken, this.refreshToken, required this.userInfo});
 
-  factory AuthResult.fromJson(Map<String, dynamic> json) => AuthResult(
-    accessToken: json['accessToken'] as String,
-    refreshToken: json['refreshToken'] as String?,
-    userInfo: UserInfo.fromJson(json['userInfo'] as Map<String, dynamic>),
-  );
+  factory AuthResult.fromJson(Map<String, dynamic> json) {
+    final accessToken = json['accessToken'];
+    if (accessToken is! String || accessToken.isEmpty) {
+      throw FormatException('微信登录响应缺少 accessToken，响应字段: ${json.keys.join(', ')}');
+    }
+    final userInfo = json['userInfo'];
+    if (userInfo is! Map<String, dynamic>) {
+      throw FormatException('登录响应缺少 userInfo，响应字段: ${json.keys.join(', ')}');
+    }
+    return AuthResult(accessToken: accessToken, refreshToken: json['refreshToken'] as String?, userInfo: UserInfo.fromJson(userInfo));
+  }
 }
 
 /// 用户领域实体对象
-/// 
+///
 /// 承载了业务层面的核心用户属性。
 class UserInfo {
-  final String id;           // 用户唯一标识符
-  final String nickname;     // 昵称
-  final String? avatarUrl;   // 头像地址
-  final int points;          // 当前积分余量
-  final int memberLevel;     // 会员等级 (e.g., 1:普通会员, 2:白银...)
-  final String? phone;       // 脱敏后的手机号
+  final String id; // 用户唯一标识符
+  final String nickname; // 昵称
+  final String? avatarUrl; // 头像地址
+  final int points; // 当前积分余量
+  final int memberLevel; // 会员等级 (e.g., 1:普通会员, 2:白银...)
+  final String? phone; // 脱敏后的手机号
 
-  const UserInfo({
-    required this.id,
-    required this.nickname,
-    this.avatarUrl,
-    this.points = 0,
-    this.memberLevel = 1,
-    this.phone,
-  });
+  const UserInfo({required this.id, required this.nickname, this.avatarUrl, this.points = 0, this.memberLevel = 1, this.phone});
 
   factory UserInfo.fromJson(Map<String, dynamic> json) => UserInfo(
     id: json['id'] as String,

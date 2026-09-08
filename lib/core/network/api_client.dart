@@ -9,9 +9,9 @@ import 'interceptors/error_interceptor.dart';
 import '../logging/interceptors/app_logging_interceptor.dart';
 
 /// 统一网络请求入口类
-/// 
+///
 /// 基于 Dio 封装，集成加密签名、日志和错误处理拦截器。
-/// 
+///
 /// 拦截器执行顺序：
 /// 1. AppLoggingInterceptor  — 记录请求/响应日志
 /// 2. AuthInterceptor        — 注入 authtoken 到 options.extra
@@ -22,12 +22,14 @@ class ApiClient {
   final SecureStorage storage;
 
   ApiClient({required this.storage})
-      : dio = Dio(BaseOptions(
+    : dio = Dio(
+        BaseOptions(
           baseUrl: AppConfig.baseUrl,
           connectTimeout: const Duration(seconds: AppConfig.defaultConnectTimeout),
           receiveTimeout: const Duration(seconds: AppConfig.defaultReceiveTimeout),
           headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        )) {
+        ),
+      ) {
     // 注入拦截器流水线
     dio.interceptors.addAll([
       AppLoggingInterceptor(), // 请求/响应日志记录
@@ -38,51 +40,25 @@ class ApiClient {
   }
 
   /// 发起 GET 请求
-  Future<ApiResponse<T>> get<T>(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-    T Function(dynamic)? fromJson,
-  }) async {
+  Future<ApiResponse<T>> get<T>(String path, {Map<String, dynamic>? queryParameters, T Function(dynamic)? fromJson}) async {
     final response = await dio.get(path, queryParameters: queryParameters);
     return _parse<T>(response, fromJson);
   }
 
   /// 发起 POST 请求
-  Future<ApiResponse<T>> post<T>(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    T Function(dynamic)? fromJson,
-  }) async {
-    final response = await dio.post(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-    );
+  Future<ApiResponse<T>> post<T>(String path, {dynamic data, Map<String, dynamic>? queryParameters, T Function(dynamic)? fromJson}) async {
+    final response = await dio.post(path, data: data, queryParameters: queryParameters);
     return _parse<T>(response, fromJson);
   }
 
   /// 发起 PUT 请求
-  Future<ApiResponse<T>> put<T>(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    T Function(dynamic)? fromJson,
-  }) async {
-    final response = await dio.put(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-    );
+  Future<ApiResponse<T>> put<T>(String path, {dynamic data, Map<String, dynamic>? queryParameters, T Function(dynamic)? fromJson}) async {
+    final response = await dio.put(path, data: data, queryParameters: queryParameters);
     return _parse<T>(response, fromJson);
   }
 
   /// 发起 DELETE 请求
-  Future<ApiResponse<T>> delete<T>(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-    T Function(dynamic)? fromJson,
-  }) async {
+  Future<ApiResponse<T>> delete<T>(String path, {Map<String, dynamic>? queryParameters, T Function(dynamic)? fromJson}) async {
     final response = await dio.delete(path, queryParameters: queryParameters);
     return _parse<T>(response, fromJson);
   }

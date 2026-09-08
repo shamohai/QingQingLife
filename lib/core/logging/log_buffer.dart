@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:path_provider/path_provider.dart';
+
 import 'log_entry.dart';
 
 /// 内存日志缓冲区 + 本地持久化
@@ -16,12 +18,19 @@ class LogBuffer {
 
   final List<LogEntry> _queue = [];
   late final File _localFile;
+  File? _externalFile;
 
   void Function(List<LogEntry> entries)? onNewEntries;
 
   Future<void> init() async {
     final dir = await getApplicationDocumentsDirectory();
     _localFile = File('${dir.path}/$_localFileKey');
+    if (Platform.isAndroid) {
+      final externalDir = await getExternalStorageDirectory();
+      if (externalDir != null) {
+        _externalFile = File('${externalDir.path}/$_localFileKey');
+      }
+    }
     await _loadFromFile();
     _removeExpired();
   }
@@ -48,6 +57,7 @@ class LogBuffer {
 
   bool get isEmpty => _queue.isEmpty;
   int get length => _queue.length;
+  String get localFilePath => _externalFile?.path ?? _localFile.path;
 
   void _removeExpired() {
     final cutoff = DateTime.now().subtract(const Duration(hours: _maxAgeHours));
@@ -57,12 +67,10 @@ class LogBuffer {
 
   Future<void> _saveToFile() async {
     try {
-      final entries = _queue.length > _maxLocalSize
-          ? _queue.sublist(_queue.length - _maxLocalSize)
-          : _queue;
-      await _localFile.writeAsString(
-        const JsonEncoder.withIndent('  ').convert(entries.map((e) => e.toJson()).toList()),
-      );
+      final entries = _queue.length > _maxLocalSize ? _queue.sublist(_queue.length - _maxLocalSize) : _queue;
+      final content = const JsonEncoder.withIndent('  ').convert(entries.map((e) => e.toJson()).toList());
+      await _localFile.writeAsString(content);
+      await _externalFile?.writeAsString(content);
     } catch (_) {}
   }
 
@@ -79,10 +87,7 @@ class LogBuffer {
 
 LogEntry _logEntryFromJson(Map<String, dynamic> json) {
   final levelName = json['level'] as String?;
-  final level = AppLogLevel.values.firstWhere(
-    (l) => l.name == levelName,
-    orElse: () => AppLogLevel.info,
-  );
+  final level = AppLogLevel.values.firstWhere((l) => l.name == levelName, orElse: () => AppLogLevel.info);
   return LogEntry(
     level: level,
     message: json['message'] as String,

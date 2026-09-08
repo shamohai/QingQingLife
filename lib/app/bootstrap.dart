@@ -5,6 +5,7 @@ import 'package:fluwx/fluwx.dart' as fluwx;
 import 'config/app_config.dart';
 import 'app.dart';
 import '../core/update/shiply/shiply_initializer.dart';
+import '../core/logging/app_logger.dart';
 import '../core/logging/logging_initializer.dart';
 
 /// 应用启动前的引导初始化过程
@@ -13,14 +14,31 @@ import '../core/logging/logging_initializer.dart';
 Future<void> bootstrap() async {
   // 确保 Flutter 框架绑定已初始化，这对于调用原生插件是必须的
   WidgetsFlutterBinding.ensureInitialized();
-  debugPrint('[Bootstrap][WeChat] registering appId=${AppConfig.wechatAppId}');
+
+  // 日志必须先于第三方 SDK 初始化，才能记录启动阶段的失败。
+  try {
+    await LoggingInitializer.initialize(logEndpoint: '${AppConfig.baseUrl}/api/app-log/batch');
+    AppLogger.info('Local log file: ${LoggingInitializer.localFilePath}', module: 'bootstrap');
+  } catch (e, stackTrace) {
+    debugPrint('[Bootstrap] Logging init failed (non-fatal): $e\n$stackTrace');
+  }
+
+  if (LoggingInitializer.isInitialized) {
+    AppLogger.info('Registering WeChat appId=${AppConfig.wechatAppId}', module: 'wechat', event: 'register_start');
+  }
 
   // 注册微信 SDK (fluwx)
   try {
     final registered = await fluwx.Fluwx().registerApi(appId: AppConfig.wechatAppId);
-    debugPrint('[Bootstrap][WeChat] registerApi returned=$registered');
+    if (LoggingInitializer.isInitialized) {
+      AppLogger.info('registerApi returned=$registered', module: 'wechat', event: 'register_result');
+    }
   } catch (e, stackTrace) {
-    debugPrint('[Bootstrap][WeChat] registerApi failed: $e\n$stackTrace');
+    if (LoggingInitializer.isInitialized) {
+      AppLogger.error('registerApi failed', module: 'wechat', event: 'register_error', error: e, stackTrace: stackTrace);
+    } else {
+      debugPrint('[Bootstrap][WeChat] registerApi failed: $e\n$stackTrace');
+    }
   }
 
   // 初始化 Shiply SDK
@@ -29,14 +47,6 @@ Future<void> bootstrap() async {
     await ShiplyInitializer.initialize(appVersion: AppConfig.appVersionName, appVersionCode: AppConfig.appVersionCode);
   } catch (e) {
     debugPrint('[Bootstrap] Shiply init failed: $e');
-  }
-
-  // 初始化日志系统
-  // 建立本地日志缓冲池，并配置异步上传到自建日志分析 API，用于线上问题排查
-  try {
-    await LoggingInitializer.initialize(logEndpoint: '${AppConfig.baseUrl}/api/app-log/batch');
-  } catch (e) {
-    debugPrint('[Bootstrap] Logging init failed (non-fatal): $e');
   }
 
   // 使用 Riverpod 的 ProviderScope 包裹根 Widget，开启状态管理
