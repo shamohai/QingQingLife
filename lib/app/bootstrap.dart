@@ -8,18 +8,19 @@ import '../core/update/shiply/shiply_initializer.dart';
 import '../core/logging/logging_initializer.dart';
 
 /// 应用启动前的引导初始化过程
-/// 
+///
 /// 负责初始化第三方 SDK、日志系统和核心服务，确保应用在正式启动前处于就绪状态。
 Future<void> bootstrap() async {
   // 确保 Flutter 框架绑定已初始化，这对于调用原生插件是必须的
   WidgetsFlutterBinding.ensureInitialized();
+  debugPrint('[Bootstrap][WeChat] registering appId=${AppConfig.wechatAppId}');
 
   // 注册微信 SDK (fluwx)
-  // 用于支持微信登录、分享和支付功能。如果 appId 为空或环境配置不对可能会报错，因此使用 try-catch 包裹
   try {
-    await fluwx.Fluwx().registerApi(appId: AppConfig.wechatAppId);
-  } catch (e) {
-    debugPrint('[Bootstrap] fluwx register failed (expected with placeholder): $e');
+    final registered = await fluwx.Fluwx().registerApi(appId: AppConfig.wechatAppId);
+    debugPrint('[Bootstrap][WeChat] registerApi returned=$registered');
+  } catch (e, stackTrace) {
+    debugPrint('[Bootstrap][WeChat] registerApi failed: $e\n$stackTrace');
   }
 
   // 初始化 Shiply SDK

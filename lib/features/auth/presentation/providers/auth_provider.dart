@@ -7,13 +7,7 @@ import '../../../../core/network/api_response.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/providers/session_provider.dart';
 
-enum AuthStatus {
-  initial,
-  loading,
-  authenticated,
-  wechatAuthenticated,
-  unauthenticated,
-}
+enum AuthStatus { initial, loading, authenticated, wechatAuthenticated, unauthenticated }
 
 final authProvider = NotifierProvider<AuthNotifier, AuthStatus>(() => AuthNotifier());
 
@@ -27,30 +21,43 @@ class AuthNotifier extends Notifier<AuthStatus> {
   SessionNotifier get _session => ref.read(sessionProvider.notifier);
 
   Future<void> wechatLogin() async {
+    debugPrint('[Auth][WeChat] login started');
     state = AuthStatus.loading;
     _authSubscriber?.cancel();
     _authSubscriber = fluwx.Fluwx().addSubscriber(_handleWeChatResponse);
+    debugPrint('[Auth][WeChat] response subscriber registered');
     try {
-      final success = await fluwx.Fluwx().authBy(which: fluwx.NormalAuth(scope: 'snsapi_userinfo', state: 'wechat_login'));
+      final isInstalled = await fluwx.Fluwx().isWeChatInstalled;
+      debugPrint('[Auth][WeChat] installed=$isInstalled');
+      final success = await fluwx.Fluwx().authBy(
+        which: fluwx.NormalAuth(scope: 'snsapi_userinfo', state: 'wechat_login'),
+      );
+      debugPrint('[Auth][WeChat] authBy returned=$success');
       if (!success) {
-        debugPrint('[Auth] wechat authBy failed');
+        debugPrint('[Auth][WeChat] authBy rejected by native SDK');
         state = AuthStatus.unauthenticated;
       }
-    } catch (e) {
-      debugPrint('[Auth] wechatLogin exception: $e');
+    } catch (e, stackTrace) {
+      debugPrint('[Auth][WeChat] login exception: $e\n$stackTrace');
       state = AuthStatus.unauthenticated;
     }
   }
 
   Future<void> _handleWeChatResponse(fluwx.WeChatResponse response) async {
+    debugPrint('[Auth][WeChat] response received: ${response.runtimeType}, errCode=${response.errCode}');
     if (response is fluwx.WeChatAuthResponse) {
       _authSubscriber?.cancel();
       _authSubscriber = null;
       if (response.isSuccessful && response.code != null && response.code!.isNotEmpty) {
-        debugPrint('[Auth] WeChat auth code received: ${response.code}');
-        await _doWeChatLogin(response.code!);
+        debugPrint('[Auth][WeChat] auth code received');
+        try {
+          await _doWeChatLogin(response.code!);
+        } catch (e, stackTrace) {
+          debugPrint('[Auth][WeChat] exchange code exception: $e\n$stackTrace');
+          state = AuthStatus.unauthenticated;
+        }
       } else {
-        debugPrint('[Auth] WeChat auth cancelled');
+        debugPrint('[Auth][WeChat] cancelled or failed, errCode=${response.errCode}');
         state = AuthStatus.unauthenticated;
       }
     }
@@ -66,7 +73,7 @@ class AuthNotifier extends Notifier<AuthStatus> {
       await _session.savePendingWechatCode(code);
       state = AuthStatus.wechatAuthenticated;
     } else {
-      debugPrint('[Auth] WeChat login failed: code=${response.code} msg=${response.message}');
+      debugPrint('[Auth][WeChat] server rejected login: code=${response.code} msg=${response.message}');
       state = AuthStatus.unauthenticated;
     }
   }

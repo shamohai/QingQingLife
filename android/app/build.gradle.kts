@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    namespace = "com.qingkejiu.qingqinglife"
+    namespace = "cn.zhongjiubatch"
     compileSdk = 37
     //compileSdk = flutter.compileSdkVersion
     ndkVersion = "28.2.13676358"
@@ -52,6 +52,7 @@ android {
     buildTypes {
         getByName("debug") {
             signingConfig = signingConfigs.getByName("release")
+            isDebuggable = true
         }
         release {
             // TODO: Add your own signing config for the release build.

@@ -1,16 +1,26 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../app_logger.dart';
 
-/// Dio 请求/响应日志拦截器
-///
-/// - 为每次请求生成 traceId，通过 header / extra 传递
-/// - 记录请求耗时，自动附加到 http_success / http_error 事件中
-/// - Debug 模式输出详细请求 URL，Release 仅记录结果
+/// Dio request/response logging interceptor.
+/// Logs full request params/body before send and response body after receive.
 class AppLoggingInterceptor extends Interceptor {
   static const _traceIdHeader = '__trace_id';
   static const _startTimeKey = '_log_request_start';
+
+  static String _safeEncode(dynamic value) {
+    if (value == null) return 'null';
+    if (value is String) return value;
+    if (value is num || value is bool) return value.toString();
+    try {
+      return const JsonEncoder.withIndent('  ').convert(value);
+    } catch (_) {
+      return value.toString();
+    }
+  }
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -18,13 +28,32 @@ class AppLoggingInterceptor extends Interceptor {
     options.extra[_traceIdHeader] = options.headers[_traceIdHeader];
     options.extra[_startTimeKey] = DateTime.now().millisecondsSinceEpoch;
 
-    if (kDebugMode) {
-      AppLogger.debug(
-        '[HTTP] ${options.method} ${options.uri.path}',
-        module: 'network',
-        data: {'url': options.uri.toString()},
-      );
+    final logData = <String, dynamic>{
+      'url': options.uri.toString(),
+      'method': options.method,
+      'headers': Map<String, dynamic>.from(options.headers),
+    };
+    if (options.queryParameters.isNotEmpty) {
+      logData['queryParameters'] = options.queryParameters;
     }
+    if (options.data != null) {
+      logData['data'] = options.data;
+    }
+
+    if (kDebugMode) {
+      debugPrint('\u2550' * 38);
+      debugPrint('[HTTP REQUEST] ' + options.method + ' ' + options.uri.toString());
+      debugPrint('\u2550' * 38);
+      debugPrint('[Request Body]');
+      debugPrint(_safeEncode(options.data));
+      debugPrint('');
+    }
+
+    AppLogger.debug(
+      '[HTTP] ' + options.method + ' ' + options.uri.path,
+      module: 'network',
+      data: logData,
+    );
     return handler.next(options);
   }
 
@@ -35,9 +64,19 @@ class AppLoggingInterceptor extends Interceptor {
     final elapsed = startTime != null
         ? DateTime.now().millisecondsSinceEpoch - startTime
         : null;
+    final uri = response.requestOptions.uri;
+
+    if (kDebugMode) {
+      debugPrint('\u2550' * 38);
+      debugPrint('[HTTP RESPONSE] ' + response.statusCode.toString() + ' ' + uri.path + ' (' + (elapsed?.toString() ?? '?') + 'ms)');
+      debugPrint('\u2550' * 38);
+      debugPrint('[Response Body]');
+      debugPrint(_safeEncode(response.data));
+      debugPrint('');
+    }
 
     AppLogger.info(
-      '[HTTP] ${response.statusCode} ${response.requestOptions.uri.path} ${elapsed != null ? '(${elapsed}ms)' : ''}',
+      '[HTTP] ' + response.statusCode.toString() + ' ' + uri.path + ' (' + (elapsed?.toString() ?? '?') + 'ms)',
       module: 'network',
       event: 'http_success',
       data: {
@@ -56,9 +95,21 @@ class AppLoggingInterceptor extends Interceptor {
     final elapsed = startTime != null
         ? DateTime.now().millisecondsSinceEpoch - startTime
         : null;
+    final uri = err.requestOptions.uri;
+
+    if (kDebugMode) {
+      debugPrint('\u2550' * 38);
+      debugPrint('[HTTP ERROR] ' + err.type.toString() + ' ' + (err.response?.statusCode?.toString() ?? '?') + ' ' + uri.path + ' (' + (elapsed?.toString() ?? '?') + 'ms)');
+      debugPrint('\u2550' * 38);
+      if (err.response?.data != null) {
+        debugPrint('[Error Response Body]');
+        debugPrint(_safeEncode(err.response!.data));
+        debugPrint('');
+      }
+    }
 
     AppLogger.error(
-      '[HTTP] ${err.type} ${err.response?.statusCode ?? '?'} ${err.requestOptions.uri.path} ${elapsed != null ? '(${elapsed}ms)' : ''}',
+      '[HTTP] ' + err.type.toString() + ' ' + (err.response?.statusCode?.toString() ?? '?') + ' ' + uri.path + ' (' + (elapsed?.toString() ?? '?') + 'ms)',
       module: 'network',
       event: 'http_error',
       error: err,
