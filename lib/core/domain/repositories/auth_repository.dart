@@ -35,44 +35,51 @@ abstract class AuthRepository {
 
 /// 认证操作后的结果封装对象
 class AuthResult {
-  final String accessToken; // 短期访问令牌
-  final String? refreshToken; // 长期刷新令牌（可选，部分环境可能不支持）
-  final UserInfo userInfo; // 登录成功后的基础用户信息
+  final String accessToken; // authtoken（服务端整数 ID），转为字符串存入 SecureStorage
+  final String? refreshToken; // 暂不支持，保留字段
+  final UserInfo userInfo;
 
   const AuthResult({required this.accessToken, this.refreshToken, required this.userInfo});
 
   factory AuthResult.fromJson(Map<String, dynamic> json) {
-    final accessToken = json['accessToken'];
-    if (accessToken is! String || accessToken.isEmpty) {
-      throw FormatException('微信登录响应缺少 accessToken，响应字段: ${json.keys.join(', ')}');
+    // 后端返回 authtoken（int），直接取整数字段
+    final authToken = json['authtoken'];
+    if (authToken == null) {
+      throw FormatException('登录响应缺少 authtoken，响应字段: ${json.keys.join(', ')}');
     }
-    final userInfo = json['userInfo'];
-    if (userInfo is! Map<String, dynamic>) {
-      throw FormatException('登录响应缺少 userInfo，响应字段: ${json.keys.join(', ')}');
-    }
-    return AuthResult(accessToken: accessToken, refreshToken: json['refreshToken'] as String?, userInfo: UserInfo.fromJson(userInfo));
+    final accessToken = authToken.toString();
+    final userInfo = UserInfo.fromJson(json);
+    return AuthResult(accessToken: accessToken, refreshToken: null, userInfo: userInfo);
   }
 }
 
 /// 用户领域实体对象
 ///
-/// 承载了业务层面的核心用户属性。
+/// 对应 /api/sys/app/login 返回的扁平字段。
 class UserInfo {
-  final String id; // 用户唯一标识符
-  final String nickname; // 昵称
-  final String? avatarUrl; // 头像地址
-  final int points; // 当前积分余量
-  final int memberLevel; // 会员等级 (e.g., 1:普通会员, 2:白银...)
-  final String? phone; // 脱敏后的手机号
+  final String id; // userrid
+  final String nickname; // username
+  final String? avatarUrl; // avatar（后端可能返回 [URL](URL) markdown 格式）
+  final int points; // paycredits
+  final int memberLevel; // rankcredits
+  final String? phone; // mobile
 
   const UserInfo({required this.id, required this.nickname, this.avatarUrl, this.points = 0, this.memberLevel = 1, this.phone});
 
   factory UserInfo.fromJson(Map<String, dynamic> json) => UserInfo(
-    id: json['id'] as String,
-    nickname: json['nickname'] as String,
-    avatarUrl: json['avatarUrl'] as String?,
-    points: json['points'] as int? ?? 0,
-    memberLevel: json['memberLevel'] as int? ?? 1,
-    phone: json['phone'] as String?,
-  );
+        id: (json['userrid'] as int?)?.toString() ?? '',
+        nickname: (json['username'] as String?) ?? '',
+        avatarUrl: _cleanAvatarUrl(json['avatar'] as String?),
+        points: json['paycredits'] as int? ?? 0,
+        memberLevel: json['rankcredits'] as int? ?? 1,
+        phone: json['mobile'] as String?,
+      );
+
+  /// 清理 avatar 字段：后端可能返回 [https://...](https://...) 格式的 markdown 链接
+  static String? _cleanAvatarUrl(String? url) {
+    if (url == null || url.isEmpty) return null;
+    final match = RegExp(r'\[(https?://[^\]]+)\]\(\1\)').firstMatch(url);
+    if (match != null) return match.group(1);
+    return url.startsWith('http') ? url : null;
+  }
 }

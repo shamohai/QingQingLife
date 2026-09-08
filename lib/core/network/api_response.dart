@@ -1,13 +1,13 @@
 import 'exceptions/exceptions.dart';
 
 /// 统一 API 响应模型
-/// 
+///
 /// 支持两种后端响应格式：
-/// 
+///
 /// **格式 A（标准）**：{"code": 0, "message": "success", "data": {...}}
 ///   - code == 0 表示成功
 ///   - data 为业务数据
-/// 
+///
 /// **格式 B（扁平）**：{"result": 0, "descr": null, "uid": 123, ...}
 ///   - result == 0 表示成功
 ///   - 其余字段直接作为业务数据返回（无 data 包装层）

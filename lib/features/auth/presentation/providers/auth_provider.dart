@@ -33,9 +33,10 @@ class AuthNotifier extends Notifier<AuthStatus> {
         which: fluwx.NormalAuth(scope: 'snsapi_userinfo', state: 'wechat_login'),
       );
       AppLogger.info('authBy returned=$success', module: 'wechat', event: 'auth_request_result');
+      // authBy 返回 false 说明已唤起微信 SDK（回调由 _handleWeChatResponse 处理）
+      // 不要在这里重置 state，保持 loading 等待回调
       if (!success) {
         AppLogger.warning('authBy rejected by native SDK', module: 'wechat', event: 'auth_request_rejected');
-        state = AuthStatus.unauthenticated;
       }
     } catch (e, stackTrace) {
       AppLogger.error('WeChat login exception', module: 'wechat', event: 'login_error', error: e, stackTrace: stackTrace);
