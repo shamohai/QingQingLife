@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path_provider/path_provider.dart';
 
 import 'log_entry.dart';
@@ -17,22 +18,28 @@ class LogBuffer {
   static const _localFileKey = 'app_log_buffer.json';
 
   final List<LogEntry> _queue = [];
-  late final File _localFile;
+  File? _localFile;
   File? _externalFile;
 
   void Function(List<LogEntry> entries)? onNewEntries;
 
   Future<void> init() async {
-    final dir = await getApplicationDocumentsDirectory();
-    _localFile = File('${dir.path}/$_localFileKey');
-    if (Platform.isAndroid) {
-      final externalDir = await getExternalStorageDirectory();
-      if (externalDir != null) {
-        _externalFile = File('${externalDir.path}/$_localFileKey');
+    if (kIsWeb) return;
+
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      _localFile = File('${dir.path}/$_localFileKey');
+      if (Platform.isAndroid) {
+        final externalDir = await getExternalStorageDirectory();
+        if (externalDir != null) {
+          _externalFile = File('${externalDir.path}/$_localFileKey');
+        }
       }
+      await _loadFromFile();
+      _removeExpired();
+    } catch (_) {
+      // 在 Web 环境或不支持文件系统的环境，保持内存运行即可
     }
-    await _loadFromFile();
-    _removeExpired();
   }
 
   void add(LogEntry entry) {
@@ -57,7 +64,7 @@ class LogBuffer {
 
   bool get isEmpty => _queue.isEmpty;
   int get length => _queue.length;
-  String get localFilePath => _externalFile?.path ?? _localFile.path;
+  String get localFilePath => _externalFile?.path ?? _localFile?.path ?? 'memory';
 
   void _removeExpired() {
     final cutoff = DateTime.now().subtract(const Duration(hours: _maxAgeHours));
@@ -66,18 +73,20 @@ class LogBuffer {
   }
 
   Future<void> _saveToFile() async {
+    if (kIsWeb || _localFile == null) return;
     try {
       final entries = _queue.length > _maxLocalSize ? _queue.sublist(_queue.length - _maxLocalSize) : _queue;
       final content = const JsonEncoder.withIndent('  ').convert(entries.map((e) => e.toJson()).toList());
-      await _localFile.writeAsString(content);
+      await _localFile!.writeAsString(content);
       await _externalFile?.writeAsString(content);
     } catch (_) {}
   }
 
   Future<void> _loadFromFile() async {
+    if (kIsWeb || _localFile == null) return;
     try {
-      if (!await _localFile.exists()) return;
-      final content = await _localFile.readAsString();
+      if (!await _localFile!.exists()) return;
+      final content = await _localFile!.readAsString();
       for (final item in jsonDecode(content) as List) {
         _queue.add(_logEntryFromJson(item as Map<String, dynamic>));
       }

@@ -29,11 +29,11 @@ class LoggingInitializer {
     if (_buffer != null) return;
 
     // 1. 初始化缓冲区
-    _buffer = LogBuffer();
-    await _buffer!.init();
+    final buffer = LogBuffer();
+    await buffer.init();
 
     // 2. 初始化 AppLogger
-    AppLogger.init(buffer: _buffer);
+    AppLogger.init(buffer: buffer);
 
     // 3. debug 模块级别覆盖
     if (kDebugMode && debugModuleThreshold != null) {
@@ -43,10 +43,12 @@ class LoggingInitializer {
     }
 
     // 4. 启动远程上传
-    RemoteLogUploader(buffer: _buffer!, dio: Dio(), logEndpoint: logEndpoint, batchSize: batchSize).startAutoUpload();
+    RemoteLogUploader(buffer: buffer, dio: Dio(), logEndpoint: logEndpoint, batchSize: batchSize).startAutoUpload();
 
     // 5. 全局异常捕获
     _installGlobalHandlers();
+
+    _buffer = buffer; // 成功后赋值
 
     AppLogger.info('Logging system initialized', module: 'logging', event: 'logging_init', data: {'logEndpoint': logEndpoint, 'batchSize': batchSize});
   }

@@ -19,13 +19,15 @@ import 'log_sanitizer.dart';
 ///
 /// **禁止**：业务代码直接使用 `Talker`、`print`、`debugPrint`。
 class AppLogger {
-  static late final Talker _talker;
+  static Talker _talker = Talker();
   static LogBuffer? _buffer;
   static final Map<String, AppLogLevel> _moduleLevels = {};
 
   static void init({LogBuffer? buffer, Talker? talker}) {
     _buffer = buffer;
-    _talker = talker ?? Talker();
+    if (talker != null) {
+      _talker = talker;
+    }
   }
 
   // ── 公开 API ──────────────────────────────────────────────────────
