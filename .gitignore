@@ -21,8 +21,6 @@ migrate_working_dir/
 .agents/
 .widget_preview/
 
-项目结构.md
-AGENTS.md
 devtools_options.yaml
 
 # The .vscode folder contains launch configuration and tasks you configure in
@@ -65,3 +63,4 @@ app.*.map.json
 /android/build
 # Widget Preview related
 pubspec.lock
+.env.local

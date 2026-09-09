@@ -34,10 +34,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     ref.listen<AuthStatus>(authProvider, (previous, next) {
       if (previous == AuthStatus.loading && next == AuthStatus.wechatAuthenticated) {
-        setState(() => _showLoadingOverlay = false);
+        // 成功导航，不主动关闭遮罩；页面跳转后旧路由销毁，遮罩自然消失
         if (mounted) context.push(RouteNames.phoneBind);
       } else if (previous == AuthStatus.loading && next == AuthStatus.authenticated) {
-        setState(() => _showLoadingOverlay = false);
+        // 同上
         if (mounted) context.go(RouteNames.profile);
       } else if (next == AuthStatus.unauthenticated) {
         // 授权取消或失败：关闭遮罩，留在登录页
@@ -105,7 +105,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ],
             ),
           ),
-          // 授权中遮罩：从点击按钮到回调返回全程覆盖，避免登录页裸露
           if (_showLoadingOverlay)
             Container(
               color: Colors.black.withValues(alpha: 0.4),
