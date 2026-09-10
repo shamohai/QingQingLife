@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,8 +17,11 @@ import 'route_names.dart';
 
 /// 主应用路由器，使用 StatefulShellRoute 保持各 Tab 独立导航栈
 final appRouter = Provider<GoRouter>((ref) {
+  // 临时 dev 入口：仅本地/web 调试用，通过 --dart-define QINGQING_DEV_ROUTE=/phone-bind
+  // 直接打开指定路由；未设置该定义时行为不变（仍从首页启动）。上线前可删除。
+  const devRoute = String.fromEnvironment('QINGQING_DEV_ROUTE');
   return GoRouter(
-    initialLocation: RouteNames.home,
+    initialLocation: devRoute.isNotEmpty ? devRoute : RouteNames.home,
     debugLogDiagnostics: false,
     routes: [
       GoRoute(
@@ -38,16 +41,11 @@ final appRouter = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RouteNames.home,
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: HomePage()),
+                pageBuilder: (context, state) => const NoTransitionPage(child: HomePage()),
                 routes: [
                   GoRoute(
                     path: 'product/:id',
-                    pageBuilder: (context, state) => MaterialPage(
-                      child: ProductDetailPage(
-                        productId: state.pathParameters['id']!,
-                      ),
-                    ),
+                    pageBuilder: (context, state) => MaterialPage(child: ProductDetailPage(productId: state.pathParameters['id']!)),
                   ),
                 ],
               ),
@@ -57,8 +55,7 @@ final appRouter = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RouteNames.points,
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: PointsMallPage()),
+                pageBuilder: (context, state) => const NoTransitionPage(child: PointsMallPage()),
               ),
             ],
           ),
@@ -66,8 +63,7 @@ final appRouter = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RouteNames.shop,
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: ShopPage()),
+                pageBuilder: (context, state) => const NoTransitionPage(child: ShopPage()),
               ),
             ],
           ),
@@ -75,17 +71,13 @@ final appRouter = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RouteNames.service,
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: ServicePage()),
+                pageBuilder: (context, state) => const NoTransitionPage(child: ServicePage()),
                 routes: [
                   GoRoute(
                     path: 'records',
                     pageBuilder: (context, state) {
-                      final activeTab =
-                          state.uri.queryParameters['activeTab'] ?? 'ongoing';
-                      return MaterialPage(
-                        child: ServiceRecordsPage(activeTab: activeTab),
-                      );
+                      final activeTab = state.uri.queryParameters['activeTab'] ?? 'ongoing';
+                      return MaterialPage(child: ServiceRecordsPage(activeTab: activeTab));
                     },
                   ),
                 ],
@@ -96,8 +88,7 @@ final appRouter = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RouteNames.profile,
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: ProfilePage()),
+                pageBuilder: (context, state) => const NoTransitionPage(child: ProfilePage()),
               ),
             ],
           ),
@@ -128,26 +119,14 @@ class MainShell extends StatelessWidget {
 
   static const _tabBarItems = [
     BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: '首页'),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.point_of_sale_outlined),
-      label: '积分商城',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.storefront_outlined),
-      label: '特色商城',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.calendar_today_outlined),
-      label: '服务预约',
-    ),
+    BottomNavigationBarItem(icon: Icon(Icons.point_of_sale_outlined), label: '积分商城'),
+    BottomNavigationBarItem(icon: Icon(Icons.storefront_outlined), label: '特色商城'),
+    BottomNavigationBarItem(icon: Icon(Icons.calendar_today_outlined), label: '服务预约'),
     BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '我的'),
   ];
 
   void _goBranch(int index) {
-    navigationShell.goBranch(
-      index,
-      initialLocation: true,
-    );
+    navigationShell.goBranch(index, initialLocation: true);
   }
 
   @override

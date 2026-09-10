@@ -15,14 +15,7 @@ class MockAuthDataSource implements AuthRepository {
   final _uuid = const Uuid();
 
   // 模拟用户数据
-  static const _mockUser = UserInfo(
-    id: 'u001',
-    nickname: '青轻用户_9527',
-    avatarUrl: null,
-    points: 3580,
-    memberLevel: 2,
-    phone: '138****1234',
-  );
+  static const _mockUser = UserInfo(id: 'u001', nickname: '青轻用户_9527', avatarUrl: null, points: 3580, memberLevel: 2, phone: '138****1234');
 
   @override
   Future<ApiResponse<AuthResult>> loginWithPhone({required String phone, required String code}) async {
@@ -80,6 +73,9 @@ class MockAuthDataSource implements AuthRepository {
 
   @override
   Future<ApiResponse<AuthResult>> phoneBind({required String phone, required String code, required String wechatCode}) async {
+    if (!RegExp(r'^\d{6}$').hasMatch(code)) {
+      return ApiResponse.error('验证码需为 6 位数字');
+    }
     await Future.delayed(const Duration(milliseconds: 800));
     final accessToken = _uuid.v4();
     final refreshToken = _uuid.v4();
@@ -95,8 +91,8 @@ class MockAuthDataSource implements AuthRepository {
   Future<ApiResponse<void>> sendSmsCode({required String phone}) async {
     await Future.delayed(const Duration(milliseconds: 500));
 
-    if (!RegExp(r'^1[3-9]\d{9}$').hasMatch(phone)) {
-      return ApiResponse.error('手机号格式错误');
+    if (!RegExp(r'^1\d{10}$').hasMatch(phone)) {
+      return ApiResponse.error('请输入正确的手机号');
     }
 
     // 模拟发送成功（实际应返回验证码或标识）

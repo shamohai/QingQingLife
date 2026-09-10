@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../features/auth/data/datasources/auth_remote_datasource.dart';
+import '../../features/auth/data/datasources/auth_mock_datasource.dart';
 import '../domain/repositories/auth_repository.dart';
 import '../../features/cart/data/datasources/cart_mock_datasource.dart';
 import '../../features/cart/domain/repositories/cart_repository.dart';
@@ -23,8 +23,8 @@ part 'repository_providers.g.dart';
 /// Auth Repository Provider
 @riverpod
 AuthRepository authRepository(Ref ref) {
-  final ds = ref.read(remoteAuthDataSourceProvider);
-  return ds;
+  // 后台 Auth API 仍在开发中，先使用 Mock 数据完成登录/绑定流程。
+  return MockAuthDataSource();
 }
 
 /// Product Repository Provider

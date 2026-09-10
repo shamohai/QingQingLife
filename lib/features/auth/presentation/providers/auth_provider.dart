@@ -105,6 +105,15 @@ class AuthNotifier extends Notifier<AuthStatus> {
     }
   }
 
+  Future<bool> sendSmsCode({required String phone}) async {
+    final response = await _repository.sendSmsCode(phone: phone);
+    if (!response.success) {
+      AppLogger.warning('SMS code request failed', module: 'auth', event: 'send_sms_failed', data: {'code': response.code, 'message': response.message});
+
+    }
+    return response.success;
+  }
+
   Future<void> logout() async {
     state = AuthStatus.loading;
     _authSubscriber?.cancel();
