@@ -71,8 +71,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     final screenW = MediaQuery.sizeOf(context).width;
     // final viewInsetsBottom = MediaQuery.of(context).viewInsets.bottom;
+    // 只需要键盘高度，系统导航栏交给 SafeArea
+    final keyboardBottom = MediaQuery.viewInsetsOf(context).bottom;
     // 用 viewPadding.bottom（系统导航栏） + viewInsets.bottom（键盘）
-    final bottomSafe = MediaQuery.viewPaddingOf(context).bottom + MediaQuery.viewInsetsOf(context).bottom;
+    //final bottomSafe = MediaQuery.viewPaddingOf(context).bottom + MediaQuery.viewInsetsOf(context).bottom;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -104,58 +106,62 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               left: 0,
               right: 0,
               bottom: 0,
-              child: Container(
-                clipBehavior: Clip.antiAlias,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
-                ),
-                padding: EdgeInsets.only(bottom: 10 + bottomSafe),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // 标题行："请阅读并同意以下条款" + 关闭 X
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                      child: Row(
-                        children: [
-                          const Spacer(),
-                          const Text(
-                            '请阅读并同意以下条款',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
-                          ),
-                          const Spacer(),
-                          GestureDetector(onTap: _onCloseSheet, child: Image.asset('assets/images/auth/icon_close.png', width: 24, height: 24)),
-                        ],
-                      ),
-                    ),
-                    // 协议链接
-                    const SizedBox(height: 12),
-                    Center(
-                      child: RichText(
-                        text: const TextSpan(
-                          style: TextStyle(fontSize: 15, height: 1.0),
+              child: SafeArea(
+                // 自动处理底部导航栏
+                top: false,
+                child: Container(
+                  clipBehavior: Clip.antiAlias,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+                  ),
+                  padding: EdgeInsets.only(bottom: 15 + keyboardBottom),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 标题行："请阅读并同意以下条款" + 关闭 X
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                        child: Row(
                           children: [
-                            TextSpan(
-                              text: '《用户服务协议》',
-                              style: TextStyle(color: _linkBlue, fontWeight: FontWeight.w500, letterSpacing: -2),
+                            const Spacer(),
+                            const Text(
+                              '请阅读并同意以下条款',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
                             ),
-                            TextSpan(
-                              text: '和',
-                              style: TextStyle(color: _textGray, letterSpacing: -2),
-                            ),
-                            TextSpan(
-                              text: '《用户隐私政策》',
-                              style: TextStyle(color: _linkBlue, fontWeight: FontWeight.w500, letterSpacing: -2),
-                            ),
+                            const Spacer(),
+                            GestureDetector(onTap: _onCloseSheet, child: Image.asset('assets/images/auth/icon_close.png', width: 24, height: 24)),
                           ],
                         ),
                       ),
-                    ),
-                    // "同意并继续" 按钮
-                    const SizedBox(height: 24),
-                    Padding(padding: const EdgeInsets.symmetric(horizontal: 46), child: _buildAuthButton('同意并继续', _onAgreeAndContinue)),
-                  ],
+                      // 协议链接
+                      const SizedBox(height: 12),
+                      Center(
+                        child: RichText(
+                          text: const TextSpan(
+                            style: TextStyle(fontSize: 15, height: 1.0),
+                            children: [
+                              TextSpan(
+                                text: '《用户服务协议》',
+                                style: TextStyle(color: _linkBlue, fontWeight: FontWeight.w500, letterSpacing: -2),
+                              ),
+                              TextSpan(
+                                text: '和',
+                                style: TextStyle(color: _textGray, letterSpacing: -2),
+                              ),
+                              TextSpan(
+                                text: '《用户隐私政策》',
+                                style: TextStyle(color: _linkBlue, fontWeight: FontWeight.w500, letterSpacing: -2),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      // "同意并继续" 按钮
+                      const SizedBox(height: 24),
+                      Padding(padding: const EdgeInsets.symmetric(horizontal: 46), child: _buildAuthButton('同意并继续', _onAgreeAndContinue)),
+                    ],
+                  ),
                 ),
               ),
             ),
