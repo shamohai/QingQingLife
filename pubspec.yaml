@@ -79,6 +79,7 @@ flutter:
 
   assets:
     - assets/images/common/
+    - assets/images/auth/
     - assets/images/home/
     - assets/images/product/
     - assets/images/member/

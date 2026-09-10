@@ -47,6 +47,8 @@ devtools_options.yaml
 /extracted/
 /outputs/
 /references/
+/LanhuProject/
+/Lanhuimages/
 /design-to-code-inputs/
 
 # Symbolication related
