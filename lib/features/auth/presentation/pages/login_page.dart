@@ -70,6 +70,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
 
     final screenW = MediaQuery.sizeOf(context).width;
+    // final viewInsetsBottom = MediaQuery.of(context).viewInsets.bottom;
+    // 用 viewPadding.bottom（系统导航栏） + viewInsets.bottom（键盘）
+    final bottomSafe = MediaQuery.viewPaddingOf(context).bottom + MediaQuery.viewInsetsOf(context).bottom;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -107,7 +110,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
                 ),
-                padding: const EdgeInsets.only(bottom: 32),
+                padding: EdgeInsets.only(bottom: 10 + bottomSafe),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -202,9 +205,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             SizedBox(height: 15 * scale),
             // 协议文本（可勾选）
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 46),
+              padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Row(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize: MainAxisSize.max,
                 children: [
                   Checkbox(
                     value: _agreed,
