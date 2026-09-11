@@ -1,6 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/auth/data/datasources/auth_mock_datasource.dart';
+import '../../features/auth/data/datasources/auth_mixed_datasource.dart';
+import '../../features/auth/data/datasources/auth_remote_datasource.dart';
 import '../domain/repositories/auth_repository.dart';
 import '../../features/cart/data/datasources/cart_mock_datasource.dart';
 import '../../features/cart/domain/repositories/cart_repository.dart';
@@ -23,8 +25,9 @@ part 'repository_providers.g.dart';
 /// Auth Repository Provider
 @riverpod
 AuthRepository authRepository(Ref ref) {
-  // 后台 Auth API 仍在开发中，先使用 Mock 数据完成登录/绑定流程。
-  return MockAuthDataSource();
+  // 微信授权登录走真实接口；绑定手机号（sendSmsCode + phoneBind）后端未就绪，走 Mock。
+  // 待 bindPhone/sendCode 后端就绪后，直接改为：return ref.watch(remoteAuthDataSourceProvider);
+  return AuthMixedDataSource(remote: ref.read(remoteAuthDataSourceProvider), mock: MockAuthDataSource());
 }
 
 /// Product Repository Provider

@@ -157,12 +157,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
             top: 0,
             left: 0,
             right: 0,
-            child: Image.asset(
-              'assets/images/auth/login_bg.png',
-              width: screenW,
-              height: screenW * (624 / 440),
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset('assets/images/auth/login_bg.png', width: screenW, height: screenW * (624 / 440), fit: BoxFit.cover),
           ),
 
           // ── 底部装饰图（与登录页一致）──
@@ -170,12 +165,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
             bottom: 0,
             left: 0,
             right: 0,
-            child: Image.asset(
-              'assets/images/auth/login_bottom_deco.png',
-              width: screenW,
-              height: 60,
-              fit: BoxFit.fill,
-            ),
+            child: Image.asset('assets/images/auth/login_bottom_deco.png', width: screenW, height: 60, fit: BoxFit.fill),
           ),
 
           // ── 主内容 ──
@@ -190,13 +180,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
                   padding: EdgeInsets.fromLTRB(sidePad, f(40, min: 28), sidePad, 0),
                   child: Text(
                     '欢迎使用\n青轻生活馆',
-                    style: TextStyle(
-                      fontSize: fsTitle,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                      height: 1.39,
-                      letterSpacing: -2,
-                    ),
+                    style: TextStyle(fontSize: fsTitle, fontWeight: FontWeight.w500, color: Colors.black, height: 1.39, letterSpacing: -2),
                     textAlign: TextAlign.left,
                   ),
                 ),
@@ -210,13 +194,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
                 // 验证码字段（输入框内含发送验证码）
                 Padding(
                   padding: EdgeInsets.fromLTRB(sidePad, f(24, min: 18), sidePad, 0),
-                  child: _buildLabeledCodeInput(
-                    labelSize: fsLabel,
-                    inputH: inputH,
-                    fsInput: fsInput,
-                    fsSend: fsSend,
-                    sidePad: sidePad,
-                  ),
+                  child: _buildLabeledCodeInput(labelSize: fsLabel, inputH: inputH, fsInput: fsInput, fsSend: fsSend, sidePad: sidePad),
                 ),
 
                 // 主按钮
@@ -246,7 +224,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
 
                 // 底部协议（文案，无 checkbox）
                 Padding(
-                  padding: EdgeInsets.only(bottom: f(40, min: 28)),
+                  padding: EdgeInsets.only(bottom: f(20, min: 12) + MediaQuery.paddingOf(context).bottom),
                   child: Center(
                     child: RichText(
                       textAlign: TextAlign.center,
@@ -283,16 +261,14 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
   );
 
   /// 手机号输入（label + 白色圆角输入框）。
-  Widget _buildLabeledInput({
-    required String label,
-    required double labelSize,
-    required double inputH,
-    required double fsInput,
-  }) {
+  Widget _buildLabeledInput({required String label, required double labelSize, required double inputH, required double fsInput}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: labelSize, fontWeight: FontWeight.w500, color: Colors.black)),
+        Text(
+          label,
+          style: TextStyle(fontSize: labelSize, fontWeight: FontWeight.w500, color: Colors.black),
+        ),
         const SizedBox(height: 14),
         SizedBox(
           height: inputH,
@@ -304,10 +280,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
               controller: _phoneController,
               keyboardType: TextInputType.phone,
               maxLength: 11,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                LengthLimitingTextInputFormatter(11),
-              ],
+              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), LengthLimitingTextInputFormatter(11)],
               style: TextStyle(fontSize: fsInput, color: Colors.black),
               decoration: InputDecoration(
                 isDense: true,
@@ -328,17 +301,14 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
   }
 
   /// 验证码输入（label + 白色圆角输入框，框内右侧为发送验证码）。
-  Widget _buildLabeledCodeInput({
-    required double labelSize,
-    required double inputH,
-    required double fsInput,
-    required double fsSend,
-    required double sidePad,
-  }) {
+  Widget _buildLabeledCodeInput({required double labelSize, required double inputH, required double fsInput, required double fsSend, required double sidePad}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('验证码', style: TextStyle(fontSize: labelSize, fontWeight: FontWeight.w500, color: Colors.black)),
+        Text(
+          '验证码',
+          style: TextStyle(fontSize: labelSize, fontWeight: FontWeight.w500, color: Colors.black),
+        ),
         const SizedBox(height: 14),
         SizedBox(
           height: inputH,
@@ -352,10 +322,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
                     controller: _codeController,
                     keyboardType: const TextInputType.numberWithOptions(signed: false),
                     maxLength: 6,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                      LengthLimitingTextInputFormatter(6),
-                    ],
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), LengthLimitingTextInputFormatter(6)],
                     style: TextStyle(fontSize: fsInput, color: Colors.black),
                     decoration: InputDecoration(
                       isDense: true,
@@ -376,11 +343,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
                     padding: EdgeInsets.symmetric(horizontal: sidePad * 0.25),
                     child: Text(
                       _countdown > 0 ? '${_countdown}s' : '发送验证码',
-                      style: TextStyle(
-                        fontSize: fsSend,
-                        fontWeight: FontWeight.w500,
-                        color: _countdown > 0 || _sending ? _textGray : _linkBlue,
-                      ),
+                      style: TextStyle(fontSize: fsSend, fontWeight: FontWeight.w500, color: _countdown > 0 || _sending ? _textGray : _linkBlue),
                     ),
                   ),
                 ),
