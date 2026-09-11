@@ -7,7 +7,7 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../app/router/route_names.dart';
-import '../../domain/models/service_item.dart';
+import '../../domain/models/service_record_item.dart';
 import '../providers/service_provider.dart';
 import '../widgets/service_entry_card.dart';
 
@@ -26,8 +26,7 @@ class ServiceRecordsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
-    final allItems = ref.watch(serviceDataProvider);
+    final allItems = ref.watch(serviceRecordDataProvider);
 
     final filteredItems = activeTab == 'ongoing'
         ? allItems
@@ -128,14 +127,14 @@ abstract final class _TabKey {
 
 /// 记录列表中的卡片：复用 ServiceEntryCard 样式，buttonText 固定为"去预约"
 class _RecordCard extends StatelessWidget {
-  final ServiceItem item;
+  final ServiceRecordItem item;
 
   const _RecordCard({required this.item});
 
   @override
   Widget build(BuildContext context) {
     return ServiceEntryCard(
-      title: item.name,
+      title: item.title,
       buttonText: '去预约',
       listMode: item.status,
     );
