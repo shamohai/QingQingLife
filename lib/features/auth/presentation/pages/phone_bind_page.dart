@@ -299,6 +299,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
           child: Container(
             decoration: _inputDeco,
             padding: const EdgeInsets.symmetric(horizontal: 14),
+            alignment: Alignment.centerLeft,
             child: TextField(
               controller: _phoneController,
               keyboardType: TextInputType.phone,
@@ -311,6 +312,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
               decoration: InputDecoration(
                 isDense: true,
                 hintText: '请输入手机号',
+                filled: false,
                 hintStyle: TextStyle(fontSize: fsInput, color: _textGray),
                 counterText: '',
                 border: InputBorder.none,
@@ -358,6 +360,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
                     decoration: InputDecoration(
                       isDense: true,
                       hintText: '请输入验证码',
+                      filled: false,
                       hintStyle: TextStyle(fontSize: fsInput, color: _textGray),
                       counterText: '',
                       border: InputBorder.none,
