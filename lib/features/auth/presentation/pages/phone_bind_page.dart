@@ -135,7 +135,8 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
     });
 
     final screenW = MediaQuery.sizeOf(context).width;
-    final scale = screenW / 440;
+    // 限制缩放基准宽度，防止在平板/PC等宽屏设备上元素过大
+    final scale = math.min(screenW, 500.0) / 440;
 
     double f(double source, {required double min}) => math.max(source * scale, min);
     final fsTitle = f(36, min: 30);
@@ -171,82 +172,93 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
           // ── 主内容 ──
           SafeArea(
             top: true,
-            bottom: false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 品牌标题
-                Padding(
-                  padding: EdgeInsets.fromLTRB(sidePad, f(40, min: 28), sidePad, 0),
-                  child: Text(
-                    '欢迎使用\n青轻生活馆',
-                    style: TextStyle(fontSize: fsTitle, fontWeight: FontWeight.w500, color: Colors.black, height: 1.39, letterSpacing: -2),
-                    textAlign: TextAlign.left,
-                  ),
-                ),
-
-                // 手机号字段
-                Padding(
-                  padding: EdgeInsets.fromLTRB(sidePad, f(56, min: 40), sidePad, 0),
-                  child: _buildLabeledInput(label: '手机号', labelSize: fsLabel, inputH: inputH, fsInput: fsInput),
-                ),
-
-                // 验证码字段（输入框内含发送验证码）
-                Padding(
-                  padding: EdgeInsets.fromLTRB(sidePad, f(24, min: 18), sidePad, 0),
-                  child: _buildLabeledCodeInput(labelSize: fsLabel, inputH: inputH, fsInput: fsInput, fsSend: fsSend, sidePad: sidePad),
-                ),
-
-                // 主按钮
-                Padding(
-                  padding: EdgeInsets.fromLTRB(sidePad, f(40, min: 28), sidePad, 0),
-                  child: SizedBox(
-                    height: ctaH,
-                    child: GestureDetector(
-                      onTap: _submitting ? null : _bindPhone,
-                      child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: _buttonBlue.withValues(alpha: _submitting ? 0.7 : 1.0),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          '立即登录',
-                          style: TextStyle(fontSize: fsCta, color: Colors.white, height: 1.39),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
-                const Spacer(),
-
-                // 底部协议（文案，无 checkbox）
-                Padding(
-                  padding: EdgeInsets.only(bottom: f(20, min: 12) + MediaQuery.paddingOf(context).bottom),
-                  child: Center(
-                    child: RichText(
-                      textAlign: TextAlign.center,
-                      text: TextSpan(
-                        style: TextStyle(fontSize: fsAgreement, color: _textGray, height: 1.17),
+            bottom: true,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const TextSpan(text: '登录及接受'),
-                          TextSpan(
-                            text: '《用户服务协议》',
-                            style: TextStyle(color: _linkBlue, fontWeight: FontWeight.w500),
+                          // 品牌标题
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(sidePad, f(40, min: 28), sidePad, 0),
+                            child: Text(
+                              '欢迎使用\n青轻生活馆',
+                              style: TextStyle(fontSize: fsTitle, fontWeight: FontWeight.w500, color: Colors.black, height: 1.39, letterSpacing: -2),
+                              textAlign: TextAlign.left,
+                            ),
                           ),
-                          const TextSpan(text: '和'),
-                          TextSpan(
-                            text: '《用户隐私政策》',
-                            style: TextStyle(color: _linkBlue, fontWeight: FontWeight.w500),
+
+                          // 手机号字段
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(sidePad, f(56, min: 40), sidePad, 0),
+                            child: _buildLabeledInput(label: '手机号', labelSize: fsLabel, inputH: inputH, fsInput: fsInput),
+                          ),
+
+                          // 验证码字段（输入框内含发送验证码）
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(sidePad, f(24, min: 18), sidePad, 0),
+                            child: _buildLabeledCodeInput(labelSize: fsLabel, inputH: inputH, fsInput: fsInput, fsSend: fsSend, sidePad: sidePad),
+                          ),
+
+                          // 主按钮
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(sidePad, f(40, min: 28), sidePad, 0),
+                            child: SizedBox(
+                              height: ctaH,
+                              child: GestureDetector(
+                                onTap: _submitting ? null : _bindPhone,
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: _buttonBlue.withValues(alpha: _submitting ? 0.7 : 1.0),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    '立即登录',
+                                    style: TextStyle(fontSize: fsCta, color: Colors.white, height: 1.39),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const Spacer(),
+
+                          // 底部协议（文案，无 checkbox）
+                          Padding(
+                            padding: EdgeInsets.only(bottom: f(20, min: 12), top: 40),
+                            child: Center(
+                              child: RichText(
+                                textAlign: TextAlign.center,
+                                text: TextSpan(
+                                  style: TextStyle(fontSize: fsAgreement, color: _textGray, height: 1.17),
+                                  children: [
+                                    const TextSpan(text: '登录及接受'),
+                                    TextSpan(
+                                      text: '《用户服务协议》',
+                                      style: TextStyle(color: _linkBlue, fontWeight: FontWeight.w500),
+                                    ),
+                                    const TextSpan(text: '和'),
+                                    TextSpan(
+                                      text: '《用户隐私政策》',
+                                      style: TextStyle(color: _linkBlue, fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                ),
-              ],
+                );
+              },
             ),
           ),
         ],
