@@ -26,7 +26,7 @@ class HotProductsSection extends ConsumerWidget {
         ),
         const SizedBox(height: AppSpacing.sm),
         SizedBox(
-          height: 235, // 增加高度至 235，确保容纳卡片及底部阴影
+          height: 235,
           child: productsData.when(
             loading: () => const Center(child: AppLoading()),
             error: (_, __) => const SizedBox.shrink(),
@@ -39,7 +39,8 @@ class HotProductsSection extends ConsumerWidget {
                 itemCount: items.length,
                 itemBuilder: (context, index) => Padding(
                   padding: EdgeInsets.only(right: index == items.length - 1 ? 0 : AppSpacing.md),
-                  child: Center(
+                  child: SizedBox(
+                    width: 150,
                     child: PointsProductCard(product: items[index]),
                   ),
                 ),

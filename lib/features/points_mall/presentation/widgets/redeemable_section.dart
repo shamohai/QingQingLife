@@ -4,151 +4,60 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
-import '../../../../core/widgets/app_image.dart';
 import '../../data/models/points_mall_home_data.dart';
+import 'points_product_card.dart';
 
-/// "我能兑换" 分区 — 左侧积分区间标签 + 右侧商品列表（每行横排）
 class RedeemableSection extends StatelessWidget {
   final List<PointsRedeemGroup> groups;
+  final void Function(PointsProduct)? onExchange;
 
-  const RedeemableSection({super.key, required this.groups});
+  const RedeemableSection({super.key, required this.groups, this.onExchange});
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          child: Text('我能兑换', style: AppTextStyles.headlineSmall),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        ...groups.map((group) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          child: _RedeemGroupRow(group: group),
-        )),
-      ],
+      children: groups.map((group) => _RedeemGroup(group: group, onExchange: onExchange)).toList(),
     );
   }
 }
 
-class _RedeemGroupRow extends StatelessWidget {
+class _RedeemGroup extends StatelessWidget {
   final PointsRedeemGroup group;
+  final void Function(PointsProduct)? onExchange;
 
-  const _RedeemGroupRow({required this.group});
+  const _RedeemGroup({required this.group, this.onExchange});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 左侧区间标签，加宽
-          SizedBox(
-            width: 88,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE8F5E9),
-                borderRadius: BorderRadius.circular(AppRadius.sm),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+              decoration: BoxDecoration(color: const Color(0xFFF0F4FF), borderRadius: BorderRadius.circular(AppRadius.sm)),
+              child: Text(group.rangeLabel, style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary)),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          if (group.products.isEmpty) const SizedBox.shrink()
+          else
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 4,
+                mainAxisSpacing: AppSpacing.sm,
+                crossAxisSpacing: AppSpacing.sm,
+                childAspectRatio: 0.72,
+                children: group.products.map((p) => PointsProductCard(product: p, compact: true, onExchange: onExchange != null ? () => onExchange!(p) : null)).toList(),
               ),
-              child: Center(
-                child: Text(
-                  group.rangeLabel,
-                  style: AppTextStyles.labelMedium.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
             ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          // 右侧商品列表（横排卡片）
-          Expanded(
-            child: group.products.isEmpty
-                ? Container(
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                    ),
-                    child: const Center(
-                      child: Text('暂无商品', style: TextStyle(fontSize: 12, color: AppColors.outline)),
-                    ),
-                  )
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: group.products.map((p) => _RedeemProductRow(product: p)).toList(),
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// 单行兑换商品卡片：左侧图片 + 右上名称 + 右下积分
-class _RedeemProductRow extends StatelessWidget {
-  final PointsProduct product;
-
-  const _RedeemProductRow({required this.product});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-      padding: const EdgeInsets.all(AppSpacing.sm),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        boxShadow: [const BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, 1))],
-      ),
-      child: Row(
-        children: [
-          // 左侧图片
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-            child: AppNetworkImage(
-              url: product.imageUrl,
-              width: 72,
-              height: 72,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // 右上：商品名称
-                Text(
-                  product.name,
-                  style: AppTextStyles.bodySmall.copyWith(fontSize: 12),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 6),
-                // 右下：兑换积分
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.stars, size: 12, color: AppColors.warning),
-                    const SizedBox(width: 2),
-                    Text(
-                      '${product.points}积分',
-                      style: AppTextStyles.priceSmall.copyWith(color: AppColors.warning, fontSize: 13),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );

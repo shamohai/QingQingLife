@@ -11,6 +11,7 @@
 .svn/
 .swiftpm/
 .artifacts/
+.lanhu-context-mcp.local/
 migrate_working_dir/
 
 # IntelliJ related
@@ -66,3 +67,4 @@ app.*.map.json
 # Widget Preview related
 pubspec.lock
 .env.local
+.hot_reload_cmd
