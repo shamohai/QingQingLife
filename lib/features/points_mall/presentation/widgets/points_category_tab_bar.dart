@@ -19,36 +19,52 @@ class PointsCategoryTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: const Color(0xFFF3F5F7),
-      child: SizedBox(
-        height: 56,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: categories.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 8),
-          itemBuilder: (context, index) {
-            final label = categories[index];
-            final isActive = label == activeCategoryId;
-            return GestureDetector(
-              onTap: () => onCategoryTap(label),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(9),
+          topRight: Radius.circular(9),
+        ),
+      ),
+      height: 37,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: categories.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 20), // 适当拉开分类间距
+        itemBuilder: (context, index) {
+          final label = categories[index];
+          final isActive = label == activeCategoryId;
+          return GestureDetector(
+            onTap: () => onCategoryTap(label),
+            child: Container(
+              height: 37,
+              alignment: Alignment.center,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: isActive ? AppColors.primary : AppColors.surfaceVariant,
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
-                ),
+                padding: const EdgeInsets.only(bottom: 4), // 设置文字与横线的间隙
+                decoration: isActive
+                    ? const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Color(0xFF213775),
+                            width: 3,
+                          ),
+                        ),
+                      )
+                    : null,
                 child: Text(
                   label,
-                  style: const TextStyle(fontSize: 14).copyWith(
-                    color: isActive ? AppColors.onPrimary : AppColors.onSurfaceVariant,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isActive ? const Color(0xFF213775) : const Color(0xFF8E8E93),
                     fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                    height: 1.0,
                   ),
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

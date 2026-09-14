@@ -16,13 +16,7 @@ class PointsBalanceCard extends ConsumerStatefulWidget {
   final DateTime expiryDate;
   final VoidCallback? onDetailTap;
 
-  const PointsBalanceCard({
-    super.key,
-    required this.currentPoints,
-    required this.expiringPoints,
-    required this.expiryDate,
-    this.onDetailTap,
-  });
+  const PointsBalanceCard({super.key, required this.currentPoints, required this.expiringPoints, required this.expiryDate, this.onDetailTap});
 
   @override
   ConsumerState<PointsBalanceCard> createState() => _PointsBalanceCardState();
@@ -55,12 +49,21 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
           if (widget.expiringPoints > 0) ...[
             Row(
               children: [
-                const Icon(Icons.notification_important, size: 14, color: Color(0xFFFF2105)),
+                const Icon(Icons.notification_important, size: 20, color: Color(0xFFFF2105)),
                 const SizedBox(width: 4),
                 Expanded(
-                  child: Text(
-                    '您有${widget.expiringPoints}积分将于${widget.expiryDate.year}年${widget.expiryDate.month}月${widget.expiryDate.day}日到期',
-                    style: const TextStyle(fontSize: 12, color: Color(0xFF555555)),
+                  child: Text.rich(
+                    TextSpan(
+                      text: '您有',
+                      children: [
+                        TextSpan(
+                          text: '${widget.expiringPoints}积分',
+                          style: const TextStyle(color: Color(0xFF0088FF)),
+                        ),
+                        TextSpan(text: '将于${widget.expiryDate.year}年${widget.expiryDate.month}月${widget.expiryDate.day}日到期'),
+                      ],
+                    ),
+                    style: const TextStyle(fontSize: 13, color: Color(0xFF555555)),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -73,29 +76,56 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                NumberFormat('#,##0').format(widget.currentPoints),
-                style: const TextStyle(
-                  fontSize: 21,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF090909),
-                  height: 1.1,
-                  letterSpacing: -1,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        NumberFormat('#,##0').format(widget.currentPoints),
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF090909),
+                          height: 1.1,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      Transform.translate(
+                        offset: const Offset(0, -2), // 向上偏移，使其超出数字顶部边缘
+                        child: const Icon(Icons.info_outline, size: 12, color: AppColors.outline),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '积分余额',
+                    style: const TextStyle(fontSize: 10, color: Color(0xFF8E8E93)),
+                  ),
+                ],
               ),
-              const SizedBox(width: 4),
-              Text(
-                '积分余额',
-                style: const TextStyle(fontSize: 9, color: Color(0xFF8E8E93)),
-              ),
-              const SizedBox(width: 4),
-              const Icon(Icons.info_outline, size: 14, color: AppColors.outline),
               const Spacer(),
               GestureDetector(
                 onTap: widget.onDetailTap,
-                child: const Text(
-                  '积分明细',
-                  style: TextStyle(fontSize: 11, color: Color(0xFF0088FF), fontWeight: FontWeight.w600),
+                child: Container(
+                  width: 57,
+                  height: 20,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xFF0088FF), width: 1),
+                    borderRadius: BorderRadius.circular(67),
+                  ),
+                  child: const Text(
+                    '积分明细',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF0088FF),
+                      fontWeight: FontWeight.w500, // 修正为中等粗细
+                      height: 1.0, // 修正行高适配 11dp 高度
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -103,20 +133,36 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
           const Divider(height: 1, thickness: 0.5, color: Color(0xFFE1E4DC)),
           // ── 热门兑换商品标题栏 ──
           Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 8),
-            child: Row(
-              children: [
-                const Text('热门兑换商品', style: TextStyle(fontSize: 12, color: Color(0xFF000000), fontWeight: FontWeight.w500)),
-                const Spacer(),
-                const Text('查看全部>>>', style: TextStyle(fontSize: 9, color: Color(0xFF8E8E93))),
-              ],
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: SizedBox(
+              height: 17,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    '热门兑换商品',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF000000),
+                      fontWeight: FontWeight.w500,
+                      height: 1.0,
+                    ),
+                  ),
+                  const Spacer(),
+                  const Text(
+                    '查看全部>>>',
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: Color(0xFF8E8E93),
+                      height: 1.0,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           // ── 热门商品横向滚动列表 ──
-          SizedBox(
-            height: 110,
-            child: HotProductsListView(controller: _scrollController),
-          ),
+          SizedBox(height: 110, child: HotProductsListView(controller: _scrollController)),
         ],
       ),
     );
@@ -145,10 +191,7 @@ class HotProductsListView extends ConsumerWidget {
           itemCount: items.length,
           itemBuilder: (context, index) => Padding(
             padding: EdgeInsets.only(right: index == items.length - 1 ? 0 : 8),
-            child: SizedBox(
-              width: 74,
-              child: PointsProductCard(product: items[index], compact: true),
-            ),
+            child: SizedBox(width: 74, child: PointsProductCard(product: items[index], compact: true)),
           ),
         );
       },

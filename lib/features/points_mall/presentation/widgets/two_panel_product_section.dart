@@ -24,22 +24,26 @@ class _TwoPanelProductSectionState extends State<TwoPanelProductSection> {
 
   @override
   Widget build(BuildContext context) {
+    // 处理 "我能兑换" 逻辑：如果选中第一个，则展示所有组的汇总或第一组
+    // 这里简单处理为展示第一组，实际业务可能需要展示所有可兑换商品
+    final displayProducts = _activeIndex == 0
+        ? widget.groups.expand((g) => g.products).toList()
+        : widget.groups[_activeIndex - 1].products;
+
     return Container(
       color: const Color(0xFFF3F5F7),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Flexible(
-            flex: 0,
-            child: PointsCategorySidebar(
-              groups: widget.groups,
-              activeIndex: _activeIndex,
-              onCategoryTap: (index) => setState(() => _activeIndex = index),
-            ),
+          PointsCategorySidebar(
+            groups: widget.groups,
+            activeIndex: _activeIndex,
+            onCategoryTap: (index) => setState(() => _activeIndex = index),
           ),
           const VerticalDivider(width: 1, color: Color(0xFFE1E4DC)),
           Expanded(
             child: PointsProductListPanel(
-              products: widget.groups[_activeIndex].products,
+              products: displayProducts,
               onExchange: widget.onExchange,
             ),
           ),

@@ -37,66 +37,65 @@ class _PointsCategorySidebarState extends State<PointsCategorySidebar> {
 
   @override
   Widget build(BuildContext context) {
+    final allLabels = ['我能兑换', ...widget.groups.map((g) => g.rangeLabel)];
+
     return Container(
-      width: 120,
-      color: Colors.white,
-      child: ListView(
+      width: 81,
+      height: 340,
+      color: const Color(0xFFF3F5F7),
+      child: ListView.builder(
         controller: _scrollController,
-        padding: const EdgeInsets.only(top: 8),
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 14, top: 12, bottom: 8),
-            child: Text(
-              '我能兑换',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primary,
+        padding: const EdgeInsets.symmetric(vertical: 0),
+        itemCount: allLabels.length,
+        physics: const ClampingScrollPhysics(),
+        itemBuilder: (context, index) {
+          final label = allLabels[index];
+          final isActive = index == widget.activeIndex;
+          return GestureDetector(
+            onTap: () => widget.onCategoryTap(index),
+            child: Container(
+              width: 78,
+              height: 38,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: isActive ? Colors.white : Colors.transparent,
+                borderRadius: isActive
+                    ? const BorderRadius.only(
+                        topRight: Radius.circular(9),
+                        bottomRight: Radius.circular(9),
+                      )
+                    : null,
               ),
-            ),
-          ),
-          ...widget.groups.asMap().entries.map((entry) {
-            final index = entry.key;
-            final group = entry.value;
-            final isActive = index == widget.activeIndex;
-            return GestureDetector(
-              onTap: () => widget.onCategoryTap(index),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                decoration: BoxDecoration(
-                  color: isActive ? const Color(0xFFF0F4FF) : null,
-                ),
-                child: Row(
-                  children: [
-                    if (isActive)
-                      Container(
-                        width: 2,
-                        height: 20,
-                        margin: const EdgeInsets.only(right: 8),
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.all(Radius.circular(1)),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isActive ? const Color(0xFF213775) : const Color(0xFF090909),
+                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                      height: 1.0,
+                    ),
+                  ),
+                  if (isActive)
+                    Positioned(
+                      left: 0,
+                      child: Container(
+                        width: 1,
+                        height: 13,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF213775),
+                          borderRadius: BorderRadius.circular(67),
                         ),
                       ),
-                    Text(
-                      group.rangeLabel,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFF090909),
-                      ).copyWith(
-                        color: isActive ? AppColors.primary : const Color(0xFF090909),
-                        fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                      ),
                     ),
-                  ],
-                ),
+                ],
               ),
-            );
-          }),
-        ],
+            ),
+          );
+        },
       ),
     );
   }

@@ -112,7 +112,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                     pinned: true,
                     floating: true,
                     delegate: _CategoryTabBarDelegate(
-                      tabHeight: 56,
+                      tabHeight: 37, // 修正为设计稿高度 37
                       child: PointsCategoryTabBar(
                         categories: staticData.categories.map((c) => c.label).toList(),
                         activeCategoryId: _activeCategoryId,

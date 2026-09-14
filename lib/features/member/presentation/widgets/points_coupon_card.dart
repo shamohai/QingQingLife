@@ -75,7 +75,19 @@ class _ExpiryNotice extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text('您有${expiringPoints}积分将于${dateStr}到期', style: const TextStyle(fontSize: 20, color: Color(0xFF666666))),
+            child: Text.rich(
+              TextSpan(
+                text: '您有',
+                children: [
+                  TextSpan(
+                    text: '${expiringPoints}积分',
+                    style: const TextStyle(color: Color(0xFF0088FF)),
+                  ),
+                  TextSpan(text: '将于${dateStr}到期'),
+                ],
+              ),
+              style: const TextStyle(fontSize: 13, color: Color(0xFF666666)),
+            ),
           ),
           TextButton(
             onPressed: () {},

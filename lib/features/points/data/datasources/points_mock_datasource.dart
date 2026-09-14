@@ -14,10 +14,7 @@ class MockPointsDataSource implements PointsRepository {
     return ApiResponse.success(
       PointsMallHomeData(
         bannerUrl: 'assets/images/points/banner.jpg',
-        bannerUrls: const [
-          'assets/images/points/banner.jpg',
-          'assets/images/points/banner.jpg',
-        ],
+        bannerUrls: const ['assets/images/points/banner.jpg', 'assets/images/points/banner.jpg'],
         currentPoints: 3580,
         expiringPoints: 800,
         expiryDate: DateTime.now().add(const Duration(days: 45)),
@@ -59,7 +56,7 @@ class MockPointsDataSource implements PointsRepository {
         ],
         redeemableGroups: [
           PointsRedeemGroup(
-            rangeLabel: '1000-2000积分',
+            rangeLabel: '1000-2000',
             products: [
               const PointsProduct(
                 id: 'pp4',
@@ -78,12 +75,7 @@ class MockPointsDataSource implements PointsRepository {
   }
 
   @override
-  Future<ApiResponse<PointsMallHomeData>> getProducts({
-    required int page,
-    required int pageSize,
-    String? categoryId,
-    String? keyword,
-  }) async {
+  Future<ApiResponse<PointsMallHomeData>> getProducts({required int page, required int pageSize, String? categoryId, String? keyword}) async {
     return getPointsMallHome();
   }
 
@@ -116,20 +108,12 @@ class MockPointsDataSource implements PointsRepository {
   }) async {
     await Future.delayed(const Duration(milliseconds: 800));
     return ApiResponse.success(
-      PointsExchangeResult(
-        orderId: 'order_$productId',
-        orderNo: 'NO${DateTime.now().millisecondsSinceEpoch}',
-        pointsDeducted: 2000 * quantity,
-      ),
+      PointsExchangeResult(orderId: 'order_$productId', orderNo: 'NO${DateTime.now().millisecondsSinceEpoch}', pointsDeducted: 2000 * quantity),
     );
   }
 
   @override
-  Future<ApiResponse<List<PointsExchangeRecord>>> getExchangeRecords({
-    required int page,
-    required int pageSize,
-    ExchangeStatus? status,
-  }) async {
+  Future<ApiResponse<List<PointsExchangeRecord>>> getExchangeRecords({required int page, required int pageSize, ExchangeStatus? status}) async {
     await Future.delayed(const Duration(milliseconds: 300));
     return ApiResponse.success([
       PointsExchangeRecord(
@@ -150,23 +134,14 @@ class MockPointsDataSource implements PointsRepository {
   Future<ApiResponse<SignInResult>> signIn() async {
     await Future.delayed(const Duration(milliseconds: 300));
     return ApiResponse.success(
-      const SignInResult(
-        success: true,
-        pointsEarned: 10,
-        consecutiveDays: 1,
-        isConsecutiveBonus: false,
-        bonusPoints: 0,
-        message: '签到成功',
-      ),
+      const SignInResult(success: true, pointsEarned: 10, consecutiveDays: 1, isConsecutiveBonus: false, bonusPoints: 0, message: '签到成功'),
     );
   }
 
   @override
   Future<ApiResponse<SignInCalendarResult>> getSignInCalendar({required int year, required int month}) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    return ApiResponse.success(
-      SignInCalendarResult(year: year, month: month, records: [], totalSignedDays: 0, consecutiveDays: 0),
-    );
+    return ApiResponse.success(SignInCalendarResult(year: year, month: month, records: [], totalSignedDays: 0, consecutiveDays: 0));
   }
 
   @override
