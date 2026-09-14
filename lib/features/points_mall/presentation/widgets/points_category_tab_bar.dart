@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
-import '../../../../app/theme/app_spacing.dart';
-import '../../../../app/theme/app_text_styles.dart';
-import '../../data/models/points_mall_home_data.dart';
 
-/// 分类 Tab 栏（水平可滚动）
+/// 积分商城分类 Tab 栏（水平可滚动，sticky 钉住）
 class PointsCategoryTabBar extends StatelessWidget {
-  final List<PointsCategory> categories;
+  final List<String> categories;
   final String activeCategoryId;
   final ValueChanged<String> onCategoryTap;
 
@@ -21,44 +18,37 @@ class PointsCategoryTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 34,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-        itemCount: categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
-        itemBuilder: (context, index) {
-          final cat = categories[index];
-          final isActive = cat.id == activeCategoryId;
-          return GestureDetector(
-            onTap: () => onCategoryTap(cat.id),
-            child: SizedBox(
-              height: 26,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                    decoration: BoxDecoration(
-                      color: isActive ? AppColors.primary : AppColors.surfaceVariant,
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                    ),
-                    child: Text(
-                      cat.label,
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.labelMedium.copyWith(
-                        color: isActive ? AppColors.onPrimary : AppColors.onSurfaceVariant,
-                        fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                      ),
-                    ),
+    return Container(
+      color: const Color(0xFFF3F5F7),
+      child: SizedBox(
+        height: 56,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: categories.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          itemBuilder: (context, index) {
+            final label = categories[index];
+            final isActive = label == activeCategoryId;
+            return GestureDetector(
+              onTap: () => onCategoryTap(label),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isActive ? AppColors.primary : AppColors.surfaceVariant,
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+                child: Text(
+                  label,
+                  style: const TextStyle(fontSize: 14).copyWith(
+                    color: isActive ? AppColors.onPrimary : AppColors.onSurfaceVariant,
+                    fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                   ),
-                ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

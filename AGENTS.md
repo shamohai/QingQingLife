@@ -230,6 +230,11 @@ flutter-design-to-code
 
 优先使用结构化信息更完整的来源，并以最终设计稿视觉效果进行验证。
 
+涉及蓝湖 MCP、设计稿识别、设计稿转 Flutter 页面时，
+必须先阅读：
+
+.agents/skills/qingqing-design-to-flutter/SKILL.md
+
 ---
 
 # 7. Design Token 与资源

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/theme/app_colors.dart';
 
-/// 积分商城搜索区域（蓝色背景 + 搜索框）
-/// 作为 CustomScrollView 的内容区的一部分，非固定 AppBar
+/// 积分商城搜索区域（透明背景，白色胶囊 pill 浮在 Banner 上，蓝色描边）
 class PointsSearchArea extends StatelessWidget {
   final TextEditingController? searchController;
   final VoidCallback? onSearch;
@@ -18,8 +17,7 @@ class PointsSearchArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.primary,
+    return Padding(
       padding: const EdgeInsets.only(
         top: AppSpacing.sm,
         bottom: AppSpacing.md,
@@ -30,32 +28,39 @@ class PointsSearchArea extends StatelessWidget {
         children: [
           Expanded(
             child: Container(
-              height: 36,
+              height: 40,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(AppRadius.round),
+                border: Border.all(color: const Color(0xFF213775), width: 1),
               ),
-              child: TextField(
-                controller: searchController,
-                textAlignVertical: TextAlignVertical.center,
-                style: const TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  isDense: true,
-                  hintText: '搜索心仪好物',
-                  hintStyle: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF949599),
+              child: Row(
+                children: [
+                  const SizedBox(width: 14),
+                  const Icon(Icons.search, size: 22, color: Color(0xFF949599)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: searchController,
+                      style: const TextStyle(fontSize: 14),
+                      decoration: const InputDecoration(
+                        hintText: '搜索心仪好物',
+                        hintStyle: TextStyle(fontSize: 13, color: Color(0xFF949599)),
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                      ),
+                      onSubmitted: (_) => onSearch?.call(),
+                    ),
                   ),
-                  prefixIcon: const Icon(
-                    Icons.search,
-                    size: 18,
-                    color: Color(0xFF949599),
-                  ),
-                  suffixIcon: InkWell(
+                  const SizedBox(width: 4),
+                  InkWell(
                     onTap: onSearch,
                     borderRadius: BorderRadius.circular(AppRadius.round),
                     child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                      padding: EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
                         '搜索',
                         style: TextStyle(
@@ -66,10 +71,8 @@ class PointsSearchArea extends StatelessWidget {
                       ),
                     ),
                   ),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.zero,
-                ),
-                onSubmitted: (_) => onSearch?.call(),
+                  const SizedBox(width: 14),
+                ],
               ),
             ),
           ),
