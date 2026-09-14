@@ -56,6 +56,15 @@ class MainShell extends StatelessWidget {
 
   void _goBranch(int index) => navigationShell.goBranch(index, initialLocation: true);
 
+  // TODO: 10张图标替换后直接生效，无需改代码
+  static const _tabAssets = [
+    (selected: 'assets/icon/tab_home_selected.png',  unselected: 'assets/icon/tab_home_unselected.png'),
+    (selected: 'assets/icon/tab_points_selected.png',  unselected: 'assets/icon/tab_points_unselected.png'),
+    (selected: 'assets/icon/tab_shop_selected.png',    unselected: 'assets/icon/tab_shop_unselected.png'),
+    (selected: 'assets/icon/tab_service_selected.png', unselected: 'assets/icon/tab_service_unselected.png'),
+    (selected: 'assets/icon/tab_profile_selected.png', unselected: 'assets/icon/tab_profile_unselected.png'),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final idx = navigationShell.currentIndex;
@@ -70,42 +79,56 @@ class MainShell extends StatelessWidget {
           top: false,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildTab(0, 'assets/images/points/icon-home.png', '首页', idx),
-              _buildTab(1, 'assets/images/points/icon-points-selected.png', '积分商城', idx),
-              _buildTab(2, 'assets/images/points/icon-shop.png', '特色商城', idx),
-              _buildTab(3, 'assets/images/points/icon-service.png', '服务中心', idx),
-              _buildTab(4, 'assets/images/points/icon-profile.png', '我的', idx),
-            ],
+            children: List.generate(5, (i) => _TabItem(
+              index: i,
+              selectedAsset: _tabAssets[i].selected,
+              unselectedAsset: _tabAssets[i].unselected,
+              label: ['首页', '积分商城', '特色商城', '服务中心', '我的'][i],
+              isSelected: i == idx,
+              onTap: () => _goBranch(i),
+            )),
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildTab(int index, String asset, String label, int currentIdx) {
-    final bool selected = index == currentIdx;
+class _TabItem extends StatelessWidget {
+  final int index;
+  final String selectedAsset;
+  final String unselectedAsset;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _TabItem({
+    required this.index,
+    required this.selectedAsset,
+    required this.unselectedAsset,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _goBranch(index),
+      onTap: onTap,
       child: SizedBox(
         width: 64,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              asset,
+              isSelected ? selectedAsset : unselectedAsset,
               width: 26,
               height: 26,
-              color: selected ? const Color(0xFF0088FF) : const Color(0xFF8E8E93),
             ),
             const SizedBox(height: 3),
             Text(
               label,
-              style: TextStyle(
-                fontSize: 10,
-                color: selected ? const Color(0xFF0088FF) : const Color(0xFF8E8E93),
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-              ),
+              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400),
             ),
           ],
         ),
