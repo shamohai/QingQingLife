@@ -4,7 +4,7 @@ import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_colors.dart';
 
-/// 积分商城搜索区域（透明背景，白色胶囊 pill 浮在 Banner 上，蓝色描边）
+/// 积分商城搜索区域（白色胶囊 pill，蓝色描边，浮在 Banner 上）
 class PointsSearchArea extends StatelessWidget {
   final TextEditingController? searchController;
   final VoidCallback? onSearch;
@@ -51,6 +51,10 @@ class PointsSearchArea extends StatelessWidget {
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
+                        hoverColor: Colors.white,
+                        focusColor: Colors.white,
+                        fillColor: Colors.white,
+                        filled: true,
                       ),
                       onSubmitted: (_) => onSearch?.call(),
                     ),
