@@ -63,7 +63,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                         TextSpan(text: '将于${widget.expiryDate.year}年${widget.expiryDate.month}月${widget.expiryDate.day}日到期'),
                       ],
                     ),
-                    style: const TextStyle(color: Color(0xFF555555)),
+                    style: const TextStyle(fontSize: 16, color: Color(0xFF555555)),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -89,20 +89,23 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                       const SizedBox(width: 2),
                       Transform.translate(
                         offset: const Offset(0, -2),
-                        child: const Icon(Icons.info_outline, size: 12, color: AppColors.outline),
+                        child: const Icon(Icons.info_outline, size: 14, color: AppColors.outline),
                       ),
                     ],
                   ),
                   const SizedBox(height: 2),
-                  Text('积分余额', style: const TextStyle(color: Color(0xFF8E8E93))),
+                  Text(
+                    '积分余额',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF8E8E93)),
+                  ),
                 ],
               ),
               const Spacer(),
               GestureDetector(
                 onTap: widget.onDetailTap,
                 child: Container(
-                  width: 80,
-                  height: 30,
+                  width: 100,
+                  height: 40,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     border: Border.all(color: const Color(0xFF0088FF), width: 1),
@@ -110,7 +113,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                   ),
                   child: const Text(
                     '积分明细',
-                    style: TextStyle(fontSize: 11, color: Color(0xFF0088FF), fontWeight: FontWeight.w500, height: 1.0),
+                    style: TextStyle(fontSize: 16, color: Color(0xFF0088FF), fontWeight: FontWeight.w500, height: 1.0),
                   ),
                 ),
               ),
@@ -121,7 +124,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: SizedBox(
-              height: 17,
+              height: 26,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -129,16 +132,16 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                   const SizedBox(width: 4),
                   const Text(
                     '热门兑换商品',
-                    style: TextStyle(fontSize: 12, color: Color(0xFF000000), fontWeight: FontWeight.w500, height: 1.0),
+                    style: TextStyle(fontSize: 20, color: Color(0xFF000000), fontWeight: FontWeight.w600, height: 1.0),
                   ),
                   const Spacer(),
-                  const Text('查看全部>>>', style: TextStyle(fontSize: 9, color: Color(0xFF8E8E93), height: 1.0)),
+                  const Text('查看全部>>>', style: TextStyle(fontSize: 16, color: Color(0xFF8E8E93), height: 1.0)),
                 ],
               ),
             ),
           ),
           // ── 热门商品横向滚动列表 ──
-          SizedBox(height: 110, child: HotProductsListView(controller: _scrollController)),
+          SizedBox(height: 140, child: HotProductsListView(controller: _scrollController)),
         ],
       ),
     );
@@ -167,7 +170,7 @@ class HotProductsListView extends ConsumerWidget {
           itemCount: items.length,
           itemBuilder: (context, index) => Padding(
             padding: EdgeInsets.only(right: index == items.length - 1 ? 0 : 8),
-            child: SizedBox(width: 74, child: PointsProductCard(product: items[index], compact: true)),
+            child: SizedBox(width: 140, child: PointsProductCard(product: items[index], compact: true)),
           ),
         );
       },

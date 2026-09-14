@@ -79,13 +79,15 @@ class MainShell extends StatelessWidget {
           top: false,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(5, (i) => _TabItem(
-              index: i,
-              selectedAsset: _tabAssets[i].selected,
-              unselectedAsset: _tabAssets[i].unselected,
-              label: ['首页', '积分商城', '特色商城', '服务中心', '我的'][i],
-              isSelected: i == idx,
-              onTap: () => _goBranch(i),
+            children: List.generate(5, (i) => Expanded(
+              child: _TabItem(
+                index: i,
+                selectedAsset: _tabAssets[i].selected,
+                unselectedAsset: _tabAssets[i].unselected,
+                label: ['首页', '积分商城', '特色商城', '服务中心', '我的'][i],
+                isSelected: i == idx,
+                onTap: () => _goBranch(i),
+              ),
             )),
           ),
         ),
@@ -115,23 +117,21 @@ class _TabItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: SizedBox(
-        width: 64,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              isSelected ? selectedAsset : unselectedAsset,
-              width: 26,
-              height: 26,
-            ),
-            const SizedBox(height: 3),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400),
-            ),
-          ],
-        ),
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            isSelected ? selectedAsset : unselectedAsset,
+            width: 26,
+            height: 26,
+          ),
+          const SizedBox(height: 3),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400),
+          ),
+        ],
       ),
     );
   }

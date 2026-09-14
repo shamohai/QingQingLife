@@ -54,7 +54,7 @@ class _RedeemGroup extends StatelessWidget {
                 crossAxisCount: 4,
                 mainAxisSpacing: AppSpacing.sm,
                 crossAxisSpacing: AppSpacing.sm,
-                childAspectRatio: 0.72,
+                childAspectRatio: 0.6,
                 children: group.products.map((p) => PointsProductCard(product: p, compact: true, onExchange: onExchange != null ? () => onExchange!(p) : null)).toList(),
               ),
             ),

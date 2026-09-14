@@ -26,22 +26,22 @@ class PointsProductCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.sm)),
-            child: AppNetworkImage(url: product.imageUrl, height: compact ? 80 : 112, fit: BoxFit.cover),
+            child: AppNetworkImage(url: product.imageUrl, height: compact ? 74 : 112, fit: BoxFit.cover),
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: compact ? AppSpacing.xs : AppSpacing.sm),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(product.name, style: const TextStyle(fontSize: 12, color: AppColors.onSurface, height: 1.3), maxLines: 2, overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 4),
+                Text(product.name, style: TextStyle(fontSize: compact ? 11 : 12, color: AppColors.onSurface, height: 1.3), maxLines: 2, overflow: TextOverflow.ellipsis),
+                SizedBox(height: compact ? 2 : 4),
                 Row(
                   children: [
-                    const Icon(Icons.stars, size: 12, color: Color(0xFFFF2121)),
+                    Icon(Icons.stars, size: compact ? 10 : 12, color: const Color(0xFFFF2121)),
                     const SizedBox(width: 2),
-                    Text('${product.points}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFFFF2121))),
+                    Text('${product.points}', style: TextStyle(fontSize: compact ? 12 : 13, fontWeight: FontWeight.w600, color: const Color(0xFFFF2121))),
                     const SizedBox(width: 2),
-                    const Text('积分', style: TextStyle(fontSize: 10, color: Color(0xFFFF2121))),
+                    Text('积分', style: TextStyle(fontSize: compact ? 9 : 10, color: const Color(0xFFFF2121))),
                   ],
                 ),
               ],
