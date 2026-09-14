@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 
-/// 积分商城右下角浮动操作按钮组
+/// 积分商城右下角浮动操作按钮组（使用蓝湖切图）
 class PointsFloatingButtons extends StatelessWidget {
   const PointsFloatingButtons({super.key});
 
@@ -12,7 +12,7 @@ class PointsFloatingButtons extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _FloatingButton(icon: Icons.shopping_cart_outlined, label: '购物车'),
+        _FloatingButton(asset: 'assets/images/points/icon-cart.png', label: '购物车'),
         const SizedBox(height: AppSpacing.md),
         _FloatingButton(icon: Icons.headset, label: '管家服务'),
       ],
@@ -21,10 +21,12 @@ class PointsFloatingButtons extends StatelessWidget {
 }
 
 class _FloatingButton extends StatelessWidget {
-  final IconData icon;
+  final String? asset;
+  final IconData? icon;
   final String label;
 
-  const _FloatingButton({required this.icon, required this.label});
+  const _FloatingButton({this.asset, this.icon, required this.label})
+      : assert(asset != null || icon != null);
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +39,9 @@ class _FloatingButton extends StatelessWidget {
             color: AppColors.primary,
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: Colors.white, size: 26),
+          child: asset != null
+              ? Image.asset(asset!, width: 28, height: 28, color: Colors.white)
+              : Icon(icon, color: Colors.white, size: 26),
         ),
         const SizedBox(height: 4),
         Text(label, style: const TextStyle(fontSize: 10, color: Colors.white)),

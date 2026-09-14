@@ -72,7 +72,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
               CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
-                  // ── 顶部沉浸式区域：Banner + 搜索浮层 ──
+                  // ── Banner 区域（纯视觉背景，含搜索浮层）──
                   SliverToBoxAdapter(
                     child: SizedBox(
                       height: 450,
@@ -91,28 +91,25 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                             right: 16,
                             child: PointsSearchArea(searchController: _searchController),
                           ),
-                          // 余额卡覆盖 Banner 底部
-                          Positioned(
-                            bottom: -70,
-                            left: 16,
-                            right: 16,
-                            child: PointsBalanceCard(
-                              currentPoints: staticData.currentPoints,
-                              expiringPoints: staticData.expiringPoints,
-                              expiryDate: staticData.expiryDate,
-                              onDetailTap: () {},
-                            ),
-                          ),
                         ],
                       ),
                     ),
                   ),
-                  // ── 商品分类 Tab 栏（sticky 钉住） ──
+                  // ── 积分余额 + 热门兑换商品（作为正常滚动内容）──
+                  SliverToBoxAdapter(
+                    child: PointsBalanceCard(
+                      currentPoints: staticData.currentPoints,
+                      expiringPoints: staticData.expiringPoints,
+                      expiryDate: staticData.expiryDate,
+                      onDetailTap: () {},
+                    ),
+                  ),
+                  // ── 商品分类 Tab 栏（sticky 钉住）──
                   SliverPersistentHeader(
                     pinned: true,
                     floating: true,
                     delegate: _CategoryTabBarDelegate(
-                      tabHeight: 37, // 修正为设计稿高度 37
+                      tabHeight: 37,
                       child: PointsCategoryTabBar(
                         categories: staticData.categories.map((c) => c.label).toList(),
                         activeCategoryId: _activeCategoryId,

@@ -45,11 +45,11 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ── 到期提示条 ──
+          // ── 到期提示条（蓝色图标 + 蓝色高亮积分数字）──
           if (widget.expiringPoints > 0) ...[
             Row(
               children: [
-                const Icon(Icons.notification_important, size: 20, color: Color(0xFFFF2105)),
+                Image.asset('assets/images/points/icon-notification.png', width: 16, height: 16),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text.rich(
@@ -63,7 +63,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                         TextSpan(text: '将于${widget.expiryDate.year}年${widget.expiryDate.month}月${widget.expiryDate.day}日到期'),
                       ],
                     ),
-                    style: const TextStyle(fontSize: 13, color: Color(0xFF555555)),
+                    style: const TextStyle(color: Color(0xFF555555)),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -83,35 +83,26 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        NumberFormat('#,##0').format(widget.currentPoints),
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF090909),
-                          height: 1.1,
-                          letterSpacing: -0.5,
-                        ),
+                        NumberFormat('#,###').format(widget.currentPoints),
+                        style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: Color(0xFF090909), height: 1.1, letterSpacing: -0.5),
                       ),
                       const SizedBox(width: 2),
                       Transform.translate(
-                        offset: const Offset(0, -2), // 向上偏移，使其超出数字顶部边缘
+                        offset: const Offset(0, -2),
                         child: const Icon(Icons.info_outline, size: 12, color: AppColors.outline),
                       ),
                     ],
                   ),
                   const SizedBox(height: 2),
-                  Text(
-                    '积分余额',
-                    style: const TextStyle(fontSize: 10, color: Color(0xFF8E8E93)),
-                  ),
+                  Text('积分余额', style: const TextStyle(color: Color(0xFF8E8E93))),
                 ],
               ),
               const Spacer(),
               GestureDetector(
                 onTap: widget.onDetailTap,
                 child: Container(
-                  width: 57,
-                  height: 20,
+                  width: 80,
+                  height: 30,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     border: Border.all(color: const Color(0xFF0088FF), width: 1),
@@ -119,19 +110,14 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                   ),
                   child: const Text(
                     '积分明细',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Color(0xFF0088FF),
-                      fontWeight: FontWeight.w500, // 修正为中等粗细
-                      height: 1.0, // 修正行高适配 11dp 高度
-                    ),
+                    style: TextStyle(fontSize: 11, color: Color(0xFF0088FF), fontWeight: FontWeight.w500, height: 1.0),
                   ),
                 ),
               ),
             ],
           ),
           const Divider(height: 1, thickness: 0.5, color: Color(0xFFE1E4DC)),
-          // ── 热门兑换商品标题栏 ──
+          // ── 热门兑换商品标题栏（蓝色图标）──
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: SizedBox(
@@ -139,24 +125,14 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  Image.asset('assets/images/points/icon-hot-products.png', width: 16, height: 16),
+                  const SizedBox(width: 4),
                   const Text(
                     '热门兑换商品',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF000000),
-                      fontWeight: FontWeight.w500,
-                      height: 1.0,
-                    ),
+                    style: TextStyle(fontSize: 12, color: Color(0xFF000000), fontWeight: FontWeight.w500, height: 1.0),
                   ),
                   const Spacer(),
-                  const Text(
-                    '查看全部>>>',
-                    style: TextStyle(
-                      fontSize: 9,
-                      color: Color(0xFF8E8E93),
-                      height: 1.0,
-                    ),
-                  ),
+                  const Text('查看全部>>>', style: TextStyle(fontSize: 9, color: Color(0xFF8E8E93), height: 1.0)),
                 ],
               ),
             ),

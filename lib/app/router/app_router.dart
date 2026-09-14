@@ -15,129 +15,100 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
 import 'route_names.dart';
 
-/// 主应用路由器，使用 StatefulShellRoute 保持各 Tab 独立导航栈
 final appRouter = Provider<GoRouter>((ref) {
-  // 临时 dev 入口：仅本地/web 调试用，通过 --dart-define QINGQING_DEV_ROUTE=/phone-bind
-  // 直接打开指定路由；未设置该定义时行为不变（仍从首页启动）。上线前可删除。
   const devRoute = String.fromEnvironment('QINGQING_DEV_ROUTE');
   return GoRouter(
     initialLocation: devRoute.isNotEmpty ? devRoute : RouteNames.home,
     debugLogDiagnostics: false,
     routes: [
-      GoRoute(
-        path: RouteNames.login,
-        pageBuilder: (context, state) => const MaterialPage(child: LoginPage()),
-      ),
-      GoRoute(
-        path: RouteNames.phoneBind,
-        pageBuilder: (context, state) => const MaterialPage(child: PhoneBindPage()),
-      ),
+      GoRoute(path: RouteNames.login, pageBuilder: (c, s) => const MaterialPage(child: LoginPage())),
+      GoRoute(path: RouteNames.phoneBind, pageBuilder: (c, s) => const MaterialPage(child: PhoneBindPage())),
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) {
-          return MainShell(navigationShell: navigationShell);
-        },
+        builder: (c, s, ns) => MainShell(navigationShell: ns),
         branches: [
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: RouteNames.home,
-                pageBuilder: (context, state) => const NoTransitionPage(child: HomePage()),
-                routes: [
-                  GoRoute(
-                    path: 'product/:id',
-                    pageBuilder: (context, state) => MaterialPage(child: ProductDetailPage(productId: state.pathParameters['id']!)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: RouteNames.points,
-                pageBuilder: (context, state) => const NoTransitionPage(child: PointsMallPage()),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: RouteNames.shop,
-                pageBuilder: (context, state) => const NoTransitionPage(child: ShopPage()),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: RouteNames.service,
-                pageBuilder: (context, state) => const NoTransitionPage(child: ServicePage()),
-                routes: [
-                  GoRoute(
-                    path: 'records',
-                    pageBuilder: (context, state) {
-                      final activeTab = state.uri.queryParameters['activeTab'] ?? 'ongoing';
-                      return MaterialPage(child: ServiceRecordsPage(activeTab: activeTab));
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: RouteNames.profile,
-                pageBuilder: (context, state) => const NoTransitionPage(child: ProfilePage()),
-              ),
-            ],
-          ),
+          StatefulShellBranch(routes: [
+            GoRoute(path: RouteNames.home, pageBuilder: (c, s) => const NoTransitionPage(child: HomePage()), routes: [
+              GoRoute(path: 'product/:id', pageBuilder: (c, s) => MaterialPage(child: ProductDetailPage(productId: s.pathParameters['id']!))),
+            ]),
+          ]),
+          StatefulShellBranch(routes: [GoRoute(path: RouteNames.points, pageBuilder: (c, s) => const NoTransitionPage(child: PointsMallPage()))]),
+          StatefulShellBranch(routes: [GoRoute(path: RouteNames.shop, pageBuilder: (c, s) => const NoTransitionPage(child: ShopPage()))]),
+          StatefulShellBranch(routes: [
+            GoRoute(path: RouteNames.service, pageBuilder: (c, s) => const NoTransitionPage(child: ServicePage()), routes: [
+              GoRoute(path: 'records', pageBuilder: (c, s) => MaterialPage(child: ServiceRecordsPage(activeTab: s.uri.queryParameters['activeTab'] ?? 'ongoing'))),
+            ]),
+          ]),
+          StatefulShellBranch(routes: [GoRoute(path: RouteNames.profile, pageBuilder: (c, s) => const NoTransitionPage(child: ProfilePage()))]),
         ],
       ),
-      // 购物车保持可访问路由（通过 deep link 或内部跳转），不在底部导航栏显示
-      GoRoute(
-        path: RouteNames.cart,
-        pageBuilder: (context, state) => const MaterialPage(child: CartPage()),
-      ),
-      GoRoute(
-        path: RouteNames.checkout,
-        pageBuilder: (context, state) => const MaterialPage(child: CartPage()),
-      ),
-      GoRoute(
-        path: RouteNames.serviceCart,
-        pageBuilder: (context, state) => const MaterialPage(child: ServiceCartPage()),
-      ),
+      GoRoute(path: RouteNames.cart, pageBuilder: (c, s) => const MaterialPage(child: CartPage())),
+      GoRoute(path: RouteNames.checkout, pageBuilder: (c, s) => const MaterialPage(child: CartPage())),
+      GoRoute(path: RouteNames.serviceCart, pageBuilder: (c, s) => const MaterialPage(child: ServiceCartPage())),
     ],
   );
 });
 
-/// 底部 Tab 主框架（顺序：首页/积分商城/特色商城/服务预约/我的）
+/// 底部 Tab 主框架
 class MainShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
   const MainShell({super.key, required this.navigationShell});
 
-  static const _tabBarItems = [
-    BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: '首页'),
-    BottomNavigationBarItem(icon: Icon(Icons.point_of_sale_outlined), label: '积分商城'),
-    BottomNavigationBarItem(icon: Icon(Icons.storefront_outlined), label: '特色商城'),
-    BottomNavigationBarItem(icon: Icon(Icons.calendar_today_outlined), label: '服务预约'),
-    BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '我的'),
-  ];
-
-  void _goBranch(int index) {
-    navigationShell.goBranch(index, initialLocation: true);
-  }
+  void _goBranch(int index) => navigationShell.goBranch(index, initialLocation: true);
 
   @override
   Widget build(BuildContext context) {
+    final idx = navigationShell.currentIndex;
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: navigationShell.currentIndex,
-        onTap: _goBranch,
-        items: _tabBarItems,
-        type: BottomNavigationBarType.fixed,
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          boxShadow: [BoxShadow(color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, -2))],
+        ),
+        child: SafeArea(
+          top: false,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildTab(0, 'assets/images/points/icon-home.png', '首页', idx),
+              _buildTab(1, 'assets/images/points/icon-points-selected.png', '积分商城', idx),
+              _buildTab(2, 'assets/images/points/icon-shop.png', '特色商城', idx),
+              _buildTab(3, 'assets/images/points/icon-service.png', '服务中心', idx),
+              _buildTab(4, 'assets/images/points/icon-profile.png', '我的', idx),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTab(int index, String asset, String label, int currentIdx) {
+    final bool selected = index == currentIdx;
+    return GestureDetector(
+      onTap: () => _goBranch(index),
+      child: SizedBox(
+        width: 64,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              asset,
+              width: 26,
+              height: 26,
+              color: selected ? const Color(0xFF0088FF) : const Color(0xFF8E8E93),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                color: selected ? const Color(0xFF0088FF) : const Color(0xFF8E8E93),
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
