@@ -26,19 +26,19 @@ class PointsCategoryTabBar extends StatelessWidget {
           topRight: Radius.circular(9),
         ),
       ),
-      height: 37,
+      height: 44,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 20), // 适当拉开分类间距
+        separatorBuilder: (_, __) => const SizedBox(width: 22), // 适当拉开分类间距
         itemBuilder: (context, index) {
           final label = categories[index];
           final isActive = label == activeCategoryId;
           return GestureDetector(
             onTap: () => onCategoryTap(label),
             child: Container(
-              height: 37,
+              height: 44,
               alignment: Alignment.center,
               child: Container(
                 padding: const EdgeInsets.only(bottom: 4), // 设置文字与横线的间隙
@@ -55,7 +55,7 @@ class PointsCategoryTabBar extends StatelessWidget {
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 14,
                     color: isActive ? const Color(0xFF213775) : const Color(0xFF8E8E93),
                     fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                     height: 1.0,

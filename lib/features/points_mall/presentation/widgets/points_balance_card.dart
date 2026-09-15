@@ -7,7 +7,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../providers/points_mall_paging_providers.dart';
-import 'points_product_card.dart';
+import 'points_hot_product_card.dart';
 
 /// 积分余额 + 热门兑换商品 统一白色卡片（顶部覆盖 Banner 底部）
 class PointsBalanceCard extends ConsumerStatefulWidget {
@@ -141,7 +141,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
             ),
           ),
           // ── 热门商品横向滚动列表 ──
-          SizedBox(height: 140, child: HotProductsListView(controller: _scrollController)),
+          SizedBox(height: 215, child: HotProductsListView(controller: _scrollController)),
         ],
       ),
     );
@@ -170,7 +170,7 @@ class HotProductsListView extends ConsumerWidget {
           itemCount: items.length,
           itemBuilder: (context, index) => Padding(
             padding: EdgeInsets.only(right: index == items.length - 1 ? 0 : 8),
-            child: SizedBox(width: 140, child: PointsProductCard(product: items[index], compact: true)),
+            child: PointsHotProductCard(product: items[index]),
           ),
         );
       },

@@ -40,7 +40,7 @@ class _PointsCategorySidebarState extends State<PointsCategorySidebar> {
     final allLabels = ['我能兑换', ...widget.groups.map((g) => g.rangeLabel)];
 
     return Container(
-      width: 81,
+      width: 120, // 再次加大侧边栏容器总宽度
       height: 340,
       color: const Color(0xFFF3F5F7),
       child: ListView.builder(
@@ -54,7 +54,7 @@ class _PointsCategorySidebarState extends State<PointsCategorySidebar> {
           return GestureDetector(
             onTap: () => widget.onCategoryTap(index),
             child: Container(
-              width: 78,
+              width: 116, // 对应加大内部可点选范围宽度
               height: 38,
               alignment: Alignment.center,
               decoration: BoxDecoration(
@@ -66,31 +66,33 @@ class _PointsCategorySidebarState extends State<PointsCategorySidebar> {
                       )
                     : null,
               ),
-              child: Stack(
-                alignment: Alignment.center,
+              child: Row(
                 children: [
-                  Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: isActive ? const Color(0xFF213775) : const Color(0xFF090909),
-                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                      height: 1.0,
+                  // 左侧选中状态蓝色指示竖线
+                  Container(
+                    width: 3,
+                    height: 14,
+                    margin: const EdgeInsets.only(left: 6),
+                    decoration: BoxDecoration(
+                      color: isActive ? const Color(0xFF213775) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  if (isActive)
-                    Positioned(
-                      left: 0,
-                      child: Container(
-                        width: 1,
-                        height: 13,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF213775),
-                          borderRadius: BorderRadius.circular(67),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8, left: 6), // 适当拉开左侧竖线和文字之间的空间
+                      child: Text(
+                        label,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 13.5, // 进一步把积分段和分类字体加大一点，更具可读性
+                          color: isActive ? const Color(0xFF213775) : const Color(0xFF090909),
+                          fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                          height: 1.2,
                         ),
                       ),
                     ),
+                  ),
                 ],
               ),
             ),
