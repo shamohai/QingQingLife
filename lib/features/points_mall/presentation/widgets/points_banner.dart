@@ -29,12 +29,14 @@ class _PointsBannerState extends State<PointsBanner> {
         : [widget.imageUrl];
 
     return Stack(
+      clipBehavior: Clip.none, // ← 关键！允许子组件超出边界
       children: [
         // 1. Banner 图片层
         SizedBox(
           height: widget.height,
           child: urls.length > 1
               ? PageView.builder(
+                  itemCount: urls.length,
                   scrollDirection: Axis.horizontal,
                   onPageChanged: (i) => setState(() => _currentIndex = i),
                   itemBuilder: (context, index) => AppNetworkImage(
@@ -51,33 +53,45 @@ class _PointsBannerState extends State<PointsBanner> {
         Positioned(
           left: 0,
           right: 0,
-          bottom: -20,
-          height: 110,
+          bottom: -30,
+          height: 120,
           child: Container(
-            color: Colors.red.withValues(alpha: 0.8), // 强制测试颜色
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0x0D9D9D9D), // startColor #0d9d9d9
+                  Color(0xFFF3F5F7), // endColor #fff3f5f7
+                ],
+              ),
+            ),
           ),
         ),
-        // 3. 指示器层
+        // 3. 指示器（蒙层上部）
         Positioned(
           left: 0,
           right: 0,
-          bottom: 24, // 向上偏移以避开蒙层下部
+          bottom: 80, // 位置继续用你调好的
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: List.generate(
               urls.length,
-              (index) => Container(
-                margin: const EdgeInsets.symmetric(horizontal: 3),
-                width: _currentIndex == index ? 23 : 6,
-                height: 2,
-                decoration: BoxDecoration(
-                  color: _currentIndex == index
-                      ? const Color(0xFFFF0088FF)
-                      : Colors.white,
-                  borderRadius: BorderRadius.zero,
-                ),
-              ),
+                  (index) {
+                final bool isActive = _currentIndex == index;
+                return Container(
+                  // 去掉 margin，或者设为 0，实现紧挨
+                  width: 23, // 长度一致
+                  height: 2,
+                  decoration: BoxDecoration(
+                    color: isActive
+                        ? const Color(0xFF0088FF) // 选中
+                        : Colors.white,           // 未选中
+                    borderRadius: BorderRadius.zero,
+                  ),
+                );
+              },
             ),
           ),
         ),

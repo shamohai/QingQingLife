@@ -63,14 +63,14 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                         TextSpan(text: '将于${widget.expiryDate.year}年${widget.expiryDate.month}月${widget.expiryDate.day}日到期'),
                       ],
                     ),
-                    style: const TextStyle(fontSize: 12, color: Color(0xFF555555)),
+                    style: const TextStyle(fontSize: 11, color: Color(0xFF555555)),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 20),
           ],
           // ── 积分余额行 ──
           Row(
@@ -93,10 +93,10 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 10),
                   Text(
                     '积分余额',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF8E8E93)),
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF8E8E93)),
                   ),
                 ],
               ),
@@ -104,8 +104,8 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
               GestureDetector(
                 onTap: widget.onDetailTap,
                 child: Container(
-                  width: 90,
-                  height: 36,
+                  width: 80,
+                  height: 32,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     border: Border.all(color: const Color(0xFF0088FF), width: 1),
@@ -113,7 +113,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                   ),
                   child: const Text(
                     '积分明细',
-                    style: TextStyle(fontSize: 14, color: Color(0xFF0088FF), fontWeight: FontWeight.w500, height: 1.0),
+                    style: TextStyle(fontSize: 13, color: Color(0xFF0088FF), fontWeight: FontWeight.w500, height: 1.0),
                   ),
                 ),
               ),

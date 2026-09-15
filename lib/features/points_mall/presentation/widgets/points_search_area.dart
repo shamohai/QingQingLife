@@ -29,7 +29,7 @@ class PointsSearchArea extends StatelessWidget {
                 children: [
                   const SizedBox(width: 14),
                   const Icon(Icons.search, size: 22, color: Color(0xFF949599)),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 2),
                   Expanded(
                     child: TextField(
                       controller: searchController,
@@ -62,7 +62,7 @@ class PointsSearchArea extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  const SizedBox(width: 4),
                 ],
               ),
             ),
