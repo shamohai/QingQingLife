@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/widgets/app_image.dart';
 import '../../data/models/points_mall_home_data.dart';
 
@@ -6,16 +7,12 @@ class PointsHotProductCard extends StatelessWidget {
   final PointsProduct product;
   final VoidCallback? onTap;
 
-  const PointsHotProductCard({
-    super.key,
-    required this.product,
-    this.onTap,
-  });
+  const PointsHotProductCard({super.key, required this.product, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     // 缩放因子调整为 1.6 倍，保证完美的排版布局与清晰的视觉效果
-    const double scale = 1.6;
+    const double scale = 1.3;
 
     return GestureDetector(
       onTap: onTap,
@@ -32,28 +29,18 @@ class PointsHotProductCard extends StatelessWidget {
               child: SizedBox(
                 width: 75 * scale,
                 height: 75 * scale,
-                child: AppNetworkImage(
-                  url: product.imageUrl,
-                  width: 75 * scale,
-                  height: 75 * scale,
-                  fit: BoxFit.cover,
-                ),
+                child: AppNetworkImage(url: product.imageUrl, width: 75 * scale, height: 75 * scale, fit: BoxFit.cover),
               ),
             ),
             const SizedBox(height: 5),
             // 下面是名称：67dp * 37dp
             SizedBox(
-              width: 67 * scale,
-              height: 38 * scale,
+              width: 75 * scale,
+              height: 40 * scale,
               child: Text(
-                product.name,
-                style: const TextStyle(
-                  fontSize: 8 * scale,
-                  color: Color(0xFF000000),
-                  fontWeight: FontWeight.w500,
-                  height: 1.25,
-                ),
-                maxLines: 2,
+                product.name + "测试测试aaa 234234",
+                style: const TextStyle(fontSize: 8 * scale, color: Color(0xFF000000), fontWeight: FontWeight.w500, height: 1.5),
+                maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -70,11 +57,7 @@ class PointsHotProductCard extends StatelessWidget {
                     width: 36 * scale,
                     child: Text(
                       '${product.points}积分',
-                      style: const TextStyle(
-                        fontSize: 7.5 * scale,
-                        color: Color(0xFFFF2105),
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(fontSize: 7.5 * scale, color: Color(0xFFFF2105), fontWeight: FontWeight.bold),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -90,12 +73,7 @@ class PointsHotProductCard extends StatelessWidget {
                     ),
                     child: Text(
                       '兑换',
-                      style: TextStyle(
-                        fontSize: 8 * scale,
-                        color: const Color(0xFFFF2105),
-                        fontWeight: FontWeight.w500,
-                        height: 1.1,
-                      ),
+                      style: TextStyle(fontSize: 8 * scale, color: const Color(0xFFFF2105), fontWeight: FontWeight.w500, height: 1.1),
                       textAlign: TextAlign.center,
                     ),
                   ),

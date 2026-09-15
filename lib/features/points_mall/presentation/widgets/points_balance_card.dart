@@ -35,7 +35,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm), // 彻底去除组件内部有副作用的死高负 Margin 传递
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(9),
@@ -47,85 +47,91 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
         children: [
           // ── 到期提示条（蓝色图标 + 蓝色高亮积分数字）──
           if (widget.expiringPoints > 0) ...[
-            Row(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8), // 专属的左右间距
+              child: Row(
+                children: [
+                  Image.asset('assets/images/points/icon-notification.png', width: 16, height: 16),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text.rich(
+                      TextSpan(
+                        text: '您有',
+                        children: [
+                          TextSpan(
+                            text: '${widget.expiringPoints}积分',
+                            style: const TextStyle(color: Color(0xFF0088FF)),
+                          ),
+                          TextSpan(text: '将于${widget.expiryDate.year}年${widget.expiryDate.month}月${widget.expiryDate.day}日到期'),
+                        ],
+                      ),
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF555555)),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 15),
+          ],
+          // ── 积分余额行 ──
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8), // 专属的左右间距
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Image.asset('assets/images/points/icon-notification.png', width: 16, height: 16),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text.rich(
-                    TextSpan(
-                      text: '您有',
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextSpan(
-                          text: '${widget.expiringPoints}积分',
-                          style: const TextStyle(color: Color(0xFF0088FF)),
+                        Text(
+                          NumberFormat('#,###').format(widget.currentPoints),
+                          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF090909), height: 1.1, letterSpacing: -0.5),
                         ),
-                        TextSpan(text: '将于${widget.expiryDate.year}年${widget.expiryDate.month}月${widget.expiryDate.day}日到期'),
+                        const SizedBox(width: 2),
+                        Transform.translate(
+                          offset: const Offset(0, -2),
+                          child: const Icon(Icons.info_outline, size: 14, color: AppColors.outline),
+                        ),
                       ],
                     ),
-                    style: const TextStyle(fontSize: 11, color: Color(0xFF555555)),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    const SizedBox(height: 4),
+                    Text(
+                      '积分余额',
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF8E8E93)),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: widget.onDetailTap,
+                  child: Container(
+                    width: 70,
+                    height: 30,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFF0088FF), width: 1),
+                      borderRadius: BorderRadius.circular(67),
+                    ),
+                    child: const Text(
+                      '积分明细',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF0088FF), fontWeight: FontWeight.w500, height: 1.0),
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-          ],
-          // ── 积分余额行 ──
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        NumberFormat('#,###').format(widget.currentPoints),
-                        style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Color(0xFF090909), height: 1.1, letterSpacing: -0.5),
-                      ),
-                      const SizedBox(width: 2),
-                      Transform.translate(
-                        offset: const Offset(0, -2),
-                        child: const Icon(Icons.info_outline, size: 14, color: AppColors.outline),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '积分余额',
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF8E8E93)),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: widget.onDetailTap,
-                child: Container(
-                  width: 80,
-                  height: 32,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFF0088FF), width: 1),
-                    borderRadius: BorderRadius.circular(67),
-                  ),
-                  child: const Text(
-                    '积分明细',
-                    style: TextStyle(fontSize: 13, color: Color(0xFF0088FF), fontWeight: FontWeight.w500, height: 1.0),
-                  ),
-                ),
-              ),
-            ],
           ),
           // const Divider(height: 1, thickness: 0.5, color: Color(0xFFE1E4DC)),
           // ── 热门兑换商品标题栏（蓝色图标）──
           Container(
-            margin: const EdgeInsets.only(top: 10),
+            margin: const EdgeInsets.only(top: 4),
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: SizedBox(
-              height: 26,
+              height: 40,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -133,16 +139,16 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                   const SizedBox(width: 4),
                   const Text(
                     '热门兑换商品',
-                    style: TextStyle(fontSize: 17, color: Color(0xFF000000), fontWeight: FontWeight.w600, height: 1.0),
+                    style: TextStyle(fontSize: 15, color: Color(0xFF000000), fontWeight: FontWeight.w600, height: 1.0),
                   ),
                   const Spacer(),
-                  const Text('查看全部>>>', style: TextStyle(fontSize: 14, color: Color(0xFF8E8E93), height: 1.0)),
+                  const Text('查看全部>>>', style: TextStyle(fontSize: 12, color: Color(0xFF8E8E93), height: 1.0)),
                 ],
               ),
             ),
           ),
           // ── 热门商品横向滚动列表 ──
-          SizedBox(height: 215, child: HotProductsListView(controller: _scrollController)),
+          SizedBox(height: 185, child: HotProductsListView(controller: _scrollController)),
         ],
       ),
     );
