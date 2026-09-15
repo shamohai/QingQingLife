@@ -8,12 +8,7 @@ class PointsBanner extends StatefulWidget {
   final double height;
   final List<String>? imageUrls;
 
-  const PointsBanner({
-    super.key,
-    required this.imageUrl,
-    this.height = 450,
-    this.imageUrls,
-  });
+  const PointsBanner({super.key, required this.imageUrl, this.height = 450, this.imageUrls});
 
   @override
   State<PointsBanner> createState() => _PointsBannerState();
@@ -24,9 +19,7 @@ class _PointsBannerState extends State<PointsBanner> {
 
   @override
   Widget build(BuildContext context) {
-    final urls = widget.imageUrls != null && widget.imageUrls!.isNotEmpty
-        ? widget.imageUrls!
-        : [widget.imageUrl];
+    final urls = widget.imageUrls != null && widget.imageUrls!.isNotEmpty ? widget.imageUrls! : [widget.imageUrl];
 
     return Stack(
       clipBehavior: Clip.none, // ← 关键！允许子组件超出边界
@@ -39,15 +32,9 @@ class _PointsBannerState extends State<PointsBanner> {
                   itemCount: urls.length,
                   scrollDirection: Axis.horizontal,
                   onPageChanged: (i) => setState(() => _currentIndex = i),
-                  itemBuilder: (context, index) => AppNetworkImage(
-                    url: urls[index % urls.length],
-                    fit: BoxFit.cover,
-                  ),
+                  itemBuilder: (context, index) => AppNetworkImage(url: urls[index % urls.length], fit: BoxFit.cover),
                 )
-              : AppNetworkImage(
-                  url: widget.imageUrl,
-                  fit: BoxFit.cover,
-                ),
+              : AppNetworkImage(url: widget.imageUrl, fit: BoxFit.cover),
         ),
         // 2. 底部渐变蒙层（测试用：设为明显的红色）
         Positioned(
@@ -72,27 +59,24 @@ class _PointsBannerState extends State<PointsBanner> {
         Positioned(
           left: 0,
           right: 0,
-          bottom: 80, // 位置继续用你调好的
+          bottom: 60, // 位置继续用你调好的
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
-            children: List.generate(
-              urls.length,
-                  (index) {
-                final bool isActive = _currentIndex == index;
-                return Container(
-                  // 去掉 margin，或者设为 0，实现紧挨
-                  width: 23, // 长度一致
-                  height: 2,
-                  decoration: BoxDecoration(
-                    color: isActive
-                        ? const Color(0xFF0088FF) // 选中
-                        : Colors.white,           // 未选中
-                    borderRadius: BorderRadius.zero,
-                  ),
-                );
-              },
-            ),
+            children: List.generate(urls.length, (index) {
+              final bool isActive = _currentIndex == index;
+              return Container(
+                // 去掉 margin，或者设为 0，实现紧挨
+                width: 28, // 长度一致
+                height: 2,
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? const Color(0xFF0088FF) // 选中
+                      : Colors.white, // 未选中
+                  borderRadius: BorderRadius.zero,
+                ),
+              );
+            }),
           ),
         ),
       ],

@@ -84,7 +84,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                     children: [
                       Text(
                         NumberFormat('#,###').format(widget.currentPoints),
-                        style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: Color(0xFF090909), height: 1.1, letterSpacing: -0.5),
+                        style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Color(0xFF090909), height: 1.1, letterSpacing: -0.5),
                       ),
                       const SizedBox(width: 2),
                       Transform.translate(
@@ -93,7 +93,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   Text(
                     '积分余额',
                     style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF8E8E93)),
@@ -119,23 +119,24 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
               ),
             ],
           ),
-          const Divider(height: 1, thickness: 0.5, color: Color(0xFFE1E4DC)),
+          // const Divider(height: 1, thickness: 0.5, color: Color(0xFFE1E4DC)),
           // ── 热门兑换商品标题栏（蓝色图标）──
-          Padding(
+          Container(
+            margin: const EdgeInsets.only(top: 10),
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: SizedBox(
               height: 26,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Image.asset('assets/images/points/icon-hot-products.png', width: 16, height: 16),
+                  Image.asset('assets/images/points/icon-hot-products.png', width: 20, height: 20),
                   const SizedBox(width: 4),
                   const Text(
                     '热门兑换商品',
-                    style: TextStyle(fontSize: 18, color: Color(0xFF000000), fontWeight: FontWeight.w600, height: 1.0),
+                    style: TextStyle(fontSize: 17, color: Color(0xFF000000), fontWeight: FontWeight.w600, height: 1.0),
                   ),
                   const Spacer(),
-                  const Text('查看全部>>>', style: TextStyle(fontSize: 15, color: Color(0xFF8E8E93), height: 1.0)),
+                  const Text('查看全部>>>', style: TextStyle(fontSize: 14, color: Color(0xFF8E8E93), height: 1.0)),
                 ],
               ),
             ),
