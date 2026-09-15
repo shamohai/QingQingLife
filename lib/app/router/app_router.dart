@@ -77,18 +77,21 @@ class MainShell extends StatelessWidget {
         ),
         child: SafeArea(
           top: false,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(5, (i) => Expanded(
-              child: _TabItem(
-                index: i,
-                selectedAsset: _tabAssets[i].selected,
-                unselectedAsset: _tabAssets[i].unselected,
-                label: ['首页', '积分商城', '特色商城', '服务中心', '我的'][i],
-                isSelected: i == idx,
-                onTap: () => _goBranch(i),
-              ),
-            )),
+          child: SizedBox(
+            height: 56,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(5, (i) => Expanded(
+                child: _TabItem(
+                  index: i,
+                  selectedAsset: _tabAssets[i].selected,
+                  unselectedAsset: _tabAssets[i].unselected,
+                  label: ['首页', '积分商城', '特色商城', '服务中心', '我的'][i],
+                  isSelected: i == idx,
+                  onTap: () => _goBranch(i),
+                ),
+              )),
+            ),
           ),
         ),
       ),

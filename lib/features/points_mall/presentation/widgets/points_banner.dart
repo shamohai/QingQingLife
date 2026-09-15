@@ -28,27 +28,41 @@ class _PointsBannerState extends State<PointsBanner> {
         ? widget.imageUrls!
         : [widget.imageUrl];
 
-    return SizedBox(
-      height: widget.height,
-      child: Column(
-        children: [
-          Expanded(
-            child: urls.length > 1
-                ? PageView.builder(
-                    scrollDirection: Axis.horizontal,
-                    onPageChanged: (i) => setState(() => _currentIndex = i),
-                    itemBuilder: (context, index) => AppNetworkImage(
-                      url: urls[index % urls.length],
-                      fit: BoxFit.cover,
-                    ),
-                  )
-                : AppNetworkImage(
-                    url: widget.imageUrl,
+    return Stack(
+      children: [
+        // 1. Banner 图片层
+        SizedBox(
+          height: widget.height,
+          child: urls.length > 1
+              ? PageView.builder(
+                  scrollDirection: Axis.horizontal,
+                  onPageChanged: (i) => setState(() => _currentIndex = i),
+                  itemBuilder: (context, index) => AppNetworkImage(
+                    url: urls[index % urls.length],
                     fit: BoxFit.cover,
                   ),
+                )
+              : AppNetworkImage(
+                  url: widget.imageUrl,
+                  fit: BoxFit.cover,
+                ),
+        ),
+        // 2. 底部渐变蒙层（测试用：设为明显的红色）
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: -20,
+          height: 110,
+          child: Container(
+            color: Colors.red.withValues(alpha: 0.8), // 强制测试颜色
           ),
-          const SizedBox(height: 12),
-          Row(
+        ),
+        // 3. 指示器层
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 24, // 向上偏移以避开蒙层下部
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: List.generate(
@@ -59,16 +73,15 @@ class _PointsBannerState extends State<PointsBanner> {
                 height: 2,
                 decoration: BoxDecoration(
                   color: _currentIndex == index
-                      ? Colors.white
-                      : Colors.white.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(1),
+                      ? const Color(0xFFFF0088FF)
+                      : Colors.white,
+                  borderRadius: BorderRadius.zero,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 12),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

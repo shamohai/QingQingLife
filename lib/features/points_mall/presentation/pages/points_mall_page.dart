@@ -88,7 +88,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                               padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
                               child: PointsSearchArea(searchController: _searchController),
                             ),
-                            const SizedBox(height: 130), // 撑开高度，使下方卡片正好压在 Banner 边缘
+                            const SizedBox(height: 120), // 撑开高度，使下方卡片正好压在 Banner 边缘
                             // 积分余额卡片（此时天然处于 Banner 之上，类似 z-index: 1）
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 10),
