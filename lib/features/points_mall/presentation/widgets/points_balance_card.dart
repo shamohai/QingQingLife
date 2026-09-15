@@ -34,7 +34,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm), // 彻底去除组件内部有副作用的死高负 Margin 传递
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -63,7 +63,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                         TextSpan(text: '将于${widget.expiryDate.year}年${widget.expiryDate.month}月${widget.expiryDate.day}日到期'),
                       ],
                     ),
-                    style: const TextStyle(fontSize: 16, color: Color(0xFF555555)),
+                    style: const TextStyle(fontSize: 12, color: Color(0xFF555555)),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -96,7 +96,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                   const SizedBox(height: 2),
                   Text(
                     '积分余额',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF8E8E93)),
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF8E8E93)),
                   ),
                 ],
               ),
@@ -104,8 +104,8 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
               GestureDetector(
                 onTap: widget.onDetailTap,
                 child: Container(
-                  width: 100,
-                  height: 40,
+                  width: 90,
+                  height: 36,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     border: Border.all(color: const Color(0xFF0088FF), width: 1),
@@ -113,7 +113,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                   ),
                   child: const Text(
                     '积分明细',
-                    style: TextStyle(fontSize: 16, color: Color(0xFF0088FF), fontWeight: FontWeight.w500, height: 1.0),
+                    style: TextStyle(fontSize: 14, color: Color(0xFF0088FF), fontWeight: FontWeight.w500, height: 1.0),
                   ),
                 ),
               ),
@@ -132,10 +132,10 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                   const SizedBox(width: 4),
                   const Text(
                     '热门兑换商品',
-                    style: TextStyle(fontSize: 20, color: Color(0xFF000000), fontWeight: FontWeight.w600, height: 1.0),
+                    style: TextStyle(fontSize: 18, color: Color(0xFF000000), fontWeight: FontWeight.w600, height: 1.0),
                   ),
                   const Spacer(),
-                  const Text('查看全部>>>', style: TextStyle(fontSize: 16, color: Color(0xFF8E8E93), height: 1.0)),
+                  const Text('查看全部>>>', style: TextStyle(fontSize: 15, color: Color(0xFF8E8E93), height: 1.0)),
                 ],
               ),
             ),

@@ -9,21 +9,12 @@ class PointsSearchArea extends StatelessWidget {
   final TextEditingController? searchController;
   final VoidCallback? onSearch;
 
-  const PointsSearchArea({
-    super.key,
-    this.searchController,
-    this.onSearch,
-  });
+  const PointsSearchArea({super.key, this.searchController, this.onSearch});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(
-        top: AppSpacing.sm,
-        bottom: AppSpacing.md,
-        left: AppSpacing.lg,
-        right: AppSpacing.lg,
-      ),
+      padding: const EdgeInsets.only(top: AppSpacing.sm, bottom: AppSpacing.md, left: AppSpacing.lg, right: AppSpacing.lg),
       child: Row(
         children: [
           Expanded(
@@ -67,11 +58,7 @@ class PointsSearchArea extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
                         '搜索',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),

@@ -35,9 +35,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
   }
 
   void _onExchange(PointsProduct product) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('兑换商品：${product.name}')),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('兑换商品：${product.name}')));
   }
 
   @override
@@ -59,12 +57,9 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
             slivers: [
               SliverFillRemaining(
                 child: Center(
-                  child: AppError(
-                    message: '加载失败: $error',
-                    onRetry: () => ref.invalidate(pointsMallStaticDataProvider),
-                  ),
+                  child: AppError(message: '加载失败: $error', onRetry: () => ref.invalidate(pointsMallStaticDataProvider)),
                 ),
-              )
+              ),
             ],
           ),
           data: (staticData) => Stack(
@@ -72,36 +67,41 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
               CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
-                  // ── Banner 区域（纯视觉背景，含搜索浮层）──
+                  // ── 顶部组合区域（Banner背景 + 覆盖其上的积分信息流）──
+                  // 采用 Stack 布局：底层为 Banner 图片，顶层为带位移的 Column，确保 z-index 正确且高度自适应
                   SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: 450,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          PointsBanner(
+                    child: Stack(
+                      children: [
+                        // [底层] Banner 视觉层
+                        SizedBox(
+                          height: 260, // 设定 Banner 的视觉背景高度
+                          child: PointsBanner(
                             imageUrl: staticData.bannerUrls.first,
-                            imageUrls: staticData.bannerUrls.length > 1
-                                ? staticData.bannerUrls
-                                : null,
+                            imageUrls: staticData.bannerUrls.length > 1 ? staticData.bannerUrls : null,
                           ),
-                          Positioned(
-                            top: 12,
-                            left: 16,
-                            right: 16,
-                            child: PointsSearchArea(searchController: _searchController),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  // ── 积分余额 + 热门兑换商品（作为正常滚动内容）──
-                  SliverToBoxAdapter(
-                    child: PointsBalanceCard(
-                      currentPoints: staticData.currentPoints,
-                      expiringPoints: staticData.expiringPoints,
-                      expiryDate: staticData.expiryDate,
-                      onDetailTap: () {},
+                        ),
+                        // [顶层] 内容层：包含搜索框占位 + 积分卡片
+                        Column(
+                          children: [
+                            // 搜索框区域占位
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
+                              child: PointsSearchArea(searchController: _searchController),
+                            ),
+                            const SizedBox(height: 130), // 撑开高度，使下方卡片正好压在 Banner 边缘
+                            // 积分余额卡片（此时天然处于 Banner 之上，类似 z-index: 1）
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              child: PointsBalanceCard(
+                                currentPoints: staticData.currentPoints,
+                                expiringPoints: staticData.expiringPoints,
+                                expiryDate: staticData.expiryDate,
+                                onDetailTap: () {},
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                   // ── 商品分类 Tab 栏（sticky 钉住）──
@@ -119,10 +119,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                   ),
                   // ── 双栏商品列表 ──
                   SliverToBoxAdapter(
-                    child: TwoPanelProductSection(
-                      groups: staticData.redeemableGroups,
-                      onExchange: _onExchange,
-                    ),
+                    child: TwoPanelProductSection(groups: staticData.redeemableGroups, onExchange: _onExchange),
                   ),
                   const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxxl)),
                 ],
@@ -143,8 +140,7 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
   const _CategoryTabBarDelegate({required this.tabHeight, required this.child});
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) =>
-      Container(color: const Color(0xFFF3F5F7), child: child);
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) => Container(color: const Color(0xFFF3F5F7), child: child);
 
   @override
   double get maxExtent => tabHeight;
@@ -153,6 +149,5 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => tabHeight;
 
   @override
-  bool shouldRebuild(covariant _CategoryTabBarDelegate oldDelegate) =>
-      tabHeight != oldDelegate.tabHeight || child != oldDelegate.child;
+  bool shouldRebuild(covariant _CategoryTabBarDelegate oldDelegate) => tabHeight != oldDelegate.tabHeight || child != oldDelegate.child;
 }
