@@ -70,7 +70,7 @@ class MockPointsDataSource implements PointsRepository {
               const PointsProduct(
                 id: 'pp4',
                 imageUrl: 'assets/images/product/product2.jpg',
-                name: '积分专享饼干',
+                name: '积分专享饼干积分专享饼干积分专享饼干积分专享饼干',
                 points: 1200,
                 stock: 99,
                 salesCount: 100,

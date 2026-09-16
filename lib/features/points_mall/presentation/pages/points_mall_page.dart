@@ -114,11 +114,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          PointsCategoryTabBar(
-                            categories: staticData.categories.map((c) => c.label).toList(),
-                            activeCategoryId: _activeCategoryId,
-                            onCategoryTap: _onCategoryChanged,
-                          ),
+                          PointsCategoryTabBar(categories: staticData.categories, activeCategoryId: _activeCategoryId, onCategoryTap: _onCategoryChanged),
                           const SizedBox(height: 10), // 分类下方间距
                         ],
                       ),
@@ -132,7 +128,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                       child: TwoPanelProductSection(groups: staticData.redeemableGroups, onExchange: _onExchange),
                     ),
                   ),
-                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxxl)),
+                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
                 ],
               ),
               Positioned(right: AppSpacing.lg, bottom: 100, child: const PointsFloatingButtons()),

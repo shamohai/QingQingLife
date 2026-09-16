@@ -28,7 +28,7 @@ class PointsProductRow extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: Container(
-            height: 120,
+            height: 100,
             padding: const EdgeInsets.symmetric(vertical: 4), // 上下留出 4 像素的呼吸安全空间
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,8 +36,8 @@ class PointsProductRow extends StatelessWidget {
               children: [
                 Text(
                   product.name,
-                  style: const TextStyle(fontSize: 14, color: AppColors.onSurface, fontWeight: FontWeight.w500, height: 1.3),
-                  maxLines: 2,
+                  style: const TextStyle(fontSize: 12, color: AppColors.onSurface, fontWeight: FontWeight.w500, height: 1.3),
+                  maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Row(
@@ -45,7 +45,7 @@ class PointsProductRow extends StatelessWidget {
                   children: [
                     Text(
                       '${product.points}',
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFFFF2105)),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF2105)),
                     ),
                     const Text(
                       ' 积分',
@@ -56,14 +56,14 @@ class PointsProductRow extends StatelessWidget {
                       onPressed: onExchange,
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Color(0xFFFF2105), width: 1),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                         shape: const StadiumBorder(),
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: const Text(
                         '兑换',
-                        style: TextStyle(fontSize: 12, color: Color(0xFFFF2105), fontWeight: FontWeight.w500),
+                        style: TextStyle(fontSize: 10, color: Color(0xFFFF2105), fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],
