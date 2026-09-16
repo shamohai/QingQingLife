@@ -131,7 +131,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                   const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
                 ],
               ),
-              Positioned(right: AppSpacing.lg, bottom: 100, child: const PointsFloatingButtons()),
+              Positioned(right: AppSpacing.lg, bottom: 50, child: const PointsFloatingButtons()),
             ],
           ),
         ),
