@@ -44,7 +44,7 @@ class PointsHotProductCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const SizedBox(height: 5),
+            //const SizedBox(height: 2),
             // 名称下面是个 row
             SizedBox(
               width: 75 * scale,

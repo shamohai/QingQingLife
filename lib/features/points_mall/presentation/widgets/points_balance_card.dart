@@ -148,7 +148,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
             ),
           ),
           // ── 热门商品横向滚动列表 ──
-          SizedBox(height: 185, child: HotProductsListView(controller: _scrollController)),
+          SizedBox(height: 180, child: HotProductsListView(controller: _scrollController)),
         ],
       ),
     );
