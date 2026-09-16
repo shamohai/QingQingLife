@@ -1,0 +1,40 @@
+{
+  "pageId": "",
+  "source": {
+    "type": "axure_screenshot",
+    "file": "",
+    "approved": true
+  },
+  "viewport": {
+    "width": 375,
+    "height": 812,
+    "orientation": "portrait"
+  },
+  "page": {
+    "background": "",
+    "scrollDirection": "vertical"
+  },
+  "fixedRegions": [],
+  "sections": [
+    {
+      "id": "",
+      "type": "",
+      "purpose": "",
+      "height": null,
+      "background": "",
+      "padding": {
+        "left": null,
+        "top": null,
+        "right": null,
+        "bottom": null
+      },
+      "layout": "",
+      "children": [],
+      "interactionHints": [],
+      "confidence": "high",
+      "notes": ""
+    }
+  ],
+  "uncertainties": [],
+  "acceptedDeviations": []
+}

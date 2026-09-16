@@ -19,7 +19,6 @@ migrate_working_dir/
 *.ipr
 *.iws
 .idea/
-.agents/
 .widget_preview/
 
 devtools_options.yaml

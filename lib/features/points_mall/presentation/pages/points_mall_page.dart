@@ -109,17 +109,28 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                     pinned: true,
                     floating: true,
                     delegate: _CategoryTabBarDelegate(
-                      tabHeight: 44,
-                      child: PointsCategoryTabBar(
-                        categories: staticData.categories.map((c) => c.label).toList(),
-                        activeCategoryId: _activeCategoryId,
-                        onCategoryTap: _onCategoryChanged,
+                      tabHeight: 44 + 10, // 把间距算进高度
+                      margin: const EdgeInsets.only(left: 10, right: 10), // 分类上方间距
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          PointsCategoryTabBar(
+                            categories: staticData.categories.map((c) => c.label).toList(),
+                            activeCategoryId: _activeCategoryId,
+                            onCategoryTap: _onCategoryChanged,
+                          ),
+                          const SizedBox(height: 10), // 分类下方间距
+                        ],
                       ),
                     ),
                   ),
+
                   // ── 双栏商品列表 ──
-                  SliverToBoxAdapter(
-                    child: TwoPanelProductSection(groups: staticData.redeemableGroups, onExchange: _onExchange),
+                  SliverPadding(
+                    padding: const EdgeInsets.only(left: 10, right: 10),
+                    sliver: SliverToBoxAdapter(
+                      child: TwoPanelProductSection(groups: staticData.redeemableGroups, onExchange: _onExchange),
+                    ),
                   ),
                   const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxxl)),
                 ],
@@ -135,12 +146,29 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
 
 class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
   final double tabHeight;
+  final EdgeInsets margin;
   final Widget child;
 
-  const _CategoryTabBarDelegate({required this.tabHeight, required this.child});
+  const _CategoryTabBarDelegate({
+    required this.tabHeight,
+    this.margin = EdgeInsets.zero, // 默认无边距
+    required this.child,
+  });
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) => Container(color: const Color(0xFFF3F5F7), child: child);
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      margin: margin, // 左右边距
+      child: ClipRRect(
+        // 左上 + 右上圆角
+        borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+        child: Container(
+          color: const Color(0xFFF3F5F7), // 保持你原来的背景色
+          child: child,
+        ),
+      ),
+    );
+  }
 
   @override
   double get maxExtent => tabHeight;
@@ -149,5 +177,7 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => tabHeight;
 
   @override
-  bool shouldRebuild(covariant _CategoryTabBarDelegate oldDelegate) => tabHeight != oldDelegate.tabHeight || child != oldDelegate.child;
+  bool shouldRebuild(covariant _CategoryTabBarDelegate oldDelegate) {
+    return tabHeight != oldDelegate.tabHeight || margin != oldDelegate.margin || child != oldDelegate.child;
+  }
 }

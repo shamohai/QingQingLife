@@ -10,11 +10,7 @@ class PointsProductListPanel extends StatelessWidget {
   final List<PointsProduct> products;
   final void Function(PointsProduct)? onExchange;
 
-  const PointsProductListPanel({
-    super.key,
-    required this.products,
-    this.onExchange,
-  });
+  const PointsProductListPanel({super.key, required this.products, this.onExchange});
 
   @override
   Widget build(BuildContext context) {
@@ -25,18 +21,15 @@ class PointsProductListPanel extends StatelessWidget {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+  return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: products.length,
-      itemBuilder: (context, index) => Padding(
-        padding: const EdgeInsets.only(bottom: AppSpacing.md),
-        child: PointsProductRow(
-          product: products[index],
-          onExchange: onExchange != null ? () => onExchange!(products[index]) : null,
-        ),
-      ),
+      // 列表四周的留白全部交给外部的 padding 控制（比如上下左右都是 10）
+      padding: const EdgeInsets.all(10),
+      // 每个元素之间塞一个高为 10 的透明方块
+      separatorBuilder: (context, index) => const SizedBox(height: 10),
+      itemBuilder: (context, index) => PointsProductRow(product: products[index], onExchange: onExchange != null ? () => onExchange!(products[index]) : null),
     );
   }
 }

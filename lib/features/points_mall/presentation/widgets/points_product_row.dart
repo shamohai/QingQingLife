@@ -9,11 +9,7 @@ class PointsProductRow extends StatelessWidget {
   final PointsProduct product;
   final VoidCallback? onExchange;
 
-  const PointsProductRow({
-    super.key,
-    required this.product,
-    this.onExchange,
-  });
+  const PointsProductRow({super.key, required this.product, this.onExchange});
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +20,8 @@ class PointsProductRow extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           child: AppNetworkImage(
             url: product.imageUrl,
-            width: 120, // 调整为 120，跟热门兑换商品的图片尺寸（75 * 1.6 = 120）完全一致
-            height: 120,
+            width: 100, // 调整为 120，跟热门兑换商品的图片尺寸（75 * 1.6 = 120）完全一致
+            height: 100,
             fit: BoxFit.cover,
           ),
         ),
@@ -40,12 +36,7 @@ class PointsProductRow extends StatelessWidget {
               children: [
                 Text(
                   product.name,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppColors.onSurface,
-                    fontWeight: FontWeight.w500,
-                    height: 1.3,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: AppColors.onSurface, fontWeight: FontWeight.w500, height: 1.3),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -54,19 +45,11 @@ class PointsProductRow extends StatelessWidget {
                   children: [
                     Text(
                       '${product.points}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFFFF2105),
-                      ),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFFFF2105)),
                     ),
                     const Text(
                       ' 积分',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFFFF2105),
-                      ),
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Color(0xFFFF2105)),
                     ),
                     const Spacer(),
                     OutlinedButton(

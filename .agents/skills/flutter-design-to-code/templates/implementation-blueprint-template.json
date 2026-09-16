@@ -1,0 +1,22 @@
+{
+  "pageId": "",
+  "feature": "",
+  "sourceVisualIR": "",
+  "pageWidget": "",
+  "sections": [
+    {
+      "id": "",
+      "widget": "",
+      "reuseExisting": false,
+      "existingComponent": "",
+      "newComponents": [],
+      "dataBoundary": "",
+      "interactionBoundary": ""
+    }
+  ],
+  "assets": [],
+  "navigation": [],
+  "state": [],
+  "visualRisks": [],
+  "acceptedDeviations": []
+}

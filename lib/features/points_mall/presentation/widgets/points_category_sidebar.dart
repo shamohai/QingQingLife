@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../app/theme/app_colors.dart';
 import '../../data/models/points_mall_home_data.dart';
 
 /// 积分商城左侧分类侧边栏（固定宽度，选中项有蓝色竖线指示）
@@ -9,12 +8,7 @@ class PointsCategorySidebar extends StatefulWidget {
   final int activeIndex;
   final ValueChanged<int> onCategoryTap;
 
-  const PointsCategorySidebar({
-    super.key,
-    required this.groups,
-    required this.activeIndex,
-    required this.onCategoryTap,
-  });
+  const PointsCategorySidebar({super.key, required this.groups, required this.activeIndex, required this.onCategoryTap});
 
   @override
   State<PointsCategorySidebar> createState() => _PointsCategorySidebarState();
@@ -40,7 +34,7 @@ class _PointsCategorySidebarState extends State<PointsCategorySidebar> {
     final allLabels = ['我能兑换', ...widget.groups.map((g) => g.rangeLabel)];
 
     return Container(
-      width: 120, // 再次加大侧边栏容器总宽度
+      width: 110, // 再次加大侧边栏容器总宽度
       height: 340,
       color: const Color(0xFFF3F5F7),
       child: ListView.builder(
@@ -54,29 +48,21 @@ class _PointsCategorySidebarState extends State<PointsCategorySidebar> {
           return GestureDetector(
             onTap: () => widget.onCategoryTap(index),
             child: Container(
-              width: 116, // 对应加大内部可点选范围宽度
-              height: 38,
+              width: 106, // 对应加大内部可点选范围宽度
+              height: 45,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: isActive ? Colors.white : Colors.transparent,
-                borderRadius: isActive
-                    ? const BorderRadius.only(
-                        topRight: Radius.circular(9),
-                        bottomRight: Radius.circular(9),
-                      )
-                    : null,
+                borderRadius: isActive ? const BorderRadius.only(topRight: Radius.circular(9), bottomRight: Radius.circular(9)) : null,
               ),
               child: Row(
                 children: [
                   // 左侧选中状态蓝色指示竖线
                   Container(
-                    width: 3,
-                    height: 14,
+                    width: 1.8,
+                    height: 20,
                     margin: const EdgeInsets.only(left: 6),
-                    decoration: BoxDecoration(
-                      color: isActive ? const Color(0xFF213775) : Colors.transparent,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
+                    decoration: BoxDecoration(color: isActive ? const Color(0xFF213775) : Colors.transparent, borderRadius: BorderRadius.circular(2)),
                   ),
                   Expanded(
                     child: Padding(
