@@ -25,27 +25,29 @@ class _FloatingButton extends StatelessWidget {
   final IconData? icon;
   final String label;
 
-  const _FloatingButton({this.asset, this.icon, required this.label})
-      : assert(asset != null || icon != null);
+  const _FloatingButton({this.asset, this.icon, required this.label}) : assert(asset != null || icon != null);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 56,
-          height: 56,
-          decoration: const BoxDecoration(
-            color: AppColors.primary,
-            shape: BoxShape.circle,
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // 图标
+          asset != null ? Image.asset(asset!, width: 22, height: 22, color: Colors.white) : Icon(icon, color: Colors.white, size: 20),
+          const SizedBox(height: 2),
+          // 文字（也在圆形内部）
+          Text(
+            label,
+            style: const TextStyle(fontSize: 9, color: Colors.white, height: 1.0),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          child: asset != null
-              ? Image.asset(asset!, width: 28, height: 28, color: Colors.white)
-              : Icon(icon, color: Colors.white, size: 26),
-        ),
-        const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.white)),
-      ],
+        ],
+      ),
     );
   }
 }
