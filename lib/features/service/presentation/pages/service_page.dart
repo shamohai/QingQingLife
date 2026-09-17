@@ -58,7 +58,7 @@ class _HeaderRow extends StatelessWidget {
           children: [
             Positioned(
               left: 0,
-              bottom: 10,
+              bottom: 0,  // liuqianru mod
               child: Container(
                 width: 94,
                 height: 7,
@@ -120,7 +120,7 @@ class _ServiceCard extends StatelessWidget {
       child: Row(
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 14, left: 10),
+            padding: const EdgeInsets.only(top: 0, left: 10),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(AppRadius.sm),
               child: Image.asset(
@@ -139,40 +139,48 @@ class _ServiceCard extends StatelessWidget {
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(top: 21, right: 66),
+              padding: const EdgeInsets.only(top: 15, left: 8, right: 10, bottom: 15),  // liuqianru mod
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    data.title,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    data.subtitle,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97)),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(
-                    width: 92,
-                    height: 30,
-                    child: OutlinedButton(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFFFF2105)),
-                        backgroundColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
-                        padding: EdgeInsets.zero,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        data.title,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      child: Text(
-                        data.buttonText,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFFFF2105)),
+                      const SizedBox(height: 6),
+                      Text(
+                      data.subtitle,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97)),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],),
+                  Column(
+                    children: [
+                      SizedBox(
+                      width: 92,
+                      height: 30,
+                      child: OutlinedButton(
+                        onPressed: () {},
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFFFF2105)),
+                          backgroundColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: Text(
+                          data.buttonText,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFFFF2105)),
+                        ),
                       ),
                     ),
-                  ),
+                  ],),
                 ],
               ),
             ),
@@ -188,7 +196,8 @@ class _FloatingButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned(
       right: AppSpacing.md,
-      top: MediaQuery.of(context).padding.top + 420,
+      //top: MediaQuery.of(context).padding.top + 420,   // liuqianru del
+      bottom: MediaQuery.of(context).padding.bottom + AppSpacing.xl,   // liuqianru mod
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
