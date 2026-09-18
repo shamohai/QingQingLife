@@ -67,4 +67,3 @@ app.*.map.json
 pubspec.lock
 .env.local
 .hot_reload_cmd
-pubspec.lock

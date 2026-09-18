@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_empty.dart';
 import 'points_product_row.dart';
 import '../../data/models/points_mall_home_data.dart';
@@ -9,8 +8,9 @@ import '../../data/models/points_mall_home_data.dart';
 class PointsProductListPanel extends StatelessWidget {
   final List<PointsProduct> products;
   final void Function(PointsProduct)? onExchange;
+  final void Function(PointsProduct)? onServiceTap;
 
-  const PointsProductListPanel({super.key, required this.products, this.onExchange});
+  const PointsProductListPanel({super.key, required this.products, this.onExchange, this.onServiceTap});
 
   @override
   Widget build(BuildContext context) {
@@ -21,15 +21,22 @@ class PointsProductListPanel extends StatelessWidget {
       );
     }
 
-  return ListView.separated(
+    return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: products.length,
-      // 列表四周的留白全部交给外部的 padding 控制（比如上下左右都是 10）
       padding: const EdgeInsets.all(10),
-      // 每个元素之间塞一个高为 10 的透明方块
       separatorBuilder: (context, index) => const SizedBox(height: 10),
-      itemBuilder: (context, index) => PointsProductRow(product: products[index], onExchange: onExchange != null ? () => onExchange!(products[index]) : null),
+      itemBuilder: (context, index) {
+        final product = products[index];
+        final isService = product.type.name == 'service';
+        debugPrint('[ListPanel] id=${product.id} type=${product.type} name=${product.type.name} isService=$isService');
+        return PointsProductRow(
+          product: product,
+          onExchange: onExchange != null ? () => onExchange!(product) : null,
+          onServiceTap: isService && onServiceTap != null ? () => onServiceTap!(product) : null,
+        );
+      },
     );
   }
 }

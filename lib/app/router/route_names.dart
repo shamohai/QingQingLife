@@ -36,6 +36,8 @@ abstract final class RouteNames {
 
   // 服务预约子路由
   static const String serviceRecords = '/service/records';
+  // 积分商城服务商品详情
+  static const String serviceProductDetail = '/points/service/:id';
 
   // 客服
   static const String customerService = '/customer-service';

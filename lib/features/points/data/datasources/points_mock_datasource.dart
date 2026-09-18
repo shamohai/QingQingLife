@@ -4,6 +4,7 @@ import '../../domain/repositories/points_repository.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../points_mall/data/models/points_mall_home_data.dart';
 import '../../../points_mall/data/models/sign_in_result.dart';
+import '../../../points_mall/data/models/service_product_detail_model.dart';
 
 /// Mock 积分商城数据源 - 开发/测试环境使用
 class MockPointsDataSource implements PointsRepository {
@@ -54,13 +55,13 @@ class MockPointsDataSource implements PointsRepository {
             type: PointsProductType.physical,
           ),
           const PointsProduct(
-            id: 'pp4',
+            id: 'pp_service_1',
             imageUrl: 'assets/images/product/product1.jpg',
-            name: '有机菜籽油 5L',
-            points: 3000,
-            stock: 32,
-            salesCount: 567,
-            type: PointsProductType.physical,
+            name: '本地家政保洁服务卡（尊享3小时）',
+            points: 2500,
+            stock: 99,
+            salesCount: 88,
+            type: PointsProductType.service,
           ),
         ],
         redeemableGroups: [
@@ -77,31 +78,13 @@ class MockPointsDataSource implements PointsRepository {
                 type: PointsProductType.physical,
               ),
               const PointsProduct(
-                id: 'pp4',
+                id: 'pp_service_2',
                 imageUrl: 'assets/images/product/product2.jpg',
-                name: '积分专享饼干',
-                points: 1200,
-                stock: 99,
-                salesCount: 100,
-                type: PointsProductType.physical,
-              ),
-              const PointsProduct(
-                id: 'pp4',
-                imageUrl: 'assets/images/product/product2.jpg',
-                name: '积分专享饼干',
-                points: 1200,
-                stock: 99,
-                salesCount: 100,
-                type: PointsProductType.physical,
-              ),
-              const PointsProduct(
-                id: 'pp4',
-                imageUrl: 'assets/images/product/product2.jpg',
-                name: '积分专享饼干',
-                points: 1200,
-                stock: 99,
-                salesCount: 100,
-                type: PointsProductType.physical,
+                name: '青海湖一日游电子导览门票服务',
+                points: 1800,
+                stock: 200,
+                salesCount: 150,
+                type: PointsProductType.service,
               ),
               const PointsProduct(
                 id: 'pp4',
@@ -187,6 +170,12 @@ class MockPointsDataSource implements PointsRepository {
   Future<ApiResponse<SignInCalendarResult>> getSignInCalendar({required int year, required int month}) async {
     await Future.delayed(const Duration(milliseconds: 300));
     return ApiResponse.success(SignInCalendarResult(year: year, month: month, records: [], totalSignedDays: 0, consecutiveDays: 0));
+  }
+
+  @override
+  Future<ApiResponse<ServiceProductDetail>> getServiceProductDetail(String productId) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return ApiResponse.success(ServiceProductDetail.mock);
   }
 
   @override

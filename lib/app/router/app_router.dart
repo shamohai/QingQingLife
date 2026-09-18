@@ -13,6 +13,7 @@ import '../../features/service/presentation/pages/service_records_page.dart';
 import '../../features/product/presentation/pages/product_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
+import '../../features/points_mall/presentation/pages/service_product_detail_page.dart';
 import 'route_names.dart';
 
 final appRouter = Provider<GoRouter>((ref) {
@@ -31,7 +32,18 @@ final appRouter = Provider<GoRouter>((ref) {
               GoRoute(path: 'product/:id', pageBuilder: (c, s) => MaterialPage(child: ProductDetailPage(productId: s.pathParameters['id']!))),
             ]),
           ]),
-          StatefulShellBranch(routes: [GoRoute(path: RouteNames.points, pageBuilder: (c, s) => const NoTransitionPage(child: PointsMallPage()))]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: RouteNames.points,
+              pageBuilder: (c, s) => const NoTransitionPage(child: PointsMallPage()),
+              routes: [
+                GoRoute(
+                  path: 'service/:id',
+                  pageBuilder: (c, s) => MaterialPage(child: ServiceProductDetailPage(productId: s.pathParameters['id']!)),
+                ),
+              ],
+            ),
+          ]),
           StatefulShellBranch(routes: [GoRoute(path: RouteNames.shop, pageBuilder: (c, s) => const NoTransitionPage(child: ShopPage()))]),
           StatefulShellBranch(routes: [
             GoRoute(path: RouteNames.service, pageBuilder: (c, s) => const NoTransitionPage(child: ServicePage()), routes: [

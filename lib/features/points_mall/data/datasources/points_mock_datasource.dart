@@ -5,6 +5,7 @@ import '../../../points/domain/repositories/points_repository.dart';
 import '../../../../core/network/api_response.dart';
 import '../../data/models/points_mall_home_data.dart';
 import '../../data/models/sign_in_result.dart';
+import '../../data/models/service_product_detail_model.dart';
 
 /// Mock 积分商城数据源 - 开发/测试环境使用
 class MockPointsDataSource implements PointsRepository {
@@ -397,6 +398,16 @@ class MockPointsDataSource implements PointsRepository {
       ),
     );
   }
+
+  @override
+  Future<ApiResponse<ServiceProductDetail>> getServiceProductDetail(String productId) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return ApiResponse.success(ServiceProductDetail.mock);
+  }
+
+
+  @override
+  
 
   @override
   Future<ApiResponse<String>> getPointsRule() async {
