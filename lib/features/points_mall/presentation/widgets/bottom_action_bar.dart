@@ -12,7 +12,7 @@ class BottomActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 71,
+      height: 80,
       decoration: const BoxDecoration(
         color: Colors.white,
         boxShadow: [BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, -2))],
@@ -28,20 +28,12 @@ class BottomActionBar extends StatelessWidget {
               height: 42,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(999),
-                gradient: const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [Color(0xFF3152AF), Color(0xFF213775)],
-                ),
+                gradient: const LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Color(0xFF3152AF), Color(0xFF213775)]),
               ),
               child: const Center(
                 child: Text(
                   '立即兑换',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
                 ),
               ),
             ),

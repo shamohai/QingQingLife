@@ -5,8 +5,9 @@ import '../../data/models/service_product_detail_model.dart';
 
 /// 服务商品详情异步 Provider（family：按 productId 加载）
 ///
-/// 第一阶段使用 Mock 数据，第二阶段接入真实 API 时替换 repository 调用。
-final serviceProductDetailProvider = FutureProvider.family<ServiceProductDetail, String>((ref, productId) async {
+/// autoDispose：页面销毁时自动释放，避免 navigate back 时异步重建触发 build scope 错误。
+final serviceProductDetailProvider =
+    FutureProvider.family.autoDispose<ServiceProductDetail, String>((ref, productId) async {
   final repository = ref.read(pointsRepositoryProvider);
   final response = await repository.getServiceProductDetail(productId);
   if (!response.success || response.data == null) {

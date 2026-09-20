@@ -16,12 +16,12 @@ Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // 日志必须先于第三方 SDK 初始化，才能记录启动阶段的失败。
-  try {
-    await LoggingInitializer.initialize(logEndpoint: '${AppConfig.baseUrl}/api/app-log/batch');
-    AppLogger.info('Local log file: ${LoggingInitializer.localFilePath}', module: 'bootstrap');
-  } catch (e, stackTrace) {
-    debugPrint('[Bootstrap] Logging init failed (non-fatal): $e\n$stackTrace');
-  }
+  // try {
+  //   await LoggingInitializer.initialize(logEndpoint: '${AppConfig.baseUrl}/api/app-log/batch');
+  //   AppLogger.info('Local log file: ${LoggingInitializer.localFilePath}', module: 'bootstrap');
+  // } catch (e, stackTrace) {
+  //   debugPrint('[Bootstrap] Logging init failed (non-fatal): $e\n$stackTrace');
+  // }
 
   if (LoggingInitializer.isInitialized) {
     AppLogger.info('Registering WeChat appId=${AppConfig.wechatAppId}', module: 'wechat', event: 'register_start');

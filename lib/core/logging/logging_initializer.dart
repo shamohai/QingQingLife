@@ -43,7 +43,7 @@ class LoggingInitializer {
     }
 
     // 4. 启动远程上传
-    RemoteLogUploader(buffer: buffer, dio: Dio(), logEndpoint: logEndpoint, batchSize: batchSize).startAutoUpload();
+    // RemoteLogUploader(buffer: buffer, dio: Dio(), logEndpoint: logEndpoint, batchSize: batchSize).startAutoUpload();
 
     // 5. 全局异常捕获
     _installGlobalHandlers();

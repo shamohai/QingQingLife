@@ -31,10 +31,7 @@ class ServiceProductDetailPage extends ConsumerWidget {
           productAsync.when(
             loading: () => const Center(child: AppLoading()),
             error: (error, stack) => Center(
-              child: AppError(
-                message: '加载失败: $error',
-                onRetry: () => ref.invalidate(serviceProductDetailProvider(productId)),
-              ),
+              child: AppError(message: '加载失败: $error', onRetry: () => ref.invalidate(serviceProductDetailProvider(productId))),
             ),
             data: (product) => _buildContent(context, ref, product),
           ),
@@ -48,6 +45,7 @@ class ServiceProductDetailPage extends ConsumerWidget {
   }
 
   Widget _buildContent(BuildContext context, WidgetRef ref, ServiceProductDetail product) {
+    final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
     return Stack(
       children: [
         CustomScrollView(
@@ -55,16 +53,13 @@ class ServiceProductDetailPage extends ConsumerWidget {
           slivers: [
             // Hero Section
             SliverToBoxAdapter(
-              child: HeroSection(
-                product: product,
-                onBack: () => context.pop(),
-              ),
+              child: HeroSection(product: product, onBack: () => context.pop()),
             ),
 
             // ProductInfoCard（负 margin 与 Hero 叠加）
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(top: -36, left: 14, right: 14, bottom: 12),
+              child: Container(
+                margin: const EdgeInsets.all(12),
                 child: ProductInfoCard(product: product),
               ),
             ),
@@ -78,15 +73,20 @@ class ServiceProductDetailPage extends ConsumerWidget {
             ),
 
             // 底部留白，避免被固定底栏遮挡
-            const SliverToBoxAdapter(child: SizedBox(height: 96)),
+            SliverToBoxAdapter(child: SizedBox(height: 85 + bottomInset)),
           ],
         ),
 
         // 固定底栏
-        Positioned.fill(
+        Positioned(
+          left: 0,
+          right: 0,
           bottom: 0,
-          child: BottomActionBar(
-            onExchange: () => _handleExchange(context, product),
+          child: SafeArea(
+            top: false, // 只处理底部
+            left: false,
+            right: false,
+            child: BottomActionBar(onExchange: () => _handleExchange(context, product)),
           ),
         ),
       ],
@@ -94,8 +94,6 @@ class ServiceProductDetailPage extends ConsumerWidget {
   }
 
   void _handleExchange(BuildContext context, ServiceProductDetail product) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('兑换商品：${product.title}')),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('兑换商品：${product.title}')));
   }
 }
