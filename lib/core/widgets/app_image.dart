@@ -15,13 +15,18 @@ import '../../app/theme/app_colors.dart';
 /// 
 /// [重要] 业务开发中应杜绝直接使用 Image.network，以确保用户体验的一致性。
 class AppNetworkImage extends StatelessWidget {
-  final String url;          // 图片远程 URL
-  final double? width;       // 指定宽度
-  final double? height;      // 指定高度
-  final BoxFit fit;          // 填充模式
-  final double radius;       // 圆角大小
+  final String url; // 图片远程 URL
+  final double? width; // 指定宽度
+  final double? height; // 指定高度
+  final BoxFit fit; // 填充模式
+  final double radius; // 圆角大小
   final Widget? placeholder; // 可选：自定义加载占位图
   final Widget? errorWidget; // 可选：自定义错误显示
+
+  /// 缓存原始图片的宽高限制（用于优化内存，特别是 CanvasKit）
+  /// 如果图片很大但显示区域很小，建议传入此参数。
+  final int? memCacheWidth;
+  final int? memCacheHeight;
 
   const AppNetworkImage({
     super.key,
@@ -32,6 +37,8 @@ class AppNetworkImage extends StatelessWidget {
     this.radius = 0,
     this.placeholder,
     this.errorWidget,
+    this.memCacheWidth,
+    this.memCacheHeight,
   });
 
   @override
@@ -53,7 +60,7 @@ class AppNetworkImage extends StatelessWidget {
           color: AppColors.surfaceVariant,
           child: const Center(child: SizedBox.shrink()),
         );
-        
+
     // 统一的加载失败视图
     final defaultError = errorWidget ??
         Icon(
@@ -72,7 +79,9 @@ class AppNetworkImage extends StatelessWidget {
         width: width,
         height: height,
         fit: fit,
-        errorBuilder: (_, __, ___) => defaultError,
+        cacheWidth: memCacheWidth,
+        cacheHeight: memCacheHeight,
+        errorBuilder: (context, error, stackTrace) => defaultError,
       );
     } else {
       image = CachedNetworkImage(
@@ -80,8 +89,10 @@ class AppNetworkImage extends StatelessWidget {
         width: width,
         height: height,
         fit: fit,
-        placeholder: (_, __) => defaultPlaceholder,
-        errorWidget: (_, __, ___) => defaultError,
+        memCacheWidth: memCacheWidth,
+        memCacheHeight: memCacheHeight,
+        placeholder: (context, url) => defaultPlaceholder,
+        errorWidget: (context, url, error) => defaultError,
       );
     }
 

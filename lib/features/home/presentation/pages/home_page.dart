@@ -124,12 +124,7 @@ class HomePage extends ConsumerWidget {
             const SliverToBoxAdapter(
               child: HomeBrandingFooter(),
             ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-              sliver: SliverToBoxAdapter(
-                child: const HomeProductGrid(),
-              ),
-            ),
+            const HomeProductGrid(),
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpacing.xxl),
             ),

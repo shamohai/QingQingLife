@@ -16,46 +16,51 @@ class HomeProductGrid extends ConsumerWidget {
     final pagingData = ref.watch(homeProductGridProvider);
 
     if (pagingData.status == PagingStatus.loading && pagingData.items.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(AppSpacing.xl),
-        child: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (pagingData.status == PagingStatus.error && pagingData.items.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('加载失败: .errorMessage'),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: () => ref.read(homeProductGridProvider.notifier).refresh(),
-              child: const Text('重试'),
-            ),
-          ],
+      return const SliverToBoxAdapter(
+        child: Padding(
+          padding: EdgeInsets.all(AppSpacing.xl),
+          child: Center(child: CircularProgressIndicator()),
         ),
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+    if (pagingData.status == PagingStatus.error && pagingData.items.isEmpty) {
+      return SliverToBoxAdapter(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('加载失败'),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () => ref.read(homeProductGridProvider.notifier).refresh(),
+                child: const Text('重试'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return SliverPadding(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      sliver: SliverMainAxisGroup(
+        slivers: [
+          SliverGrid(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: AppSpacing.md,
               mainAxisSpacing: AppSpacing.md,
               childAspectRatio: 0.75,
             ),
-            itemCount: pagingData.items.length,
-            itemBuilder: (context, index) => HomeProductCard(product: pagingData.items[index]),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => HomeProductCard(product: pagingData.items[index]),
+              childCount: pagingData.items.length,
+            ),
           ),
-          _buildFooter(context, ref, pagingData),
+          SliverToBoxAdapter(
+            child: _buildFooter(context, ref, pagingData),
+          ),
         ],
       ),
     );
@@ -65,16 +70,18 @@ class HomeProductGrid extends ConsumerWidget {
     if (pagingData.status == PagingStatus.loading) {
       return const Padding(
         padding: EdgeInsets.all(AppSpacing.md),
-        child: CircularProgressIndicator(),
+        child: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (pagingData.hasMore) {
       return Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
-        child: ElevatedButton(
-          onPressed: () => ref.read(homeProductGridProvider.notifier).loadMore(),
-          child: const Text('加载更多'),
+        child: Center(
+          child: ElevatedButton(
+            onPressed: () => ref.read(homeProductGridProvider.notifier).loadMore(),
+            child: const Text('加载更多'),
+          ),
         ),
       );
     }
@@ -82,7 +89,9 @@ class HomeProductGrid extends ConsumerWidget {
     if (pagingData.items.isNotEmpty) {
       return const Padding(
         padding: EdgeInsets.all(AppSpacing.md),
-        child: Text('已经到底了', style: TextStyle(color: Colors.grey, fontSize: 12)),
+        child: Center(
+          child: Text('已经到底了', style: TextStyle(color: Colors.grey, fontSize: 12)),
+        ),
       );
     }
 
