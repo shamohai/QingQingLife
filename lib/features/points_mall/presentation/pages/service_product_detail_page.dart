@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../app/router/route_names.dart';
 import '../../../../../core/widgets/app_loading.dart';
 import '../../../../../core/widgets/app_error.dart';
 import '../providers/service_product_detail_provider.dart';
@@ -31,14 +32,10 @@ class ServiceProductDetailPage extends ConsumerWidget {
           productAsync.when(
             loading: () => const Center(child: AppLoading()),
             error: (error, stack) => Center(
-              child: AppError(message: '加载失败: $error', onRetry: () => ref.invalidate(serviceProductDetailProvider(productId))),
+              child: AppError(message: '加载失败: ', onRetry: () => ref.invalidate(serviceProductDetailProvider(productId))),
             ),
             data: (product) => _buildContent(context, ref, product),
           ),
-
-          // ── 固定底栏（数据加载完成后才显示）──
-          // 使用 Consumer 确保数据就绪后追加底栏
-          // （此处用 builder 方式在 when data 中内嵌）
         ],
       ),
     );
@@ -51,39 +48,30 @@ class ServiceProductDetailPage extends ConsumerWidget {
         CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            // Hero Section
             SliverToBoxAdapter(
               child: HeroSection(product: product, onBack: () => context.pop()),
             ),
-
-            // ProductInfoCard（负 margin 与 Hero 叠加）
             SliverToBoxAdapter(
               child: Container(
                 margin: const EdgeInsets.all(12),
                 child: ProductInfoCard(product: product),
               ),
             ),
-
-            // ProductVisualCard
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
                 child: ProductVisualCard(product: product),
               ),
             ),
-
-            // 底部留白，避免被固定底栏遮挡
             SliverToBoxAdapter(child: SizedBox(height: 85 + bottomInset)),
           ],
         ),
-
-        // 固定底栏
         Positioned(
           left: 0,
           right: 0,
           bottom: 0,
           child: SafeArea(
-            top: false, // 只处理底部
+            top: false,
             left: false,
             right: false,
             child: BottomActionBar(onExchange: () => _handleExchange(context, product)),
@@ -94,6 +82,6 @@ class ServiceProductDetailPage extends ConsumerWidget {
   }
 
   void _handleExchange(BuildContext context, ServiceProductDetail product) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('兑换商品：${product.title}')));
+    GoRouter.of(context).push(RouteNames.confirmOrder.replaceFirst(':id', product.id));
   }
 }
