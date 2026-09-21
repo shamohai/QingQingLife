@@ -1,29 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../../core/widgets/app_image.dart';
 import '../../data/models/service_product_detail_model.dart';
 
 /// 确认订单商品卡片
-class ConfirmOrderProductCard extends StatelessWidget {
+class ConfirmOrderProductCard extends StatefulWidget {
   final ServiceProductDetail product;
   final int quantity;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
+  final ValueChanged<int> onQuantityChanged;
 
-  const ConfirmOrderProductCard({super.key, required this.product, required this.quantity, required this.onIncrement, required this.onDecrement});
+  const ConfirmOrderProductCard({
+    super.key,
+    required this.product,
+    required this.quantity,
+    required this.onIncrement,
+    required this.onDecrement,
+    required this.onQuantityChanged,
+  });
+
+  @override
+  State<ConfirmOrderProductCard> createState() => _ConfirmOrderProductCardState();
+}
+
+class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
+  late TextEditingController _qtyController;
+
+  @override
+  void initState() {
+    super.initState();
+    _qtyController = TextEditingController(text: '${widget.quantity}');
+  }
+
+  @override
+  void didUpdateWidget(covariant ConfirmOrderProductCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 当外部 quantity 变化时（比如点了加减按钮），同步更新输入框
+    if (oldWidget.quantity != widget.quantity) {
+      final newText = '${widget.quantity}';
+      if (_qtyController.text != newText) {
+        _qtyController.text = newText;
+        // 把光标移到末尾
+        _qtyController.selection = TextSelection.collapsed(offset: newText.length);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _qtyController.dispose();
+    super.dispose();
+  }
+
+  void _onQuantitySubmitted(String value) {
+    final newQty = int.tryParse(value);
+    if (newQty != null && newQty > 0) {
+      widget.onQuantityChanged(newQty);
+    } else {
+      // 输入非法时恢复成当前正确数量
+      _qtyController.text = '${widget.quantity}';
+      _qtyController.selection = TextSelection.collapsed(offset: _qtyController.text.length);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final cardWidth = (screenWidth - 28).clamp(0.0, 414.0);
+
     return Container(
       width: cardWidth,
-      height: 172,
+      // height: 172, // 建议去掉固定高度，让内容自适应
       margin: const EdgeInsets.only(left: 10, right: 10, top: 0),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // 上半部分
+          // 上半部分（商品信息）
           Padding(
             padding: const EdgeInsets.only(left: 10, right: 10, top: 12),
             child: Row(
@@ -35,24 +90,23 @@ class ConfirmOrderProductCard extends StatelessWidget {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(4),
-                      child: AppNetworkImage(url: product.mainImageUrl, width: 70, height: 70, fit: BoxFit.cover),
+                      child: AppNetworkImage(url: widget.product.mainImageUrl, width: 70, height: 70, fit: BoxFit.cover),
                     ),
                     const SizedBox(width: 10),
                     SizedBox(
                       width: 170,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            product.title,
+                            widget.product.title,
                             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF1F2024)),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 6),
-                          Row(children: product.tags.map((tag) => _TagPill(label: tag)).toList()),
+                          Row(children: widget.product.tags.map((tag) => _TagPill(label: tag)).toList()),
                         ],
                       ),
                     ),
@@ -63,14 +117,13 @@ class ConfirmOrderProductCard extends StatelessWidget {
                   width: 110,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '${product.points}',
+                            '${widget.product.points}',
                             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFFFF2105)),
                           ),
                           const Text(
@@ -81,7 +134,7 @@ class ConfirmOrderProductCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '市场价:¥${product.marketPrice.toStringAsFixed(2)}',
+                        '市场价:¥${widget.product.marketPrice.toStringAsFixed(2)}',
                         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97)),
                       ),
                     ],
@@ -91,34 +144,59 @@ class ConfirmOrderProductCard extends StatelessWidget {
             ),
           ),
 
-          // 分隔线
-          //const Divider(height: 1, thickness: 0.5, color: Color(0xFFF0F0F0)),
-
           // 下半部分
           Padding(
-            padding: const EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 10),
+            padding: const EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 12),
             child: Column(
               children: [
-                // 第一行：数量控件靠右
+                // 第一行：数量加减 + 可输入文本框（靠右）
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end, // 靠右
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    _QtyButton(label: '-', onTap: onDecrement),
-                    const SizedBox(width: 4),
-                    Container(
-                      width: 28,
-                      alignment: Alignment.center,
-                      child: Text(
-                        '$quantity',
+                    _QtyButton(label: '-', onTap: widget.onDecrement),
+                    const SizedBox(width: 6),
+                    SizedBox(
+                      width: 52,
+                      height: 28,
+                      child: TextField(
+                        controller: _qtyController,
+                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly, // 只允许数字
+                        ],
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1F2024)),
+                        decoration: const InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(4)),
+                            borderSide: BorderSide(color: Color(0xFFD9D9D9)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(4)),
+                            borderSide: BorderSide(color: Color(0xFFD9D9D9)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(4)),
+                            borderSide: BorderSide(color: Color(0xFFFF2105), width: 1.2),
+                          ),
+                        ),
+                        onSubmitted: _onQuantitySubmitted,
+                        onEditingComplete: () {
+                          _onQuantitySubmitted(_qtyController.text);
+                          FocusScope.of(context).unfocus();
+                        },
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    _QtyButton(label: '+', onTap: onIncrement),
+                    const SizedBox(width: 6),
+                    _QtyButton(label: '+', onTap: widget.onIncrement),
                   ],
                 ),
-                const SizedBox(height: 10), // 两行间距，可按设计调整
-                // 第二行：留言备注 左，填写提示 右
+
+                const SizedBox(height: 12),
+
+                // 第二行：留言备注
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -144,14 +222,16 @@ class ConfirmOrderProductCard extends StatelessWidget {
 class _QtyButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
+
   const _QtyButton({required this.label, required this.onTap});
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 24,
-        height: 24,
+        width: 28,
+        height: 28,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           border: Border.all(color: const Color(0xFFD9D9D9)),
@@ -159,7 +239,7 @@ class _QtyButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1F2024)),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Color(0xFF1F2024)),
         ),
       ),
     );
@@ -168,7 +248,9 @@ class _QtyButton extends StatelessWidget {
 
 class _TagPill extends StatelessWidget {
   final String label;
+
   const _TagPill({required this.label});
+
   @override
   Widget build(BuildContext context) {
     return Container(

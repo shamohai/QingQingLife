@@ -11,10 +11,7 @@ class ConfirmOrderState {
   const ConfirmOrderState({this.quantity = 1, this.note = ''});
 
   ConfirmOrderState copyWith({int? quantity, String? note}) {
-    return ConfirmOrderState(
-      quantity: quantity ?? this.quantity,
-      note: note ?? this.note,
-    );
+    return ConfirmOrderState(quantity: quantity ?? this.quantity, note: note ?? this.note);
   }
 }
 
@@ -26,8 +23,14 @@ class ConfirmOrderNotifier extends Notifier<ConfirmOrderState> {
   void decrement() {
     if (state.quantity > 1) state = state.copyWith(quantity: state.quantity - 1);
   }
+
+  void setQuantity(int quantity) {
+    if (quantity > 0) {
+      state = state.copyWith(quantity: quantity);
+    }
+  }
+
   void setNote(String note) => state = state.copyWith(note: note);
 }
 
-final confirmOrderProvider =
-    NotifierProvider<ConfirmOrderNotifier, ConfirmOrderState>(ConfirmOrderNotifier.new);
+final confirmOrderProvider = NotifierProvider<ConfirmOrderNotifier, ConfirmOrderState>(ConfirmOrderNotifier.new);

@@ -23,10 +23,7 @@ class ConfirmOrderPage extends ConsumerWidget {
       body: productAsync.when(
         loading: () => const Center(child: AppLoading()),
         error: (error, stack) => Center(
-          child: AppError(
-            message: '加载失败: $error',
-            onRetry: () => ref.invalidate(serviceProductDetailProvider(productId)),
-          ),
+          child: AppError(message: '加载失败: $error', onRetry: () => ref.invalidate(serviceProductDetailProvider(productId))),
         ),
         data: (product) => _buildContent(ref, product),
       ),
@@ -49,6 +46,9 @@ class ConfirmOrderPage extends ConsumerWidget {
                 quantity: notifier.quantity,
                 onIncrement: () => ref.read(confirmOrderProvider.notifier).increment(),
                 onDecrement: () => ref.read(confirmOrderProvider.notifier).decrement(),
+                onQuantityChanged: (newQty) {
+                  ref.read(confirmOrderProvider.notifier).setQuantity(newQty);
+                },
               );
             },
           ),
@@ -63,11 +63,7 @@ class ConfirmOrderPage extends ConsumerWidget {
     final pointsAsync = ref.watch(pointsMallStaticDataProvider);
     return productAsync.when(
       data: (product) => pointsAsync.when(
-        data: (d) => ConfirmOrderBottomBar(
-          product: product,
-          pointsBalance: d.currentPoints,
-          onSubmit: () => _handleSubmit(ref, product),
-        ),
+        data: (d) => ConfirmOrderBottomBar(product: product, pointsBalance: d.currentPoints, onSubmit: () => _handleSubmit(ref, product)),
         loading: () => const SizedBox(height: 56),
         error: (_, __) => const SizedBox(height: 56),
       ),
@@ -79,8 +75,6 @@ class ConfirmOrderPage extends ConsumerWidget {
   void _handleSubmit(WidgetRef ref, ServiceProductDetail product) {
     final quantity = ref.read(confirmOrderProvider).quantity;
     final totalPoints = product.points * quantity;
-    ScaffoldMessenger.of(ref.context).showSnackBar(
-      SnackBar(content: Text('提交订单：${product.title} × $quantity，共 $totalPoints 积分')),
-    );
+    ScaffoldMessenger.of(ref.context).showSnackBar(SnackBar(content: Text('提交订单：${product.title} × $quantity，共 $totalPoints 积分')));
   }
 }
