@@ -37,16 +37,6 @@ final appRouter = Provider<GoRouter>((ref) {
             GoRoute(
               path: RouteNames.points,
               pageBuilder: (c, s) => const NoTransitionPage(child: PointsMallPage()),
-              routes: [
-                GoRoute(
-                  path: 'service/:id',
-                  pageBuilder: (c, s) => MaterialPage(child: ServiceProductDetailPage(productId: s.pathParameters['id']!)),
-                ),
-                GoRoute(
-                  path: 'service/:id/confirm',
-                  pageBuilder: (c, s) => MaterialPage(child: ConfirmOrderPage(productId: s.pathParameters['id']!)),
-                ),
-              ],
             ),
           ]),
           StatefulShellBranch(routes: [GoRoute(path: RouteNames.shop, pageBuilder: (c, s) => const NoTransitionPage(child: ShopPage()))]),
@@ -57,6 +47,14 @@ final appRouter = Provider<GoRouter>((ref) {
           ]),
           StatefulShellBranch(routes: [GoRoute(path: RouteNames.profile, pageBuilder: (c, s) => const NoTransitionPage(child: ProfilePage()))]),
         ],
+      ),
+      GoRoute(
+        path: RouteNames.serviceProductDetail,
+        pageBuilder: (c, s) => MaterialPage(child: ServiceProductDetailPage(productId: s.pathParameters['id']!)),
+      ),
+      GoRoute(
+        path: RouteNames.confirmOrder,
+        pageBuilder: (c, s) => MaterialPage(child: ConfirmOrderPage(productId: s.pathParameters['id']!)),
       ),
       GoRoute(path: RouteNames.cart, pageBuilder: (c, s) => const MaterialPage(child: CartPage())),
       GoRoute(path: RouteNames.checkout, pageBuilder: (c, s) => const MaterialPage(child: CartPage())),

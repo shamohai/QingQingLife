@@ -27,23 +27,25 @@ class ConfirmOrderProductCard extends StatefulWidget {
 
 class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
   late TextEditingController _qtyController;
+  late FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
     _qtyController = TextEditingController(text: '${widget.quantity}');
+    _focusNode = FocusNode();
   }
 
   @override
   void didUpdateWidget(covariant ConfirmOrderProductCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // 当外部 quantity 变化时（比如点了加减按钮），同步更新输入框
     if (oldWidget.quantity != widget.quantity) {
       final newText = '${widget.quantity}';
       if (_qtyController.text != newText) {
         _qtyController.text = newText;
-        // 把光标移到末尾
-        _qtyController.selection = TextSelection.collapsed(offset: newText.length);
+        if (_focusNode.hasFocus) {
+          _qtyController.selection = TextSelection.collapsed(offset: newText.length);
+        }
       }
     }
   }
@@ -51,6 +53,7 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
   @override
   void dispose() {
     _qtyController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -88,9 +91,18 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: AppNetworkImage(url: widget.product.mainImageUrl, width: 70, height: 70, fit: BoxFit.cover),
+                    RepaintBoundary(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: AppNetworkImage(
+                          url: widget.product.mainImageUrl,
+                          width: 70,
+                          height: 70,
+                          fit: BoxFit.cover,
+                          memCacheWidth: 140,
+                          memCacheHeight: 140,
+                        ),
+                      ),
                     ),
                     const SizedBox(width: 10),
                     SizedBox(
@@ -153,34 +165,37 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    _QtyButton(label: '-', onTap: widget.onDecrement),
-                    const SizedBox(width: 6),
-                    SizedBox(
-                      width: 52,
+                    _QtyButton(label: '-', onTap: widget.onDecrement, isMinus: true),
+                    Container(
+                      width: 36,
                       height: 28,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        border: Border.symmetric(horizontal: BorderSide(color: Color(0xFFD9D9D9), width: 1.0)),
+                      ),
+                      alignment: Alignment.center,
                       child: TextField(
                         controller: _qtyController,
+                        focusNode: _focusNode,
                         textAlign: TextAlign.center,
+                        textAlignVertical: TextAlignVertical.center,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly, // 只允许数字
-                        ],
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1F2024)),
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFF1F2024),
+                          height: 1.2, // 调整行高以辅助垂直居中
+                        ),
                         decoration: const InputDecoration(
                           isDense: true,
-                          contentPadding: EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(4)),
-                            borderSide: BorderSide(color: Color(0xFFD9D9D9)),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(4)),
-                            borderSide: BorderSide(color: Color(0xFFD9D9D9)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(4)),
-                            borderSide: BorderSide(color: Color(0xFFFF2105), width: 1.2),
-                          ),
+                          isCollapsed: true, // 进一步压缩内部空间
+                          contentPadding: EdgeInsets.zero,
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          fillColor: Colors.white,
+                          filled: true,
                         ),
                         onSubmitted: _onQuantitySubmitted,
                         onEditingComplete: () {
@@ -189,8 +204,7 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
                         },
                       ),
                     ),
-                    const SizedBox(width: 6),
-                    _QtyButton(label: '+', onTap: widget.onIncrement),
+                    _QtyButton(label: '+', onTap: widget.onIncrement, isMinus: false),
                   ],
                 ),
 
@@ -222,24 +236,31 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
 class _QtyButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
+  final bool isMinus;
 
-  const _QtyButton({required this.label, required this.onTap});
+  const _QtyButton({required this.label, required this.onTap, this.isMinus = false});
 
   @override
   Widget build(BuildContext context) {
+    final borderRadius = isMinus
+        ? const BorderRadius.only(topLeft: Radius.circular(8), bottomLeft: Radius.circular(8))
+        : const BorderRadius.only(topRight: Radius.circular(8), bottomRight: Radius.circular(8));
+
     return GestureDetector(
       onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: Container(
-        width: 28,
+        width: 18,
         height: 28,
         alignment: Alignment.center,
         decoration: BoxDecoration(
+          color: const Color(0xFFF3F5F7),
           border: Border.all(color: const Color(0xFFD9D9D9)),
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: borderRadius,
         ),
         child: Text(
           label,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Color(0xFF1F2024)),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w400, color: Color(0xFF000000), height: 1.0),
         ),
       ),
     );
