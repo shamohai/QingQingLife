@@ -61,13 +61,13 @@ class PointsPaymentSuccessPage extends StatelessWidget {
                         alignment: Alignment.center,
                         child: Text(
                           '兑换成功',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Color(0xFF000000), height: 1.0),
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF000000), height: 1.0),
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 40),
                       // ── 区域 2：订单信息白色卡片 ──
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.lg),
                         child: Container(
                           constraints: const BoxConstraints(maxWidth: 414),
                           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.sm)),
@@ -81,7 +81,7 @@ class PointsPaymentSuccessPage extends StatelessWidget {
                                 OrderInfoRow(label: '交易单号', value: transactionNo),
                                 const SizedBox(height: AppSpacing.sm),
                                 OrderInfoRow(label: '交易状态', value: '兑换成功'),
-                                const SizedBox(height: AppSpacing.md),
+                                const SizedBox(height: AppSpacing.lg),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -90,6 +90,7 @@ class PointsPaymentSuccessPage extends StatelessWidget {
                                     PillButton(label: '订单明细', onTap: () => _onOrderDetail(context)),
                                   ],
                                 ),
+                                const SizedBox(height: 10),
                               ],
                             ),
                           ),
@@ -164,7 +165,7 @@ class PillButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Color(0xFF213775), height: 1.0),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF213775), height: 1.0),
         ),
       ),
     );
