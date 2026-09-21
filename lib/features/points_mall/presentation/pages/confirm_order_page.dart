@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../core/widgets/app_error.dart';
 import '../../../../../core/widgets/app_loading.dart';
+import '../../../../app/router/route_names.dart';
+import '../../data/models/points_payment_success_data.dart';
 import '../../data/models/service_product_detail_model.dart';
 import '../providers/confirm_order_provider.dart';
 import '../providers/points_mall_paging_providers.dart';
@@ -75,6 +78,12 @@ class ConfirmOrderPage extends ConsumerWidget {
   void _handleSubmit(WidgetRef ref, ServiceProductDetail product) {
     final quantity = ref.read(confirmOrderProvider).quantity;
     final totalPoints = product.points * quantity;
-    ScaffoldMessenger.of(ref.context).showSnackBar(SnackBar(content: Text('提交订单：${product.title} × $quantity，共 $totalPoints 积分')));
+    // Mock orderId / orderNo（真实场景由 API 返回）
+    const mockOrderId = 'DDBH4565465789087654678908765789';
+    const mockOrderNo = 'DDBH45674567898908765789';
+    GoRouter.of(ref.context).push(
+      RouteNames.paymentResult,
+      extra: PointsPaymentSuccessData(orderNo: mockOrderNo, transactionNo: mockOrderId, pointsDeducted: totalPoints),
+    );
   }
 }

@@ -15,6 +15,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
 import '../../features/points_mall/presentation/pages/service_product_detail_page.dart';
 import '../../features/points_mall/presentation/pages/confirm_order_page.dart';
+import '../../features/points_mall/presentation/pages/points_payment_success_page.dart';
 import 'route_names.dart';
 
 final appRouter = Provider<GoRouter>((ref) {
@@ -23,29 +24,69 @@ final appRouter = Provider<GoRouter>((ref) {
     initialLocation: devRoute.isNotEmpty ? devRoute : RouteNames.home,
     debugLogDiagnostics: false,
     routes: [
-      GoRoute(path: RouteNames.login, pageBuilder: (c, s) => const MaterialPage(child: LoginPage())),
-      GoRoute(path: RouteNames.phoneBind, pageBuilder: (c, s) => const MaterialPage(child: PhoneBindPage())),
+      GoRoute(
+        path: RouteNames.login,
+        pageBuilder: (c, s) => const MaterialPage(child: LoginPage()),
+      ),
+      GoRoute(
+        path: RouteNames.phoneBind,
+        pageBuilder: (c, s) => const MaterialPage(child: PhoneBindPage()),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (c, s, ns) => MainShell(navigationShell: ns),
         branches: [
-          StatefulShellBranch(routes: [
-            GoRoute(path: RouteNames.home, pageBuilder: (c, s) => const NoTransitionPage(child: HomePage()), routes: [
-              GoRoute(path: 'product/:id', pageBuilder: (c, s) => MaterialPage(child: ProductDetailPage(productId: s.pathParameters['id']!))),
-            ]),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: RouteNames.points,
-              pageBuilder: (c, s) => const NoTransitionPage(child: PointsMallPage()),
-            ),
-          ]),
-          StatefulShellBranch(routes: [GoRoute(path: RouteNames.shop, pageBuilder: (c, s) => const NoTransitionPage(child: ShopPage()))]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: RouteNames.service, pageBuilder: (c, s) => const NoTransitionPage(child: ServicePage()), routes: [
-              GoRoute(path: 'records', pageBuilder: (c, s) => MaterialPage(child: ServiceRecordsPage(activeTab: s.uri.queryParameters['activeTab'] ?? 'ongoing'))),
-            ]),
-          ]),
-          StatefulShellBranch(routes: [GoRoute(path: RouteNames.profile, pageBuilder: (c, s) => const NoTransitionPage(child: ProfilePage()))]),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RouteNames.home,
+                pageBuilder: (c, s) => const NoTransitionPage(child: HomePage()),
+                routes: [
+                  GoRoute(
+                    path: 'product/:id',
+                    pageBuilder: (c, s) => MaterialPage(child: ProductDetailPage(productId: s.pathParameters['id']!)),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RouteNames.points,
+                pageBuilder: (c, s) => const NoTransitionPage(child: PointsMallPage()),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RouteNames.shop,
+                pageBuilder: (c, s) => const NoTransitionPage(child: ShopPage()),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RouteNames.service,
+                pageBuilder: (c, s) => const NoTransitionPage(child: ServicePage()),
+                routes: [
+                  GoRoute(
+                    path: 'records',
+                    pageBuilder: (c, s) => MaterialPage(child: ServiceRecordsPage(activeTab: s.uri.queryParameters['activeTab'] ?? 'ongoing')),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RouteNames.profile,
+                pageBuilder: (c, s) => const NoTransitionPage(child: ProfilePage()),
+              ),
+            ],
+          ),
         ],
       ),
       GoRoute(
@@ -56,9 +97,22 @@ final appRouter = Provider<GoRouter>((ref) {
         path: RouteNames.confirmOrder,
         pageBuilder: (c, s) => MaterialPage(child: ConfirmOrderPage(productId: s.pathParameters['id']!)),
       ),
-      GoRoute(path: RouteNames.cart, pageBuilder: (c, s) => const MaterialPage(child: CartPage())),
-      GoRoute(path: RouteNames.checkout, pageBuilder: (c, s) => const MaterialPage(child: CartPage())),
-      GoRoute(path: RouteNames.serviceCart, pageBuilder: (c, s) => const MaterialPage(child: ServiceCartPage())),
+      GoRoute(
+        path: RouteNames.paymentResult,
+        pageBuilder: (c, s) => MaterialPage(child: PointsPaymentSuccessPage.fromExtra(s.extra)),
+      ),
+      GoRoute(
+        path: RouteNames.cart,
+        pageBuilder: (c, s) => const MaterialPage(child: CartPage()),
+      ),
+      GoRoute(
+        path: RouteNames.checkout,
+        pageBuilder: (c, s) => const MaterialPage(child: CartPage()),
+      ),
+      GoRoute(
+        path: RouteNames.serviceCart,
+        pageBuilder: (c, s) => const MaterialPage(child: ServiceCartPage()),
+      ),
     ],
   );
 });
@@ -81,8 +135,32 @@ class MainShell extends StatelessWidget {
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, -2))]),
-        child: SafeArea(top: false, child: SizedBox(height: 56, child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: List.generate(5, (i) => Expanded(child: _TabItem(index: i, selectedAsset: _tabAssets[i].selected, unselectedAsset: _tabAssets[i].unselected, label: ['首页', '积分商城', '特色商城', '服务中心', '我的'][i], isSelected: i == idx, onTap: () => _goBranch(i))))))),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          boxShadow: [BoxShadow(color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, -2))],
+        ),
+        child: SafeArea(
+          top: false,
+          child: SizedBox(
+            height: 56,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(
+                5,
+                (i) => Expanded(
+                  child: _TabItem(
+                    index: i,
+                    selectedAsset: _tabAssets[i].selected,
+                    unselectedAsset: _tabAssets[i].unselected,
+                    label: ['首页', '积分商城', '特色商城', '服务中心', '我的'][i],
+                    isSelected: i == idx,
+                    onTap: () => _goBranch(i),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -95,9 +173,27 @@ class _TabItem extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
-  const _TabItem({required this.index, required this.selectedAsset, required this.unselectedAsset, required this.label, required this.isSelected, required this.onTap});
+  const _TabItem({
+    required this.index,
+    required this.selectedAsset,
+    required this.unselectedAsset,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(onTap: onTap, behavior: HitTestBehavior.opaque, child: Column(mainAxisSize: MainAxisSize.min, children: [Image.asset(isSelected ? selectedAsset : unselectedAsset, width: 26, height: 26), const SizedBox(height: 3), Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400))]));
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(isSelected ? selectedAsset : unselectedAsset, width: 26, height: 26),
+          const SizedBox(height: 3),
+          Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400)),
+        ],
+      ),
+    );
   }
 }
