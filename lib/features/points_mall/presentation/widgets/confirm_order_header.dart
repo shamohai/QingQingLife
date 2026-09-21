@@ -37,7 +37,7 @@ class ConfirmOrderHeader extends StatelessWidget {
             padding: const EdgeInsets.only(top: 30, left: AppSpacing.xxl),
             child: Row(
               children: [
-                Image.asset('assets/images/points/confirm_order_location.png', width: 14, height: 14),
+                Image.asset('assets/images/points/confirm_order_location.png', width: 18, height: 18),
                 const SizedBox(width: 4),
                 const Text(
                   '甘肃省 兰州市 七里河区 建兰路街道',

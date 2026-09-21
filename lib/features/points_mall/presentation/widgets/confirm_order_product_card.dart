@@ -85,72 +85,73 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
           Padding(
             padding: const EdgeInsets.only(left: 10, right: 10, top: 12),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 左侧：图片 + 名称 + 标签
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    RepaintBoundary(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: AppNetworkImage(
-                          url: widget.product.mainImageUrl,
-                          width: 70,
-                          height: 70,
-                          fit: BoxFit.cover,
-                          memCacheWidth: 140,
-                          memCacheHeight: 140,
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RepaintBoundary(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: AppNetworkImage(
+                            url: widget.product.mainImageUrl,
+                            width: 70,
+                            height: 70,
+                            fit: BoxFit.cover,
+                            memCacheWidth: 140,
+                            memCacheHeight: 140,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    SizedBox(
-                      width: 170,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            widget.product.title,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF1F2024)),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 6),
-                          Row(children: widget.product.tags.map((tag) => _TagPill(label: tag)).toList()),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                // 右侧：积分 + 市场价
-                SizedBox(
-                  width: 110,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '${widget.product.points}',
-                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFFFF2105)),
-                          ),
-                          const Text(
-                            '积分',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFFF2105)),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '市场价:¥${widget.product.marketPrice.toStringAsFixed(2)}',
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97)),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              widget.product.title,
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF1F2024)),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [Wrap(spacing: 6, runSpacing: 4, children: widget.product.tags.map((tag) => _TagPill(label: tag)).toList())],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(width: 8),
+                // 右侧：积分 + 市场价
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${widget.product.points}',
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFFFF2105)),
+                        ),
+                        const Text(
+                          '积分',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFFF2105)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '市场价:¥${widget.product.marketPrice.toStringAsFixed(2)}',
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97)),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -218,9 +219,15 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
                       '留言备注',
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Color(0xFF1F2024)),
                     ),
-                    const Text(
-                      '请填写备注信息  >',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97)),
+                    const SizedBox(width: 10),
+                    const Expanded(
+                      child: Text(
+                        '请填写备注信息  >',
+                        textAlign: TextAlign.right,
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97)),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
