@@ -122,7 +122,7 @@ class OrderInfoRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 56,
+          width: 60,
           child: Text(
             label,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97), height: 1.43),
