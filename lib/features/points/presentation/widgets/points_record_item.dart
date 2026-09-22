@@ -19,15 +19,15 @@ class PointsRecordItem extends StatelessWidget {
     final amountColor = const Color(0xFFFF2105);
     final timeText = DateFormat('yyyy-MM-dd  HH:mm:ss').format(record.createTime);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // 第一行：图标 + 名称 + 金额
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Row(
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 第一行：图标 + 名称
+              Row(
                 children: [
                   // 类型图标
                   _TypeIcon(isIncome: !isIncome),
@@ -42,29 +42,29 @@ class PointsRecordItem extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              amountText,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: amountColor, height: 1.0),
-            ),
-          ],
-        ),
-        // 第二行：订单编号
-        Padding(
-          padding: const EdgeInsets.only(top: 2),
-          child: Text(
-            '订单编号：${record.exchangeNo}',
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97), height: 1.43),
+              // 第二行：订单编号
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  '订单编号：${record.exchangeNo}',
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97), height: 1.43),
+                ),
+              ),
+              // 第三行：发生时间
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  '发生时间：$timeText',
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97), height: 1.43),
+                ),
+              ),
+            ],
           ),
         ),
-        // 第三行：发生时间
-        Padding(
-          padding: const EdgeInsets.only(top: 2),
-          child: Text(
-            '发生时间：$timeText',
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97), height: 1.43),
-          ),
+        const SizedBox(width: 8),
+        Text(
+          amountText,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: amountColor, height: 1.0),
         ),
       ],
     );

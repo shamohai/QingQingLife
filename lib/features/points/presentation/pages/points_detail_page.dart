@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../app/theme/app_colors.dart';
@@ -8,6 +9,7 @@ import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../providers/points_detail_provider.dart';
 import '../widgets/points_record_item.dart';
+import '../../../../../app/router/route_names.dart';
 
 /// 积分明细页面
 class PointsDetailPage extends ConsumerStatefulWidget {
@@ -83,7 +85,7 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
               ),
               const Spacer(),
               GestureDetector(
-                onTap: () => _showPointsRule(context),
+                onTap: () => GoRouter.of(context).push(RouteNames.pointsRules),
                 child: const Text(
                   '积分说明',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400, color: AppColors.onSurface),
@@ -230,16 +232,6 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
     );
   }
 
-  void _showPointsRule(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('积分说明'),
-        content: const Text('积分规则：每日签到得10积分，消费1元得1积分，积分有效期12个月，到期前30天短信提醒。'),
-        actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('知道了'))],
-      ),
-    );
-  }
 }
 
 // ── 装饰占位图 ─────────────────────────────────────────────────────
@@ -252,3 +244,5 @@ class _DecorationPlaceholder extends StatelessWidget {
     return Image.asset('assets/images/points/points_detail_stars.png', width: 175, height: 175, fit: BoxFit.contain);
   }
 }
+
+

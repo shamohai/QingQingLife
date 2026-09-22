@@ -46,5 +46,8 @@ abstract final class RouteNames {
 
   // 客服
   static const String customerService = '/customer-service';
+
+  // 积分规则页
+  static const String pointsRules = '/points/rules';
 }
    // 地址相关
