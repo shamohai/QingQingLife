@@ -4,11 +4,11 @@
 
 本 Skill 用于：
 
-* 蓝湖 MCP 设计稿 → Flutter 页面
-* Figma/Sketch/设计稿 → Flutter 页面
-* 设计稿截图 → Flutter 页面
-* 设计稿节点结构 → Flutter Widget 结构
-* Flutter 页面截图 → 设计稿视觉验收
+- 蓝湖 MCP 设计稿 → Flutter 页面
+- Figma/Sketch/设计稿 → Flutter 页面
+- 设计稿截图 → Flutter 页面
+- 设计稿节点结构 → Flutter Widget 结构
+- Flutter 页面截图 → 设计稿视觉验收
 
 核心目标：
 
@@ -20,6 +20,18 @@
 设计稿
 ↓
 直接生成大量 Flutter 代码
+
+---
+
+## 禁止从设计稿截图实现的元素
+
+设计稿截图顶部的**设备状态栏**（时间、手机信号、WiFi、电量图标）是设计工具/mockup 的占位内容，
+**不是页面实际 UI 的一部分**，禁止实现为 Flutter Widget。
+
+Flutter 页面应使用原生 SafeArea 处理系统状态栏，不要手动还原设计稿截图中的 时间 / 信号 / 电池图标。
+
+---
+
 ```
 
 必须：
@@ -48,12 +60,12 @@ Flutter Widget Tree
 
 涉及以下任务时必须启用本 Skill：
 
-* 根据蓝湖 MCP 设计稿开发页面
-* 根据设计稿截图开发页面
-* 根据 Figma / Sketch 设计稿开发页面
-* 修改已有页面以匹配设计稿
-* 根据设计稿还原 Flutter UI
-* 检查 AI 生成的 Flutter UI 是否符合设计稿
+- 根据蓝湖 MCP 设计稿开发页面
+- 根据设计稿截图开发页面
+- 根据 Figma / Sketch 设计稿开发页面
+- 修改已有页面以匹配设计稿
+- 根据设计稿还原 Flutter UI
+- 检查 AI 生成的 Flutter UI 是否符合设计稿
 
 ---
 
@@ -69,39 +81,39 @@ Flutter Widget Tree
 
 ### 页面结构
 
-* 页面整体布局
-* 顶部区域
-* 内容区域
-* 底部区域
-* 固定区域
-* 滚动区域
-* Row
-* Column
-* Stack
-* ListView
-* GridView
-* Expanded
-* Flexible
-* Spacer
-* Padding
-* Align
-* Center
+- 页面整体布局
+- 顶部区域
+- 内容区域
+- 底部区域
+- 固定区域
+- 滚动区域
+- Row
+- Column
+- Stack
+- ListView
+- GridView
+- Expanded
+- Flexible
+- Spacer
+- Padding
+- Align
+- Center
 
 ### 视觉信息
 
-* 背景颜色
-* 文字颜色
-* 字号
-* 字重
-* 行高
-* 图片尺寸
-* Icon 尺寸
-* 圆角
-* 边框
-* 阴影
-* Padding
-* 间距
-* 对齐方式
+- 背景颜色
+- 文字颜色
+- 字号
+- 字重
+- 行高
+- 图片尺寸
+- Icon 尺寸
+- 圆角
+- 边框
+- 阴影
+- Padding
+- 间距
+- 对齐方式
 
 ---
 
@@ -356,13 +368,13 @@ Flexible(
 
 只有存在真实层叠关系时使用：
 
-* 图片覆盖文字
-* Badge
-* 角标
-* 头像状态
-* 悬浮按钮
-* Banner 覆盖元素
-* 装饰元素
+- 图片覆盖文字
+- Badge
+- 角标
+- 头像状态
+- 悬浮按钮
+- Banner 覆盖元素
+- 装饰元素
 
 禁止使用 Stack 解决普通：
 
@@ -410,13 +422,13 @@ Column(
 
 设计稿明确要求的：
 
-* Icon 尺寸
-* 头像尺寸
-* 按钮高度
-* 图片比例
-* 特殊组件尺寸
-* 标准圆角
-* 明确设计间距
+- Icon 尺寸
+- 头像尺寸
+- 按钮高度
+- 图片比例
+- 特殊组件尺寸
+- 标准圆角
+- 明确设计间距
 
 例如：
 
@@ -904,14 +916,14 @@ TextStyle
 
 禁止因为一个组件的位置错误而：
 
-* 重构整个页面
-* 修改项目架构
-* 修改无关页面
-* 修改 API
-* 修改 Repository
-* 修改状态管理
-* 修改路由
-* 修改全局 Theme
+- 重构整个页面
+- 修改项目架构
+- 修改无关页面
+- 修改 API
+- 修改 Repository
+- 修改状态管理
+- 修改路由
+- 修改全局 Theme
 
 除非用户明确要求。
 
