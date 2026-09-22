@@ -27,6 +27,8 @@ abstract final class RouteNames {
   static const String pointsMall = '/points/mall';
 
   // 地址相关
+  // 积分明细页
+  static const String pointsDetail = '/points/detail';
   static const String address = '/address';
   static const String addressEdit = '/address/edit';
 
@@ -45,3 +47,4 @@ abstract final class RouteNames {
   // 客服
   static const String customerService = '/customer-service';
 }
+   // 地址相关

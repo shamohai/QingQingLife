@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -99,7 +99,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                                 currentPoints: staticData.currentPoints,
                                 expiringPoints: staticData.expiringPoints,
                                 expiryDate: staticData.expiryDate,
-                                onDetailTap: () {},
+                                onDetailTap: () => GoRouter.of(context).push(RouteNames.pointsDetail),
                               ),
                             ),
                           ],

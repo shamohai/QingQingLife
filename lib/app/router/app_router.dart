@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,6 +16,7 @@ import '../../features/auth/presentation/pages/phone_bind_page.dart';
 import '../../features/points_mall/presentation/pages/service_product_detail_page.dart';
 import '../../features/points_mall/presentation/pages/confirm_order_page.dart';
 import '../../features/points_mall/presentation/pages/points_payment_success_page.dart';
+import '../../features/points/presentation/pages/points_detail_page.dart';
 import 'route_names.dart';
 
 final appRouter = Provider<GoRouter>((ref) {
@@ -112,6 +113,10 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.serviceCart,
         pageBuilder: (c, s) => const MaterialPage(child: ServiceCartPage()),
+      ),
+      GoRoute(
+        path: RouteNames.pointsDetail,
+        pageBuilder: (c, s) => const MaterialPage(child: PointsDetailPage()),
       ),
     ],
   );
