@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -44,11 +44,7 @@ class PointsDetailPage extends ConsumerWidget {
         children: [
           Container(
             decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFFFFC65E), Color(0xFFF3F5F7)],
-              ),
+              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFFFC65E), Color(0xFFF3F5F7)]),
             ),
           ),
           Column(
@@ -56,17 +52,16 @@ class PointsDetailPage extends ConsumerWidget {
             children: [
               // AppBar 行
               Padding(
-                padding: const EdgeInsets.only(top: 10, left: 14),
+                padding: const EdgeInsets.only(top: 10, right: 15),
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back, size: 24, color: AppColors.onSurface),
+                      icon: const Icon(Icons.arrow_back_ios_new, size: 24, color: AppColors.onSurface),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
-                    const SizedBox(width: 8),
                     const Text(
                       '积分明细',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.onSurface),
                     ),
                     const Spacer(),
                     GestureDetector(
@@ -88,7 +83,10 @@ class PointsDetailPage extends ConsumerWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('当前积分', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.onSurface)),
+                        const Text(
+                          '当前积分',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.onSurface),
+                        ),
                         const SizedBox(height: 4),
                         FittedBox(
                           fit: BoxFit.scaleDown,
@@ -144,7 +142,8 @@ class PointsDetailPage extends ConsumerWidget {
                       const Spacer(),
                       if (isSelected)
                         Container(
-                          width: 9, height: 6,
+                          width: 9,
+                          height: 6,
                           decoration: BoxDecoration(color: const Color(0xFF000000), borderRadius: BorderRadius.circular(3)),
                         ),
                     ],
@@ -162,7 +161,7 @@ class PointsDetailPage extends ConsumerWidget {
   Widget _buildRecordList(BuildContext context, WidgetRef ref, PointsDetailState state) {
     return Container(
       // 卡片顶部上移 80px，与 Banner 底部产生重叠
-      margin: const EdgeInsets.only(top: -80),
+      margin: const EdgeInsets.only(top: 80),
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Container(
         // 仅底部圆角 + 阴影；顶部与 sticky header 齐平，不裁剪
@@ -176,8 +175,8 @@ class PointsDetailPage extends ConsumerWidget {
           child: state.isLoading && state.records.isEmpty
               ? const Center(child: AppLoading())
               : state.filteredRecords.isEmpty
-                  ? const AppEmpty(message: '暂无积分记录')
-                  : _buildSliverList(ref, state),
+              ? const AppEmpty(message: '暂无积分记录')
+              : _buildSliverList(ref, state),
         ),
       ),
     );
@@ -202,10 +201,7 @@ class PointsDetailPage extends ConsumerWidget {
         ),
         // 记录条目
         SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) => PointsRecordItem(record: records[index]),
-            childCount: records.length,
-          ),
+          delegate: SliverChildBuilderDelegate((context, index) => PointsRecordItem(record: records[index]), childCount: records.length),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 24)),
       ],
@@ -243,7 +239,10 @@ class _MonthHeaderDelegate extends SliverPersistentHeaderDelegate {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(displayText, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.onSurface, height: 1.0)),
+              Text(
+                displayText,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.onSurface, height: 1.0),
+              ),
               const SizedBox(height: 4),
               Text(
                 income > 0 ? '收益${NumberFormat('#,###').format(income.toInt())}积分' : '',
@@ -269,19 +268,17 @@ class _MonthHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   double get minExtent => 84;
   @override
-  bool shouldRebuild(covariant _MonthHeaderDelegate old) =>
-      monthKey != old.monthKey || income != old.income || expense != old.expense;
+  bool shouldRebuild(covariant _MonthHeaderDelegate old) => monthKey != old.monthKey || income != old.income || expense != old.expense;
 }
 
 // ── 装饰占位图 ─────────────────────────────────────────────────────
+/// 右侧积分装饰插画（蓝湖 Rectangle 365 切片，175×175 hdpi）
+/// 对应设计稿中 group_15 右侧的 image_1
 class _DecorationPlaceholder extends StatelessWidget {
   const _DecorationPlaceholder();
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 120, height: 120,
-      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(60)),
-      child: const Icon(Icons.stars, size: 56, color: Colors.white54),
-    );
+    return Image.asset('assets/images/points/points_detail_stars.png', width: 175, height: 175, fit: BoxFit.contain);
   }
 }
+
