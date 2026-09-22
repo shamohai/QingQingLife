@@ -25,87 +25,87 @@ class PointsDetailPage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F7),
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            _buildBanner(context, state),
-            _buildMonthTabs(context, state, notifier),
-            Expanded(child: _buildRecordList(context, ref, state)),
+            // 渐变背景：高度 330px（比 Banner 内容高出约 80px，实现底部 80px 视觉重叠）
+            Container(
+              height: 330,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFFFC65E), Color(0xFFF3F5F7)]),
+              ),
+            ),
+            // 前景内容：AppBar + 余额展示 + 月份 Tab + 记录列表
+            Column(
+              children: [
+                _buildBannerContent(context, state),
+                _buildMonthTabs(context, state, notifier),
+                Expanded(child: _buildRecordList(context, ref, state)),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  // ── Banner：渐变背景 + AppBar + 余额展示 ──────────────────────────
-  Widget _buildBanner(BuildContext context, PointsDetailState state) {
-    return SizedBox(
-      height: 400,
-      child: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFFFC65E), Color(0xFFF3F5F7)]),
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+  // ── Banner 内容区：AppBar + 余额展示 ──────────────────────────────
+  Widget _buildBannerContent(BuildContext context, PointsDetailState state) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // AppBar 行
+        Padding(
+          padding: const EdgeInsets.only(top: 10, right: 15),
+          child: Row(
             children: [
-              // AppBar 行
-              Padding(
-                padding: const EdgeInsets.only(top: 10, right: 15),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new, size: 24, color: AppColors.onSurface),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                    const Text(
-                      '积分明细',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.onSurface),
-                    ),
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: () => _showPointsRule(context),
-                      child: const Text(
-                        '积分说明',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400, color: AppColors.onSurface),
-                      ),
-                    ),
-                  ],
-                ),
+              IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, size: 24, color: AppColors.onSurface),
+                onPressed: () => Navigator.of(context).pop(),
               ),
-              // 余额展示区（margin-top:29 → top:16 已含 SafeArea 偏移）
-              Padding(
-                padding: const EdgeInsets.only(left: 32, top: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          '当前积分',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.onSurface),
-                        ),
-                        const SizedBox(height: 4),
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            NumberFormat('#,###').format(state.currentPoints),
-                            style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w600, color: AppColors.onSurface, height: 1.1, letterSpacing: -0.5),
-                          ),
-                        ),
-                      ],
-                    ),
-                    _DecorationPlaceholder(),
-                  ],
+              const Text(
+                '积分明细',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.onSurface),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: () => _showPointsRule(context),
+                child: const Text(
+                  '积分说明',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400, color: AppColors.onSurface),
                 ),
               ),
             ],
           ),
-        ],
-      ),
+        ),
+        // 余额展示区
+        Padding(
+          padding: const EdgeInsets.only(left: 32, top: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '当前积分',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.onSurface),
+                  ),
+                  const SizedBox(height: 4),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      NumberFormat('#,###').format(state.currentPoints),
+                      style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w600, color: AppColors.onSurface, height: 1.1, letterSpacing: -0.5),
+                    ),
+                  ),
+                ],
+              ),
+              const _DecorationPlaceholder(),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -161,7 +161,7 @@ class PointsDetailPage extends ConsumerWidget {
   Widget _buildRecordList(BuildContext context, WidgetRef ref, PointsDetailState state) {
     return Container(
       // 卡片顶部上移 80px，与 Banner 底部产生重叠
-      margin: const EdgeInsets.only(top: 80),
+      margin: const EdgeInsets.only(top: 0),
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Container(
         // 仅底部圆角 + 阴影；顶部与 sticky header 齐平，不裁剪
@@ -281,4 +281,3 @@ class _DecorationPlaceholder extends StatelessWidget {
     return Image.asset('assets/images/points/points_detail_stars.png', width: 175, height: 175, fit: BoxFit.contain);
   }
 }
-
