@@ -14,21 +14,9 @@ class PointsDetailState {
   final bool isLoading;
   final String? errorMessage;
 
-  const PointsDetailState({
-    this.currentPoints = 0,
-    this.records = const [],
-    this.selectedMonth = '',
-    this.isLoading = false,
-    this.errorMessage,
-  });
+  const PointsDetailState({this.currentPoints = 0, this.records = const [], this.selectedMonth = '', this.isLoading = false, this.errorMessage});
 
-  PointsDetailState copyWith({
-    int? currentPoints,
-    List<PointsExchangeRecord>? records,
-    String? selectedMonth,
-    bool? isLoading,
-    String? errorMessage,
-  }) {
+  PointsDetailState copyWith({int? currentPoints, List<PointsExchangeRecord>? records, String? selectedMonth, bool? isLoading, String? errorMessage}) {
     return PointsDetailState(
       currentPoints: currentPoints ?? this.currentPoints,
       records: records ?? this.records,
@@ -55,6 +43,14 @@ class PointsDetailState {
       months.add(key);
     }
     return months.toList()..sort((a, b) => b.compareTo(a));
+  }
+
+  /// 获取指定月份的记录列表
+  List<PointsExchangeRecord> getRecordsForMonth(String month) {
+    return records.where((record) {
+      final monthKey = '${record.createTime.year}-${record.createTime.month.toString().padLeft(2, '0')}';
+      return monthKey == month;
+    }).toList();
   }
 
   /// 格式化月份显示文本
@@ -105,11 +101,7 @@ class PointsDetailNotifier extends Notifier<PointsDetailState> {
       }
       final records = response.data!;
       final latestMonth = _getLatestMonthFromRecords(records);
-      state = state.copyWith(
-        records: records,
-        isLoading: false,
-        selectedMonth: latestMonth,
-      );
+      state = state.copyWith(records: records, isLoading: false, selectedMonth: latestMonth);
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
@@ -130,15 +122,9 @@ class PointsDetailNotifier extends Notifier<PointsDetailState> {
 
   String _getLatestMonthFromRecords(List<PointsExchangeRecord> records) {
     if (records.isEmpty) return _getLatestMonth();
-    final sorted = records
-        .map((r) => '${r.createTime.year}-${r.createTime.month.toString().padLeft(2, '0')}')
-        .toSet()
-        .toList()
-      ..sort((a, b) => b.compareTo(a));
+    final sorted = records.map((r) => '${r.createTime.year}-${r.createTime.month.toString().padLeft(2, '0')}').toSet().toList()..sort((a, b) => b.compareTo(a));
     return sorted.isNotEmpty ? sorted.first : _getLatestMonth();
   }
 }
 
-final pointsDetailProvider = NotifierProvider.autoDispose<PointsDetailNotifier, PointsDetailState>(
-  PointsDetailNotifier.new,
-);
+final pointsDetailProvider = NotifierProvider.autoDispose<PointsDetailNotifier, PointsDetailState>(PointsDetailNotifier.new);

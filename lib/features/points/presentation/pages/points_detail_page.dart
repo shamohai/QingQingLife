@@ -10,11 +10,29 @@ import '../providers/points_detail_provider.dart';
 import '../widgets/points_record_item.dart';
 
 /// 积分明细页面
-class PointsDetailPage extends ConsumerWidget {
+class PointsDetailPage extends ConsumerStatefulWidget {
   const PointsDetailPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PointsDetailPage> createState() => _PointsDetailPageState();
+}
+
+class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
+  // 记录展开状态的月份 Key 集合，默认为空即全部折叠
+  final Set<String> _expandedMonths = {};
+
+  void _toggleMonthExpanded(String monthKey) {
+    setState(() {
+      if (_expandedMonths.contains(monthKey)) {
+        _expandedMonths.remove(monthKey);
+      } else {
+        _expandedMonths.add(monthKey);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(pointsDetailProvider);
     final notifier = ref.read(pointsDetailProvider.notifier);
 
@@ -27,21 +45,17 @@ class PointsDetailPage extends ConsumerWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            // 渐变背景：高度 330px（比 Banner 内容高出约 80px，实现底部 80px 视觉重叠）
+            // 1. 渐变背景：高度 330px
             Container(
               height: 330,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFFFC65E), Color(0xFFF3F5F7)]),
               ),
             ),
-            // 前景内容：AppBar + 余额展示 + 月份 Tab + 记录列表
-            Column(
-              children: [
-                _buildBannerContent(context, state),
-                _buildMonthTabs(context, state, notifier),
-                Expanded(child: _buildRecordList(context, ref, state)),
-              ],
-            ),
+            // 2. Banner 内容区（AppBar + 当前积分）
+            _buildBannerContent(context, state),
+            // 3. 独立月份卡片列表：作为 Root Stack 的直接子节点，设置 top 偏移实现重叠，确保手势完全可以正常响应
+            Padding(padding: const EdgeInsets.only(top: 200), child: _buildRecordList(context, state)),
           ],
         ),
       ),
@@ -52,10 +66,11 @@ class PointsDetailPage extends ConsumerWidget {
   Widget _buildBannerContent(BuildContext context, PointsDetailState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         // AppBar 行
         Padding(
-          padding: const EdgeInsets.only(top: 10, right: 15),
+          padding: const EdgeInsets.only(top: 22, right: 15),
           child: Row(
             children: [
               IconButton(
@@ -79,7 +94,7 @@ class PointsDetailPage extends ConsumerWidget {
         ),
         // 余额展示区
         Padding(
-          padding: const EdgeInsets.only(left: 32, top: 16),
+          padding: const EdgeInsets.only(left: 32, top: 24, right: 22),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -96,9 +111,10 @@ class PointsDetailPage extends ConsumerWidget {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       NumberFormat('#,###').format(state.currentPoints),
-                      style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w600, color: AppColors.onSurface, height: 1.1, letterSpacing: -0.5),
+                      style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w700, color: AppColors.onSurface, height: 1.1, letterSpacing: -0.5),
                     ),
                   ),
+                  const SizedBox(height: 75),
                 ],
               ),
               const _DecorationPlaceholder(),
@@ -109,102 +125,108 @@ class PointsDetailPage extends ConsumerWidget {
     );
   }
 
-  // ── 月份 Tab 切换（白色胶囊，纵向排列）─────────────────────────────
-  Widget _buildMonthTabs(BuildContext context, PointsDetailState state, PointsDetailNotifier notifier) {
-    final months = state.availableMonths;
-    if (months.isEmpty) return const SizedBox.shrink();
+  // ── 积分记录列表容器（刷新指示器） ──────────────────────────────────
+  Widget _buildRecordList(BuildContext context, PointsDetailState state) {
+    return RefreshIndicator(
+      onRefresh: () => ref.read(pointsDetailProvider.notifier).refresh(),
+      child: state.isLoading && state.records.isEmpty
+          ? const Center(child: AppLoading())
+          : state.records.isEmpty
+          ? const AppEmpty(message: '暂无积分记录')
+          : _buildMonthAccordionList(state),
+    );
+  }
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 12, left: 14, right: 14),
-      child: Column(
-        children: months.map((month) {
-          final isSelected = month == state.selectedMonth;
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: GestureDetector(
-              onTap: () => notifier.selectMonth(month),
-              child: Container(
-                width: MediaQuery.of(context).size.width - 28,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                  border: isSelected ? Border.all(color: const Color(0xFF000000), width: 1.5) : null,
-                ),
+  // ── 独立月份折叠卡片列表 ─────────────────────────────────────────
+  Widget _buildMonthAccordionList(PointsDetailState state) {
+    final months = state.availableMonths;
+    if (months.isEmpty) {
+      return const AppEmpty(message: '暂无积分记录');
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+      itemCount: months.length,
+      itemBuilder: (context, index) {
+        final monthKey = months[index];
+        final monthRecords = state.getRecordsForMonth(monthKey);
+        final income = state.getMonthlyIncome(monthKey);
+        final expense = state.getMonthlyExpense(monthKey);
+        final isExpanded = _expandedMonths.contains(monthKey);
+
+        return Container(
+          // 每个月份是一个独立的卡片，上下外侧间隔 10 (margin: bottom 10)
+          margin: const EdgeInsets.only(bottom: 10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, 1))],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. 月份 Header 行（标题 + 紧挨着折叠/展开箭头，右侧不显示收益支出）
+              InkWell(
+                onTap: () => _toggleMonthExpanded(monthKey),
+                borderRadius: BorderRadius.circular(AppRadius.lg),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 17),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   child: Row(
                     children: [
+                      // 月份文本（如：2026年10月）
                       Text(
-                        PointsDetailState.formatMonthDisplay(month),
+                        PointsDetailState.formatMonthDisplay(monthKey),
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.onSurface, height: 1.0),
                       ),
-                      const Spacer(),
-                      if (isSelected)
-                        Container(
-                          width: 9,
-                          height: 6,
-                          decoration: BoxDecoration(color: const Color(0xFF000000), borderRadius: BorderRadius.circular(3)),
-                        ),
+                      const SizedBox(width: 4),
+                      // 紧挨着月份文本的折叠/展开箭头
+                      Icon(isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down, size: 24, color: AppColors.onSurface),
                     ],
                   ),
                 ),
               ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  // ── 积分记录列表：白色卡片（顶部无圆角，sticky header 无缝衔接）──
-  Widget _buildRecordList(BuildContext context, WidgetRef ref, PointsDetailState state) {
-    return Container(
-      // 卡片顶部上移 80px，与 Banner 底部产生重叠
-      margin: const EdgeInsets.only(top: 0),
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      child: Container(
-        // 仅底部圆角 + 阴影；顶部与 sticky header 齐平，不裁剪
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(AppRadius.lg)),
-          boxShadow: [const BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, 1))],
-        ),
-        child: RefreshIndicator(
-          onRefresh: () => ref.read(pointsDetailProvider.notifier).refresh(),
-          child: state.isLoading && state.records.isEmpty
-              ? const Center(child: AppLoading())
-              : state.filteredRecords.isEmpty
-              ? const AppEmpty(message: '暂无积分记录')
-              : _buildSliverList(ref, state),
-        ),
-      ),
-    );
-  }
-
-  // ── Sticky Header + 记录条目 ─────────────────────────────────────
-  Widget _buildSliverList(WidgetRef ref, PointsDetailState state) {
-    final records = state.filteredRecords;
-    if (records.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
-
-    return CustomScrollView(
-      slivers: [
-        // Sticky 月份汇总 header（紧贴白色卡片顶部，无间隙）
-        SliverPersistentHeader(
-          pinned: true,
-          floating: true,
-          delegate: _MonthHeaderDelegate(
-            monthKey: state.selectedMonth,
-            income: state.getMonthlyIncome(state.selectedMonth),
-            expense: state.getMonthlyExpense(state.selectedMonth),
+              // 2. 展开后的明细区域
+              if (isExpanded) ...[
+                const Divider(height: 1, thickness: 0.5, color: Color(0xFFEEEEEE)),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 展开后的第一行：收益 / 支出 汇总
+                      Row(
+                        children: [
+                          if (income > 0)
+                            Text(
+                              '收益${NumberFormat('####').format(income.toInt())}积分',
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.onSurface, height: 1.4),
+                            ),
+                          if (income > 0 && expense > 0) const SizedBox(width: 12),
+                          if (expense > 0)
+                            Text(
+                              '支出${NumberFormat('####').format(expense.toInt())}积分',
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.onSurface, height: 1.4),
+                            ),
+                        ],
+                      ),
+                      // 展开后的第二行及以下：具体兑换/变动明细记录（每条明细之间均有分割横线）
+                      ...monthRecords.expand(
+                        (record) => [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20),
+                            child: Divider(height: 1, thickness: 0.5, color: Color(0xFFEEEEEE)),
+                          ),
+                          PointsRecordItem(record: record),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
           ),
-        ),
-        // 记录条目
-        SliverList(
-          delegate: SliverChildBuilderDelegate((context, index) => PointsRecordItem(record: records[index]), childCount: records.length),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 24)),
-      ],
+        );
+      },
     );
   }
 
@@ -218,57 +240,6 @@ class PointsDetailPage extends ConsumerWidget {
       ),
     );
   }
-}
-
-// ── Sticky 月份 Header ─────────────────────────────────────────────
-class _MonthHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final String monthKey;
-  final double income;
-  final double expense;
-
-  const _MonthHeaderDelegate({required this.monthKey, this.income = 0, this.expense = 0});
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    final displayText = PointsDetailState.formatMonthDisplay(monthKey);
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(17, 14, 17, 14),
-      child: Row(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                displayText,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.onSurface, height: 1.0),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                income > 0 ? '收益${NumberFormat('#,###').format(income.toInt())}积分' : '',
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.onSurface, height: 1.4),
-              ),
-            ],
-          ),
-          const Spacer(),
-          Icon(Icons.expand_more, size: 9, color: AppColors.onSurface),
-          const SizedBox(width: 8),
-          if (expense > 0)
-            Text(
-              '支出${NumberFormat('#,###').format(expense.toInt())}积分',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.onSurface, height: 1.4),
-            ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  double get maxExtent => 84;
-  @override
-  double get minExtent => 84;
-  @override
-  bool shouldRebuild(covariant _MonthHeaderDelegate old) => monthKey != old.monthKey || income != old.income || expense != old.expense;
 }
 
 // ── 装饰占位图 ─────────────────────────────────────────────────────
