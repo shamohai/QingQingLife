@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:js_interop';
+import 'package:web/web.dart' show console;
 import 'package:uuid/uuid.dart';
 
 import '../app_logger.dart';
@@ -44,6 +46,9 @@ class AppLoggingInterceptor extends Interceptor {
       debugPrint('[Request Body]');
       debugPrint(_safeEncode(options.data));
       debugPrint('');
+      if (kIsWeb) {
+        console.log((options.path + ' 接口Request参数：' + _safeEncode(options.data)).toJS);
+      }
     }
 
     AppLogger.debug('[HTTP] ' + options.method + ' ' + options.uri.path, module: 'network', data: logData);
@@ -64,6 +69,9 @@ class AppLoggingInterceptor extends Interceptor {
       debugPrint('[Response Body]');
       debugPrint(_safeEncode(response.data));
       debugPrint('');
+      if (kIsWeb) {
+        console.log((uri.path + ' 接口Response返回数据：' + _safeEncode(response.data)).toJS);
+      }
     }
 
     AppLogger.info(

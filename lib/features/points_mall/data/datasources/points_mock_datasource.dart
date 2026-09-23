@@ -6,6 +6,7 @@ import '../../../../core/network/api_response.dart';
 import '../../data/models/points_mall_home_data.dart';
 import '../../data/models/sign_in_result.dart';
 import '../../data/models/service_product_detail_model.dart';
+import '../../data/models/get_recommend_product_list_model.dart';
 
 /// Mock 积分商城数据源 - 开发/测试环境使用
 class MockPointsDataSource implements PointsRepository {
@@ -90,162 +91,40 @@ class MockPointsDataSource implements PointsRepository {
       PointsRedeemGroup(
         rangeLabel: '0~1000',
         products: [
-          PointsProduct(
-            id: 'r1',
-            imageUrl: _img(0),
-            name: '青海环线旅游券（三日）',
-            points: 1000,
-            stock: 500,
-            salesCount: 123,
-            type: PointsProductType.physical,
-          ),
-          PointsProduct(
-            id: 'r2',
-            imageUrl: _img(3),
-            name: '视频会员月卡',
-            points: 500,
-            stock: 999,
-            salesCount: 888,
-            type: PointsProductType.virtual,
-          ),
-          PointsProduct(
-            id: 'r3',
-            imageUrl: _img(1),
-            name: '青海枸杞 特级 250g',
-            points: 800,
-            stock: 200,
-            salesCount: 345,
-            type: PointsProductType.physical,
-          ),
-          PointsProduct(
-            id: 'r4',
-            imageUrl: _img(2),
-            name: '牦牛肉干 原味 100g',
-            points: 600,
-            stock: 150,
-            salesCount: 234,
-            type: PointsProductType.physical,
-          ),
+          PointsProduct(id: 'r1', imageUrl: _img(0), name: '青海环线旅游券（三日）', points: 1000, stock: 500, salesCount: 123, type: PointsProductType.physical),
+          PointsProduct(id: 'r2', imageUrl: _img(3), name: '视频会员月卡', points: 500, stock: 999, salesCount: 888, type: PointsProductType.virtual),
+          PointsProduct(id: 'r3', imageUrl: _img(1), name: '青海枸杞 特级 250g', points: 800, stock: 200, salesCount: 345, type: PointsProductType.physical),
+          PointsProduct(id: 'r4', imageUrl: _img(2), name: '牦牛肉干 原味 100g', points: 600, stock: 150, salesCount: 234, type: PointsProductType.physical),
         ],
       ),
       PointsRedeemGroup(
         rangeLabel: '1001~5000',
         products: [
-          PointsProduct(
-            id: 'r5',
-            imageUrl: _img(4),
-            name: '天佑德青稞酒 经典款 500ml',
-            points: 3800,
-            originalPoints: 4800,
-            stock: 100,
-            salesCount: 567,
-            tag: '热门',
-            type: PointsProductType.physical,
-          ),
-          PointsProduct(
-            id: 'r6',
-            imageUrl: _img(5),
-            name: '首单包邮权益卡',
-            points: 2000,
-            stock: 500,
-            salesCount: 123,
-            type: PointsProductType.service,
-          ),
-          PointsProduct(
-            id: 'r7',
-            imageUrl: _img(6),
-            name: '青海湖一日游 电子票',
-            points: 4500,
-            stock: 80,
-            salesCount: 90,
-            tag: '限量',
-            type: PointsProductType.service,
-          ),
-          PointsProduct(
-            id: 'r8',
-            imageUrl: _img(7),
-            name: '藏香熏香礼盒 12支装',
-            points: 1500,
-            stock: 300,
-            salesCount: 456,
-            type: PointsProductType.physical,
-          ),
+          PointsProduct(id: 'r5', imageUrl: _img(4), name: '天佑德青稞酒 经典款 500ml', points: 3800, originalPoints: 4800, stock: 100, salesCount: 567, tag: '热门', type: PointsProductType.physical),
+          PointsProduct(id: 'r6', imageUrl: _img(5), name: '首单包邮权益卡', points: 2000, stock: 500, salesCount: 123, type: PointsProductType.service),
+          PointsProduct(id: 'r7', imageUrl: _img(6), name: '青海湖一日游 电子票', points: 4500, stock: 80, salesCount: 90, tag: '限量', type: PointsProductType.service),
+          PointsProduct(id: 'r8', imageUrl: _img(7), name: '藏香熏香礼盒 12支装', points: 1500, stock: 300, salesCount: 456, type: PointsProductType.physical),
         ],
       ),
       PointsRedeemGroup(
         rangeLabel: '5001~10000',
         products: [
-          PointsProduct(
-            id: 'r9',
-            imageUrl: _img(8),
-            name: '天佑德青稞酒 礼盒装 500ml×2',
-            points: 7800,
-            originalPoints: 9800,
-            stock: 50,
-            salesCount: 67,
-            tag: '礼盒',
-            type: PointsProductType.physical,
-          ),
-          PointsProduct(
-            id: 'r10',
-            imageUrl: _img(3),
-            name: '视频会员年卡',
-            points: 8000,
-            stock: 300,
-            salesCount: 89,
-            type: PointsProductType.virtual,
-          ),
+          PointsProduct(id: 'r9', imageUrl: _img(8), name: '天佑德青稞酒 礼盒装 500ml×2', points: 7800, originalPoints: 9800, stock: 50, salesCount: 67, tag: '礼盒', type: PointsProductType.physical),
+          PointsProduct(id: 'r10', imageUrl: _img(3), name: '视频会员年卡', points: 8000, stock: 300, salesCount: 89, type: PointsProductType.virtual),
         ],
       ),
       PointsRedeemGroup(
         rangeLabel: '10001~20000',
         products: [
-          PointsProduct(
-            id: 'r11',
-            imageUrl: _img(0),
-            name: '高端青稞酒礼盒 500ml×6',
-            points: 18800,
-            originalPoints: 25800,
-            stock: 20,
-            salesCount: 12,
-            tag: '旗舰',
-            type: PointsProductType.physical,
-          ),
-          PointsProduct(
-            id: 'r12',
-            imageUrl: _img(6),
-            name: '青海深度游 三日套餐',
-            points: 15000,
-            stock: 10,
-            salesCount: 33,
-            tag: '热门',
-            type: PointsProductType.service,
-          ),
+          PointsProduct(id: 'r11', imageUrl: _img(0), name: '高端青稞酒礼盒 500ml×6', points: 18800, originalPoints: 25800, stock: 20, salesCount: 12, tag: '旗舰', type: PointsProductType.physical),
+          PointsProduct(id: 'r12', imageUrl: _img(6), name: '青海深度游 三日套餐', points: 15000, stock: 10, salesCount: 33, tag: '热门', type: PointsProductType.service),
         ],
       ),
       PointsRedeemGroup(
         rangeLabel: '20000以上',
         products: [
-          PointsProduct(
-            id: 'r13',
-            imageUrl: _img(4),
-            name: '青稞酒珍藏版 礼盒 500ml×12',
-            points: 38800,
-            originalPoints: 48800,
-            stock: 5,
-            salesCount: 3,
-            tag: '限量',
-            type: PointsProductType.physical,
-          ),
-          PointsProduct(
-            id: 'r14',
-            imageUrl: _img(8),
-            name: '智能家居套装（含智能音箱）',
-            points: 25000,
-            stock: 10,
-            salesCount: 5,
-            type: PointsProductType.physical,
-          ),
+          PointsProduct(id: 'r13', imageUrl: _img(4), name: '青稞酒珍藏版 礼盒 500ml×12', points: 38800, originalPoints: 48800, stock: 5, salesCount: 3, tag: '限量', type: PointsProductType.physical),
+          PointsProduct(id: 'r14', imageUrl: _img(8), name: '智能家居套装（含智能音箱）', points: 25000, stock: 10, salesCount: 5, type: PointsProductType.physical),
         ],
       ),
     ],
@@ -405,14 +284,15 @@ class MockPointsDataSource implements PointsRepository {
     return ApiResponse.success(ServiceProductDetail.mock);
   }
 
-
-  @override
-  
-
   @override
   Future<ApiResponse<String>> getPointsRule() async {
     await Future.delayed(const Duration(milliseconds: 200));
     return ApiResponse.success(_mockHomeData.rulesText);
+  }
+
+  @override
+  Future<ApiResponse<List<CreditMallProduct>>> getCreditMallHotProducts() async {
+    return ApiResponse.success([]);
   }
 }
 

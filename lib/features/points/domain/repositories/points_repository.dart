@@ -2,6 +2,7 @@ import '../../../../core/network/api_response.dart';
 import '../../../points_mall/data/models/points_mall_home_data.dart';
 import '../../../points_mall/data/models/sign_in_result.dart';
 import '../../../points_mall/data/models/service_product_detail_model.dart';
+import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
 
 /// 积分商城仓库接口
 abstract class PointsRepository {
@@ -45,6 +46,9 @@ abstract class PointsRepository {
 
   /// 获取积分规则
   Future<ApiResponse<String>> getPointsRule();
+
+  /// 获取积分商城热门兑换商品列表（来自推荐位接口，positioncode=CREDITMALL）
+  Future<ApiResponse<List<CreditMallProduct>>> getCreditMallHotProducts();
 }
 
 /// 积分商品详情

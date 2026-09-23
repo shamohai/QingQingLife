@@ -43,6 +43,7 @@ dependencies:
   # Utility
   intl: ^0.20.3
   uuid: ^4.6.0
+  web: ^1.1.1
   # Device
   connectivity_plus: ^7.3.1
   url_launcher: ^6.3.2
