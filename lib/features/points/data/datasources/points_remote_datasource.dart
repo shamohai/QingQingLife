@@ -8,6 +8,7 @@ import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
 import '../../../points_mall/data/models/points_mall_home_data.dart';
 import '../../../points_mall/data/models/sign_in_result.dart';
 import '../../../points_mall/data/models/service_product_detail_model.dart';
+import '../../../points_mall/data/models/get_credit_product_list_model.dart';
 
 /// 积分商城远程数据源
 ///
@@ -30,6 +31,22 @@ class PointsRemoteDataSource implements PointsRepository {
       },
     );
     return response;
+  }
+
+  @override
+  Future<ApiResponse<CreditProductListData>> getCreditProductList({required int page, required int pageSize, int? minIntegral, int? maxIntegral, bool? exchangeable}) async {
+    final body = <String, dynamic>{
+      'pageindex': page - 1,
+      'pagesize': pageSize,
+      'minintegral': minIntegral ?? 0,
+      'maxintegral': maxIntegral ?? 0,
+    };
+    if (exchangeable != null) body['exchangeable'] = exchangeable;
+    return _apiClient.post<CreditProductListData>(
+      '/api/product/getcreditproductlist',
+      data: body,
+      fromJson: (dynamic json) => CreditProductListData.fromJson(json as Map<String, dynamic>),
+    );
   }
 
   // ── 以下方法保留为占位，待对应接口就绪后实现 ──────────────────────────

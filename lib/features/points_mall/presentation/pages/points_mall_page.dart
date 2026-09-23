@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,8 +12,7 @@ import '../widgets/points_balance_card.dart';
 import '../widgets/points_category_tab_bar.dart';
 import '../widgets/points_floating_buttons.dart';
 import '../widgets/points_search_area.dart';
-import '../widgets/two_panel_product_section.dart';
-import '../../data/models/points_mall_home_data.dart';
+import '../widgets/credit_product_list_panel.dart';
 
 class PointsMallPage extends ConsumerStatefulWidget {
   const PointsMallPage({super.key});
@@ -36,17 +35,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
     setState(() => _activeCategoryId = categoryId);
   }
 
-  void _onExchange(PointsProduct product) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('兑换商品：${product.name}')));
-  }
-
-  /// 点击服务商品行 → 跳转服务商品详情页
-  /// 接收 BuildContext 确保导航可用（不依赖闭包捕获的上下文）
-  void _onServiceTap(PointsProduct product, BuildContext context) {
-    debugPrint('[PointsMall] _onServiceTap → id=${product.id} type=${product.type} name=${product.name}');
-    GoRouter.of(context).push(RouteNames.serviceProductDetail.replaceFirst(':id', product.id));
-  }
-
+  
   @override
   Widget build(BuildContext context) {
     final staticDataAsync = ref.watch(pointsMallStaticDataProvider);
@@ -125,11 +114,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                   SliverPadding(
                     padding: const EdgeInsets.only(left: 10, right: 10),
                     sliver: SliverToBoxAdapter(
-                      child: TwoPanelProductSection(
-                        groups: staticData.redeemableGroups,
-                        onExchange: _onExchange,
-                        onServiceTap: (product) => _onServiceTap(product, context),
-                      ),
+                      child: CreditProductListPanel(groups: staticData.redeemableGroups),
                     ),
                   ),
                   const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
