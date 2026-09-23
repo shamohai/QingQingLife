@@ -149,11 +149,7 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
   final EdgeInsets margin;
   final Widget child;
 
-  const _CategoryTabBarDelegate({
-    required this.tabHeight,
-    this.margin = EdgeInsets.zero,
-    required this.child,
-  });
+  const _CategoryTabBarDelegate({required this.tabHeight, this.margin = EdgeInsets.zero, required this.child});
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
@@ -161,10 +157,7 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
       margin: margin,
       child: ClipRRect(
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
-        child: Container(
-          color: const Color(0xFFF3F5F7),
-          child: child,
-        ),
+        child: Container(color: const Color(0xFFF3F5F7), child: child),
       ),
     );
   }

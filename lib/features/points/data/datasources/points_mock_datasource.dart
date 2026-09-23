@@ -300,7 +300,7 @@ class MockPointsDataSource implements PointsRepository {
     if (client == null) return ApiResponse.success([]);
     final response = await client.post<List<CreditMallProduct>>(
       '/api/product/getrecommendproductlist',
-      data: {'positioncode': 'CREDITMALL', 'topn': 20},
+      data: {'positioncode': 'HOME', 'topn': 20},
       fromJson: (dynamic json) {
         final map = json as Map<String, dynamic>;
         final productsJson = map['products'] as List<dynamic>? ?? [];

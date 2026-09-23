@@ -19,13 +19,9 @@ class PointsMallProductListNotifier extends PagingNotifier<PointsProduct> {
   @override
   Future<PagingResult<PointsProduct>> fetchPage(int page, int pageSize) async {
     final repository = ref.read(pointsRepositoryProvider);
-    final response = await repository.getProducts(
-      page: page,
-      pageSize: pageSize,
-      categoryId: _categoryId,
-    );
+    final response = await repository.getProducts(page: page, pageSize: pageSize, categoryId: _categoryId);
     if (!response.success || response.data == null) {
-      throw Exception(response.message ?? '获取积分商品失败');
+      throw Exception(response.message);
     }
     final result = response.data!;
     return PagingResult<PointsProduct>(
@@ -37,17 +33,34 @@ class PointsMallProductListNotifier extends PagingNotifier<PointsProduct> {
   }
 }
 
-final pointsMallProductListProvider =
-    NotifierProvider.autoDispose<PointsMallProductListNotifier, PagingData<PointsProduct>>(
-  PointsMallProductListNotifier.new,
-);
+final pointsMallProductListProvider = NotifierProvider.autoDispose<PointsMallProductListNotifier, PagingData<PointsProduct>>(PointsMallProductListNotifier.new);
 
-/// 热门商品（一次性数据，不分页）
+/// 热门商品（优先调用真实推荐位接口加载，失败/无数据时降级使用 Mock）
 final pointsMallHotProductsProvider = FutureProvider<List<PointsProduct>>((ref) async {
   final repository = ref.read(pointsRepositoryProvider);
+  try {
+    final response = await repository.getCreditMallHotProducts();
+    if (response.success && response.data != null && response.data!.isNotEmpty) {
+      return response.data!.map((item) {
+        return PointsProduct(
+          id: item.productId.toString(),
+          imageUrl: item.imgUrl,
+          name: item.productName,
+          points: item.creditPrice > 0 ? item.creditPrice : item.price,
+          stock: 999,
+          salesCount: item.commentCount,
+          tag: '热门',
+          type: PointsProductType.physical,
+        );
+      }).toList();
+    }
+  } catch (_) {
+    // 接口失败时降级
+  }
+
   final response = await repository.getPointsMallHome();
   if (!response.success || response.data == null) {
-    throw Exception(response.message ?? '获取积分商城数据失败');
+    throw Exception(response.message);
   }
   return response.data!.hotProducts;
 });
@@ -57,7 +70,7 @@ final pointsMallStaticDataProvider = FutureProvider<PointsMallStaticData>((ref) 
   final repository = ref.read(pointsRepositoryProvider);
   final response = await repository.getPointsMallHome();
   if (!response.success || response.data == null) {
-    throw Exception(response.message ?? '获取积分商城数据失败');
+    throw Exception(response.message);
   }
   final data = response.data!;
   return PointsMallStaticData(
