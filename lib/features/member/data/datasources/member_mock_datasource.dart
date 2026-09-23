@@ -26,17 +26,11 @@ class MockMemberDataSource implements MemberRepository {
   @override
   Future<ApiResponse<MemberLevelBenefits>> getLevelBenefits(int level) async {
     await Future.delayed(const Duration(milliseconds: 300));
-    return ApiResponse.success(
-      MemberLevelBenefits(level: level, name: level == 2 ? '银卡会员' : '会员', benefits: ['专享价', '免运费', '积分加速']),
-    );
+    return ApiResponse.success(MemberLevelBenefits(level: level, name: level == 2 ? '银卡会员' : '会员', benefits: ['专享价', '免运费', '积分加速']));
   }
 
   @override
-  Future<ApiResponse<CouponListResult>> getCoupons({
-    required int page,
-    required int pageSize,
-    CouponStatus? status,
-  }) async {
+  Future<ApiResponse<CouponListResult>> getCoupons({required int page, required int pageSize, CouponStatus? status}) async {
     await Future.delayed(const Duration(milliseconds: 400));
     return ApiResponse.success(
       CouponListResult(
@@ -72,11 +66,12 @@ class MockMemberDataSource implements MemberRepository {
   Future<ApiResponse<PointsAccount>> getPointsAccount() async {
     await Future.delayed(const Duration(milliseconds: 300));
     return ApiResponse.success(
-      const PointsAccount(
+      PointsAccount(
         totalPoints: 3580,
         availablePoints: 3580,
         frozenPoints: 0,
         expiringPoints: 800,
+        expiringDate: DateTime.now().add(const Duration(days: 90)),
         todayEarned: 10,
         totalEarned: 3580,
       ),
@@ -84,24 +79,11 @@ class MockMemberDataSource implements MemberRepository {
   }
 
   @override
-  Future<ApiResponse<PointsLogResult>> getPointsLogs({
-    required int page,
-    required int pageSize,
-    PointsLogType? type,
-  }) async {
+  Future<ApiResponse<PointsLogResult>> getPointsLogs({required int page, required int pageSize, PointsLogType? type}) async {
     await Future.delayed(const Duration(milliseconds: 300));
     return ApiResponse.success(
       PointsLogResult(
-        logs: [
-          PointsLog(
-            id: 'log1',
-            type: PointsLogType.earn,
-            points: 10,
-            balanceAfter: 3580,
-            description: '每日签到',
-            createTime: DateTime.now(),
-          ),
-        ],
+        logs: [PointsLog(id: 'log1', type: PointsLogType.earn, points: 10, balanceAfter: 3580, description: '每日签到', createTime: DateTime.now())],
         total: 1,
         page: 1,
         pageSize: 10,
@@ -117,11 +99,7 @@ class MockMemberDataSource implements MemberRepository {
   }
 
   @override
-  Future<ApiResponse<StatementResult>> getStatements({
-    required int page,
-    required int pageSize,
-    StatementType? type,
-  }) async {
+  Future<ApiResponse<StatementResult>> getStatements({required int page, required int pageSize, StatementType? type}) async {
     await Future.delayed(const Duration(milliseconds: 300));
     return ApiResponse.success(const StatementResult(items: [], total: 0, page: 1, pageSize: 10, hasMore: false));
   }
@@ -165,13 +143,7 @@ class MockMemberDataSource implements MemberRepository {
   @override
   Future<ApiResponse<CustomerServiceInfo>> getCustomerService() async {
     await Future.delayed(const Duration(milliseconds: 200));
-    return ApiResponse.success(
-      const CustomerServiceInfo(
-        phone: '400-800-8888',
-        onlineUrl: 'https://example.com/service',
-        workTime: '9:00-21:00',
-      ),
-    );
+    return ApiResponse.success(const CustomerServiceInfo(phone: '400-800-8888', onlineUrl: 'https://example.com/service', workTime: '9:00-21:00'));
   }
 }
 

@@ -38,7 +38,7 @@ class PointsHotProductCard extends StatelessWidget {
               width: 75 * scale,
               height: 40 * scale,
               child: Text(
-                product.name + "测试测试aaa 234234",
+                "${product.name}测试测试aaa 234234",
                 style: const TextStyle(fontSize: 8 * scale, color: Color(0xFF000000), fontWeight: FontWeight.w500, height: 1.5),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,

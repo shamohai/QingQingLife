@@ -39,14 +39,14 @@ class AppLoggingInterceptor extends Interceptor {
 
     if (kDebugMode) {
       debugPrint('\u2550' * 38);
-      debugPrint('[HTTP REQUEST] ' + options.method + ' ' + options.uri.toString());
+      debugPrint('[HTTP REQUEST] ${options.method} ${options.uri}');
       debugPrint('\u2550' * 38);
       debugPrint('[Request Body]');
       debugPrint(_safeEncode(options.data));
       debugPrint('');
     }
 
-    AppLogger.debug('[HTTP] ' + options.method + ' ' + options.uri.path, module: 'network', data: logData);
+    AppLogger.debug('[HTTP] ${options.method} ${options.uri.path}', module: 'network', data: logData);
     return handler.next(options);
   }
 
@@ -59,7 +59,7 @@ class AppLoggingInterceptor extends Interceptor {
 
     if (kDebugMode) {
       debugPrint('\u2550' * 38);
-      debugPrint('[HTTP RESPONSE] ' + response.statusCode.toString() + ' ' + uri.path + ' (' + (elapsed?.toString() ?? '?') + 'ms)');
+      debugPrint('[HTTP RESPONSE] ${response.statusCode} ${uri.path} (${elapsed?.toString() ?? '?'}ms)');
       debugPrint('\u2550' * 38);
       debugPrint('[Response Body]');
       debugPrint(_safeEncode(response.data));
@@ -67,13 +67,13 @@ class AppLoggingInterceptor extends Interceptor {
     }
 
     AppLogger.info(
-      '[HTTP] ' + response.statusCode.toString() + ' ' + uri.path + ' (' + (elapsed?.toString() ?? '?') + 'ms)',
+      '[HTTP] ${response.statusCode} ${uri.path} (${elapsed?.toString() ?? '?'}ms)',
       module: 'network',
       event: 'http_success',
       data: {'statusCode': response.statusCode, 'elapsedMs': elapsed, 'traceId': traceId},
     );
     AppLogger.rawInfo(
-      '[HTTP RESPONSE BODY] ' + uri.path + ': ' + _safeEncode(response.data),
+      '[HTTP RESPONSE BODY] ${uri.path}: ${_safeEncode(response.data)}',
       module: 'network',
       event: 'http_response_raw',
       data: {
@@ -97,17 +97,7 @@ class AppLoggingInterceptor extends Interceptor {
 
     if (kDebugMode) {
       debugPrint('\u2550' * 38);
-      debugPrint(
-        '[HTTP ERROR] ' +
-            err.type.toString() +
-            ' ' +
-            (err.response?.statusCode?.toString() ?? '?') +
-            ' ' +
-            uri.path +
-            ' (' +
-            (elapsed?.toString() ?? '?') +
-            'ms)',
-      );
+      debugPrint('[HTTP ERROR] ${err.type} ${err.response?.statusCode?.toString() ?? '?'} ${uri.path} (${elapsed?.toString() ?? '?'}ms)');
       debugPrint('\u2550' * 38);
       if (err.response?.data != null) {
         debugPrint('[Error Response Body]');
@@ -117,7 +107,7 @@ class AppLoggingInterceptor extends Interceptor {
     }
 
     AppLogger.error(
-      '[HTTP] ' + err.type.toString() + ' ' + (err.response?.statusCode?.toString() ?? '?') + ' ' + uri.path + ' (' + (elapsed?.toString() ?? '?') + 'ms)',
+      '[HTTP] ${err.type} ${err.response?.statusCode?.toString() ?? '?'} ${uri.path} (${elapsed?.toString() ?? '?'}ms)',
       module: 'network',
       event: 'http_error',
       error: err,
@@ -125,7 +115,7 @@ class AppLoggingInterceptor extends Interceptor {
     );
     if (err.response?.data != null) {
       AppLogger.rawInfo(
-        '[HTTP ERROR RESPONSE BODY] ' + uri.path + ': ' + _safeEncode(err.response!.data),
+        '[HTTP ERROR RESPONSE BODY] ${uri.path}: ${_safeEncode(err.response!.data)}',
         module: 'network',
         event: 'http_error_response_raw',
         data: {

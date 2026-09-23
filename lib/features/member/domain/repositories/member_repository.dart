@@ -57,7 +57,19 @@ class MemberInfo {
   final String? housekeeperName;
   final String? housekeeperPhone;
 
-  const MemberInfo.empty() : id='', nickname='', avatarUrl=null, memberLevel=0, levelName='未登录', growthValue=0, nextLevelGrowthValue=0, points=0, availableCoupons=0, hasHousekeeper=false, housekeeperName=null, housekeeperPhone=null;
+  const MemberInfo.empty()
+    : id = '',
+      nickname = '',
+      avatarUrl = null,
+      memberLevel = 0,
+      levelName = '未登录',
+      growthValue = 0,
+      nextLevelGrowthValue = 0,
+      points = 0,
+      availableCoupons = 0,
+      hasHousekeeper = false,
+      housekeeperName = null,
+      housekeeperPhone = null;
 
   const MemberInfo({
     required this.id,
@@ -93,13 +105,7 @@ class CouponListResult {
   final int pageSize;
   final bool hasMore;
 
-  const CouponListResult({
-    required this.coupons,
-    required this.total,
-    required this.page,
-    required this.pageSize,
-    required this.hasMore,
-  });
+  const CouponListResult({required this.coupons, required this.total, required this.page, required this.pageSize, required this.hasMore});
 }
 
 /// 优惠券实体
@@ -182,13 +188,7 @@ class PointsLogResult {
   final int pageSize;
   final bool hasMore;
 
-  const PointsLogResult({
-    required this.logs,
-    required this.total,
-    required this.page,
-    required this.pageSize,
-    required this.hasMore,
-  });
+  const PointsLogResult({required this.logs, required this.total, required this.page, required this.pageSize, required this.hasMore});
 }
 
 /// 积分流水项
@@ -231,13 +231,7 @@ class StatementResult {
   final int pageSize;
   final bool hasMore;
 
-  const StatementResult({
-    required this.items,
-    required this.total,
-    required this.page,
-    required this.pageSize,
-    required this.hasMore,
-  });
+  const StatementResult({required this.items, required this.total, required this.page, required this.pageSize, required this.hasMore});
 }
 
 class StatementItem {
@@ -330,4 +324,3 @@ class CustomerServiceInfo {
 
   const CustomerServiceInfo({required this.phone, required this.onlineUrl, required this.workTime, this.qrCodeUrl});
 }
-

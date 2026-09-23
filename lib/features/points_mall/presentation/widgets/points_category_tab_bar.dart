@@ -22,7 +22,7 @@ class PointsCategoryTabBar extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 22), // 适当拉开分类间距
+        separatorBuilder: (_, _) => const SizedBox(width: 22), // 适当拉开分类间距
         itemBuilder: (context, index) {
           final category = categories[index];
           final isActive = category.id == activeCategoryId;

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_empty.dart';
 import 'points_product_row.dart';
 import '../../data/models/points_mall_home_data.dart';
@@ -21,7 +20,7 @@ class PointsProductListPanel extends StatelessWidget {
       );
     }
 
-  return ListView.separated(
+    return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: products.length,

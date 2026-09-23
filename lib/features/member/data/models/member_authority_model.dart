@@ -1,5 +1,5 @@
 /// 会员权益权限接口响应 Model
-/// 
+///
 /// 接口：POST /api/sys/v2/getmemberauthority
 /// 请求：{"level": int}
 /// 响应（成功时 result=0）：
@@ -27,21 +27,11 @@ class MemberAuthorityModel {
   /// 下一级所需积分
   final int nextlevelcredit;
 
-  const MemberAuthorityModel({
-    required this.auths,
-    this.username,
-    this.level,
-    this.effectivetime,
-    this.lowlevelcredit = 0,
-    this.nextlevelcredit = 0,
-  });
+  const MemberAuthorityModel({required this.auths, this.username, this.level, this.effectivetime, this.lowlevelcredit = 0, this.nextlevelcredit = 0});
 
   factory MemberAuthorityModel.fromJson(Map<String, dynamic> json) {
     return MemberAuthorityModel(
-      auths: (json['auths'] as List<dynamic>?)
-              ?.map((e) => MemberAuthItem.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      auths: (json['auths'] as List<dynamic>?)?.map((e) => MemberAuthItem.fromJson(e as Map<String, dynamic>)).toList() ?? [],
       username: json['username'] as String?,
       level: json['level'] as int?,
       effectivetime: json['effectivetime'] as String?,

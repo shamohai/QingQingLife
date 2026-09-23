@@ -3,102 +3,132 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
-import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
-import '../../../../app/theme/app_text_styles.dart';
-import '../../../../core/providers/session_provider.dart';
+import '../../../../core/widgets/app_loading.dart';
 import '../providers/user_profile_provider.dart';
-import '../widgets/user_info_card.dart';
-import '../widgets/monthly_benefits_card.dart';
-import '../widgets/points_coupon_card.dart';
-import '../widgets/order_shortcuts.dart';
-import '../widgets/butler_services_section.dart';
-import '../widgets/recommend_products_section.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
+import '../widgets/profile_butler_banner.dart';
+import '../widgets/profile_feature_grid.dart';
+import '../widgets/profile_footer.dart';
+import '../widgets/profile_header_section.dart';
+import '../widgets/profile_member_level_card.dart';
+import '../widgets/profile_order_shortcuts.dart';
+import '../widgets/profile_stats_card.dart';
 
-class ProfilePage extends ConsumerWidget {
+/// 「我的」页面
+///
+/// 页面结构（自顶向下）：
+///   顶部渐变背景区（HeaderSection + MemberLevelCard）
+///   → StatsCard → OrderShortcuts → ButlerBanner → FeatureGrid → Footer
+///   右下角浮动客服按钮（Stack 悬浮层）
+class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authStatus = ref.watch(authProvider);
-    final sessionState = ref.watch(sessionProvider);
+  ConsumerState<ProfilePage> createState() => _ProfilePageState();
+}
 
-    // 1. 未登录状态拦截
-    if (authStatus == AuthStatus.unauthenticated || sessionState == SessionState.unauthenticated) {
-      return Scaffold(
-        body: SafeArea(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque, // 扩大全屏点击热区
-            onTap: () => context.push(RouteNames.login),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.login_outlined, size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  const SizedBox(height: 12),
-                  Text(
-                    '请先登录',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Theme.of(context).colorScheme.onSurface, // 适配深色模式
+class _ProfilePageState extends ConsumerState<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(userProfileProvider.notifier).load();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final profileState = ref.watch(userProfileProvider);
+
+    return Scaffold(
+      // 页面底色与设计稿浅蓝背景一致
+      backgroundColor: const Color(0xFFD6E8F7),
+      body: profileState.memberInfo.levelName == '未登录'
+          ? const Center(child: AppLoading())
+          : Stack(
+              children: [
+                RefreshIndicator(
+                  onRefresh: () async => ref.read(userProfileProvider.notifier).load(),
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      children: [
+                        // ── 顶部渐变背景区：用户信息 + 会员等级卡片 ──────
+                        Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              stops: [0, 0.55, 1],
+                              colors: [Color(0xFF8FB7FD), Color(0xFFA9DEFA), Color(0xFFD6E8F7)],
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              const ProfileHeaderSection(),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                                child: const ProfileMemberLevelCard(),
+                              ),
+                              const SizedBox(height: AppSpacing.md),
+                            ],
+                          ),
+                        ),
+
+                        // ── 资产统计卡片 ─────────────────────────────────
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                          child: ProfileStatsCard(),
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+
+                        // ── 我的订单 ─────────────────────────────────────
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                          child: ProfileOrderShortcuts(),
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+
+                        // ── 管家服务 Banner ──────────────────────────────
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                          child: ProfileButlerBanner(),
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+
+                        // ── 常用功能宫格 ─────────────────────────────────
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                          child: ProfileFeatureGrid(),
+                        ),
+
+                        // ── 退出登录 ─────────────────────────────────────
+                        const ProfileFooter(),
+
+                        // 底部留白，避免内容贴底
+                        const SizedBox(height: AppSpacing.xxl),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-    }
+                ),
 
-    // 2. 登录成功后，监听登录状态变化来加载数据，替代原本引发死循环的 addPostFrameCallback
-    // 只有当登录状态从“未登录”变为“已登录”时，这里才会安全地触发一次 load
-    ref.listen(authProvider, (previous, next) {
-      if (next == AuthStatus.authenticated) {
-        ref.read(userProfileProvider.notifier).load();
-      }
-    });
-
-    // 3. 已登录状态的页面布局
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: Text(
-          '我的',
-          style: AppTextStyles.headlineSmall.copyWith(fontSize: 18),
-        ),
-        centerTitle: true,
-      ),
-      body: CustomScrollView(
-        slivers: [
-          // 将顶部的标准垂直卡片合并，提升长列表滚动时的性能
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                const UserInfoCard(),
-                const SizedBox(height: AppSpacing.sm),
-                const MonthlyBenefitsCard(),
-                const SizedBox(height: AppSpacing.sm),
-                const PointsCouponCard(),
-                const SizedBox(height: AppSpacing.sm),
-                const OrderShortcuts(),
-                const SizedBox(height: AppSpacing.sm),
-                const ButlerServicesSection(),
-                const SizedBox(height: AppSpacing.md),
-              ]),
+                // ── 浮动客服按钮 ────────────────────────────────────────
+                Positioned(
+                  right: AppSpacing.lg,
+                  bottom: AppSpacing.xl,
+                  child: GestureDetector(
+                    onTap: () => context.push(RouteNames.customerService),
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: const BoxDecoration(color: Color(0xFF2456A6), shape: BoxShape.circle),
+                      child: const Icon(Icons.headset_mic, size: 24, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          // 如果推荐商品部分内部自带了复杂的 GridView/ListView，保留独立的 Sliver 方便嵌套
-          const SliverToBoxAdapter(child: RecommendProductsSection()),
-          // 底部留白
-          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxxl)),
-        ],
-      ),
     );
   }
 }

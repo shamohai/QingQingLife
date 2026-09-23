@@ -35,5 +35,5 @@ class Money {
   @override
   int get hashCode => cents.hashCode;
   @override
-  String toString() => 'Money(cents: ' + cents.toString() + ')';
+  String toString() => 'Money(cents: $cents)';
 }
