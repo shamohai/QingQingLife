@@ -30,7 +30,7 @@ class PointsProductListPanel extends StatelessWidget {
       itemBuilder: (context, index) {
         final product = products[index];
         final isService = product.type.name == 'service';
-        debugPrint('[ListPanel] id=${product.id} type=${product.type} name=${product.type.name} isService=$isService');
+        // debugPrint('[ListPanel] id=${product.id} type=${product.type} name=${product.type.name} isService=$isService');
         return PointsProductRow(
           product: product,
           onExchange: onExchange != null ? () => onExchange!(product) : null,

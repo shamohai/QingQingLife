@@ -46,9 +46,9 @@ final pointsMallHotProductsProvider = FutureProvider<List<PointsProduct>>((ref) 
           id: item.productId.toString(),
           imageUrl: item.imgUrl,
           name: item.productName,
-          points: item.creditPrice > 0 ? item.creditPrice : item.price,
+          points: item.creditPrice,
           stock: 999,
-          salesCount: item.commentCount,
+          commentCount: item.commentCount,
           tag: '热门',
           type: PointsProductType.physical,
         );

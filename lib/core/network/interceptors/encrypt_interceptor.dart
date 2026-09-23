@@ -77,7 +77,7 @@ class EncryptInterceptor extends Interceptor {
       options.headers['Accept'] = 'application/json';
 
       if (kDebugMode) {
-        debugPrint('[EncryptInterceptor] API请求 → ${options.method} ${uri.path}');
+        //debugPrint('[EncryptInterceptor] API请求 → ${options.method} ${uri.path}');
         if (kIsWeb) {
           console.log((options.path + ' 接口Request参数：' + AppLoggingInterceptor.safeEncode(options.data)).toJS);
         }

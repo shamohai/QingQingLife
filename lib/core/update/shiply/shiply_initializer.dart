@@ -27,7 +27,7 @@ class ShiplyInitializer {
       //   appVersion: appVersion,
       //   appVersionCode: appVersionCode,
       // );
-      debugPrint('[Shiply] Placeholder init - add shiply_flutter package.');
+      // debugPrint('[Shiply] Placeholder init - add shiply_flutter package.');
     } catch (e) {
       debugPrint('[Shiply] Init failed: $e');
     }

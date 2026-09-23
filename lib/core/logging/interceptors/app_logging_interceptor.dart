@@ -58,12 +58,12 @@ class AppLoggingInterceptor extends Interceptor {
     final uri = response.requestOptions.uri;
 
     if (kDebugMode) {
-      debugPrint('\u2550' * 38);
-      debugPrint('[HTTP RESPONSE] ' + response.statusCode.toString() + ' ' + uri.path + ' (' + (elapsed?.toString() ?? '?') + 'ms)');
-      debugPrint('\u2550' * 38);
-      debugPrint('[Response Body]');
-      debugPrint(safeEncode(response.data));
-      debugPrint('');
+      // debugPrint('\u2550' * 38);
+      // debugPrint('[HTTP RESPONSE] ' + response.statusCode.toString() + ' ' + uri.path + ' (' + (elapsed?.toString() ?? '?') + 'ms)');
+      // debugPrint('\u2550' * 38);
+      // debugPrint('[Response Body]');
+      // debugPrint(safeEncode(response.data));
+      // debugPrint('');
       if (kIsWeb) {
         console.log((uri.path + ' 接口Response返回数据：' + safeEncode(response.data)).toJS);
       }

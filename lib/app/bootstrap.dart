@@ -37,7 +37,7 @@ Future<void> bootstrap() async {
     if (LoggingInitializer.isInitialized) {
       AppLogger.error('registerApi failed', module: 'wechat', event: 'register_error', error: e, stackTrace: stackTrace);
     } else {
-      debugPrint('[Bootstrap][WeChat] registerApi failed: $e\n$stackTrace');
+      //debugPrint('[Bootstrap][WeChat] registerApi failed: $e\n$stackTrace');
     }
   }
 
@@ -46,7 +46,7 @@ Future<void> bootstrap() async {
   try {
     await ShiplyInitializer.initialize(appVersion: AppConfig.appVersionName, appVersionCode: AppConfig.appVersionCode);
   } catch (e) {
-    debugPrint('[Bootstrap] Shiply init failed: $e');
+    //debugPrint('[Bootstrap] Shiply init failed: $e');
   }
 
   // 使用 Riverpod 的 ProviderScope 包裹根 Widget，开启状态管理

@@ -10,12 +10,7 @@ abstract class PointsRepository {
   Future<ApiResponse<PointsMallHomeData>> getPointsMallHome();
 
   /// 获取积分商品列表（分页）
-  Future<ApiResponse<PointsMallHomeData>> getProducts({
-    required int page,
-    required int pageSize,
-    String? categoryId,
-    String? keyword,
-  });
+  Future<ApiResponse<PointsMallHomeData>> getProducts({required int page, required int pageSize, String? categoryId, String? keyword});
 
   /// 获取积分商品详情
   Future<ApiResponse<PointsProductDetail>> getProductDetail(String productId);
@@ -32,11 +27,7 @@ abstract class PointsRepository {
   });
 
   /// 获取兑换记录（分页）
-  Future<ApiResponse<List<PointsExchangeRecord>>> getExchangeRecords({
-    required int page,
-    required int pageSize,
-    ExchangeStatus? status,
-  });
+  Future<ApiResponse<List<PointsExchangeRecord>>> getExchangeRecords({required int page, required int pageSize, ExchangeStatus? status});
 
   /// 获取签到结果
   Future<ApiResponse<SignInResult>> signIn();
@@ -58,12 +49,12 @@ class PointsProductDetail {
   final String description;
   final List<String> images;
   final int points;
-  final int stock;
+  final int? stock;
   final List<PointsProductSku> skus;
   final String rulesText;
   final PointsProductType type;
   final int maxExchangePerUser;
-  final int exchangedCount;
+  final int? exchangedCount;
 
   const PointsProductDetail({
     required this.id,
@@ -71,12 +62,12 @@ class PointsProductDetail {
     required this.description,
     required this.images,
     required this.points,
-    required this.stock,
+    this.stock,
     required this.skus,
     required this.rulesText,
     required this.type,
     required this.maxExchangePerUser,
-    required this.exchangedCount,
+    this.exchangedCount,
   });
 }
 
@@ -88,13 +79,7 @@ class PointsProductSku {
   final int stock;
   final Map<String, String> attributes;
 
-  const PointsProductSku({
-    required this.id,
-    required this.name,
-    required this.points,
-    required this.stock,
-    required this.attributes,
-  });
+  const PointsProductSku({required this.id, required this.name, required this.points, required this.stock, required this.attributes});
 }
 
 /// 兑换下单结果
@@ -104,12 +89,7 @@ class PointsExchangeResult {
   final int pointsDeducted;
   final ExchangeStatus status;
 
-  const PointsExchangeResult({
-    required this.orderId,
-    required this.orderNo,
-    required this.pointsDeducted,
-    this.status = ExchangeStatus.pending,
-  });
+  const PointsExchangeResult({required this.orderId, required this.orderNo, required this.pointsDeducted, this.status = ExchangeStatus.pending});
 }
 
 /// 兑换记录
