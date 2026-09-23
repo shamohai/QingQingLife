@@ -54,12 +54,7 @@ class CreditProductListData {
   final int page;
   final int pageSize;
 
-  const CreditProductListData({
-    required this.products,
-    required this.total,
-    required this.page,
-    required this.pageSize,
-  });
+  const CreditProductListData({required this.products, required this.total, required this.page, required this.pageSize});
 
   bool get hasMore => products.length >= pageSize && page * pageSize < total;
 

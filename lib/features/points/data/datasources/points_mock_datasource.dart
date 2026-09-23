@@ -294,20 +294,146 @@ class MockPointsDataSource implements PointsRepository {
 
   // Mock 青稞粒商品数据（覆盖各积分段，含 service 类型）
   static const _mockCreditProducts = [
-    {'productId': 1, 'productType': 0, 'productName': '天佑德青稞酒 经典款 500ml', 'imgUrl': 'assets/images/product/product1.jpg', 'creditPrice': 3800, 'praise': 98, 'commentCount': 567, 'storeId': 1},
-    {'productId': 2, 'productType': 10, 'productName': '青海环线旅游券（三日）', 'imgUrl': 'assets/images/product/product2.jpg', 'creditPrice': 1000, 'praise': 95, 'commentCount': 123, 'storeId': 1},
-    {'productId': 3, 'productType': 0, 'productName': '青藏高原枸杞特级 250g装', 'imgUrl': 'assets/images/product/product3.jpg', 'creditPrice': 800, 'praise': 92, 'commentCount': 456, 'storeId': 1},
-    {'productId': 4, 'productType': 0, 'productName': '青海牦牛肉干原味 100g', 'imgUrl': 'assets/images/product/product4.jpg', 'creditPrice': 600, 'praise': 90, 'commentCount': 88, 'storeId': 1},
-    {'productId': 5, 'productType': 11, 'productName': '视频会员月卡 自动充值', 'imgUrl': 'assets/images/product/product5.jpg', 'creditPrice': 500, 'praise': 96, 'commentCount': 678, 'storeId': 1},
-    {'productId': 6, 'productType': 0, 'productName': '藏香熏香礼盒 12支装', 'imgUrl': 'assets/images/product/product6.jpg', 'creditPrice': 1500, 'praise': 88, 'commentCount': 456, 'storeId': 1},
-    {'productId': 7, 'productType': 10, 'productName': '青海湖一日游 电子票', 'imgUrl': 'assets/images/product/product7.jpg', 'creditPrice': 4500, 'praise': 94, 'commentCount': 90, 'storeId': 1},
-    {'productId': 8, 'productType': 0, 'productName': '首单包邮权益卡', 'imgUrl': 'assets/images/product/product8.jpg', 'creditPrice': 2000, 'praise': 91, 'commentCount': 123, 'storeId': 1},
-    {'productId': 9, 'productType': 0, 'productName': '天佑德青稞酒 礼盒装 500ml×2', 'imgUrl': 'assets/images/product/product9.jpg', 'creditPrice': 7800, 'praise': 97, 'commentCount': 67, 'storeId': 1},
-    {'productId': 10, 'productType': 2, 'productName': '视频会员年卡', 'imgUrl': 'assets/images/product/product10.jpg', 'creditPrice': 8000, 'praise': 93, 'commentCount': 89, 'storeId': 1},
-    {'productId': 11, 'productType': 0, 'productName': '高端青稞酒礼盒 500ml×6', 'imgUrl': 'assets/images/product/product1.jpg', 'creditPrice': 18800, 'praise': 99, 'commentCount': 12, 'storeId': 1},
-    {'productId': 12, 'productType': 10, 'productName': '青海深度游 三日套餐', 'imgUrl': 'assets/images/product/product3.jpg', 'creditPrice': 15000, 'praise': 96, 'commentCount': 33, 'storeId': 1},
-    {'productId': 13, 'productType': 0, 'productName': '青稞酒珍藏版 礼盒 500ml×12', 'imgUrl': 'assets/images/product/product5.jpg', 'creditPrice': 38800, 'praise': 98, 'commentCount': 3, 'storeId': 1},
-    {'productId': 14, 'productType': 0, 'productName': '智能家居套装（含智能音箱）', 'imgUrl': 'assets/images/product/product7.jpg', 'creditPrice': 25000, 'praise': 85, 'commentCount': 5, 'storeId': 1},
+    {
+      'productId': 1,
+      'productType': 0,
+      'productName': '天佑德青稞酒 经典款 500ml',
+      'imgUrl': 'assets/images/product/product1.jpg',
+      'creditPrice': 3800,
+      'praise': 98,
+      'commentCount': 567,
+      'storeId': 1,
+    },
+    {
+      'productId': 2,
+      'productType': 10,
+      'productName': '青海环线旅游券（三日）',
+      'imgUrl': 'assets/images/product/product2.jpg',
+      'creditPrice': 1000,
+      'praise': 95,
+      'commentCount': 123,
+      'storeId': 1,
+    },
+    {
+      'productId': 3,
+      'productType': 0,
+      'productName': '青藏高原枸杞特级 250g装',
+      'imgUrl': 'assets/images/product/product3.jpg',
+      'creditPrice': 800,
+      'praise': 92,
+      'commentCount': 456,
+      'storeId': 1,
+    },
+    {
+      'productId': 4,
+      'productType': 0,
+      'productName': '青海牦牛肉干原味 100g',
+      'imgUrl': 'assets/images/product/product4.jpg',
+      'creditPrice': 600,
+      'praise': 90,
+      'commentCount': 88,
+      'storeId': 1,
+    },
+    {
+      'productId': 5,
+      'productType': 11,
+      'productName': '视频会员月卡 自动充值',
+      'imgUrl': 'assets/images/product/product5.jpg',
+      'creditPrice': 500,
+      'praise': 96,
+      'commentCount': 678,
+      'storeId': 1,
+    },
+    {
+      'productId': 6,
+      'productType': 0,
+      'productName': '藏香熏香礼盒 12支装',
+      'imgUrl': 'assets/images/product/product6.jpg',
+      'creditPrice': 1500,
+      'praise': 88,
+      'commentCount': 456,
+      'storeId': 1,
+    },
+    {
+      'productId': 7,
+      'productType': 10,
+      'productName': '青海湖一日游 电子票',
+      'imgUrl': 'assets/images/product/product7.jpg',
+      'creditPrice': 4500,
+      'praise': 94,
+      'commentCount': 90,
+      'storeId': 1,
+    },
+    {
+      'productId': 8,
+      'productType': 0,
+      'productName': '首单包邮权益卡',
+      'imgUrl': 'assets/images/product/product8.jpg',
+      'creditPrice': 2000,
+      'praise': 91,
+      'commentCount': 123,
+      'storeId': 1,
+    },
+    {
+      'productId': 9,
+      'productType': 0,
+      'productName': '天佑德青稞酒 礼盒装 500ml×2',
+      'imgUrl': 'assets/images/product/product9.jpg',
+      'creditPrice': 7800,
+      'praise': 97,
+      'commentCount': 67,
+      'storeId': 1,
+    },
+    {
+      'productId': 10,
+      'productType': 2,
+      'productName': '视频会员年卡',
+      'imgUrl': 'assets/images/product/product10.jpg',
+      'creditPrice': 8000,
+      'praise': 93,
+      'commentCount': 89,
+      'storeId': 1,
+    },
+    {
+      'productId': 11,
+      'productType': 0,
+      'productName': '高端青稞酒礼盒 500ml×6',
+      'imgUrl': 'assets/images/product/product1.jpg',
+      'creditPrice': 18800,
+      'praise': 99,
+      'commentCount': 12,
+      'storeId': 1,
+    },
+    {
+      'productId': 12,
+      'productType': 10,
+      'productName': '青海深度游 三日套餐',
+      'imgUrl': 'assets/images/product/product3.jpg',
+      'creditPrice': 15000,
+      'praise': 96,
+      'commentCount': 33,
+      'storeId': 1,
+    },
+    {
+      'productId': 13,
+      'productType': 0,
+      'productName': '青稞酒珍藏版 礼盒 500ml×12',
+      'imgUrl': 'assets/images/product/product5.jpg',
+      'creditPrice': 38800,
+      'praise': 98,
+      'commentCount': 3,
+      'storeId': 1,
+    },
+    {
+      'productId': 14,
+      'productType': 0,
+      'productName': '智能家居套装（含智能音箱）',
+      'imgUrl': 'assets/images/product/product7.jpg',
+      'creditPrice': 25000,
+      'praise': 85,
+      'commentCount': 5,
+      'storeId': 1,
+    },
   ];
 
   /// 获取积分商城热门兑换商品列表（来自推荐位接口 positioncode=CREDITMALL）
@@ -337,6 +463,22 @@ class MockPointsDataSource implements PointsRepository {
     int? maxIntegral,
     bool? exchangeable,
   }) async {
+    final client = apiClient;
+    if (client != null) {
+      try {
+        final body = <String, dynamic>{'pageindex': page, 'pagesize': pageSize, 'minintegral': minIntegral ?? 0, 'maxintegral': maxIntegral ?? 0};
+        if (exchangeable != null) body['exchangeable'] = exchangeable;
+        final response = await client.post<CreditProductListData>(
+          '/api/product/getcreditproductlist',
+          data: body,
+          fromJson: (dynamic json) => CreditProductListData.fromJson(json as Map<String, dynamic>),
+        );
+        return response;
+      } catch (e) {
+        // 异常降级至 Mock 数据
+      }
+    }
+
     await Future.delayed(const Duration(milliseconds: 300));
     var products = List<Map<String, dynamic>>.from(_mockCreditProducts);
     // 积分段筛选（0 表示不限制）
@@ -346,7 +488,7 @@ class MockPointsDataSource implements PointsRepository {
     if (maxIntegral != null && maxIntegral > 0) {
       products = products.where((p) => (p['creditPrice'] as int) <= maxIntegral).toList();
     }
-    if (exchangeable != null && exchangeable) {
+    if (exchangeable != null) {
       // TODO: 对接真实 exchangeable 字段
     }
     // 分页
@@ -355,16 +497,20 @@ class MockPointsDataSource implements PointsRepository {
     final pageProducts = start < products.length ? products.sublist(start, end.clamp(0, products.length)) : <Map<String, dynamic>>[];
     return ApiResponse.success(
       CreditProductListData(
-        products: pageProducts.map((p) => CreditProductItem(
-          productId: p['productId'] as int,
-          productType: CreditProductType.fromJson(p['productType']),
-          productName: p['productName'] as String,
-          imgUrl: p['imgUrl'] as String,
-          creditPrice: p['creditPrice'] as int,
-          praise: p['praise'] as int,
-          commentCount: p['commentCount'] as int,
-          storeId: p['storeId'] as int,
-        )).toList(),
+        products: pageProducts
+            .map(
+              (p) => CreditProductItem(
+                productId: p['productId'] as int,
+                productType: CreditProductType.fromJson(p['productType']),
+                productName: p['productName'] as String,
+                imgUrl: p['imgUrl'] as String,
+                creditPrice: p['creditPrice'] as int,
+                praise: p['praise'] as int,
+                commentCount: p['commentCount'] as int,
+                storeId: p['storeId'] as int,
+              ),
+            )
+            .toList(),
         total: products.length,
         page: page,
         pageSize: pageSize,

@@ -34,13 +34,14 @@ class PointsRemoteDataSource implements PointsRepository {
   }
 
   @override
-  Future<ApiResponse<CreditProductListData>> getCreditProductList({required int page, required int pageSize, int? minIntegral, int? maxIntegral, bool? exchangeable}) async {
-    final body = <String, dynamic>{
-      'pageindex': page - 1,
-      'pagesize': pageSize,
-      'minintegral': minIntegral ?? 0,
-      'maxintegral': maxIntegral ?? 0,
-    };
+  Future<ApiResponse<CreditProductListData>> getCreditProductList({
+    required int page,
+    required int pageSize,
+    int? minIntegral,
+    int? maxIntegral,
+    bool? exchangeable,
+  }) async {
+    final body = <String, dynamic>{'pageindex': page, 'pagesize': pageSize, 'minintegral': minIntegral ?? 0, 'maxintegral': maxIntegral ?? 0};
     if (exchangeable != null) body['exchangeable'] = exchangeable;
     return _apiClient.post<CreditProductListData>(
       '/api/product/getcreditproductlist',
