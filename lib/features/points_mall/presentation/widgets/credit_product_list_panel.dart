@@ -55,6 +55,9 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
               padding: const EdgeInsets.all(10),
               child: PagingListView<CreditProductItem>(
                 provider: creditProductListProvider,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                enablePullToRefresh: false,
                 emptyWidget: const AppEmpty(message: '暂无商品'),
                 itemBuilder: (context, item, index) => _buildProductCard(context, item),
                 separatorBuilder: const SizedBox(height: 10),

@@ -219,7 +219,7 @@ class _PagingListViewState<T> extends ConsumerState<PagingListView<T>> {
     }
 
     Widget listView = ListView.separated(
-      controller: _scrollController,
+      controller: widget.shrinkWrap ? null : _scrollController,
       scrollDirection: widget.scrollDirection,
       shrinkWrap: widget.shrinkWrap,
       physics: widget.physics,
