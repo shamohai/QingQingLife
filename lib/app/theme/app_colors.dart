@@ -45,7 +45,7 @@ abstract final class AppColors {
 
 
   // ── 服务中心页面专用色（一期扩展，可随 Design Token 体系整合）─────────────────────
-  static const Color servicePageBackground = Color(0xFFF5F6F8);
+  static const Color servicePageBackground = Color(0xFFF3F5F7);
   static const Color serviceTabActive = Color(0xFF213775);
   static const Color serviceTabInactive = Color(0xFF666666);
   static const Color serviceButtonRed = Color(0xFFFF2105);

@@ -7,8 +7,8 @@ import '../../../../app/router/route_names.dart';
 
 /// 服务中心右下角悬浮按钮组
 ///
-/// - 左下角：「预约记录」圆形按钮（带文字），点击跳转服务记录页
-/// - 右下角：购物车图标 + 客服图标，竖向排列
+/// - 左下角：「预约记录」40x40 蓝色圆角按钮，点击跳转服务记录页
+/// - 右下角：购物车 29x30 + 客服 29x30，竖向排列
 class ServiceFloatingButtons extends StatelessWidget {
   const ServiceFloatingButtons({super.key});
 
@@ -17,31 +17,22 @@ class ServiceFloatingButtons extends StatelessWidget {
     final bottomInset = MediaQuery.of(context).padding.bottom;
     return Stack(
       children: [
-        // 左下：预约记录
+        // 左下：预约记录 40x40
         Positioned(
           left: AppSpacing.lg,
           bottom: bottomInset + AppSpacing.lg,
-          child: _FloatButton(
-            label: '预约\n记录',
-            onTap: () => context.push(RouteNames.serviceRecords),
-          ),
+          child: _FloatButton(label: '预约\n记录', onTap: () => context.push(RouteNames.serviceRecords)),
         ),
-        // 右下：购物车 + 客服
+        // 右下：购物车 + 客服 29x30
         Positioned(
           right: AppSpacing.lg,
           bottom: bottomInset + AppSpacing.lg,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _FloatIconButton(
-                icon: Icons.shopping_cart,
-                onTap: () => context.push(RouteNames.serviceCart),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              _FloatIconButton(
-                icon: Icons.headset,
-                onTap: () => context.push(RouteNames.customerService),
-              ),
+              _FloatIconButton(icon: Icons.shopping_cart, onTap: () => context.push(RouteNames.serviceCart)),
+              const SizedBox(height: 8),
+              _FloatIconButton(icon: Icons.headset, onTap: () => context.push(RouteNames.customerService)),
             ],
           ),
         ),
@@ -61,22 +52,13 @@ class _FloatButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 44,
-        height: 44,
-        decoration: const BoxDecoration(
-          color: AppColors.serviceFloatBg,
-          shape: BoxShape.circle,
-        ),
+        width: 40,
+        height: 40,
+        decoration: const BoxDecoration(color: AppColors.serviceFloatBg, shape: BoxShape.circle),
         child: Center(
           child: Text(
             label,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w500,
-              color: Colors.white,
-              height: 1.2,
-              letterSpacing: 0.5,
-            ),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white, height: 1.1),
             textAlign: TextAlign.center,
           ),
         ),
@@ -96,13 +78,10 @@ class _FloatIconButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 44,
-        height: 44,
-        decoration: const BoxDecoration(
-          color: AppColors.serviceFloatBg,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, size: 22, color: Colors.white),
+        width: 29,
+        height: 30,
+        decoration: BoxDecoration(color: AppColors.serviceFloatBg, borderRadius: BorderRadius.circular(15)),
+        child: Icon(icon, size: 17, color: Colors.white),
       ),
     );
   }

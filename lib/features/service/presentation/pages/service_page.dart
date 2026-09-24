@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_radius.dart';
-import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../providers/service_provider.dart';
@@ -20,6 +18,8 @@ class ServicePage extends ConsumerWidget {
     final cards = ref.watch(serviceCardDataProvider);
     final selectedTab = ref.watch(selectedTabProvider);
 
+    void onItemTap() => context.push(RouteNames.customerService);
+
     return Scaffold(
       backgroundColor: AppColors.servicePageBackground,
       body: Stack(
@@ -28,37 +28,66 @@ class ServicePage extends ConsumerWidget {
             bottom: false,
             child: Column(
               children: [
-                // TabBar：固定高度 44，白色背景，底部圆角
+                // 顶部固定 Tab 栏
                 ServiceTabBar(
                   selectedTab: selectedTab,
-                  onTabChanged: (tab) => ref.read(selectedTabProvider.notifier).update(tab),
+                  onTabChanged: (tab) =>
+                      ref.read(selectedTabProvider.notifier).update(tab),
                 ),
-                // 内容区域：透明背景，ListView 直接滚动
-                Flexible(
-                  fit: FlexFit.loose,
+                // 可滚动内容区
+                Expanded(
                   child: cards.isEmpty
                       ? const SizedBox(
-                          height: 200,
-                          child: AppEmpty(message: '暂无服务'),
-                        )
-                      : ListView.separated(
-                          itemCount: cards.length,
-                          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                          // 不设置 shrinkWrap，让 ListView 自适应高度
-                          // 不设置 physics，使用默认的 BouncingScrollPhysics
-                          separatorBuilder: (_, _) => Divider(
-                            height: 1,
-                            thickness: 1,
-                            color: AppColors.servicePageBackground,
-                            indent: AppSpacing.lg,
-                            endIndent: AppSpacing.lg,
-                          ),
-                          itemBuilder: (context, index) => ServiceListItem(
-                            data: cards[index],
-                            onTap: () => context.push(RouteNames.customerService),
-                            isFirst: index == 0,
-                            isLast: index == cards.length - 1,
-                          ),
+                          height: 200, child: AppEmpty(message: '暂无服务'))
+                      : ListView(
+                          padding:
+                              const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 12),
+                          children: [
+                            // 白色卡片容器，radius 10，包裹所有 ServiceListItem
+                            Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14),
+                                child: Column(
+                                  children: [
+                                    // 首项：上下 padding 14
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 14, bottom: 14),
+                                      child: ServiceListItem(
+                                          data: cards[0], onTap: onItemTap),
+                                    ),
+                                    // 中间项 + 末项：分割线 + 上下 padding 14
+                                    for (int i = 1; i < cards.length; i++)
+                                      Column(
+                                        children: [
+                                          Divider(
+                                            height: 1,
+                                            thickness: 0.5,
+                                            color: AppColors.serviceDivider,
+                                            indent: 0,
+                                            endIndent: 0,
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 14, bottom: 14),
+                                            child: ServiceListItem(
+                                                data: cards[i],
+                                                onTap: onItemTap),
+                                          ),
+                                        ],
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                 ),
               ],
@@ -71,4 +100,3 @@ class ServicePage extends ConsumerWidget {
     );
   }
 }
-

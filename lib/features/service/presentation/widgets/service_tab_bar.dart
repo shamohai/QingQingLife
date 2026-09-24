@@ -13,11 +13,7 @@ class ServiceTabBar extends StatelessWidget {
   final String selectedTab;
   final ValueChanged<String> onTabChanged;
 
-  const ServiceTabBar({
-    super.key,
-    required this.selectedTab,
-    required this.onTabChanged,
-  });
+  const ServiceTabBar({super.key, required this.selectedTab, required this.onTabChanged});
 
   static const _tabKeys = ['golf', 'zhiyouhui', 'huodong', 'goujiu'];
   static const _tabLabels = ['服务预约', '挚友报名会', '活动报名', '购酒享服务'];
@@ -57,7 +53,7 @@ class ServiceTabBar extends StatelessWidget {
                       Text(
                         tabLabel,
                         style: AppTextStyles.labelLarge.copyWith(
-                          fontSize: 15,
+                          fontSize: 16,
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                           color: isSelected ? AppColors.serviceTabActive : AppColors.serviceTabInactive,
                         ),
@@ -69,10 +65,7 @@ class ServiceTabBar extends StatelessWidget {
                       if (isSelected)
                         Container(
                           height: 3,
-                          decoration: BoxDecoration(
-                            color: AppColors.serviceTabActive,
-                            borderRadius: BorderRadius.circular(999),
-                          ),
+                          decoration: BoxDecoration(color: AppColors.serviceTabActive, borderRadius: BorderRadius.circular(999)),
                         ),
                     ],
                   ),
