@@ -44,7 +44,7 @@ abstract class PointsRepository {
   Future<ApiResponse<List<CreditMallProduct>>> getCreditMallHotProducts();
 
   /// 获取积分商城商品分类列表
-  /// 接口：POST /api/product/getcreditproductcategory
+  /// 接口：POST /api/product/app/getcreditproductcategory
   Future<ApiResponse<CreditProductCategoryData>> getCreditProductCategory();
 
   /// 获取青稞粒商品列表（分页，支持积分段和分类筛选）

@@ -462,7 +462,7 @@ class MockPointsDataSource implements PointsRepository {
     if (client != null) {
       try {
         final response = await client.post<CreditProductCategoryData>(
-          '/api/product/getcreditproductcategory',
+          '/api/product/app/getcreditproductcategory',
           data: {},
           fromJson: (dynamic json) => CreditProductCategoryData.fromJson(json as Map<String, dynamic>),
         );

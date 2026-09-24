@@ -37,7 +37,7 @@ class PointsRemoteDataSource implements PointsRepository {
   @override
   Future<ApiResponse<CreditProductCategoryData>> getCreditProductCategory() async {
     return _apiClient.post<CreditProductCategoryData>(
-      '/api/product/getcreditproductcategory',
+      '/api/product/app/getcreditproductcategory',
       data: {},
       fromJson: (dynamic json) => CreditProductCategoryData.fromJson(json as Map<String, dynamic>),
     );

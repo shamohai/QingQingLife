@@ -1,6 +1,6 @@
 /// 获取积分商城商品分类列表（GetCreditProductCategory）响应模型
 ///
-/// 接口：POST /api/product/getcreditproductcategory
+/// 接口：POST /api/product/app/getcreditproductcategory
 library;
 
 /// 单个分类项
