@@ -24,7 +24,7 @@ class PointsRemoteDataSource implements PointsRepository {
   Future<ApiResponse<List<CreditMallProduct>>> getCreditMallHotProducts() async {
     final response = await _apiClient.post<List<CreditMallProduct>>(
       '/api/product/getrecommendproductlist',
-      data: {'positioncode': 'APP_CREDITMALL', 'topn': 20},
+      data: <String, dynamic>{'positioncode': 'APP_CREDITMALL', 'topn': 20},
       fromJson: (dynamic json) {
         final map = json as Map<String, dynamic>;
         final productsJson = map['products'] as List<dynamic>? ?? [];
@@ -38,7 +38,7 @@ class PointsRemoteDataSource implements PointsRepository {
   Future<ApiResponse<CreditProductCategoryData>> getCreditProductCategory() async {
     return _apiClient.post<CreditProductCategoryData>(
       '/api/product/app/getcreditproductcategory',
-      data: {},
+      data: <String, dynamic>{},
       fromJson: (dynamic json) => CreditProductCategoryData.fromJson(json as Map<String, dynamic>),
     );
   }

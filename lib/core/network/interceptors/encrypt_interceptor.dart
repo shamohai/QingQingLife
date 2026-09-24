@@ -24,7 +24,7 @@ import '../../logging/interceptors/app_logging_interceptor.dart';
 /// 2. 从 options.extra['authtoken'] 读取登录 token（由 AuthInterceptor 注入）
 /// 3. 构建完整请求体（含 authtoken + meta）
 /// 5. 生成 MD5 签名：MD5(key + secret)
-/// 6. 将签名字段附加到 URL query params：?v=1&key=xxx&sign=xxx&aes=1
+/// 6. 将签名字段附加到 URL query params：?v=1&key=xxx&sign=xxx
 /// 7. 发送加密后的 base64 字符串作为请求体
 ///
 /// 响应流程：
@@ -56,7 +56,7 @@ class EncryptInterceptor extends Interceptor {
 
       // 如果有原始 data，合并进去
       if (options.data != null && options.data is Map) {
-        bodyMap.addAll(options.data as Map<String, dynamic>);
+        bodyMap.addAll(Map<String, dynamic>.from(options.data as Map));
       }
 
       final plainBody = const JsonEncoder.withIndent('  ').convert(bodyMap);
@@ -67,13 +67,13 @@ class EncryptInterceptor extends Interceptor {
 
       // 6. 拼接 URL 参数（Dio 5.x：uri 是 final，通过 copyWith 或直接修改 path/queryParameters）
       final uri = options.uri.replace(
-        queryParameters: <String, String>{...options.uri.queryParameters, 'v': '${ApiSecurityConstants.apiVersion}', 'key': key, 'sign': sign, 'aes': '1'},
+        queryParameters: <String, String>{...options.uri.queryParameters, 'v': '${ApiSecurityConstants.apiVersion}', 'key': key, 'sign': sign},
       );
 
       options.path = uri.path;
       options.queryParameters = uri.queryParameters;
       options.data = plainBody;
-      options.headers['Content-Type'] = 'application/octet-stream';
+      options.headers['Content-Type'] = 'application/json; charset=utf-8';
       options.headers['Accept'] = 'application/json';
 
       if (kDebugMode) {

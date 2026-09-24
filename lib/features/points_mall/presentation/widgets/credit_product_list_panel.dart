@@ -48,7 +48,7 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
         // 右侧分页商品列表
         Expanded(
           child: Container(
-            color: const Color(0xFFF3F5F7),
+            color: Colors.white,
             child: Padding(
               padding: const EdgeInsets.all(10),
               child: PagingListView<CreditProductItem>(
@@ -75,7 +75,7 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
-          boxShadow: [const BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, 1))],
+          //boxShadow: [const BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, 1))],
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,7 +157,7 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
                             onPressed: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('兑换商品：${item.productName}'))),
                             style: OutlinedButton.styleFrom(
                               side: const BorderSide(color: Color(0xFFFF2105), width: 1),
-                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 10),
                               shape: const StadiumBorder(),
                               minimumSize: Size.zero,
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,

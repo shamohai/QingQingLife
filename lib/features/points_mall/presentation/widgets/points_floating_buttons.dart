@@ -12,7 +12,7 @@ class PointsFloatingButtons extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _FloatingButton(asset: 'assets/images/points/icon-cart.png', label: '购物车', width: 36, height: 36),
+        _FloatingButton(asset: 'assets/images/points/icon-cart.png', label: '购物车', width: 32, height: 32),
         const SizedBox(height: AppSpacing.md),
         _FloatingButton(asset: 'assets/images/points/icon-service.png', label: '管家服务'),
       ],
