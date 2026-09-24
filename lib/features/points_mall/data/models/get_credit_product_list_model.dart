@@ -37,7 +37,7 @@ class CreditProductItem {
       productType: CreditProductType.fromJson(json['producttype']),
       productName: json['productname'] as String? ?? '',
       imgUrl: json['imgurl'] as String? ?? '',
-      creditPrice: (json['creditprice'] as num?)?.toInt() ?? 0,
+      creditPrice: (json['creditcount'] as num?)?.toInt() ?? 0,
       stock: json['stock'] != null ? (json['stock'] as num).toInt() : null,
       praise: (json['praise'] as num?)?.toInt() ?? 0,
       commentCount: (json['commentcount'] as num?)?.toInt() ?? 0,
@@ -56,13 +56,17 @@ class CreditProductListData {
 
   const CreditProductListData({required this.products, required this.total, required this.page, required this.pageSize});
 
-  bool get hasMore => products.length >= pageSize && page * pageSize < total;
+  bool get hasMore {
+    if (products.isEmpty) return false;
+    if (pageSize > 0 && products.length < pageSize) return false;
+    return page * pageSize < total;
+  }
 
   factory CreditProductListData.fromJson(Map<String, dynamic> json) {
     final productsJson = json['products'] as List<dynamic>? ?? [];
     return CreditProductListData(
       products: productsJson.map((e) => CreditProductItem.fromJson(e as Map<String, dynamic>)).toList(),
-      total: (json['total'] as num?)?.toInt() ?? productsJson.length,
+      total: (json['totalcount'] as num?)?.toInt() ?? productsJson.length,
       page: (json['page'] as num?)?.toInt() ?? 1,
       pageSize: (json['pagesize'] as num?)?.toInt() ?? productsJson.length,
     );
