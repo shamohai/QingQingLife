@@ -8,6 +8,7 @@ import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../providers/points_mall_paging_providers.dart';
 import '../providers/credit_product_list_provider.dart';
+import '../providers/credit_product_category_provider.dart';
 import '../widgets/points_banner.dart';
 import '../widgets/points_balance_card.dart';
 import '../widgets/points_category_tab_bar.dart';
@@ -24,7 +25,7 @@ class PointsMallPage extends ConsumerStatefulWidget {
 
 class _PointsMallPageState extends ConsumerState<PointsMallPage> {
   final _searchController = TextEditingController();
-  String _activeCategoryId = 'all';
+  int _activeCategoryId = 0;
 
   @override
   void dispose() {
@@ -32,11 +33,11 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
     super.dispose();
   }
 
-  void _onCategoryChanged(String categoryId) {
+  void _onCategoryChanged(int categoryId) {
     setState(() => _activeCategoryId = categoryId);
+    ref.read(creditProductListProvider.notifier).setCategoryId(categoryId);
   }
 
-  
   @override
   Widget build(BuildContext context) {
     final staticDataAsync = ref.watch(pointsMallStaticDataProvider);
@@ -116,7 +117,17 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            PointsCategoryTabBar(categories: staticData.categories, activeCategoryId: _activeCategoryId, onCategoryTap: _onCategoryChanged),
+                            ref
+                                .watch(creditProductCategoryProvider)
+                                .when(
+                                  loading: () => const SizedBox(height: 44, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
+                                  error: (_, __) => const SizedBox(height: 44),
+                                  data: (catData) => PointsCategoryTabBar(
+                                    categories: catData.categories,
+                                    activeCategoryId: _activeCategoryId,
+                                    onCategoryTap: _onCategoryChanged,
+                                  ),
+                                ),
                             const SizedBox(height: 10),
                           ],
                         ),
@@ -125,7 +136,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                     SliverPadding(
                       padding: const EdgeInsets.only(left: 10, right: 10),
                       sliver: SliverToBoxAdapter(
-                        child: CreditProductListPanel(groups: staticData.redeemableGroups),
+                        child: CreditProductListPanel(groups: staticData.redeemableGroups, activeCategoryId: _activeCategoryId),
                       ),
                     ),
                     const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),

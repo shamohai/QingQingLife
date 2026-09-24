@@ -1,4 +1,4 @@
-﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../points/domain/repositories/points_repository.dart';
@@ -10,6 +10,7 @@ import '../../../points_mall/data/models/sign_in_result.dart';
 import '../../../points_mall/data/models/service_product_detail_model.dart';
 import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
 import '../../../points_mall/data/models/get_credit_product_list_model.dart';
+import '../../../points_mall/data/models/credit_product_category_model.dart';
 
 /// Mock 积分商城数据源 - 开发/测试环境使用
 ///
@@ -445,7 +446,7 @@ class MockPointsDataSource implements PointsRepository {
     if (client == null) return ApiResponse.success([]);
     final response = await client.post<List<CreditMallProduct>>(
       '/api/product/getrecommendproductlist',
-      data: {'positioncode': 'HOME', 'topn': 20},
+      data: {'positioncode': 'APP_CREDITMALL', 'topn': 20},
       fromJson: (dynamic json) {
         final map = json as Map<String, dynamic>;
         final productsJson = map['products'] as List<dynamic>? ?? [];
@@ -456,17 +457,40 @@ class MockPointsDataSource implements PointsRepository {
   }
 
   @override
+  Future<ApiResponse<CreditProductCategoryData>> getCreditProductCategory() async {
+    final client = apiClient;
+    if (client != null) {
+      try {
+        final response = await client.post<CreditProductCategoryData>(
+          '/api/product/getcreditproductcategory',
+          data: {},
+          fromJson: (dynamic json) => CreditProductCategoryData.fromJson(json as Map<String, dynamic>),
+        );
+        return response;
+      } catch (_) {}
+    }
+    return ApiResponse.success(CreditProductCategoryData(categories: []));
+  }
+
+  @override
   Future<ApiResponse<CreditProductListData>> getCreditProductList({
     required int page,
     required int pageSize,
     int? minIntegral,
     int? maxIntegral,
     bool? exchangeable,
+    int? categoryId,
   }) async {
     final client = apiClient;
     if (client != null) {
       try {
-        final body = <String, dynamic>{'pageindex': page, 'pagesize': pageSize, 'minintegral': minIntegral ?? 0, 'maxintegral': maxIntegral ?? 0};
+        final body = <String, dynamic>{
+          'pageindex': page,
+          'pagesize': pageSize,
+          'minintegral': minIntegral ?? 0,
+          'maxintegral': maxIntegral ?? 0,
+          'categoryid': categoryId ?? 0,
+        };
         if (exchangeable != null) body['exchangeable'] = exchangeable;
         final response = await client.post<CreditProductListData>(
           '/api/product/getcreditproductlist',

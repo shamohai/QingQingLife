@@ -17,8 +17,9 @@ import '../../data/models/get_recommend_product_list_model.dart';
 /// 右侧：分页商品列表（PagingListView）
 class CreditProductListPanel extends ConsumerStatefulWidget {
   final List<PointsRedeemGroup> groups;
+  final int activeCategoryId;
 
-  const CreditProductListPanel({super.key, required this.groups});
+  const CreditProductListPanel({super.key, required this.groups, this.activeCategoryId = 0});
 
   @override
   ConsumerState<CreditProductListPanel> createState() => _CreditProductListPanelState();
@@ -32,6 +33,7 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
   void _onRangeTap(int index) {
     setState(() => _activeIndex = index);
     final notifier = ref.read(creditProductListProvider.notifier);
+    notifier.setCategoryId(widget.activeCategoryId);
     notifier.setIntegralRange(_labels[index]);
   }
 
@@ -41,11 +43,7 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 左侧积分段侧边栏
-        PointsCategorySidebar(
-          groups: widget.groups,
-          activeIndex: _activeIndex,
-          onCategoryTap: _onRangeTap,
-        ),
+        PointsCategorySidebar(groups: widget.groups, activeIndex: _activeIndex, onCategoryTap: _onRangeTap),
         const VerticalDivider(width: 1, color: Color(0xFFE1E4DC)),
         // 右侧分页商品列表
         Expanded(
@@ -119,7 +117,10 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
                             margin: const EdgeInsets.only(left: 4),
                             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                             decoration: BoxDecoration(color: const Color(0x1AFF2105), borderRadius: BorderRadius.circular(4)),
-                            child: const Text('服务', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Color(0xFFFF2105))),
+                            child: const Text(
+                              '服务',
+                              style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Color(0xFFFF2105)),
+                            ),
                           ),
                       ],
                     ),
@@ -131,7 +132,10 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
                           '${item.creditPrice}',
                           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF2105)),
                         ),
-                        const Text(' 积分', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Color(0xFFFF2105))),
+                        const Text(
+                          ' 积分',
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Color(0xFFFF2105)),
+                        ),
                         const Spacer(),
                         if (isService)
                           OutlinedButton(
@@ -143,7 +147,10 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
                               minimumSize: Size.zero,
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
-                            child: const Text('查看', style: TextStyle(fontSize: 10, color: Color(0xFFFF2105), fontWeight: FontWeight.w500)),
+                            child: const Text(
+                              '查看',
+                              style: TextStyle(fontSize: 10, color: Color(0xFFFF2105), fontWeight: FontWeight.w500),
+                            ),
                           )
                         else
                           OutlinedButton(
@@ -155,7 +162,10 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
                               minimumSize: Size.zero,
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
-                            child: const Text('兑换', style: TextStyle(fontSize: 10, color: Color(0xFFFF2105), fontWeight: FontWeight.w500)),
+                            child: const Text(
+                              '兑换',
+                              style: TextStyle(fontSize: 10, color: Color(0xFFFF2105), fontWeight: FontWeight.w500),
+                            ),
                           ),
                       ],
                     ),

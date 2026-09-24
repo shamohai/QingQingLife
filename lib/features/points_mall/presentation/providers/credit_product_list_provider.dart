@@ -1,6 +1,9 @@
 /// 积分商城商品分页 Provider（调用 GetCreditProductList API）
 ///
-/// 左侧积分段侧边栏切换时调用 setIntegralRange() 刷新列表。
+/// 支持两个筛选维度：
+/// 1. 积分段（左侧侧边栏）：调用 setIntegralRange() 刷新
+/// 2. 商品分类（顶部 Tab）：调用 setCategoryId() 刷新
+/// 两个条件叠加（AND）发送给后端。
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,9 +36,18 @@ import '../../data/models/get_credit_product_list_model.dart';
 /// 积分商城商品分页 Notifier
 class CreditProductListNotifier extends PagingNotifier<CreditProductItem> {
   String? _activeRangeLabel;
+  int? _activeCategoryId;
 
+  /// 切换积分段，刷新列表
   void setIntegralRange(String rangeLabel) {
     _activeRangeLabel = rangeLabel;
+    loadFirstPage();
+  }
+
+  /// 切换商品分类 Tab，刷新列表
+  /// [categoryId] 为 0 表示全部分类
+  void setCategoryId(int categoryId) {
+    _activeCategoryId = categoryId;
     loadFirstPage();
   }
 
@@ -52,21 +64,14 @@ class CreditProductListNotifier extends PagingNotifier<CreditProductItem> {
       minIntegral: min,
       maxIntegral: max,
       exchangeable: exchangeable,
+      categoryId: _activeCategoryId,
     );
     if (!response.success || response.data == null) {
       throw Exception(response.message);
     }
     final data = response.data!;
-    return PagingResult<CreditProductItem>(
-      items: data.products,
-      hasMore: data.hasMore,
-      totalItems: data.total,
-      totalPages: (data.total / pageSize).ceil(),
-    );
+    return PagingResult<CreditProductItem>(items: data.products, hasMore: data.hasMore, totalItems: data.total, totalPages: (data.total / pageSize).ceil());
   }
 }
 
-final creditProductListProvider =
-    NotifierProvider.autoDispose<CreditProductListNotifier, PagingData<CreditProductItem>>(
-  CreditProductListNotifier.new,
-);
+final creditProductListProvider = NotifierProvider.autoDispose<CreditProductListNotifier, PagingData<CreditProductItem>>(CreditProductListNotifier.new);

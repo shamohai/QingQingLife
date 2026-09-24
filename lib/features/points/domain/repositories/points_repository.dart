@@ -4,6 +4,7 @@ import '../../../points_mall/data/models/sign_in_result.dart';
 import '../../../points_mall/data/models/service_product_detail_model.dart';
 import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
 import '../../../points_mall/data/models/get_credit_product_list_model.dart';
+import '../../../points_mall/data/models/credit_product_category_model.dart';
 
 /// 积分商城仓库接口
 abstract class PointsRepository {
@@ -42,7 +43,11 @@ abstract class PointsRepository {
   /// 获取积分商城热门兑换商品列表（来自推荐位接口，positioncode=CREDITMALL）
   Future<ApiResponse<List<CreditMallProduct>>> getCreditMallHotProducts();
 
-  /// 获取青稞粒商品列表（分页，支持积分段筛选）
+  /// 获取积分商城商品分类列表
+  /// 接口：POST /api/product/getcreditproductcategory
+  Future<ApiResponse<CreditProductCategoryData>> getCreditProductCategory();
+
+  /// 获取青稞粒商品列表（分页，支持积分段和分类筛选）
   /// 接口：POST /api/product/getcreditproductlist
   Future<ApiResponse<CreditProductListData>> getCreditProductList({
     required int page,
@@ -50,6 +55,7 @@ abstract class PointsRepository {
     int? minIntegral,
     int? maxIntegral,
     bool? exchangeable,
+    int? categoryId,
   });
 }
 
