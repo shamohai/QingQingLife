@@ -43,7 +43,16 @@ abstract final class AppColors {
   static const Color outlineVariant = Color(0xFFC4C8BF);
   static const Color divider = Color(0xFFE1E4DC);
 
-  // 覆盖层
+
+  // ── 服务中心页面专用色（一期扩展，可随 Design Token 体系整合）─────────────────────
+  static const Color servicePageBackground = Color(0xFFF5F6F8);
+  static const Color serviceTabActive = Color(0xFF213775);
+  static const Color serviceTabInactive = Color(0xFF666666);
+  static const Color serviceButtonRed = Color(0xFFFF2105);
+  static const Color serviceDivider = Color(0xFFEEEEEE);
+  static const Color serviceFloatBg = Color(0xFF213771);
+
+  // ── 覆盖层
   static const Color overlay = Color(0x1F000000);
   static const Color scrim = Color(0x52000000);
 
@@ -79,3 +88,5 @@ abstract final class AppColors {
   static const Color darkSuccess = Color(0xFF69D676);
   static const Color darkWarning = Color(0xFFFFB84D);
 }
+
+

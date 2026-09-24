@@ -11,33 +11,34 @@ class ServiceCardData {
     required this.imageAsset,
     required this.title,
     required this.subtitle,
-    this.buttonText = '立即参与',
+    this.buttonText = '立即预约',
   });
 
+  /// 静态 mock 数据，对应蓝湖设计稿版本3
   static const List<ServiceCardData> staticList = [
     ServiceCardData(
-      id: 'service_yuyue',
-      imageAsset: 'assets/images/service/service_yuyue.webp',
-      title: '服务预约',
-      subtitle: '当前有100人参与预约',
+      id: 'golf',
+      imageAsset: 'assets/images/service/service_golf.png',
+      title: '高尔夫',
+      subtitle: '当前已有100人参与预约',
     ),
     ServiceCardData(
-      id: 'service_zhiyouhui',
-      imageAsset: 'assets/images/service/service_zhiyouhui.webp',
-      title: '挚友会报名',
-      subtitle: '当前有100人参与报名',
+      id: 'running',
+      imageAsset: 'assets/images/service/service_running.png',
+      title: '跑步',
+      subtitle: '当前已有100人参与预约',
     ),
     ServiceCardData(
-      id: 'service_huodong',
-      imageAsset: 'assets/images/service/service_huodong.webp',
-      title: '活动报名',
-      subtitle: '当前有100人参与报名',
+      id: 'cycling',
+      imageAsset: 'assets/images/service/service_cycling.png',
+      title: '自行车',
+      subtitle: '当前已有100人参与预约',
     ),
     ServiceCardData(
-      id: 'service_goujiu',
-      imageAsset: 'assets/images/service/service_goujiu.webp',
-      title: '购酒享服务',
-      subtitle: '当前有100人参与报名',
+      id: 'camping',
+      imageAsset: 'assets/images/service/service_camping.png',
+      title: '露营基地',
+      subtitle: '当前已有100人参与预约',
     ),
   ];
 }

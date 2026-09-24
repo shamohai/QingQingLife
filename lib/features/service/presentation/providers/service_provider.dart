@@ -12,3 +12,14 @@ final serviceCardDataProvider = Provider<List<ServiceCardData>>((ref) {
 final serviceRecordDataProvider = Provider<List<ServiceRecordItem>>((ref) {
   return ServiceRecordItem.staticList;
 });
+
+/// 当前选中的服务分类 Tab Provider
+/// 一期无后端分页，所有分类数据相同；后续接入 API 后可按此 key 过滤。
+final selectedTabProvider = NotifierProvider<ServiceTabNotifier, String>(() => ServiceTabNotifier());
+
+class ServiceTabNotifier extends Notifier<String> {
+  @override
+  String build() => 'golf';
+
+  void update(String tab) => state = tab;
+}
