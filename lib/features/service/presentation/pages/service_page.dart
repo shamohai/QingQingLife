@@ -28,15 +28,16 @@ class ServicePage extends ConsumerWidget {
             bottom: false,
             child: Column(
               children: [
-                // TabBar：固定高度 44，不随列表滚动
+                // TabBar：固定高度 44，白色背景，底部圆角
                 ServiceTabBar(
                   selectedTab: selectedTab,
                   onTabChanged: (tab) => ref.read(selectedTabProvider.notifier).update(tab),
                 ),
-                // 白色内容卡片容器，水平 margin 16，圆角 12，带轻微阴影
-                Expanded(
+                // 内容区域：Flexible 限制最大高度，ListView 内部滚动
+                Flexible(
+                  fit: FlexFit.loose,
                   child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                    margin: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: AppSpacing.lg),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -49,10 +50,14 @@ class ServicePage extends ConsumerWidget {
                       ],
                     ),
                     child: cards.isEmpty
-                        ? const AppEmpty(message: '暂无服务')
+                        ? const SizedBox(
+                            height: 200,
+                            child: AppEmpty(message: '暂无服务'),
+                          )
                         : ListView.separated(
-                            padding: const EdgeInsets.only(top: AppSpacing.md),
                             itemCount: cards.length,
+                            // 不设置 shrinkWrap，让 ListView 自适应高度
+                            // 不设置 physics，使用默认的 BouncingScrollPhysics
                             separatorBuilder: (_, _) => const Divider(
                               height: 1,
                               color: AppColors.serviceDivider,
@@ -75,7 +80,4 @@ class ServicePage extends ConsumerWidget {
     );
   }
 }
-
-
-
 
