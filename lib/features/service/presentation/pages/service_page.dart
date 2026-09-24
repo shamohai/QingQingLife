@@ -33,42 +33,33 @@ class ServicePage extends ConsumerWidget {
                   selectedTab: selectedTab,
                   onTabChanged: (tab) => ref.read(selectedTabProvider.notifier).update(tab),
                 ),
-                // 内容区域：Flexible 限制最大高度，ListView 内部滚动
+                // 内容区域：透明背景，ListView 直接滚动
                 Flexible(
                   fit: FlexFit.loose,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: AppSpacing.lg),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(AppRadius.lg),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0x08000000),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: cards.isEmpty
-                        ? const SizedBox(
-                            height: 200,
-                            child: AppEmpty(message: '暂无服务'),
-                          )
-                        : ListView.separated(
-                            itemCount: cards.length,
-                            // 不设置 shrinkWrap，让 ListView 自适应高度
-                            // 不设置 physics，使用默认的 BouncingScrollPhysics
-                            separatorBuilder: (_, _) => const Divider(
-                              height: 1,
-                              color: AppColors.serviceDivider,
-                              thickness: 1,
-                            ),
-                            itemBuilder: (context, index) => ServiceListItem(
-                              data: cards[index],
-                              onTap: () => context.push(RouteNames.customerService),
-                            ),
+                  child: cards.isEmpty
+                      ? const SizedBox(
+                          height: 200,
+                          child: AppEmpty(message: '暂无服务'),
+                        )
+                      : ListView.separated(
+                          itemCount: cards.length,
+                          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                          // 不设置 shrinkWrap，让 ListView 自适应高度
+                          // 不设置 physics，使用默认的 BouncingScrollPhysics
+                          separatorBuilder: (_, _) => Divider(
+                            height: 1,
+                            thickness: 1,
+                            color: AppColors.servicePageBackground,
+                            indent: AppSpacing.lg,
+                            endIndent: AppSpacing.lg,
                           ),
-                  ),
+                          itemBuilder: (context, index) => ServiceListItem(
+                            data: cards[index],
+                            onTap: () => context.push(RouteNames.customerService),
+                            isFirst: index == 0,
+                            isLast: index == cards.length - 1,
+                          ),
+                        ),
                 ),
               ],
             ),
