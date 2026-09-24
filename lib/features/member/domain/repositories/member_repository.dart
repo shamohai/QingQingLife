@@ -1,3 +1,4 @@
+import '../../data/models/member_authority_model.dart';
 import '../../../../core/network/api_response.dart';
 
 /// 会员仓库接口
@@ -7,6 +8,9 @@ abstract class MemberRepository {
 
   /// 获取会员等级权益
   Future<ApiResponse<MemberLevelBenefits>> getLevelBenefits(int level);
+
+  /// 获取会员权益权限（真实接口：POST /api/sys/v2/getmemberauthority）
+  Future<ApiResponse<MemberAuthorityModel>> getMemberAuthority({required int level});
 
   /// 获取优惠券列表
   Future<ApiResponse<CouponListResult>> getCoupons({required int page, required int pageSize, CouponStatus? status});

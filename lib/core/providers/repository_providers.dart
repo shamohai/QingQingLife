@@ -51,6 +51,8 @@ OrderRepository orderRepository(Ref ref) {
 /// Member Repository Provider
 @riverpod
 MemberRepository memberRepository(Ref ref) {
+  // TODO(Mock): 会员相关后端接口（含会员权益 POST /api/sys/v2/getmemberauthority）尚未实现，
+  // 当前统一走 Mock。后端就绪后改为返回 MemberRemoteDataSource。
   return MockMemberDataSource();
 }
 
