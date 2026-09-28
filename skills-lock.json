@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "design-to-code": {
+      "source": "fitoe/DesignToCode",
+      "sourceType": "github",
+      "skillPath": "skills/design-to-code/SKILL.md",
+      "computedHash": "d91485fb208ff9a340e4684c296f905907a0ffadbf33c88e303c7c4915e30ab8"
+    }
+  }
+}
