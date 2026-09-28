@@ -52,13 +52,16 @@ abstract final class AppColors {
   static const Color serviceDivider = Color(0xFFEEEEEE);
   static const Color serviceFloatBg = Color(0xFF213771);
 
+  // ── 预约项目详情专用色 ──
+  static const Color serviceProjectBlue = Color(0xFF0088FF);
+  static const Color serviceCtaGradStart = Color(0xFF3152AF);
+  // serviceCtaGradEnd 与 serviceTabActive (#213775) 相同，可直接复用
+
   // ── 覆盖层
   static const Color overlay = Color(0x1F000000);
   static const Color scrim = Color(0x52000000);
 
   // ── 暗色（Dark）─────────────────────────────────────────────────────
-  // 命名与亮色对称，便于 ThemeData 中按需引用
-
   static const Color darkPrimary = Color(0xFF578DF7);
   static const Color darkOnPrimary = Color(0xFF002D6A);
   static const Color darkPrimaryContainer = Color(0xFF00439A);
@@ -88,5 +91,3 @@ abstract final class AppColors {
   static const Color darkSuccess = Color(0xFF69D676);
   static const Color darkWarning = Color(0xFFFFB84D);
 }
-
-

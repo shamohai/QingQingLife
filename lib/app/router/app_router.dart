@@ -10,6 +10,7 @@ import '../../features/member/presentation/pages/profile_page.dart';
 import '../../features/service/presentation/pages/service_page.dart';
 import '../../features/service/presentation/pages/service_cart_page.dart';
 import '../../features/service/presentation/pages/service_records_page.dart';
+import '../../features/service/presentation/pages/service_project_detail_page.dart';
 import '../../features/product/presentation/pages/product_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
@@ -76,6 +77,12 @@ final appRouter = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'records',
                     pageBuilder: (c, s) => MaterialPage(child: ServiceRecordsPage(activeTab: s.uri.queryParameters['activeTab'] ?? 'ongoing')),
+                  ),
+                  GoRoute(
+                    path: 'project/:id',
+                    pageBuilder: (c, s) => MaterialPage(
+                      child: ServiceProjectDetailPage(projectId: s.pathParameters['id']!),
+                    ),
                   ),
                 ],
               ),

@@ -47,7 +47,9 @@ abstract final class RouteNames {
   // 客服
   static const String customerService = '/customer-service';
 
+  // 预约项目详情
+  static const String serviceProjectDetail = '/service/project/:id';
+
   // 积分规则页
   static const String pointsRules = '/points/rules';
 }
-   // 地址相关

@@ -18,7 +18,7 @@ class ServicePage extends ConsumerWidget {
     final cards = ref.watch(serviceCardDataProvider);
     final selectedTab = ref.watch(selectedTabProvider);
 
-    void onItemTap() => context.push(RouteNames.customerService);
+    void onBookTap(String serviceId) => context.push(RouteNames.serviceProjectDetail.replaceFirst(':id', serviceId));
 
     return Scaffold(
       backgroundColor: AppColors.servicePageBackground,
@@ -48,7 +48,7 @@ class ServicePage extends ConsumerWidget {
                                     // 首项：上下 padding 14
                                     Padding(
                                       padding: const EdgeInsets.only(top: 14, bottom: 14),
-                                      child: ServiceListItem(data: cards[0], onTap: onItemTap),
+                                      child: ServiceListItem(data: cards[0], onBookTap: onBookTap),
                                     ),
                                     // 中间项 + 末项：分割线 + 上下 padding 14
                                     for (int i = 1; i < cards.length; i++)
@@ -57,7 +57,7 @@ class ServicePage extends ConsumerWidget {
                                           Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 0, endIndent: 0),
                                           Padding(
                                             padding: const EdgeInsets.only(top: 14, bottom: 14),
-                                            child: ServiceListItem(data: cards[i], onTap: onItemTap),
+                                            child: ServiceListItem(data: cards[i], onBookTap: onBookTap),
                                           ),
                                         ],
                                       ),

@@ -8,13 +8,13 @@ import '../../domain/models/service_card_data.dart';
 /// 服务列表单项卡片
 ///
 /// 布局：左图（100x100）+ 中间文字 + 右侧红色描边预约按钮
-/// 点击整个卡片跳转到客服页面（一期 placeholder，后续对接服务详情路由）
+/// 点击"立即预约/报名"按钮跳转到服务项目详情页
 /// 圆角由外层 Container(radius 10) 统一处理，本组件自身无圆角
 class ServiceListItem extends StatelessWidget {
   final ServiceCardData data;
-  final VoidCallback onTap;
+  final void Function(String serviceId) onBookTap;
 
-  const ServiceListItem({super.key, required this.data, required this.onTap});
+  const ServiceListItem({super.key, required this.data, required this.onBookTap});
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +74,7 @@ class ServiceListItem extends StatelessWidget {
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(minWidth: 78),
                     child: OutlinedButton(
-                      onPressed: onTap,
+                      onPressed: () => onBookTap(data.id),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: AppColors.serviceButtonRed),
                         backgroundColor: Colors.transparent,
