@@ -60,25 +60,29 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
         slivers: [
           // ─── Header ──────────────────────────────────────────────
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 14, right: 14, top: 8, bottom: 12),
-              child: Row(
-                children: [
-                  // 返回按钮
-                  GestureDetector(
-                    onTap: () => context.pop(),
-                    child: const Icon(Icons.arrow_back, size: 24, color: Color(0xFF1F2024)),
-                  ),
-                  const SizedBox(width: 4),
-                  // 标题
-                  const Text(
-                    '全部商品',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Color(0xFF1F2024)),
-                  ),
-                  const SizedBox(width: 12),
-                  // 搜索栏自适应剩余空间
-                  Expanded(child: AllProductsSearchBar(searchController: _searchController)),
-                ],
+            child: SafeArea(
+              top: true,
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 14, right: 14, top: 8, bottom: 12),
+                child: Row(
+                  children: [
+                    // 返回按钮
+                    GestureDetector(
+                      onTap: () => context.pop(),
+                      child: const Icon(Icons.arrow_back, size: 24, color: Color(0xFF1F2024)),
+                    ),
+                    const SizedBox(width: 4),
+                    // 标题
+                    const Text(
+                      '全部商品',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Color(0xFF1F2024)),
+                    ),
+                    const SizedBox(width: 12),
+                    // 搜索栏自适应剩余空间
+                    Expanded(child: AllProductsSearchBar(searchController: _searchController)),
+                  ],
+                ),
               ),
             ),
           ),
@@ -100,8 +104,8 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
             )
           else
             SliverPadding(
-              // 左右各14dp，顶部12dp（与header间距），底部覆盖 BottomNav
-              padding: const EdgeInsets.fromLTRB(14, 12, 14, 96),
+              // 左右各14dp，顶部12dp（与header间距），底部普通二级页留白
+              padding: EdgeInsets.fromLTRB(14, 12, 14, 24 + MediaQuery.viewPaddingOf(context).bottom),
               sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate((context, index) {
                   if (index >= pagingData.items.length) {

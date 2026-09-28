@@ -57,12 +57,6 @@ final appRouter = Provider<GoRouter>((ref) {
               GoRoute(
                 path: RouteNames.points,
                 pageBuilder: (c, s) => const NoTransitionPage(child: PointsMallPage()),
-                routes: [
-                  GoRoute(
-                    path: 'all-products',
-                    pageBuilder: (c, s) => const MaterialPage(child: AllProductsPage()),
-                  ),
-                ],
               ),
             ],
           ),
@@ -105,6 +99,10 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.confirmOrder,
         pageBuilder: (c, s) => MaterialPage(child: ConfirmOrderPage(productId: s.pathParameters['id']!)),
+      ),
+      GoRoute(
+        path: RouteNames.allProducts,
+        pageBuilder: (c, s) => const MaterialPage(child: AllProductsPage()),
       ),
       GoRoute(
         path: RouteNames.paymentResult,
