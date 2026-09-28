@@ -23,8 +23,6 @@ class MockOrderDataSource implements OrderRepository {
     int? pointsToUse,
     String? remark,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 800));
-
     // Mock 返回新订单
     final mockOrderId = 'order_${DateTime.now().millisecondsSinceEpoch}';
     final mockOrderNo = 'NO${DateTime.now().millisecondsSinceEpoch}';
@@ -46,8 +44,6 @@ class MockOrderDataSource implements OrderRepository {
     required int pageSize,
     OrderStatus? status,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-
     // Mock 订单列表
     final mockOrders = OrderListResult(
       orders: [
@@ -90,8 +86,6 @@ class MockOrderDataSource implements OrderRepository {
 
   @override
   Future<ApiResponse<OrderDetail>> getOrderDetail(String orderId) async {
-    await Future.delayed(const Duration(milliseconds: 600));
-
     final mockDetail = OrderDetail(
       id: orderId,
       orderNo: 'NO20240104004',
@@ -155,13 +149,11 @@ class MockOrderDataSource implements OrderRepository {
 
   @override
   Future<ApiResponse<void>> cancelOrder(String orderId, String reason) async {
-    await Future.delayed(const Duration(milliseconds: 500));
     return ApiResponse.success(null);
   }
 
   @override
   Future<ApiResponse<void>> confirmReceived(String orderId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
     return ApiResponse.success(null);
   }
 
@@ -174,8 +166,6 @@ class MockOrderDataSource implements OrderRepository {
     required List<String> images,
     String? description,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 800));
-
     return ApiResponse.success(
       AfterSaleResult(
         afterSaleId: 'aftersale_${DateTime.now().millisecondsSinceEpoch}',
@@ -186,8 +176,6 @@ class MockOrderDataSource implements OrderRepository {
 
   @override
   Future<ApiResponse<AfterSaleDetail>> getAfterSaleDetail(String afterSaleId) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-
     return ApiResponse.success(
       AfterSaleDetail(
         id: afterSaleId,
@@ -207,20 +195,16 @@ class MockOrderDataSource implements OrderRepository {
 
   @override
   Future<ApiResponse<void>> deleteOrder(String orderId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
     return ApiResponse.success(null);
   }
 
   @override
   Future<ApiResponse<void>> rebuy(String orderId) async {
-    await Future.delayed(const Duration(milliseconds: 400));
     return ApiResponse.success(null);
   }
 
   @override
   Future<ApiResponse<LogisticsInfo>> getLogistics(String orderId) async {
-    await Future.delayed(const Duration(milliseconds: 400));
-
     return ApiResponse.success(
       LogisticsInfo(
         company: '顺丰速递',

@@ -53,8 +53,6 @@ class MockCartDataSource implements CartRepository {
 
   @override
   Future<ApiResponse<CartData>> getCart() async {
-    await Future.delayed(const Duration(milliseconds: 400));
-
     final stores = _groupByStore(_items);
     final totalQuantity = _items.fold(0, (sum, item) => sum + item.quantity);
     final totalPriceCents = _items.fold(0, (sum, item) => sum + item.totalPriceCents);
@@ -101,8 +99,6 @@ class MockCartDataSource implements CartRepository {
     required String skuId,
     required int quantity,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-
     // 查找是否已存在
     final existingIndex = _items.indexWhere((i) => i.productId == productId && i.skuId == skuId);
     if (existingIndex >= 0) {
@@ -132,8 +128,6 @@ class MockCartDataSource implements CartRepository {
 
   @override
   Future<ApiResponse<CartItem>> updateQuantity({required String cartItemId, required int quantity}) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
     final index = _items.indexWhere((i) => i.id == cartItemId);
     if (index < 0) {
       return ApiResponse.error('商品不存在');
@@ -153,21 +147,18 @@ class MockCartDataSource implements CartRepository {
 
   @override
   Future<ApiResponse<void>> removeFromCart(String cartItemId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
     _items.removeWhere((i) => i.id == cartItemId);
     return ApiResponse.success(null);
   }
 
   @override
   Future<ApiResponse<void>> batchRemove(List<String> cartItemIds) async {
-    await Future.delayed(const Duration(milliseconds: 300));
     _items.removeWhere((i) => cartItemIds.contains(i.id));
     return ApiResponse.success(null);
   }
 
   @override
   Future<ApiResponse<void>> selectAll(bool selected) async {
-    await Future.delayed(const Duration(milliseconds: 200));
     for (final item in _items) {
       item.selected = selected;
     }
@@ -176,7 +167,6 @@ class MockCartDataSource implements CartRepository {
 
   @override
   Future<ApiResponse<void>> selectItem(String cartItemId, bool selected) async {
-    await Future.delayed(const Duration(milliseconds: 200));
     final index = _items.indexWhere((i) => i.id == cartItemId);
     if (index >= 0) {
       _items[index].selected = selected;
@@ -186,14 +176,12 @@ class MockCartDataSource implements CartRepository {
 
   @override
   Future<ApiResponse<void>> clearCart() async {
-    await Future.delayed(const Duration(milliseconds: 300));
     _items.clear();
     return ApiResponse.success(null);
   }
 
   @override
   Future<ApiResponse<int>> getCartCount() async {
-    await Future.delayed(const Duration(milliseconds: 200));
     final count = _items.fold(0, (sum, item) => sum + item.quantity);
     return ApiResponse.success(count);
   }
