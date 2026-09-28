@@ -31,8 +31,10 @@ class AllProductCard extends StatelessWidget {
               child: AppNetworkImage(url: item.imgUrl, fit: BoxFit.cover, radius: 0),
             ),
           ),
-          // 名称：最多三行
-          Padding(
+          // 名称：最多两行，固定高度
+          Container(
+            height: 40,
+            alignment: Alignment.topLeft,
             padding: const EdgeInsets.only(top: 6, left: 10, right: 10),
             child: Text(
               item.productName,
