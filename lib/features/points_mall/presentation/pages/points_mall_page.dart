@@ -85,6 +85,9 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                             child: PointsBanner(
                               imageUrl: staticData.bannerUrls.first,
                               imageUrls: staticData.bannerUrls.length > 1 ? staticData.bannerUrls : null,
+                              height: 260, // 传进去
+                              autoPlay: true, // 默认就是 true，可省略
+                              autoPlayInterval: const Duration(seconds: 3),
                             ),
                           ),
                           Column(

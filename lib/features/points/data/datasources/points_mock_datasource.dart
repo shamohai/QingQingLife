@@ -39,7 +39,7 @@ class MockPointsDataSource implements PointsRepository {
 
   static PointsMallHomeData get _mockHomeData => PointsMallHomeData(
     bannerUrl: 'assets/images/points/banner.jpg',
-    bannerUrls: ['assets/images/points/banner.jpg'],
+    bannerUrls: ['assets/images/points/banner.jpg', 'assets/images/points/banner.jpg', 'assets/images/points/banner.jpg'],
     currentPoints: 143544,
     expiringPoints: 1200,
     expiryDate: DateTime(2026, 12, 31),
