@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../providers/points_mall_paging_providers.dart';
+import '../providers/credit_product_list_provider.dart';
+import '../providers/credit_product_category_provider.dart';
 import '../widgets/points_banner.dart';
 import '../widgets/points_balance_card.dart';
 import '../widgets/points_category_tab_bar.dart';
 import '../widgets/points_floating_buttons.dart';
 import '../widgets/points_search_area.dart';
-import '../widgets/two_panel_product_section.dart';
-import '../../data/models/points_mall_home_data.dart';
+import '../widgets/credit_product_list_panel.dart';
 
 class PointsMallPage extends ConsumerStatefulWidget {
   const PointsMallPage({super.key});
@@ -22,7 +25,7 @@ class PointsMallPage extends ConsumerStatefulWidget {
 
 class _PointsMallPageState extends ConsumerState<PointsMallPage> {
   final _searchController = TextEditingController();
-  String _activeCategoryId = 'all';
+  int _activeCategoryId = 0;
 
   @override
   void dispose() {
@@ -30,12 +33,9 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
     super.dispose();
   }
 
-  void _onCategoryChanged(String categoryId) {
+  void _onCategoryChanged(int categoryId) {
     setState(() => _activeCategoryId = categoryId);
-  }
-
-  void _onExchange(PointsProduct product) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('兑换商品：${product.name}')));
+    ref.read(creditProductListProvider.notifier).setCategoryId(categoryId);
   }
 
   @override
@@ -64,72 +64,84 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
           ),
           data: (staticData) => Stack(
             children: [
-              CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  // ── 顶部组合区域（Banner背景 + 覆盖其上的积分信息流）──
-                  // 采用 Stack 布局：底层为 Banner 图片，顶层为带位移的 Column，确保 z-index 正确且高度自适应
-                  SliverToBoxAdapter(
-                    child: Stack(
-                      children: [
-                        // [底层] Banner 视觉层
-                        SizedBox(
-                          height: 260, // 设定 Banner 的视觉背景高度
-                          child: PointsBanner(
-                            imageUrl: staticData.bannerUrls.first,
-                            imageUrls: staticData.bannerUrls.length > 1 ? staticData.bannerUrls : null,
-                          ),
-                        ),
-                        // [顶层] 内容层：包含搜索框占位 + 积分卡片
-                        Column(
-                          children: [
-                            // 搜索框区域占位
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
-                              child: PointsSearchArea(searchController: _searchController),
-                            ),
-                            const SizedBox(height: 142), // 撑开高度，使下方卡片正好压在 Banner 边缘
-                            // 积分余额卡片（此时天然处于 Banner 之上，类似 z-index: 1）
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
-                              child: PointsBalanceCard(
-                                currentPoints: staticData.currentPoints,
-                                expiringPoints: staticData.expiringPoints,
-                                expiryDate: staticData.expiryDate,
-                                onDetailTap: () {},
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  // ── 商品分类 Tab 栏（sticky 钉住）──
-                  SliverPersistentHeader(
-                    pinned: true,
-                    floating: true,
-                    delegate: _CategoryTabBarDelegate(
-                      tabHeight: 44 + 10, // 把间距算进高度
-                      margin: const EdgeInsets.only(left: 10, right: 10), // 分类上方间距
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
+              NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification.metrics.extentAfter < 200) {
+                    final pagingData = ref.read(creditProductListProvider);
+                    if (pagingData.hasMore && !pagingData.isLoading && !pagingData.isError) {
+                      ref.read(creditProductListProvider.notifier).loadMore();
+                    }
+                  }
+                  return false;
+                },
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Stack(
                         children: [
-                          PointsCategoryTabBar(categories: staticData.categories, activeCategoryId: _activeCategoryId, onCategoryTap: _onCategoryChanged),
-                          const SizedBox(height: 10), // 分类下方间距
+                          SizedBox(
+                            height: 260,
+                            child: PointsBanner(
+                              imageUrl: staticData.bannerUrls.first,
+                              imageUrls: staticData.bannerUrls.length > 1 ? staticData.bannerUrls : null,
+                            ),
+                          ),
+                          Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
+                                child: PointsSearchArea(searchController: _searchController),
+                              ),
+                              const SizedBox(height: 142),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 10),
+                                child: PointsBalanceCard(
+                                  currentPoints: staticData.currentPoints,
+                                  expiringPoints: staticData.expiringPoints,
+                                  expiryDate: staticData.expiryDate,
+                                  onDetailTap: () => GoRouter.of(context).push(RouteNames.pointsDetail),
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
-                  ),
-
-                  // ── 双栏商品列表 ──
-                  SliverPadding(
-                    padding: const EdgeInsets.only(left: 10, right: 10),
-                    sliver: SliverToBoxAdapter(
-                      child: TwoPanelProductSection(groups: staticData.redeemableGroups, onExchange: _onExchange),
+                    SliverPersistentHeader(
+                      pinned: true,
+                      floating: true,
+                      delegate: _CategoryTabBarDelegate(
+                        tabHeight: 44 + 10,
+                        margin: const EdgeInsets.only(left: 10, right: 10),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ref
+                                .watch(creditProductCategoryProvider)
+                                .when(
+                                  loading: () => const SizedBox(height: 44, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
+                                  error: (_, __) => const SizedBox(height: 44),
+                                  data: (catData) => PointsCategoryTabBar(
+                                    categories: catData.categories,
+                                    activeCategoryId: _activeCategoryId,
+                                    onCategoryTap: _onCategoryChanged,
+                                  ),
+                                ),
+                            const SizedBox(height: 10),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
-                ],
+                    SliverPadding(
+                      padding: const EdgeInsets.only(left: 10, right: 10),
+                      sliver: SliverToBoxAdapter(
+                        child: CreditProductListPanel(groups: staticData.redeemableGroups, activeCategoryId: _activeCategoryId),
+                      ),
+                    ),
+                    const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+                  ],
+                ),
               ),
               Positioned(right: AppSpacing.lg, bottom: 50, child: const PointsFloatingButtons()),
             ],
@@ -145,23 +157,15 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
   final EdgeInsets margin;
   final Widget child;
 
-  const _CategoryTabBarDelegate({
-    required this.tabHeight,
-    this.margin = EdgeInsets.zero, // 默认无边距
-    required this.child,
-  });
+  const _CategoryTabBarDelegate({required this.tabHeight, this.margin = EdgeInsets.zero, required this.child});
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      margin: margin, // 左右边距
+      margin: margin,
       child: ClipRRect(
-        // 左上 + 右上圆角
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
-        child: Container(
-          color: const Color(0xFFF3F5F7), // 保持你原来的背景色
-          child: child,
-        ),
+        child: Container(color: const Color(0xFFF3F5F7), child: child),
       ),
     );
   }

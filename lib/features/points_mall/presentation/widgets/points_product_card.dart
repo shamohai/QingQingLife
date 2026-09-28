@@ -33,15 +33,26 @@ class PointsProductCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(product.name, style: TextStyle(fontSize: compact ? 11 : 12, color: AppColors.onSurface, height: 1.3), maxLines: 2, overflow: TextOverflow.ellipsis),
+                Text(
+                  product.name,
+                  style: TextStyle(fontSize: compact ? 11 : 12, color: AppColors.onSurface, height: 1.3),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 SizedBox(height: compact ? 2 : 4),
                 Row(
                   children: [
                     Icon(Icons.stars, size: compact ? 10 : 12, color: const Color(0xFFFF2121)),
                     const SizedBox(width: 2),
-                    Text('${product.points}', style: TextStyle(fontSize: compact ? 12 : 13, fontWeight: FontWeight.w600, color: const Color(0xFFFF2121))),
+                    Text(
+                      '${product.points}',
+                      style: TextStyle(fontSize: compact ? 12 : 13, fontWeight: FontWeight.w600, color: const Color(0xFFFF2121)),
+                    ),
                     const SizedBox(width: 2),
-                    Text('积分', style: TextStyle(fontSize: compact ? 9 : 10, color: const Color(0xFFFF2121))),
+                    Text(
+                      '积分',
+                      style: TextStyle(fontSize: compact ? 9 : 10, color: const Color(0xFFFF2121)),
+                    ),
                   ],
                 ),
               ],
@@ -54,7 +65,13 @@ class PointsProductCard extends StatelessWidget {
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: onExchange,
-                  style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFFFF2121), width: 0.8), padding: const EdgeInsets.symmetric(vertical: 4), shape: const StadiumBorder(), minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFFFF2121), width: 0.8),
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    shape: const StadiumBorder(),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
                   child: const Text('兑换', style: TextStyle(fontSize: 12, color: Color(0xFFFF2121))),
                 ),
               ),

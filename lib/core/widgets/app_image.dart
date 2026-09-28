@@ -23,7 +23,23 @@ class AppNetworkImage extends StatelessWidget {
   final Widget? placeholder; // 可选：自定义加载占位图
   final Widget? errorWidget; // 可选：自定义错误显示
 
-  const AppNetworkImage({super.key, required this.url, this.width, this.height, this.fit = BoxFit.cover, this.radius = 0, this.placeholder, this.errorWidget});
+  /// 缓存原始图片的宽高限制（用于优化内存，特别是 CanvasKit）
+  /// 如果图片很大但显示区域很小，建议传入此参数。
+  final int? memCacheWidth;
+  final int? memCacheHeight;
+
+  const AppNetworkImage({
+    super.key,
+    required this.url,
+    this.width,
+    this.height,
+    this.fit = BoxFit.cover,
+    this.radius = 0,
+    this.placeholder,
+    this.errorWidget,
+    this.memCacheWidth,
+    this.memCacheHeight,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -54,15 +70,25 @@ class AppNetworkImage extends StatelessWidget {
 
     Widget image;
     if (isAsset) {
-      image = Image.asset(url, width: width, height: height, fit: fit, errorBuilder: (_, _, _) => defaultError);
+      image = Image.asset(
+        url,
+        width: width,
+        height: height,
+        fit: fit,
+        cacheWidth: memCacheWidth,
+        cacheHeight: memCacheHeight,
+        errorBuilder: (context, error, stackTrace) => defaultError,
+      );
     } else {
       image = CachedNetworkImage(
         imageUrl: url,
         width: width,
         height: height,
         fit: fit,
-        placeholder: (_, _) => defaultPlaceholder,
-        errorWidget: (_, _, _) => defaultError,
+        memCacheWidth: memCacheWidth,
+        memCacheHeight: memCacheHeight,
+        placeholder: (context, url) => defaultPlaceholder,
+        errorWidget: (context, url, error) => defaultError,
       );
     }
 

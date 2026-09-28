@@ -16,6 +16,7 @@ import '../../features/points/data/datasources/points_mock_datasource.dart';
 import '../../features/points/domain/repositories/points_repository.dart';
 import '../../features/product/data/datasources/product_mock_datasource.dart';
 import '../../features/product/domain/repositories/product_repository.dart';
+import '../../../../core/network/providers.dart' show apiClientProvider;
 
 part 'repository_providers.g.dart';
 
@@ -27,8 +28,6 @@ part 'repository_providers.g.dart';
 /// Auth Repository Provider
 @riverpod
 AuthRepository authRepository(Ref ref) {
-  // 微信授权登录走真实接口；绑定手机号（sendSmsCode + phoneBind）后端未就绪，走 Mock。
-  // 待 bindPhone/sendCode 后端就绪后，直接改为：return ref.watch(remoteAuthDataSourceProvider);
   return AuthMixedDataSource(remote: ref.read(remoteAuthDataSourceProvider), mock: MockAuthDataSource());
 }
 
@@ -59,9 +58,12 @@ MemberRepository memberRepository(Ref ref) {
 }
 
 /// Points Repository Provider
+///
+/// 全量使用 Mock 数据源，其中 getCreditMallHotProducts 会自动注入 apiClient
+/// 以调用真实推荐位接口（positioncode=CREDITMALL）。
 @riverpod
 PointsRepository pointsRepository(Ref ref) {
-  return MockPointsDataSource();
+  return MockPointsDataSource(apiClient: ref.read(apiClientProvider));
 }
 
 /// Notification Repository Provider

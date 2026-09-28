@@ -27,6 +27,8 @@ abstract final class RouteNames {
   static const String pointsMall = '/points/mall';
 
   // 地址相关
+  // 积分明细页
+  static const String pointsDetail = '/points/detail';
   static const String address = '/address';
   static const String addressEdit = '/address/edit';
 
@@ -36,10 +38,20 @@ abstract final class RouteNames {
 
   // 服务预约子路由
   static const String serviceRecords = '/service/records';
+  // 积分商城服务商品详情
+  static const String serviceProductDetail = '/points/service/:id';
+
+  // 积分商城服务商品确认订单
+  static const String confirmOrder = '/points/service/:id/confirm';
 
   // 消息通知
   static const String notifications = '/notifications';
 
   // 客服
   static const String customerService = '/customer-service';
+  // 积分规则页
+  static const String pointsRules = '/points/rules';
+
+  // 全部商品
+  static const String allProducts = '/points/all-products';
 }

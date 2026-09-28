@@ -35,6 +35,8 @@ class HomeProductCard extends StatelessWidget {
                     width: cardWidth,
                     height: imageHeight,
                     fit: BoxFit.cover,
+                    memCacheWidth: cardWidth.toInt(),
+                    memCacheHeight: imageHeight.toInt(),
                   ),
                   if (product.tag != null)
                     Positioned(

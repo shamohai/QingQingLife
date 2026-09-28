@@ -57,7 +57,12 @@ class _KingKongItem extends StatelessWidget {
           child: item.iconUrl.isNotEmpty
               ? ClipRRect(
                   borderRadius: BorderRadius.circular(AppRadius.md),
-                  child: AppNetworkImage(url: item.iconUrl, fit: BoxFit.cover),
+                  child: AppNetworkImage(
+                    url: item.iconUrl,
+                    fit: BoxFit.cover,
+                    memCacheWidth: 48,
+                    memCacheHeight: 48,
+                  ),
                 )
               : const Center(
                   child: Icon(Icons.category_outlined, size: 26, color: AppColors.primary),

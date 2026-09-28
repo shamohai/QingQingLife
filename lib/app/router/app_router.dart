@@ -15,6 +15,12 @@ import '../../features/service/presentation/pages/service_records_page.dart';
 import '../../features/product/presentation/pages/product_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
+import '../../features/points_mall/presentation/pages/service_product_detail_page.dart';
+import '../../features/points_mall/presentation/pages/confirm_order_page.dart';
+import '../../features/points_mall/presentation/pages/all_products_page.dart';
+import '../../features/points_mall/presentation/pages/points_payment_success_page.dart';
+import '../../features/points/presentation/pages/points_detail_page.dart';
+import '../../features/points/presentation/pages/points_rules_page.dart';
 import 'route_names.dart';
 
 final appRouter = Provider<GoRouter>((ref) {
@@ -53,6 +59,12 @@ final appRouter = Provider<GoRouter>((ref) {
               GoRoute(
                 path: RouteNames.points,
                 pageBuilder: (c, s) => const NoTransitionPage(child: PointsMallPage()),
+                routes: [
+                  GoRoute(
+                    path: 'all-products',
+                    pageBuilder: (c, s) => const MaterialPage(child: AllProductsPage()),
+                  ),
+                ],
               ),
             ],
           ),
@@ -97,6 +109,18 @@ final appRouter = Provider<GoRouter>((ref) {
         pageBuilder: (c, s) => const MaterialPage(child: NotificationListPage()),
       ),
       GoRoute(
+        path: RouteNames.serviceProductDetail,
+        pageBuilder: (c, s) => MaterialPage(child: ServiceProductDetailPage(productId: s.pathParameters['id']!)),
+      ),
+      GoRoute(
+        path: RouteNames.confirmOrder,
+        pageBuilder: (c, s) => MaterialPage(child: ConfirmOrderPage(productId: s.pathParameters['id']!)),
+      ),
+      GoRoute(
+        path: RouteNames.paymentResult,
+        pageBuilder: (c, s) => MaterialPage(child: PointsPaymentSuccessPage.fromExtra(s.extra)),
+      ),
+      GoRoute(
         path: RouteNames.cart,
         pageBuilder: (c, s) => const MaterialPage(child: CartPage()),
       ),
@@ -108,6 +132,14 @@ final appRouter = Provider<GoRouter>((ref) {
         path: RouteNames.serviceCart,
         pageBuilder: (c, s) => const MaterialPage(child: ServiceCartPage()),
       ),
+      GoRoute(
+        path: RouteNames.pointsDetail,
+        pageBuilder: (c, s) => const MaterialPage(child: PointsDetailPage()),
+      ),
+      GoRoute(
+        path: RouteNames.pointsRules,
+        pageBuilder: (c, s) => const MaterialPage(child: PointsRulesPage()),
+      ),
     ],
   );
 });
@@ -115,12 +147,8 @@ final appRouter = Provider<GoRouter>((ref) {
 /// 底部 Tab 主框架
 class MainShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
-
   const MainShell({super.key, required this.navigationShell});
-
   void _goBranch(int index) => navigationShell.goBranch(index, initialLocation: true);
-
-  // TODO: 10张图标替换后直接生效，无需改代码
   static const _tabAssets = [
     (selected: 'assets/icon/tab_home_selected.png', unselected: 'assets/icon/tab_home_unselected.png'),
     (selected: 'assets/icon/tab_points_selected.png', unselected: 'assets/icon/tab_points_unselected.png'),
@@ -128,7 +156,6 @@ class MainShell extends StatelessWidget {
     (selected: 'assets/icon/tab_service_selected.png', unselected: 'assets/icon/tab_service_unselected.png'),
     (selected: 'assets/icon/tab_profile_selected.png', unselected: 'assets/icon/tab_profile_unselected.png'),
   ];
-
   @override
   Widget build(BuildContext context) {
     final idx = navigationShell.currentIndex;
@@ -173,7 +200,6 @@ class _TabItem extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
-
   const _TabItem({
     required this.index,
     required this.selectedAsset,
@@ -182,7 +208,6 @@ class _TabItem extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
   });
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
