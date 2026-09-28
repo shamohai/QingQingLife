@@ -12,38 +12,23 @@ import '../../../../app/router/route_names.dart';
 class ServiceEntryCard extends StatelessWidget {
   final String title;
   final String buttonText;
+
   /// 对应的主 Tab key：'ongoing' | 'ended' | 'upcoming'
   final String listMode;
 
-  const ServiceEntryCard({
-    super.key,
-    required this.title,
-    required this.buttonText,
-    required this.listMode,
-  });
+  const ServiceEntryCard({super.key, required this.title, required this.buttonText, required this.listMode});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.xxl,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xxl),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
       child: Row(
         children: [
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w500,
-                color: AppColors.onSurface,
-                height: 1.35,
-              ),
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500, color: AppColors.onSurface, height: 1.35),
             ),
           ),
           const SizedBox(width: AppSpacing.md),
@@ -51,31 +36,16 @@ class ServiceEntryCard extends StatelessWidget {
             height: 36,
             child: ElevatedButton(
               onPressed: () {
-                context.push(
-                  Uri(
-                    path: RouteNames.serviceRecords,
-                    queryParameters: {'activeTab': listMode},
-                  ).toString(),
-                );
+                context.push(Uri(path: RouteNames.serviceRecords, queryParameters: {'activeTab': listMode}).toString());
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFD4D4D4),
                 foregroundColor: AppColors.onSurface,
                 elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.round),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.xl,
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
               ),
-              child: Text(
-                buttonText,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              child: Text(buttonText, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
             ),
           ),
         ],
