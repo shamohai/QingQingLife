@@ -66,10 +66,13 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
             children: [
               NotificationListener<ScrollNotification>(
                 onNotification: (notification) {
-                  if (notification.metrics.extentAfter < 200) {
-                    final pagingData = ref.read(creditProductListProvider);
-                    if (pagingData.hasMore && !pagingData.isLoading && !pagingData.isError) {
-                      ref.read(creditProductListProvider.notifier).loadMore();
+                  // 过滤只响应主纵向 CustomScrollView 的滚动，忽略 Banner PageView 等横向或嵌套 Scrollable 的 notification
+                  if (notification.metrics.axis == Axis.vertical && notification.depth == 0) {
+                    if (notification.metrics.extentAfter < 200) {
+                      final pagingData = ref.read(creditProductListProvider);
+                      if (pagingData.hasMore && !pagingData.isLoading && !pagingData.isError) {
+                        ref.read(creditProductListProvider.notifier).loadMore();
+                      }
                     }
                   }
                   return false;

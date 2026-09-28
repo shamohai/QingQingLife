@@ -85,19 +85,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             top: 0,
             left: 0,
             right: 0,
-            child: Image.asset('assets/images/auth/login_bg.png', width: screenW, height: screenW * (624 / 440), fit: BoxFit.cover),
+            child: Image.asset('assets/images/auth/login_bg.png', width: screenW, height: screenW * (896 / 440), fit: BoxFit.cover),
           ),
 
           // ── 底部装饰图 ──
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Image.asset('assets/images/auth/login_bottom_deco.png', width: screenW, height: 60, fit: BoxFit.fill),
-          ),
+          // Positioned(
+          //   bottom: 0,
+          //   left: 0,
+          //   right: 0,
+          //   child: Image.asset('assets/images/auth/login_bottom_deco.png', width: screenW, height: 60, fit: BoxFit.fill),
+          // ),
 
           // ── 主内容 ──
-          Padding(padding: const EdgeInsets.only(top: 103), child: _buildMainContent()),
+          Padding(padding: const EdgeInsets.only(top: 80), child: _buildMainContent()),
 
           // ── 协议弹窗（遮罩 + 底部面板）──
           if (_showAgreementSheet) ...[
@@ -135,7 +135,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                       ),
                       // 协议链接
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 6),
                       Center(
                         child: RichText(
                           text: const TextSpan(
@@ -158,7 +158,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                       ),
                       // "同意并继续" 按钮
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 44),
                       Padding(padding: const EdgeInsets.symmetric(horizontal: 46), child: _buildAuthButton('同意并继续', _onAgreeAndContinue)),
                     ],
                   ),
@@ -194,20 +194,33 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         final double scale = available <= 0 ? 0 : math.min(1.0, available / designGap);
         return Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 42),
+            const Center(
               child: Text(
-                '欢迎使用\n青轻生活馆',
-                style: TextStyle(fontSize: 36, fontWeight: FontWeight.w500, color: Colors.black, height: 1.39, letterSpacing: -2),
-                textAlign: TextAlign.left,
+                '青轻生活馆',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.white,
+                  height: 1.39,
+                  // 注意：过大的负数 letterSpacing 可能会导致文本在居中时视觉上稍微偏左
+                  letterSpacing: -2,
+                ),
+                textAlign: TextAlign.center, // 将对齐方式改为 center
               ),
             ),
-            SizedBox(height: 60 * scale),
+            SizedBox(height: 10 * scale),
+            const Center(
+              child: Text(
+                '青轻从一杯开始',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500, color: Colors.white, height: 1.39, letterSpacing: -2),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(height: 470 * scale),
             // 微信圆形图标
-            Image.asset('assets/images/auth/icon_wechat.png', width: 60, height: 60),
-            SizedBox(height: 44 * scale),
+            Image.asset('assets/images/auth/icon_wechat.png', width: 56, height: 56),
+            SizedBox(height: 28 * scale),
             // "微信一键授权" 按钮
-            Padding(padding: const EdgeInsets.symmetric(horizontal: 46), child: _buildAuthButton('微信一键授权', _onWechatAuth)),
+            Padding(padding: const EdgeInsets.symmetric(horizontal: 40), child: _buildAuthButton('微信一键授权', _onWechatAuth)),
             SizedBox(height: 15 * scale),
             // 协议文本（可勾选）
             Padding(
@@ -260,8 +273,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 54,
-        decoration: BoxDecoration(color: _buttonBlue, borderRadius: BorderRadius.circular(6)),
+        height: 50,
+        decoration: BoxDecoration(color: _buttonBlue, borderRadius: BorderRadius.circular(36)),
         alignment: Alignment.center,
         child: Text(label, style: const TextStyle(fontSize: 18, color: Colors.white, height: 1.39)),
       ),
