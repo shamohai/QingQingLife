@@ -37,7 +37,7 @@ class AllProductCard extends StatelessWidget {
             child: Text(
               item.productName,
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF1F2024), height: 1.3),
-              maxLines: 3,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ),

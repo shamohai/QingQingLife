@@ -6,7 +6,7 @@
 class ResponsiveProductGridDelegate extends SliverGridDelegate {
   final double crossAxisSpacing;
   final double mainAxisSpacing;
-  static const double _designAspect = 200 / 308;
+  static const double _designAspect = 200 / 288;
 
   const ResponsiveProductGridDelegate({
     this.crossAxisSpacing = 10,
