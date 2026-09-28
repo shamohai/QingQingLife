@@ -8,6 +8,8 @@ import '../../features/cart/data/datasources/cart_mock_datasource.dart';
 import '../../features/cart/domain/repositories/cart_repository.dart';
 import '../../features/member/data/datasources/member_mock_datasource.dart';
 import '../../features/member/domain/repositories/member_repository.dart';
+import '../../features/notification/data/datasources/notification_mock_datasource.dart';
+import '../../features/notification/domain/repositories/notification_repository.dart';
 import '../../features/order/data/datasources/order_mock_datasource.dart';
 import '../../features/order/domain/repositories/order_repository.dart';
 import '../../features/points/data/datasources/points_mock_datasource.dart';
@@ -62,6 +64,14 @@ PointsRepository pointsRepository(Ref ref) {
   return MockPointsDataSource();
 }
 
+/// Notification Repository Provider
+@riverpod
+NotificationRepository notificationRepository(Ref ref) {
+  // TODO(Mock): 通知中心后端接口尚未定义，当前走 Mock。
+  // 接口就绪后改为返回 NotificationRemoteDataSource。
+  return MockNotificationDataSource();
+}
+
 /// 所有 Repository Provider 的聚合
 final allRepositoryProviders = [
   authRepositoryProvider,
@@ -70,4 +80,5 @@ final allRepositoryProviders = [
   orderRepositoryProvider,
   memberRepositoryProvider,
   pointsRepositoryProvider,
+  notificationRepositoryProvider,
 ];

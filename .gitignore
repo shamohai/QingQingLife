@@ -68,3 +68,4 @@ pubspec.lock
 .env.local
 .hot_reload_cmd
 /.codex/
+/.workbuddy/

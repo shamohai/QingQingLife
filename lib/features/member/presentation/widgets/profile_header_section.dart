@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../providers/user_profile_provider.dart';
@@ -65,7 +67,7 @@ class ProfileHeaderSection extends ConsumerWidget {
             const SizedBox(width: AppSpacing.sm),
 
             // ── 消息入口（未读数 > 0 时显示红色角标）──────────────────
-            _HeaderIconButton(icon: Icons.chat_bubble_outline, badgeCount: state.unreadMessageCount, onTap: () => debugPrint('[ProfileHeader] 消息入口点击')),
+            _HeaderIconButton(icon: Icons.chat_bubble_outline, badgeCount: state.unreadMessageCount, onTap: () => context.push(RouteNames.notifications)),
           ],
         ),
       ),

@@ -8,6 +8,7 @@ import '../../features/points_mall/presentation/pages/points_mall_page.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/member/presentation/pages/profile_page.dart';
 import '../../features/member/presentation/pages/member_level_page.dart';
+import '../../features/notification/presentation/pages/notification_list_page.dart';
 import '../../features/service/presentation/pages/service_page.dart';
 import '../../features/service/presentation/pages/service_cart_page.dart';
 import '../../features/service/presentation/pages/service_records_page.dart';
@@ -90,6 +91,10 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.memberLevel,
         pageBuilder: (c, s) => MaterialPage(child: const MemberLevelPage()),
+      ),
+      GoRoute(
+        path: RouteNames.notifications,
+        pageBuilder: (c, s) => const MaterialPage(child: NotificationListPage()),
       ),
       GoRoute(
         path: RouteNames.cart,
