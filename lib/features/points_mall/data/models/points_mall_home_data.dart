@@ -51,8 +51,9 @@ class PointsProduct {
   final String name;
   final int points;
   final int? originalPoints;
-  final int stock;
-  final int salesCount;
+  final int? stock;
+  final int? salesCount;
+  final int? commentCount;
   final String? tag;
   final PointsProductType type;
 
@@ -62,8 +63,9 @@ class PointsProduct {
     required this.name,
     required this.points,
     this.originalPoints,
-    required this.stock,
-    required this.salesCount,
+    this.stock,
+    this.salesCount,
+    this.commentCount,
     this.tag,
     required this.type,
   });

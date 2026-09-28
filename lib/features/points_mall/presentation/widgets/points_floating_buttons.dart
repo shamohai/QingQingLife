@@ -12,9 +12,9 @@ class PointsFloatingButtons extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _FloatingButton(asset: 'assets/images/points/icon-cart.png', label: '购物车'),
+        _FloatingButton(asset: 'assets/images/points/icon-cart.png', label: '购物车', width: 32, height: 32),
         const SizedBox(height: AppSpacing.md),
-        _FloatingButton(icon: Icons.headset, label: '管家服务'),
+        _FloatingButton(asset: 'assets/images/points/icon-service.png', label: '管家服务'),
       ],
     );
   }
@@ -24,8 +24,10 @@ class _FloatingButton extends StatelessWidget {
   final String? asset;
   final IconData? icon;
   final String label;
+  final double? width;
+  final double? height;
 
-  const _FloatingButton({this.asset, this.icon, required this.label}) : assert(asset != null || icon != null);
+  const _FloatingButton({this.asset, this.icon, required this.label, this.width, this.height}) : assert(asset != null || icon != null);
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +39,7 @@ class _FloatingButton extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // 图标
-          asset != null ? Image.asset(asset!, width: 22, height: 22, color: Colors.white) : Icon(icon, color: Colors.white, size: 20),
+          asset != null ? Image.asset(asset!, width: width ?? 22, height: height ?? 22, color: Colors.white) : Icon(icon, color: Colors.white, size: 20),
           const SizedBox(height: 2),
           // 文字（也在圆形内部）
           Text(

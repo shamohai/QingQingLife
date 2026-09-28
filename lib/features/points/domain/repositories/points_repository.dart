@@ -2,6 +2,9 @@ import '../../../../core/network/api_response.dart';
 import '../../../points_mall/data/models/points_mall_home_data.dart';
 import '../../../points_mall/data/models/sign_in_result.dart';
 import '../../../points_mall/data/models/service_product_detail_model.dart';
+import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
+import '../../../points_mall/data/models/get_credit_product_list_model.dart';
+import '../../../points_mall/data/models/credit_product_category_model.dart';
 
 /// 积分商城仓库接口
 abstract class PointsRepository {
@@ -9,12 +12,7 @@ abstract class PointsRepository {
   Future<ApiResponse<PointsMallHomeData>> getPointsMallHome();
 
   /// 获取积分商品列表（分页）
-  Future<ApiResponse<PointsMallHomeData>> getProducts({
-    required int page,
-    required int pageSize,
-    String? categoryId,
-    String? keyword,
-  });
+  Future<ApiResponse<PointsMallHomeData>> getProducts({required int page, required int pageSize, String? categoryId, String? keyword});
 
   /// 获取积分商品详情
   Future<ApiResponse<PointsProductDetail>> getProductDetail(String productId);
@@ -31,11 +29,7 @@ abstract class PointsRepository {
   });
 
   /// 获取兑换记录（分页）
-  Future<ApiResponse<List<PointsExchangeRecord>>> getExchangeRecords({
-    required int page,
-    required int pageSize,
-    ExchangeStatus? status,
-  });
+  Future<ApiResponse<List<PointsExchangeRecord>>> getExchangeRecords({required int page, required int pageSize, ExchangeStatus? status});
 
   /// 获取签到结果
   Future<ApiResponse<SignInResult>> signIn();
@@ -45,6 +39,24 @@ abstract class PointsRepository {
 
   /// 获取积分规则
   Future<ApiResponse<String>> getPointsRule();
+
+  /// 获取积分商城热门兑换商品列表（来自推荐位接口，positioncode=CREDITMALL）
+  Future<ApiResponse<List<CreditMallProduct>>> getCreditMallHotProducts();
+
+  /// 获取积分商城商品分类列表
+  /// 接口：POST /api/product/app/getcreditproductcategory
+  Future<ApiResponse<CreditProductCategoryData>> getCreditProductCategory();
+
+  /// 获取青稞粒商品列表（分页，支持积分段和分类筛选）
+  /// 接口：POST /api/product/getcreditproductlist
+  Future<ApiResponse<CreditProductListData>> getCreditProductList({
+    required int page,
+    required int pageSize,
+    int? minIntegral,
+    int? maxIntegral,
+    bool? exchangeable,
+    int? categoryId,
+  });
 }
 
 /// 积分商品详情
@@ -54,12 +66,12 @@ class PointsProductDetail {
   final String description;
   final List<String> images;
   final int points;
-  final int stock;
+  final int? stock;
   final List<PointsProductSku> skus;
   final String rulesText;
   final PointsProductType type;
   final int maxExchangePerUser;
-  final int exchangedCount;
+  final int? exchangedCount;
 
   const PointsProductDetail({
     required this.id,
@@ -67,12 +79,12 @@ class PointsProductDetail {
     required this.description,
     required this.images,
     required this.points,
-    required this.stock,
+    this.stock,
     required this.skus,
     required this.rulesText,
     required this.type,
     required this.maxExchangePerUser,
-    required this.exchangedCount,
+    this.exchangedCount,
   });
 }
 
@@ -84,13 +96,7 @@ class PointsProductSku {
   final int stock;
   final Map<String, String> attributes;
 
-  const PointsProductSku({
-    required this.id,
-    required this.name,
-    required this.points,
-    required this.stock,
-    required this.attributes,
-  });
+  const PointsProductSku({required this.id, required this.name, required this.points, required this.stock, required this.attributes});
 }
 
 /// 兑换下单结果
@@ -100,12 +106,7 @@ class PointsExchangeResult {
   final int pointsDeducted;
   final ExchangeStatus status;
 
-  const PointsExchangeResult({
-    required this.orderId,
-    required this.orderNo,
-    required this.pointsDeducted,
-    this.status = ExchangeStatus.pending,
-  });
+  const PointsExchangeResult({required this.orderId, required this.orderNo, required this.pointsDeducted, this.status = ExchangeStatus.pending});
 }
 
 /// 兑换记录

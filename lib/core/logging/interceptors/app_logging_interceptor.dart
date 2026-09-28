@@ -2,6 +2,10 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+
+import 'dart:js_interop';
+
+import 'package:web/web.dart' show console;
 import 'package:uuid/uuid.dart';
 
 import '../app_logger.dart';
@@ -12,7 +16,7 @@ class AppLoggingInterceptor extends Interceptor {
   static const _traceIdHeader = '__trace_id';
   static const _startTimeKey = '_log_request_start';
 
-  static String _safeEncode(dynamic value) {
+  static String safeEncode(dynamic value) {
     if (value == null) return 'null';
     if (value is String) return value;
     if (value is num || value is bool) return value.toString();
@@ -25,8 +29,14 @@ class AppLoggingInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    options.headers[_traceIdHeader] = const Uuid().v4();
-    options.extra[_traceIdHeader] = options.headers[_traceIdHeader];
+    //web测试时，会出现跨越问题
+    final traceId = const Uuid().v4();
+    // 需要发给服务端时才加 header（web 注意 CORS）
+    if (!kIsWeb) {
+      options.headers[_traceIdHeader] = traceId;
+    }
+
+    options.extra[_traceIdHeader] = traceId;
     options.extra[_startTimeKey] = DateTime.now().millisecondsSinceEpoch;
 
     final logData = <String, dynamic>{'url': options.uri.toString(), 'method': options.method, 'headers': Map<String, dynamic>.from(options.headers)};
@@ -37,16 +47,6 @@ class AppLoggingInterceptor extends Interceptor {
       logData['data'] = options.data;
     }
 
-    if (kDebugMode) {
-      debugPrint('\u2550' * 38);
-      debugPrint('[HTTP REQUEST] ' + options.method + ' ' + options.uri.toString());
-      debugPrint('\u2550' * 38);
-      debugPrint('[Request Body]');
-      debugPrint(_safeEncode(options.data));
-      debugPrint('');
-    }
-
-    AppLogger.debug('[HTTP] ' + options.method + ' ' + options.uri.path, module: 'network', data: logData);
     return handler.next(options);
   }
 
@@ -58,33 +58,16 @@ class AppLoggingInterceptor extends Interceptor {
     final uri = response.requestOptions.uri;
 
     if (kDebugMode) {
-      debugPrint('\u2550' * 38);
-      debugPrint('[HTTP RESPONSE] ' + response.statusCode.toString() + ' ' + uri.path + ' (' + (elapsed?.toString() ?? '?') + 'ms)');
-      debugPrint('\u2550' * 38);
-      debugPrint('[Response Body]');
-      debugPrint(_safeEncode(response.data));
-      debugPrint('');
+      // debugPrint('\u2550' * 38);
+      // debugPrint('[HTTP RESPONSE] ' + response.statusCode.toString() + ' ' + uri.path + ' (' + (elapsed?.toString() ?? '?') + 'ms)');
+      // debugPrint('\u2550' * 38);
+      // debugPrint('[Response Body]');
+      // debugPrint(safeEncode(response.data));
+      // debugPrint('');
+      if (kIsWeb) {
+        console.log((uri.path + ' 接口Response返回数据：' + safeEncode(response.data)).toJS);
+      }
     }
-
-    AppLogger.info(
-      '[HTTP] ' + response.statusCode.toString() + ' ' + uri.path + ' (' + (elapsed?.toString() ?? '?') + 'ms)',
-      module: 'network',
-      event: 'http_success',
-      data: {'statusCode': response.statusCode, 'elapsedMs': elapsed, 'traceId': traceId},
-    );
-    AppLogger.rawInfo(
-      '[HTTP RESPONSE BODY] ' + uri.path + ': ' + _safeEncode(response.data),
-      module: 'network',
-      event: 'http_response_raw',
-      data: {
-        'method': response.requestOptions.method,
-        'url': uri.toString(),
-        'statusCode': response.statusCode,
-        'elapsedMs': elapsed,
-        'traceId': traceId,
-        'body': response.data,
-      },
-    );
     return handler.next(response);
   }
 
@@ -111,7 +94,7 @@ class AppLoggingInterceptor extends Interceptor {
       debugPrint('\u2550' * 38);
       if (err.response?.data != null) {
         debugPrint('[Error Response Body]');
-        debugPrint(_safeEncode(err.response!.data));
+        debugPrint(safeEncode(err.response!.data));
         debugPrint('');
       }
     }
@@ -125,7 +108,7 @@ class AppLoggingInterceptor extends Interceptor {
     );
     if (err.response?.data != null) {
       AppLogger.rawInfo(
-        '[HTTP ERROR RESPONSE BODY] ' + uri.path + ': ' + _safeEncode(err.response!.data),
+        '[HTTP ERROR RESPONSE BODY] ' + uri.path + ': ' + safeEncode(err.response!.data),
         module: 'network',
         event: 'http_error_response_raw',
         data: {
