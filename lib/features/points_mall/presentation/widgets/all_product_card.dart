@@ -16,45 +16,34 @@ class AllProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isService = item.productType == CreditProductType.serviceCouponIntegral ||
-        item.productType == CreditProductType.serviceCouponSale;
+    final isService = item.productType == CreditProductType.serviceCouponIntegral || item.productType == CreditProductType.serviceCouponSale;
 
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 商品图片：正方形，顶部圆角与卡片一致
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-            child: AppNetworkImage(
-              url: item.imgUrl,
-              height: 200,
-              fit: BoxFit.cover,
-              radius: 0,
+            child: AspectRatio(
+              aspectRatio: 1.0,
+              child: AppNetworkImage(url: item.imgUrl, fit: BoxFit.cover, radius: 0),
             ),
           ),
-          // 名称：16px Medium，最多两行
+          // 名称：最多三行
           Padding(
-            padding: const EdgeInsets.only(top: 14, left: 11, right: 11),
+            padding: const EdgeInsets.only(top: 6, left: 10, right: 10),
             child: Text(
               item.productName,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF1F2024),
-                height: 1.5,
-              ),
-              maxLines: 2,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF1F2024), height: 1.3),
+              maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
           ),
           // 价格 + 按钮行
           Padding(
-            padding: const EdgeInsets.only(left: 10, right: 10, top: 8, bottom: 14),
+            padding: const EdgeInsets.only(left: 10, right: 10, top: 4, bottom: 4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -63,17 +52,17 @@ class AllProductCard extends StatelessWidget {
                   children: [
                     Text(
                       '${item.creditPrice}',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFFFF2105)),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFFFF2105)),
                     ),
                     const Text(
                       ' 积分',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFFFF2105)),
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFFFF2105)),
                     ),
                   ],
                 ),
                 SizedBox(
-                  width: 54,
-                  height: 26,
+                  width: 50,
+                  height: 24,
                   child: OutlinedButton(
                     onPressed: onTap,
                     style: OutlinedButton.styleFrom(
@@ -85,7 +74,7 @@ class AllProductCard extends StatelessWidget {
                     ),
                     child: Text(
                       isService ? '查看' : '兑换',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Color(0xFFFF2105)),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xFFFF2105)),
                     ),
                   ),
                 ),

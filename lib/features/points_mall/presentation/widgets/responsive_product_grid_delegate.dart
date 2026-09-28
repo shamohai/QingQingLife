@@ -6,16 +6,16 @@
 class ResponsiveProductGridDelegate extends SliverGridDelegate {
   final double crossAxisSpacing;
   final double mainAxisSpacing;
-  static const double _designAspect = 200 / 310;
+  static const double _designAspect = 200 / 308;
 
   const ResponsiveProductGridDelegate({
-    this.crossAxisSpacing = 12,
-    this.mainAxisSpacing = 12,
+    this.crossAxisSpacing = 10,
+    this.mainAxisSpacing = 10,
   });
 
   @override
   SliverGridLayout getLayout(SliverConstraints constraints) {
-    final double availableWidth = constraints.crossAxisExtent - 28 - 12;
+    final double availableWidth = constraints.crossAxisExtent - crossAxisSpacing;
     final double cardWidth = availableWidth / 2;
     final double cardHeight = cardWidth / _designAspect;
 

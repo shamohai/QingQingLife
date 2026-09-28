@@ -41,14 +41,11 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
   }
 
   void _onProductTap(BuildContext context, CreditProductItem item) {
-    final isService = item.productType == CreditProductType.serviceCouponIntegral ||
-        item.productType == CreditProductType.serviceCouponSale;
+    final isService = item.productType == CreditProductType.serviceCouponIntegral || item.productType == CreditProductType.serviceCouponSale;
     if (isService) {
       GoRouter.of(context).push('/points/service/${item.productId}');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('即将兑换：${item.productName}')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('即将兑换：${item.productName}')));
     }
   }
 
@@ -78,9 +75,9 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
                     '全部商品',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Color(0xFF1F2024)),
                   ),
-                  const Spacer(),
-                  // 搜索栏（设计稿：w=280, h=39）
-                  AllProductsSearchBar(searchController: _searchController),
+                  const SizedBox(width: 12),
+                  // 搜索栏自适应剩余空间
+                  Expanded(child: AllProductsSearchBar(searchController: _searchController)),
                 ],
               ),
             ),
@@ -88,22 +85,15 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
 
           // ─── 商品网格 ────────────────────────────────────────────
           if (pagingData.status == PagingStatus.loading && pagingData.items.isEmpty)
-            const SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(child: AppLoading()),
-            )
+            const SliverFillRemaining(hasScrollBody: false, child: Center(child: AppLoading()))
           else if (pagingData.status == PagingStatus.error && pagingData.items.isEmpty)
             SliverFillRemaining(
               hasScrollBody: false,
               child: Center(
-                child: AppError(
-                  message: '加载失败',
-                  onRetry: () => ref.read(creditProductListProvider.notifier).loadFirstPage(),
-                ),
+                child: AppError(message: '加载失败', onRetry: () => ref.read(creditProductListProvider.notifier).loadFirstPage()),
               ),
             )
-          else if (pagingData.status == PagingStatus.empty ||
-              (pagingData.status == PagingStatus.loaded && pagingData.items.isEmpty))
+          else if (pagingData.status == PagingStatus.empty || (pagingData.status == PagingStatus.loaded && pagingData.items.isEmpty))
             const SliverFillRemaining(
               hasScrollBody: false,
               child: Center(child: AppEmpty(message: '暂无商品')),
@@ -113,39 +103,27 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
               // 左右各14dp，顶部12dp（与header间距），底部覆盖 BottomNav
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 96),
               sliver: SliverGrid(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    if (index >= pagingData.items.length) {
-                      if (pagingData.isLoading) {
-                        return const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                        );
-                      }
-                      if (!pagingData.hasMore && pagingData.items.isNotEmpty) {
-                        return const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Center(
-                            child: Text(
-                              '没有更多数据了',
-                              style: TextStyle(fontSize: 12, color: Colors.grey),
-                            ),
-                          ),
-                        );
-                      }
-                      return const SizedBox.shrink();
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  if (index >= pagingData.items.length) {
+                    if (pagingData.isLoading) {
+                      return const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                      );
                     }
-                    return AllProductCard(
-                      item: pagingData.items[index],
-                      onTap: () => _onProductTap(context, pagingData.items[index]),
-                    );
-                  },
-                  childCount: pagingData.items.length + 1,
-                ),
-                gridDelegate: const ResponsiveProductGridDelegate(
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                ),
+                    if (!pagingData.hasMore && pagingData.items.isNotEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(
+                          child: Text('没有更多数据了', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }
+                  return AllProductCard(item: pagingData.items[index], onTap: () => _onProductTap(context, pagingData.items[index]));
+                }, childCount: pagingData.items.length + 1),
+                gridDelegate: const ResponsiveProductGridDelegate(crossAxisSpacing: 12, mainAxisSpacing: 12),
               ),
             ),
         ],

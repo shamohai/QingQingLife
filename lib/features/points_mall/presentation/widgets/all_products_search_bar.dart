@@ -14,7 +14,6 @@ class AllProductsSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 39,
-      width: 280,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(999),
@@ -22,17 +21,9 @@ class AllProductsSearchBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // 蓝色圆点指示器（设计稿 margin: 12px 0 0 16px → 顶部约12dp内边距对应）
-          const SizedBox(width: 16),
-          Container(
-            width: 16,
-            height: 16,
-            decoration: const BoxDecoration(
-              color: Color(0xFF213775),
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 4),
+          // 搜索图标
+          const SizedBox(width: 14),
+          const Icon(Icons.search, size: 20, color: Color(0xFF213775)),
           // placeholder 文字区域
           Expanded(
             child: TextField(
