@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -142,7 +143,10 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                     style: TextStyle(fontSize: 15, color: Color(0xFF000000), fontWeight: FontWeight.w600, height: 1.0),
                   ),
                   const Spacer(),
-                  const Text('查看全部>>>', style: TextStyle(fontSize: 12, color: Color(0xFF8E8E93), height: 1.0)),
+                  GestureDetector(
+                    onTap: () => GoRouter.of(context).push('/points/all-products'),
+                    child: const Text('查看全部>>>', style: TextStyle(fontSize: 12, color: Color(0xFF8E8E93), height: 1.0)),
+                  ),
                 ],
               ),
             ),
