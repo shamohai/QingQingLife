@@ -122,7 +122,7 @@ class _PointsBannerState extends State<PointsBanner> {
           Positioned(
             left: 0,
             right: 0,
-            bottom: 60,
+            bottom: 34,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,

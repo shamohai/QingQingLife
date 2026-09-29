@@ -96,10 +96,14 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                           Column(
                             children: [
                               Padding(
-                                padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
+                                padding: EdgeInsets.only(
+                                  top: MediaQuery.of(context).padding.top, // 关键这一行
+                                  left: 4,
+                                  right: 4,
+                                ),
                                 child: PointsSearchArea(searchController: _searchController),
                               ),
-                              const SizedBox(height: 142),
+                              const SizedBox(height: 140),
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 10),
                                 child: PointsBalanceCard(

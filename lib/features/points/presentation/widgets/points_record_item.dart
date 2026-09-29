@@ -35,7 +35,7 @@ class PointsRecordItem extends StatelessWidget {
                   Expanded(
                     child: Text(
                       record.productName,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.onSurface, height: 1.0),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface, height: 1.0),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

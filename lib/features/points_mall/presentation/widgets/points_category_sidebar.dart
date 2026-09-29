@@ -66,7 +66,7 @@ class _PointsCategorySidebarState extends State<PointsCategorySidebar> {
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 8, left: 6), // 适当拉开左侧竖线和文字之间的空间
+                      padding: const EdgeInsets.only(right: 6, left: 4), // 适当拉开左侧竖线和文字之间的空间
                       child: Text(
                         label,
                         textAlign: TextAlign.center,

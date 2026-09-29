@@ -9,10 +9,6 @@ import '../../constants/api_security_constants.dart';
 import '../../crypto/signature_helper.dart';
 import '../../storage/device_storage.dart';
 
-import 'dart:js_interop';
-
-import 'package:web/web.dart' show console;
-
 import '../../logging/interceptors/app_logging_interceptor.dart';
 
 /// 请求加密与签名拦截器
@@ -79,7 +75,7 @@ class EncryptInterceptor extends Interceptor {
       if (kDebugMode) {
         //debugPrint('[EncryptInterceptor] API请求 → ${options.method} ${uri.path}');
         if (kIsWeb) {
-          console.log((options.path + ' 接口Request参数：' + AppLoggingInterceptor.safeEncode(options.data)).toJS);
+          debugPrint(options.path + ' 接口Request参数：' + AppLoggingInterceptor.safeEncode(options.data));
         }
       }
     } catch (e, st) {

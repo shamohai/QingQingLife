@@ -48,12 +48,12 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
         child: Stack(
           children: [
             // 1. 渐变背景：高度 330px
-            Container(
-              height: 330,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFFFC65E), Color(0xFFF3F5F7)]),
-              ),
-            ),
+            // Container(
+            //   height: 330,
+            //   // decoration: const BoxDecoration(
+            //   //   gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFFFC65E), Color(0xFFF3F5F7)]),
+            //   // ),
+            // ),
             // 2. Banner 内容区（AppBar + 当前积分）
             _buildBannerContent(context, state),
             // 3. 独立月份卡片列表：作为 Root Stack 的直接子节点，设置 top 偏移实现重叠，确保手势完全可以正常响应
@@ -72,7 +72,7 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
       children: [
         // AppBar 行
         Padding(
-          padding: const EdgeInsets.only(top: 22, right: 15),
+          padding: const EdgeInsets.only(right: 15),
           child: Row(
             children: [
               IconButton(
@@ -113,7 +113,7 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       NumberFormat('#,###').format(state.currentPoints),
-                      style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w700, color: AppColors.onSurface, height: 1.1, letterSpacing: -0.5),
+                      style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w600, color: AppColors.onSurface, height: 1.1, letterSpacing: -0.5),
                     ),
                   ),
                   const SizedBox(height: 75),
@@ -215,7 +215,7 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
                       ...monthRecords.expand(
                         (record) => [
                           const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 20),
+                            padding: EdgeInsets.symmetric(vertical: 10),
                             child: Divider(height: 1, thickness: 0.5, color: Color(0xFFEEEEEE)),
                           ),
                           PointsRecordItem(record: record),
@@ -231,7 +231,6 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
       },
     );
   }
-
 }
 
 // ── 装饰占位图 ─────────────────────────────────────────────────────
@@ -244,5 +243,3 @@ class _DecorationPlaceholder extends StatelessWidget {
     return Image.asset('assets/images/points/points_detail_stars.png', width: 175, height: 175, fit: BoxFit.contain);
   }
 }
-
-

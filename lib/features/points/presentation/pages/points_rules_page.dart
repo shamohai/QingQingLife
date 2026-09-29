@@ -26,7 +26,7 @@ class PointsRulesPage extends StatelessWidget {
             // ③ 可滚动正文区
             Expanded(child: _RulesContent()),
             // ④ 底部装饰图
-            Image.asset('assets/images/points/rules_bottom_deco.png', width: double.infinity, height: 60, fit: BoxFit.cover),
+            //Image.asset('assets/images/points/rules_bottom_deco.png', width: double.infinity, height: 60, fit: BoxFit.cover),
           ],
         ),
       ),

@@ -1,6 +1,5 @@
 ﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../points/domain/repositories/points_repository.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../features/points_mall/data/models/points_mall_home_data.dart';
 

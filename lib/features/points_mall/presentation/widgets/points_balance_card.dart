@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -90,7 +89,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                       children: [
                         Text(
                           NumberFormat('#,###').format(widget.currentPoints),
-                          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF090909), height: 1.1, letterSpacing: -0.5),
+                          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: Color(0xFF090909), height: 1.1, letterSpacing: -0.5),
                         ),
                         const SizedBox(width: 2),
                         Transform.translate(

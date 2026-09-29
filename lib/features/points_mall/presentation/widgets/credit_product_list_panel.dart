@@ -44,7 +44,7 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
       children: [
         // 左侧积分段侧边栏
         PointsCategorySidebar(groups: widget.groups, activeIndex: _activeIndex, onCategoryTap: _onRangeTap),
-        const VerticalDivider(width: 1, color: Color(0xFFE1E4DC)),
+        const VerticalDivider(width: 5, color: Color(0xFFE1E4DC)),
         // 右侧分页商品列表
         Expanded(
           child: Container(
@@ -157,7 +157,7 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
                             onPressed: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('兑换商品：${item.productName}'))),
                             style: OutlinedButton.styleFrom(
                               side: const BorderSide(color: Color(0xFFFF2105), width: 1),
-                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                               shape: const StadiumBorder(),
                               minimumSize: Size.zero,
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
