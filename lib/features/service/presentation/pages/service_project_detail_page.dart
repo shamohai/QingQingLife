@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_error.dart';
@@ -30,7 +29,7 @@ class ServiceProjectDetailPage extends ConsumerWidget {
       appBar: projectAsync.when(
         loading: () => _buildAppBar(context),
         error: (_, __) => _buildAppBar(context),
-        data: (product) => _buildAppBar(context, title: '预约项目详情'),
+        data: (product) => _buildAppBar(context, title: product.title),
       ),
       body: projectAsync.when(
         loading: () => const Center(child: AppLoading()),
@@ -56,7 +55,7 @@ class ServiceProjectDetailPage extends ConsumerWidget {
 
   PreferredSizeWidget _buildAppBar(BuildContext context, {String? title}) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.servicePageBackground,
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: IconButton(
@@ -93,3 +92,8 @@ class ServiceProjectDetailPage extends ConsumerWidget {
     );
   }
 }
+
+
+
+
+

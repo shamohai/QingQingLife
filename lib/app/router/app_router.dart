@@ -11,6 +11,7 @@ import '../../features/service/presentation/pages/service_page.dart';
 import '../../features/service/presentation/pages/service_cart_page.dart';
 import '../../features/service/presentation/pages/service_records_page.dart';
 import '../../features/service/presentation/pages/service_project_detail_page.dart';
+import '../../features/service/presentation/pages/service_booking_form_page.dart';
 import '../../features/product/presentation/pages/product_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
@@ -82,6 +83,16 @@ final appRouter = Provider<GoRouter>((ref) {
                     path: 'project/:id',
                     pageBuilder: (c, s) => MaterialPage(
                       child: ServiceProjectDetailPage(projectId: s.pathParameters['id']!),
+                    ),
+                  ),
+                  GoRoute(
+                    name: 'serviceBookingForm',
+                    path: RouteNames.serviceBookingForm,
+                    pageBuilder: (c, s) => MaterialPage(
+                      child: ServiceBookingFormPage(
+                        projectId: s.pathParameters['id']!,
+                        title: s.uri.queryParameters['title'] ?? '预约项目',
+                      ),
                     ),
                   ),
                 ],
@@ -214,3 +225,9 @@ class _TabItem extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+

@@ -50,6 +50,9 @@ abstract final class RouteNames {
   // 预约项目详情
   static const String serviceProjectDetail = '/service/project/:id';
 
+  // 预约项目填写信息
+  static const String serviceBookingForm = '/service/project/:id/book';
+
   // 积分规则页
   static const String pointsRules = '/points/rules';
 }

@@ -1,14 +1,16 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/router/route_names.dart';
 import '../../domain/models/service_project_detail_model.dart';
 
 /// 预约项目详情 — 底部固定操作栏
 ///
 /// 固定高度 80dp，白色背景，顶部阴影。
-/// 居中放置深蓝色渐变胶囊按钮（380x51），文字 "立即报名"。
+/// 居中放置深蓝色渐变胶囊按钮，点击跳转到填写信息页（携带项目 title）。
 class ProjectDetailBottomBar extends StatelessWidget {
   final ServiceProjectDetail product;
 
@@ -30,7 +32,15 @@ class ProjectDetailBottomBar extends StatelessWidget {
         bottom: true,
         child: Center(
           child: GestureDetector(
-            onTap: () {},
+            onTap: () => context.pushNamed(
+              'serviceBookingForm',
+              pathParameters: {
+                'id': product.id.toString(), // 在这里把 :id 替换成真实id
+              },
+              queryParameters: {
+                'title': product.title, // query参数，框架自动编码中文
+              },
+            ),
             child: Container(
               width: btnWidth,
               height: 51,
