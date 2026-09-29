@@ -36,15 +36,18 @@ class ProjectDetailInfoCard extends StatelessWidget {
             // 标题 "项目简介"
             const Text('项目简介', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: Colors.black)),
             // 蓝色渐变分割线
-            Container(
-              width: 94,
-              height: 7,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppRadius.round),
-                gradient: const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [AppColors.serviceProjectBlue, Color(0x00F3F5F7)],
+            Transform.translate(
+              offset: const Offset(0, -10),
+              child: Container(
+                width: 94,
+                height: 7,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppRadius.round),
+                  gradient: const LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [AppColors.serviceProjectBlue, Color(0x00F3F5F7)],
+                  ),
                 ),
               ),
             ),
