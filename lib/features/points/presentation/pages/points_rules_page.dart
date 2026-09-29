@@ -51,7 +51,7 @@ class _AppBarRow extends StatelessWidget {
           ),
           const Text(
             '积分规则',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.onSurface),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface),
           ),
         ],
       ),
@@ -75,7 +75,7 @@ class _RulesContent extends ConsumerWidget {
           children: [
             const Text(
               '青轻生活馆APP积分商城积分规则',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.onSurface, height: 1.5),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: AppColors.onSurface, height: 1.5),
             ),
             const SizedBox(height: 2),
             Text(

@@ -43,7 +43,7 @@ class MockPointsDataSource implements PointsRepository {
     currentPoints: 143544,
     expiringPoints: 1200,
     expiryDate: DateTime(2026, 12, 31),
-    rulesText: '1. 积分有效期为当年1月1日至次年12月31日\n2. 积分不可兑现、不可转让\n3. 积分兑换商品需支付运费\n4. 兑换成功后积分实时扣除',
+    rulesText: '1. 积分有效期为当年1月1日至次年12月31日，过期积分不予兑换\n2. 积分不可兑现、不可转让\n3. 积分兑换商品需支付运费\n4. 兑换成功后积分实时扣除',
     categories: [
       PointsCategory(id: 'all', label: '全部分类', iconUrl: ''),
       PointsCategory(id: 'local', label: '本地特色', iconUrl: ''),

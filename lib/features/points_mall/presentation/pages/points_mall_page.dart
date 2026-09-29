@@ -44,118 +44,112 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F7),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(pointsMallStaticDataProvider);
-          ref.invalidate(pointsMallHotProductsProvider);
-        },
-        child: staticDataAsync.when(
-          loading: () => const CustomScrollView(
-            slivers: [SliverFillRemaining(child: Center(child: AppLoading()))],
-          ),
-          error: (error, stackTrace) => CustomScrollView(
-            slivers: [
-              SliverFillRemaining(
-                child: Center(
-                  child: AppError(message: '加载失败: $error', onRetry: () => ref.invalidate(pointsMallStaticDataProvider)),
-                ),
+      body: staticDataAsync.when(
+        loading: () => const CustomScrollView(
+          slivers: [SliverFillRemaining(child: Center(child: AppLoading()))],
+        ),
+        error: (error, stackTrace) => CustomScrollView(
+          slivers: [
+            SliverFillRemaining(
+              child: Center(
+                child: AppError(message: '加载失败: $error', onRetry: () => ref.invalidate(pointsMallStaticDataProvider)),
               ),
-            ],
-          ),
-          data: (staticData) => Stack(
-            children: [
-              NotificationListener<ScrollNotification>(
-                onNotification: (notification) {
-                  // 过滤只响应主纵向 CustomScrollView 的滚动，忽略 Banner PageView 等横向或嵌套 Scrollable 的 notification
-                  if (notification.metrics.axis == Axis.vertical && notification.depth == 0) {
-                    if (notification.metrics.extentAfter < 200) {
-                      final pagingData = ref.read(creditProductListProvider);
-                      if (pagingData.hasMore && !pagingData.isLoading && !pagingData.isError) {
-                        ref.read(creditProductListProvider.notifier).loadMore();
-                      }
+            ),
+          ],
+        ),
+        data: (staticData) => Stack(
+          children: [
+            NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                // 过滤只响应主纵向 CustomScrollView 的滚动，忽略 Banner PageView 等横向或嵌套 Scrollable 的 notification
+                if (notification.metrics.axis == Axis.vertical && notification.depth == 0) {
+                  if (notification.metrics.extentAfter < 200) {
+                    final pagingData = ref.read(creditProductListProvider);
+                    if (pagingData.hasMore && !pagingData.isLoading && !pagingData.isError) {
+                      ref.read(creditProductListProvider.notifier).loadMore();
                     }
                   }
-                  return false;
-                },
-                child: CustomScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: Stack(
-                        children: [
-                          SizedBox(
-                            height: 260,
-                            child: PointsBanner(
-                              imageUrl: staticData.bannerUrls.first,
-                              imageUrls: staticData.bannerUrls.length > 1 ? staticData.bannerUrls : null,
-                              height: 260, // 传进去
-                              autoPlay: true, // 默认就是 true，可省略
-                              autoPlayInterval: const Duration(seconds: 3),
+                }
+                return false;
+              },
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Stack(
+                      children: [
+                        SizedBox(
+                          height: 260,
+                          child: PointsBanner(
+                            imageUrl: staticData.bannerUrls.first,
+                            imageUrls: staticData.bannerUrls.length > 1 ? staticData.bannerUrls : null,
+                            height: 260, // 传进去
+                            autoPlay: true, // 默认就是 true，可省略
+                            autoPlayInterval: const Duration(seconds: 3),
+                          ),
+                        ),
+                        Column(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(
+                                top: MediaQuery.of(context).padding.top, // 关键这一行
+                                left: 4,
+                                right: 4,
+                              ),
+                              child: PointsSearchArea(searchController: _searchController),
                             ),
-                          ),
-                          Column(
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  top: MediaQuery.of(context).padding.top, // 关键这一行
-                                  left: 4,
-                                  right: 4,
-                                ),
-                                child: PointsSearchArea(searchController: _searchController),
+                            const SizedBox(height: 140),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              child: PointsBalanceCard(
+                                currentPoints: staticData.currentPoints,
+                                expiringPoints: staticData.expiringPoints,
+                                expiryDate: staticData.expiryDate,
+                                onDetailTap: () => GoRouter.of(context).push(RouteNames.pointsDetail),
                               ),
-                              const SizedBox(height: 140),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 10),
-                                child: PointsBalanceCard(
-                                  currentPoints: staticData.currentPoints,
-                                  expiringPoints: staticData.expiringPoints,
-                                  expiryDate: staticData.expiryDate,
-                                  onDetailTap: () => GoRouter.of(context).push(RouteNames.pointsDetail),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  SliverPersistentHeader(
+                    pinned: true,
+                    floating: true,
+                    delegate: _CategoryTabBarDelegate(
+                      tabHeight: 44 + 10,
+                      margin: const EdgeInsets.only(left: 10, right: 10),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ref
+                              .watch(creditProductCategoryProvider)
+                              .when(
+                                loading: () => const SizedBox(height: 44, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
+                                error: (_, __) => const SizedBox(height: 44),
+                                data: (catData) => PointsCategoryTabBar(
+                                  categories: catData.categories,
+                                  activeCategoryId: _activeCategoryId,
+                                  onCategoryTap: _onCategoryChanged,
                                 ),
                               ),
-                            ],
-                          ),
+                          const SizedBox(height: 10),
                         ],
                       ),
                     ),
-                    SliverPersistentHeader(
-                      pinned: true,
-                      floating: true,
-                      delegate: _CategoryTabBarDelegate(
-                        tabHeight: 44 + 10,
-                        margin: const EdgeInsets.only(left: 10, right: 10),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ref
-                                .watch(creditProductCategoryProvider)
-                                .when(
-                                  loading: () => const SizedBox(height: 44, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
-                                  error: (_, __) => const SizedBox(height: 44),
-                                  data: (catData) => PointsCategoryTabBar(
-                                    categories: catData.categories,
-                                    activeCategoryId: _activeCategoryId,
-                                    onCategoryTap: _onCategoryChanged,
-                                  ),
-                                ),
-                            const SizedBox(height: 10),
-                          ],
-                        ),
-                      ),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.only(left: 10, right: 10),
+                    sliver: SliverToBoxAdapter(
+                      child: CreditProductListPanel(groups: staticData.redeemableGroups, activeCategoryId: _activeCategoryId),
                     ),
-                    SliverPadding(
-                      padding: const EdgeInsets.only(left: 10, right: 10),
-                      sliver: SliverToBoxAdapter(
-                        child: CreditProductListPanel(groups: staticData.redeemableGroups, activeCategoryId: _activeCategoryId),
-                      ),
-                    ),
-                    const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
-                  ],
-                ),
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+                ],
               ),
-              Positioned(right: AppSpacing.lg, bottom: 50, child: const PointsFloatingButtons()),
-            ],
-          ),
+            ),
+            Positioned(right: AppSpacing.lg, bottom: 50, child: const PointsFloatingButtons()),
+          ],
         ),
       ),
     );

@@ -127,16 +127,15 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
     );
   }
 
-  // ── 积分记录列表容器（刷新指示器） ──────────────────────────────────
+  // ── 积分记录列表容器 ──────────────────────────────────
   Widget _buildRecordList(BuildContext context, PointsDetailState state) {
-    return RefreshIndicator(
-      onRefresh: () => ref.read(pointsDetailProvider.notifier).refresh(),
-      child: state.isLoading && state.records.isEmpty
-          ? const Center(child: AppLoading())
-          : state.records.isEmpty
-          ? const AppEmpty(message: '暂无积分记录')
-          : _buildMonthAccordionList(state),
-    );
+    if (state.isLoading && state.records.isEmpty) {
+      return const Center(child: AppLoading());
+    }
+    if (state.records.isEmpty) {
+      return const AppEmpty(message: '暂无积分记录');
+    }
+    return _buildMonthAccordionList(state);
   }
 
   // ── 独立月份折叠卡片列表 ─────────────────────────────────────────
