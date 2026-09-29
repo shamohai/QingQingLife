@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 ///
 /// 适用于填写信息页的 6 个标准输入字段。
 /// 两种模式：
-/// - text 模式：左侧 icon + 右侧提示文字（或实际输入值），通过 valueWidget 传入 TextField
-/// - picker 模式：左侧 icon + 显示文字 + 右侧 chevron，点击触发 onTap
+/// - text 模式：左侧 icon/图片 + 右侧提示文字（或实际输入值），通过 valueWidget 传入 TextField
+/// - picker 模式：左侧 icon/图片 + 显示文字 + 右侧 chevron，点击触发 onTap
 class BookingFormField extends StatelessWidget {
   final String label;
-  final IconData icon;
+  final IconData? icon;
+  final String? imageAsset;
   final Widget? valueWidget;
   final String? hint;
   final bool showChevron;
@@ -17,7 +18,8 @@ class BookingFormField extends StatelessWidget {
   const BookingFormField({
     super.key,
     required this.label,
-    required this.icon,
+    this.icon,
+    this.imageAsset,
     this.valueWidget,
     this.hint,
     this.showChevron = false,
@@ -50,7 +52,10 @@ class BookingFormField extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               children: [
-                Icon(icon, size: 20, color: const Color(0xFF213775)),
+                if (imageAsset != null)
+                  Image.asset(imageAsset!, width: 20, height: 20, color: const Color(0xFF213775))
+                else if (icon != null)
+                  Icon(icon, size: 20, color: const Color(0xFF213775)),
                 const SizedBox(width: 12),
                 if (valueWidget != null)
                   Expanded(child: valueWidget!),

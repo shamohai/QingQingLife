@@ -243,35 +243,35 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                               // Field 1: 联系人
                               BookingFormField(
                                 label: '联系人',
-                                icon: Icons.person_outline,
+                                imageAsset: 'assets/images/service/service_booking_name.png',
                                 valueWidget: _buildTextField(_nameCtrl, maxLength: 30, hintText: '请输入联系人'),
                               ),
 
                               // Field 2: 联系电话
                               BookingFormField(
                                 label: '联系电话',
-                                icon: Icons.call_outlined,
+                                imageAsset: 'assets/images/service/service_booking_phone.png',
                                 valueWidget: _buildTextField(_phoneCtrl, keyboardType: TextInputType.phone, maxLength: 11, hintText: '请输入联系电话'),
                               ),
 
                               // Field 3: 身份证号码
                               BookingFormField(
                                 label: '身份证号码',
-                                icon: Icons.credit_card,
+                                imageAsset: 'assets/images/service/service_booking_idcard.png',
                                 valueWidget: _buildTextField(_idCtrl, maxLength: 18, hintText: '请输入身份证号码'),
                               ),
 
                               // Field 4: 预约人数
                               BookingFormField(
                                 label: '预约人数',
-                                icon: Icons.group_outlined,
+                                imageAsset: 'assets/images/service/service_booking_count.png',
                                 valueWidget: _buildTextField(_partyCtrl, keyboardType: TextInputType.number, maxLength: 3, hintText: '请输入预约人数'),
                               ),
 
                               // Field 5: 预约日期
                               BookingFormField(
                                 label: '预约日期',
-                                icon: Icons.calendar_today,
+                                imageAsset: 'assets/images/service/service_booking_date.png',
                                 valueWidget: _selectedDate == null
                                     ? _buildValueText('请选择预约日期')
                                     : _buildValueText(DateFormat('yyyy-MM-dd').format(_selectedDate!), Colors.black),
@@ -282,7 +282,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                               // Field 6: 预约时段
                               BookingFormField(
                                 label: '预约时段',
-                                icon: Icons.schedule_outlined,
+                                imageAsset: 'assets/images/service/service_booking_time.png',
                                 valueWidget: _selectedTime == null
                                     ? _buildValueText('请选择预约时段')
                                     : _buildValueText(_selectedTime!.format(context), Colors.black),

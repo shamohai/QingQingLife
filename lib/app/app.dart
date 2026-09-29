@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'providers/theme_provider.dart';
@@ -25,6 +26,15 @@ class App extends StatelessWidget {
           theme: AppTheme.themeData,
           darkTheme: AppTheme.darkThemeData,
           routerConfig: router,
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('zh', 'CN'),
+            Locale('en', 'US'),
+          ],
           builder: (context, child) {
             if (versionCheckState.state == VersionCheckState.checked &&
                 versionCheckState.info != null &&
