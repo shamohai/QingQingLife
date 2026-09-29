@@ -16,7 +16,7 @@ class ProjectDetailHeroImage extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 13, AppSpacing.lg, 0),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, 0),
         child: ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)), // 这里设置圆角半径
           child: Image.asset(

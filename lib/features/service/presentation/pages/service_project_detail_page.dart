@@ -3,12 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../domain/models/service_project_detail_model.dart';
 import '../providers/service_project_detail_provider.dart';
 import '../widgets/project_detail_bottom_bar.dart';
-import '../widgets/project_detail_header.dart';
 import '../widgets/project_detail_hero_image.dart';
 import '../widgets/project_detail_info_card.dart';
 
@@ -27,36 +27,47 @@ class ServiceProjectDetailPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.servicePageBackground,
-      body: Stack(
-        children: [
-          // 滚动内容层
-          projectAsync.when(
-            loading: () => const Center(child: AppLoading()),
-            error: (error, stack) => Center(
-              child: AppError(
-                message: '加载失败，请稍后重试',
-                onRetry: () => ref.invalidate(serviceProjectDetailProvider(projectId)),
-              ),
-            ),
-            data: (product) => _buildBody(product),
-          ),
-          // 固定底部操作栏（不随内容滚动）
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: SafeArea(
-              top: false,
-              bottom: true,
-              child: projectAsync.when(
-                loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
-                data: (product) => ProjectDetailBottomBar(product: product),
-              ),
-            ),
-          ),
-        ],
+      appBar: projectAsync.when(
+        loading: () => _buildAppBar(context),
+        error: (_, __) => _buildAppBar(context),
+        data: (product) => _buildAppBar(context, title: '预约项目详情'),
       ),
+      body: projectAsync.when(
+        loading: () => const Center(child: AppLoading()),
+        error: (error, stack) => Center(
+          child: AppError(
+            message: '加载失败，请稍后重试',
+            onRetry: () => ref.invalidate(serviceProjectDetailProvider(projectId)),
+          ),
+        ),
+        data: (product) => _buildBody(product),
+      ),
+      bottomNavigationBar: projectAsync.when(
+        loading: () => const SizedBox.shrink(),
+        error: (_, __) => const SizedBox.shrink(),
+        data: (product) => SafeArea(
+          top: false,
+          bottom: true,
+          child: ProjectDetailBottomBar(product: product),
+        ),
+      ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context, {String? title}) {
+    return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.black),
+        onPressed: () => Navigator.of(context).pop(),
+      ),
+      title: Text(
+        title ?? '预约项目详情',
+        style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: Colors.black),
+      ),
+      centerTitle: false,
     );
   }
 
@@ -64,33 +75,17 @@ class ServiceProjectDetailPage extends ConsumerWidget {
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
-        const SliverToBoxAdapter(child: SizedBox(height: 0)),
+        // Hero 图：固定在顶部（pinned），不随内容滚动走
         SliverToBoxAdapter(
-          child: ProjectDetailHeader(product: product),
+          child: ProjectDetailHeroImage(heroAsset: product.heroAsset),
         ),
-        // Hero 图 + InfoCard 层叠：InfoCard 覆盖在 Hero 底部向上 20px，四角圆角
+        // 信息卡片：正常流式布局，自适应高度，可滚动，向上滚动时覆盖 Hero 图
         SliverToBoxAdapter(
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              ProjectDetailHeroImage(heroAsset: product.heroAsset),
-              Positioned(
-                left: 0,
-                right: 0,
-                top: 222, // HeroImage 高度 242 - paddingBottom 49 + marginTop 13 = 206? 实测 222 约为图片底部
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                  child: Transform.translate(
-                    offset: const Offset(0, -20),
-                    child: ProjectDetailInfoCard(product: product),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          child: ProjectDetailInfoCard(product: product),
         ),
+        // 底部留白
         SliverToBoxAdapter(
-          child: SizedBox(height: 88), // 底部操作栏留空
+          child: SizedBox(height: 88),
         ),
       ],
     );
