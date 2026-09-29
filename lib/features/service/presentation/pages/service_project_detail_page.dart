@@ -75,17 +75,19 @@ class ServiceProjectDetailPage extends ConsumerWidget {
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
-        // Hero 图：固定在顶部（pinned），不随内容滚动走
         SliverToBoxAdapter(
-          child: ProjectDetailHeroImage(heroAsset: product.heroAsset),
-        ),
-        // 信息卡片：正常流式布局，自适应高度，可滚动，向上滚动时覆盖 Hero 图
-        SliverToBoxAdapter(
-          child: ProjectDetailInfoCard(product: product),
-        ),
-        // 底部留白
-        SliverToBoxAdapter(
-          child: SizedBox(height: 88),
+          child: SizedBox(
+            width: double.infinity,
+            child: Column(
+              children: [
+                ProjectDetailHeroImage(heroAsset: product.heroAsset),
+                Transform.translate(
+                  offset: const Offset(0, -50),
+                  child: ProjectDetailInfoCard(product: product),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
