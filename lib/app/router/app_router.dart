@@ -12,6 +12,7 @@ import '../../features/service/presentation/pages/service_cart_page.dart';
 import '../../features/service/presentation/pages/service_records_page.dart';
 import '../../features/service/presentation/pages/service_project_detail_page.dart';
 import '../../features/service/presentation/pages/service_booking_form_page.dart';
+import '../../features/service/presentation/pages/service_template_detail_page.dart';
 import '../../features/product/presentation/pages/product_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
@@ -93,6 +94,14 @@ final appRouter = Provider<GoRouter>((ref) {
                       child: ServiceBookingFormPage(
                         projectId: s.pathParameters['id']!,
                         title: s.uri.queryParameters['title'] ?? '预约项目',
+                      ),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'template/:id',
+                    pageBuilder: (c, s) => MaterialPage(
+                      child: ServiceTemplateDetailPage(
+                        templateId: int.tryParse(s.pathParameters['id']!) ?? 0,
                       ),
                     ),
                   ),
