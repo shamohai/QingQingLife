@@ -23,41 +23,52 @@ class ProfileHeaderSection extends ConsumerWidget {
         height: 64,
         child: Row(
           children: [
-            // ── 头像（白色描边圆）──────────────────────────────────────
-            Container(
-              padding: const EdgeInsets.all(2),
-              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-              child: CircleAvatar(
-                radius: 28,
-                backgroundColor: const Color(0xFFDDEAF6),
-                child: state.avatarUrl != null && state.avatarUrl!.isNotEmpty
-                    ? ClipOval(
-                        child: AppNetworkImage(url: state.avatarUrl!, width: 56, height: 56, fit: BoxFit.cover),
-                      )
-                    : const Icon(Icons.person_outline, size: 30, color: Color(0xFF8FA8BF)),
-              ),
-            ),
-
-            const SizedBox(width: AppSpacing.md),
-
-            // ── 昵称 / 手机号 ──────────────────────────────────────────
+            // ── 用户信息区（头像 / 昵称 / 手机号，点击进入「个人信息」页）──
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    state.nickname,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Color(0xFF1A1D1C), height: 1.2),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    state.phoneMasked,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF4A5568)),
-                  ),
-                ],
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => context.push(RouteNames.personalInfo),
+                child: Row(
+                  children: [
+                    // ── 头像（白色描边圆）──────────────────────────────
+                    Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                      child: CircleAvatar(
+                        radius: 28,
+                        backgroundColor: const Color(0xFFDDEAF6),
+                        child: state.avatarUrl != null && state.avatarUrl!.isNotEmpty
+                            ? ClipOval(
+                                child: AppNetworkImage(url: state.avatarUrl!, width: 56, height: 56, fit: BoxFit.cover),
+                              )
+                            : const Icon(Icons.person_outline, size: 30, color: Color(0xFF8FA8BF)),
+                      ),
+                    ),
+
+                    const SizedBox(width: AppSpacing.md),
+
+                    // ── 昵称 / 手机号 ──────────────────────────────────────────
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            state.nickname,
+                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Color(0xFF1A1D1C), height: 1.2),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            state.phoneMasked,
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF4A5568)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 

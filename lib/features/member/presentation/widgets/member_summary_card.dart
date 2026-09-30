@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/router/route_names.dart';
 import '../providers/member_level_provider.dart';
 
 /// 会员详情页 - 等级信息卡片（白色圆角卡片）
 ///
 /// 布局：等级名 + 「成长值/升级门槛」（左）+ 金色等级徽章（右），
-/// 下方依次为权益数量提示与达标提示。
+/// 下方依次为权益数量提示、达标提示与「立即签到」入口
+/// （跳转会员签到页 RouteNames.memberSignIn）。
 class MemberSummaryCard extends StatelessWidget {
   final MemberLevelOption level;
 
@@ -50,7 +52,7 @@ class MemberSummaryCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      reached ? '已达成' : '${growthValue}/${level.growthThreshold}升级',
+                      reached ? '已达成' : '$growthValue/${level.growthThreshold}升级',
                       style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF2E7CD6)),
                     ),
                   ],
@@ -72,12 +74,30 @@ class MemberSummaryCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 6),
-                // 达标提示
-                Text(
-                  reached ? '已达到该等级，继续保持！' : '暂未达到该等级，怎能轻易认输！',
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: Color(0xFF94A7BC)),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                // 达标提示 + 立即签到入口
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        reached ? '已达到该等级，继续保持！' : '暂未达到该等级，怎能轻易认输！',
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w400, color: Color(0xFF94A7BC)),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () => context.push(RouteNames.memberSignIn),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                        decoration: const BoxDecoration(color: Color(0xFF0099FB), borderRadius: BorderRadius.all(Radius.circular(999))),
+                        child: const Text(
+                          '立即签到',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white, height: 1.2),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

@@ -8,6 +8,9 @@ import '../../features/points_mall/presentation/pages/points_mall_page.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/member/presentation/pages/profile_page.dart';
 import '../../features/member/presentation/pages/member_level_page.dart';
+import '../../features/member/presentation/pages/member_sign_in_page.dart';
+import '../../features/member/presentation/pages/personal_info_page.dart';
+import '../../features/member/presentation/pages/about_us_page.dart';
 import '../../features/notification/presentation/pages/notification_list_page.dart';
 import '../../features/service/presentation/pages/service_page.dart';
 import '../../features/service/presentation/pages/service_cart_page.dart';
@@ -103,6 +106,18 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.memberLevel,
         pageBuilder: (c, s) => MaterialPage(child: const MemberLevelPage()),
+      ),
+      GoRoute(
+        path: RouteNames.memberSignIn,
+        pageBuilder: (c, s) => const MaterialPage(child: MemberSignInPage()),
+      ),
+      GoRoute(
+        path: RouteNames.personalInfo,
+        pageBuilder: (c, s) => const MaterialPage(child: PersonalInfoPage()),
+      ),
+      GoRoute(
+        path: RouteNames.aboutUs,
+        pageBuilder: (c, s) => const MaterialPage(child: AboutUsPage()),
       ),
       GoRoute(
         path: RouteNames.notifications,

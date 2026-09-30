@@ -14,12 +14,12 @@ class ProfileFeatureGrid extends StatelessWidget {
   static const List<_FeatureItem> _items = [
     _FeatureItem(icon: Icons.photo_camera_outlined, label: '预约报名', route: null),
     _FeatureItem(icon: Icons.diamond_outlined, label: '我的权益', route: RouteNames.memberLevel),
-    _FeatureItem(icon: Icons.person_outline, label: '个人信息', route: null),
+    _FeatureItem(icon: Icons.person_outline, label: '个人信息', route: RouteNames.personalInfo),
     _FeatureItem(icon: Icons.location_on_outlined, label: '收货地址', route: RouteNames.address),
     _FeatureItem(icon: Icons.phone_outlined, label: '联系客服', route: RouteNames.customerService),
     _FeatureItem(icon: Icons.receipt_long_outlined, label: '发票中心', route: null),
     _FeatureItem(icon: Icons.verified_user_outlined, label: '账号安全', route: null),
-    _FeatureItem(icon: Icons.domain_outlined, label: '关于我们', route: null),
+    _FeatureItem(icon: Icons.domain_outlined, label: '关于我们', route: RouteNames.aboutUs),
   ];
 
   @override

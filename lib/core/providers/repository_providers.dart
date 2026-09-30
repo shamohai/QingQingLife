@@ -7,7 +7,9 @@ import '../domain/repositories/auth_repository.dart';
 import '../../features/cart/data/datasources/cart_mock_datasource.dart';
 import '../../features/cart/domain/repositories/cart_repository.dart';
 import '../../features/member/data/datasources/member_mock_datasource.dart';
+import '../../features/member/data/datasources/member_sign_in_mock_datasource.dart';
 import '../../features/member/domain/repositories/member_repository.dart';
+import '../../features/member/domain/repositories/member_sign_in_repository.dart';
 import '../../features/notification/data/datasources/notification_mock_datasource.dart';
 import '../../features/notification/domain/repositories/notification_repository.dart';
 import '../../features/order/data/datasources/order_mock_datasource.dart';
@@ -57,6 +59,14 @@ MemberRepository memberRepository(Ref ref) {
   return MockMemberDataSource();
 }
 
+/// Member Sign In Repository Provider
+@riverpod
+MemberSignInRepository memberSignInRepository(Ref ref) {
+  // TODO(Mock): 会员签到后端接口尚未提供，当前走 Mock。
+  // 接口就绪后改为返回 MemberSignInRemoteDataSource。
+  return MockMemberSignInDataSource();
+}
+
 /// Points Repository Provider
 ///
 /// 全量使用 Mock 数据源，其中 getCreditMallHotProducts 会自动注入 apiClient
@@ -81,6 +91,7 @@ final allRepositoryProviders = [
   cartRepositoryProvider,
   orderRepositoryProvider,
   memberRepositoryProvider,
+  memberSignInRepositoryProvider,
   pointsRepositoryProvider,
   notificationRepositoryProvider,
 ];

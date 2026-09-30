@@ -22,6 +22,9 @@ abstract final class RouteNames {
 
   // 会员相关
   static const String memberLevel = '/member/level';
+  static const String memberSignIn = '/member/sign-in';
+  static const String personalInfo = '/member/personal-info';
+  static const String aboutUs = '/member/about-us';
   static const String coupons = '/coupons';
   static const String pointsPage = '/points';
   static const String pointsMall = '/points/mall';

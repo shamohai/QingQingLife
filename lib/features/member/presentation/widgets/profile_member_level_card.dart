@@ -12,7 +12,7 @@ import '../providers/user_profile_provider.dart';
 /// 下方依次为权益提示、立即签到按钮与等级到期时间。
 /// 数据来源：[UserProfileState.memberInfo] / [UserProfileState.benefitsCount]
 /// 点击卡片整体跳转至会员详情页（RouteNames.memberLevel）；
-/// 「立即签到」按钮独立处理，不触发跳转。
+/// 「立即签到」按钮独立跳转至会员签到页（RouteNames.memberSignIn），不触发卡片跳转。
 class ProfileMemberLevelCard extends ConsumerWidget {
   const ProfileMemberLevelCard({super.key});
 
@@ -102,10 +102,7 @@ class ProfileMemberLevelCard extends ConsumerWidget {
                   Row(
                     children: [
                       GestureDetector(
-                        onTap: () {
-                          // TODO: 签到接口后端暂未提供，待接入后补充
-                          debugPrint('[ProfileMemberLevelCard] 立即签到点击');
-                        },
+                        onTap: () => context.push(RouteNames.memberSignIn),
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                           decoration: const BoxDecoration(color: Color(0xFF0099FB), borderRadius: BorderRadius.all(Radius.circular(999))),

@@ -262,12 +262,71 @@ final class MemberRepositoryProvider
 
 String _$memberRepositoryHash() => r'45800a821657242a9f96f3c45510b94189cc8ca5';
 
+/// Member Sign In Repository Provider
+
+@ProviderFor(memberSignInRepository)
+final memberSignInRepositoryProvider = MemberSignInRepositoryProvider._();
+
+/// Member Sign In Repository Provider
+
+final class MemberSignInRepositoryProvider
+    extends
+        $FunctionalProvider<
+          MemberSignInRepository,
+          MemberSignInRepository,
+          MemberSignInRepository
+        >
+    with $Provider<MemberSignInRepository> {
+  /// Member Sign In Repository Provider
+  MemberSignInRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'memberSignInRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$memberSignInRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<MemberSignInRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  MemberSignInRepository create(Ref ref) {
+    return memberSignInRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(MemberSignInRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<MemberSignInRepository>(value),
+    );
+  }
+}
+
+String _$memberSignInRepositoryHash() =>
+    r'd948153f3d342d5597a9df67bbd7ade68915460f';
+
 /// Points Repository Provider
+///
+/// 全量使用 Mock 数据源，其中 getCreditMallHotProducts 会自动注入 apiClient
+/// 以调用真实推荐位接口（positioncode=CREDITMALL）。
 
 @ProviderFor(pointsRepository)
 final pointsRepositoryProvider = PointsRepositoryProvider._();
 
 /// Points Repository Provider
+///
+/// 全量使用 Mock 数据源，其中 getCreditMallHotProducts 会自动注入 apiClient
+/// 以调用真实推荐位接口（positioncode=CREDITMALL）。
 
 final class PointsRepositoryProvider
     extends
@@ -278,6 +337,9 @@ final class PointsRepositoryProvider
         >
     with $Provider<PointsRepository> {
   /// Points Repository Provider
+  ///
+  /// 全量使用 Mock 数据源，其中 getCreditMallHotProducts 会自动注入 apiClient
+  /// 以调用真实推荐位接口（positioncode=CREDITMALL）。
   PointsRepositoryProvider._()
     : super(
         from: null,
@@ -311,7 +373,7 @@ final class PointsRepositoryProvider
   }
 }
 
-String _$pointsRepositoryHash() => r'63ce5d5a1555620103a925ed8b144b83298e92a7';
+String _$pointsRepositoryHash() => r'1c5013a0dc464dd3d6ca634c4ac1e3707cdcf24e';
 
 /// Notification Repository Provider
 
