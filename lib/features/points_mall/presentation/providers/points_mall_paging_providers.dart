@@ -47,22 +47,16 @@ final pointsMallHotProductsProvider = FutureProvider<List<PointsProduct>>((ref) 
           imageUrl: item.imgUrl,
           name: item.productName,
           points: item.creditPrice,
-          stock: 999,
           commentCount: item.commentCount,
           tag: '热门',
           type: PointsProductType.physical,
         );
       }).toList();
     }
-  } catch (_) {
-    // 接口失败时降级
+  } catch (ex) {
+    throw Exception(ex);
   }
-
-  final response = await repository.getPointsMallHome();
-  if (!response.success || response.data == null) {
-    throw Exception(response.message);
-  }
-  return response.data!.hotProducts;
+  return [];
 });
 
 /// 积分商城首页静态数据 Provider

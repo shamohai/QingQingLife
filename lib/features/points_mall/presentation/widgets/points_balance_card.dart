@@ -89,7 +89,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                       children: [
                         Text(
                           NumberFormat('#,###').format(widget.currentPoints),
-                          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF090909), height: 1.1, letterSpacing: -0.5),
+                          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: Color(0xFF090909), height: 1.1, letterSpacing: -0.5),
                         ),
                         const SizedBox(width: 2),
                         Transform.translate(
@@ -128,10 +128,10 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
           // const Divider(height: 1, thickness: 0.5, color: Color(0xFFE1E4DC)),
           // ── 热门兑换商品标题栏（蓝色图标）──
           Container(
-            margin: const EdgeInsets.only(top: 4),
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            margin: const EdgeInsets.only(top: 0),
+            padding: const EdgeInsets.symmetric(vertical: 4),
             child: SizedBox(
-              height: 40,
+              height: 36,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -142,7 +142,10 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                     style: TextStyle(fontSize: 15, color: Color(0xFF000000), fontWeight: FontWeight.w600, height: 1.0),
                   ),
                   const Spacer(),
-                  const Text('查看全部>>>', style: TextStyle(fontSize: 12, color: Color(0xFF8E8E93), height: 1.0)),
+                  // GestureDetector(
+                  //   onTap: () => GoRouter.of(context).push('/points/all-products'),
+                  //   child: const Text('查看全部>>>', style: TextStyle(fontSize: 12, color: Color(0xFF8E8E93), height: 1.0)),
+                  // ),
                 ],
               ),
             ),

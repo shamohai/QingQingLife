@@ -3,9 +3,6 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
-import 'dart:js_interop';
-
-import 'package:web/web.dart' show console;
 import 'package:uuid/uuid.dart';
 
 import '../app_logger.dart';
@@ -65,7 +62,7 @@ class AppLoggingInterceptor extends Interceptor {
       // debugPrint(safeEncode(response.data));
       // debugPrint('');
       if (kIsWeb) {
-        console.log((uri.path + ' 接口Response返回数据：' + safeEncode(response.data)).toJS);
+        debugPrint(uri.path + ' 接口Response返回数据：' + safeEncode(response.data));
       }
     }
     return handler.next(response);

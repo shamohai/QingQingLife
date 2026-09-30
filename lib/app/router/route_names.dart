@@ -1,4 +1,4 @@
-/// 所有路由名称常量，避免魔法字符串
+﻿/// 所有路由名称常量，避免魔法字符串
 abstract final class RouteNames {
   // 主 Tab 路由
   static const String home = '/home';
@@ -55,4 +55,7 @@ abstract final class RouteNames {
 
   // 积分规则页
   static const String pointsRules = '/points/rules';
+
+  // 全部商品
+  static const String allProducts = '/points/all-products';
 }

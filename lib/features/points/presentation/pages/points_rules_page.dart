@@ -26,7 +26,7 @@ class PointsRulesPage extends StatelessWidget {
             // ③ 可滚动正文区
             Expanded(child: _RulesContent()),
             // ④ 底部装饰图
-            Image.asset('assets/images/points/rules_bottom_deco.png', width: double.infinity, height: 60, fit: BoxFit.cover),
+            //Image.asset('assets/images/points/rules_bottom_deco.png', width: double.infinity, height: 60, fit: BoxFit.cover),
           ],
         ),
       ),
@@ -51,7 +51,7 @@ class _AppBarRow extends StatelessWidget {
           ),
           const Text(
             '积分规则',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.onSurface),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface),
           ),
         ],
       ),
@@ -75,7 +75,7 @@ class _RulesContent extends ConsumerWidget {
           children: [
             const Text(
               '青轻生活馆APP积分商城积分规则',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.onSurface, height: 1.5),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: AppColors.onSurface, height: 1.5),
             ),
             const SizedBox(height: 2),
             Text(

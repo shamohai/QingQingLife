@@ -19,9 +19,6 @@ class MockAuthDataSource implements AuthRepository {
 
   @override
   Future<ApiResponse<AuthResult>> loginWithPhone({required String phone, required String code}) async {
-    // 模拟网络延迟
-    await Future.delayed(const Duration(milliseconds: 800));
-
     // 简单校验：验证码为 6 位数字
     if (code.length != 6 || !RegExp(r'^\d{6}$').hasMatch(code)) {
       return ApiResponse.error('验证码格式错误');
@@ -42,8 +39,6 @@ class MockAuthDataSource implements AuthRepository {
 
   @override
   Future<ApiResponse<AuthResult>> loginWithWeChat() async {
-    await Future.delayed(const Duration(milliseconds: 1000));
-
     final accessToken = _uuid.v4();
     final refreshToken = _uuid.v4();
 
@@ -59,7 +54,6 @@ class MockAuthDataSource implements AuthRepository {
 
   @override
   Future<ApiResponse<AuthResult>> loginWithWeChatCode({required String code}) async {
-    await Future.delayed(const Duration(milliseconds: 1000));
     final accessToken = _uuid.v4();
     final refreshToken = _uuid.v4();
     await _storage.writeAccessToken(accessToken);
@@ -76,7 +70,6 @@ class MockAuthDataSource implements AuthRepository {
     if (!RegExp(r'^\d{6}$').hasMatch(code)) {
       return ApiResponse.error('验证码需为 6 位数字');
     }
-    await Future.delayed(const Duration(milliseconds: 800));
     final accessToken = _uuid.v4();
     final refreshToken = _uuid.v4();
     await _storage.writeAccessToken(accessToken);
@@ -89,8 +82,6 @@ class MockAuthDataSource implements AuthRepository {
 
   @override
   Future<ApiResponse<void>> sendSmsCode({required String phone}) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-
     if (!RegExp(r'^1\d{10}$').hasMatch(phone)) {
       return ApiResponse.error('请输入正确的手机号');
     }
@@ -111,8 +102,6 @@ class MockAuthDataSource implements AuthRepository {
 
   @override
   Future<ApiResponse<UserInfo>> getCurrentUser() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
     final token = await _storage.readAccessToken();
     if (token == null || token.isEmpty) {
       return ApiResponse.error('未登录', code: 401);
@@ -123,8 +112,6 @@ class MockAuthDataSource implements AuthRepository {
 
   @override
   Future<ApiResponse<String>> refreshToken() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
     final oldToken = await _storage.readAccessToken();
     if (oldToken == null || oldToken.isEmpty) {
       return ApiResponse.error('Token 为空', code: 401);

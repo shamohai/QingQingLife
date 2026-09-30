@@ -39,11 +39,11 @@ class MockPointsDataSource implements PointsRepository {
 
   static PointsMallHomeData get _mockHomeData => PointsMallHomeData(
     bannerUrl: 'assets/images/points/banner.jpg',
-    bannerUrls: ['assets/images/points/banner.jpg'],
+    bannerUrls: ['assets/images/points/banner.jpg', 'assets/images/points/banner.jpg', 'assets/images/points/banner.jpg'],
     currentPoints: 143544,
     expiringPoints: 1200,
     expiryDate: DateTime(2026, 12, 31),
-    rulesText: '1. 积分有效期为当年1月1日至次年12月31日\n2. 积分不可兑现、不可转让\n3. 积分兑换商品需支付运费\n4. 兑换成功后积分实时扣除',
+    rulesText: '1. 积分有效期为当年1月1日至次年12月31日，过期积分不予兑换\n2. 积分不可兑现、不可转让\n3. 积分兑换商品需支付运费\n4. 兑换成功后积分实时扣除',
     categories: [
       PointsCategory(id: 'all', label: '全部分类', iconUrl: ''),
       PointsCategory(id: 'local', label: '本地特色', iconUrl: ''),
@@ -152,13 +152,11 @@ class MockPointsDataSource implements PointsRepository {
 
   @override
   Future<ApiResponse<PointsMallHomeData>> getPointsMallHome() async {
-    await Future.delayed(const Duration(milliseconds: 300));
     return ApiResponse.success(_mockHomeData);
   }
 
   @override
   Future<ApiResponse<PointsMallHomeData>> getProducts({required int page, required int pageSize, String? categoryId, String? keyword}) async {
-    await Future.delayed(const Duration(milliseconds: 300));
     var products = List<PointsProduct>.from(_mockHomeData.hotProducts);
     if (categoryId != null && categoryId != 'all') {
       switch (categoryId) {
@@ -196,7 +194,6 @@ class MockPointsDataSource implements PointsRepository {
 
   @override
   Future<ApiResponse<PointsProductDetail>> getProductDetail(String productId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
     final product = _mockHomeData.hotProducts.firstWhere((p) => p.id == productId, orElse: () => _mockHomeData.hotProducts.first);
     return ApiResponse.success(
       PointsProductDetail(
@@ -222,7 +219,6 @@ class MockPointsDataSource implements PointsRepository {
     required String addressId,
     String? remark,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 800));
     return ApiResponse.success(
       PointsExchangeResult(
         orderId: _uuid.v4(),
@@ -235,7 +231,6 @@ class MockPointsDataSource implements PointsRepository {
 
   @override
   Future<ApiResponse<List<PointsExchangeRecord>>> getExchangeRecords({required int page, required int pageSize, ExchangeStatus? status}) async {
-    await Future.delayed(const Duration(milliseconds: 400));
     return ApiResponse.success([
       PointsExchangeRecord(
         id: 'r1',
@@ -258,7 +253,6 @@ class MockPointsDataSource implements PointsRepository {
 
   @override
   Future<ApiResponse<SignInResult>> signIn() async {
-    await Future.delayed(const Duration(milliseconds: 300));
     return ApiResponse.success(
       const SignInResult(success: true, pointsEarned: 10, consecutiveDays: 5, isConsecutiveBonus: false, bonusPoints: 0, message: '签到成功'),
     );
@@ -266,7 +260,6 @@ class MockPointsDataSource implements PointsRepository {
 
   @override
   Future<ApiResponse<SignInCalendarResult>> getSignInCalendar({required int year, required int month}) async {
-    await Future.delayed(const Duration(milliseconds: 300));
     return ApiResponse.success(
       SignInCalendarResult(
         year: year,
@@ -283,13 +276,11 @@ class MockPointsDataSource implements PointsRepository {
 
   @override
   Future<ApiResponse<ServiceProductDetail>> getServiceProductDetail(String productId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
     return ApiResponse.success(ServiceProductDetail.mock);
   }
 
   @override
   Future<ApiResponse<String>> getPointsRule() async {
-    await Future.delayed(const Duration(milliseconds: 200));
     return ApiResponse.success(_mockHomeData.rulesText);
   }
 
@@ -503,7 +494,6 @@ class MockPointsDataSource implements PointsRepository {
       }
     }
 
-    await Future.delayed(const Duration(milliseconds: 300));
     var products = List<Map<String, dynamic>>.from(_mockCreditProducts);
     // 积分段筛选（0 表示不限制）
     if (minIntegral != null && minIntegral > 0) {

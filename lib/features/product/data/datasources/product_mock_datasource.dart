@@ -7,8 +7,6 @@ import '../../../../core/network/api_response.dart';
 class MockProductDataSource implements ProductRepository {
   @override
   Future<ApiResponse<HomeProductData>> getHomeProductData() async {
-    await Future.delayed(const Duration(milliseconds: 600));
-
     return ApiResponse.success(
       HomeProductData(
         banners: [
@@ -80,7 +78,6 @@ class MockProductDataSource implements ProductRepository {
 
   @override
   Future<ApiResponse<ProductDetail>> getProductDetail(String productId) async {
-    await Future.delayed(const Duration(milliseconds: 500));
     return ApiResponse.success(ProductDetail(
       id: productId, name: '天佑德青稞酒', description: '精选高原青稞酿造', images: ['assets/images/product/product1.jpg'],
       priceCents: 13990, skus: [ProductSku(id: 's1', name: '500ml', priceCents: 13990, stock: 100, attributes: {'规格': '500ml'})],
@@ -90,7 +87,6 @@ class MockProductDataSource implements ProductRepository {
 
   @override
   Future<ApiResponse<ProductListResult>> getProductList({required int page, required int pageSize, String? categoryId, String? keyword, String? sortBy}) async {
-    await Future.delayed(const Duration(milliseconds: 300));
     final allProducts = [
       ProductCard(id: '1', imageUrl: 'assets/images/product/product2.jpg', name: '天佑德电商专供海拔系列 2900青稞酒 46度500ml', priceCents: 13990, originalPriceCents: 16800, tag: '自营', salesCount: 1234),
       ProductCard(id: '2', imageUrl: 'assets/images/product/product3.jpg', name: '天佑德青稞酒 经典款 500ml', priceCents: 9800, tag: '自营', salesCount: 888),
@@ -120,7 +116,6 @@ class MockProductDataSource implements ProductRepository {
 
   @override
   Future<ApiResponse<List<ProductCategory>>> getCategories() async {
-    await Future.delayed(const Duration(milliseconds: 300));
     return ApiResponse.success([
       ProductCategory(id: 'all', label: '全部', sortOrder: 0),
       ProductCategory(id: 'self', label: '天佑德自营', sortOrder: 1),

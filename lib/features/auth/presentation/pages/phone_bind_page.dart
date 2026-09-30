@@ -158,16 +158,16 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
             top: 0,
             left: 0,
             right: 0,
-            child: Image.asset('assets/images/auth/login_bg.png', width: screenW, height: screenW * (624 / 440), fit: BoxFit.cover),
+            child: Image.asset('assets/images/auth/bind_bg.png', width: screenW, height: screenW * (624 / 440), fit: BoxFit.cover),
           ),
 
           // ── 底部装饰图（与登录页一致）──
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Image.asset('assets/images/auth/login_bottom_deco.png', width: screenW, height: 60, fit: BoxFit.fill),
-          ),
+          // Positioned(
+          //   bottom: 0,
+          //   left: 0,
+          //   right: 0,
+          //   child: Image.asset('assets/images/auth/login_bottom_deco.png', width: screenW, height: 60, fit: BoxFit.fill),
+          // ),
 
           // ── 主内容 ──
           SafeArea(
@@ -182,12 +182,13 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          const SizedBox(height: 60),
                           // 品牌标题
                           Padding(
                             padding: EdgeInsets.fromLTRB(sidePad, f(40, min: 28), sidePad, 0),
                             child: Text(
                               '欢迎使用\n青轻生活馆',
-                              style: TextStyle(fontSize: fsTitle, fontWeight: FontWeight.w500, color: Colors.black, height: 1.39, letterSpacing: -2),
+                              style: TextStyle(fontSize: fsTitle, fontWeight: FontWeight.w600, color: Colors.black, height: 1.39, letterSpacing: -2),
                               textAlign: TextAlign.left,
                             ),
                           ),
@@ -203,7 +204,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
                             padding: EdgeInsets.fromLTRB(sidePad, f(24, min: 18), sidePad, 0),
                             child: _buildLabeledCodeInput(labelSize: fsLabel, inputH: inputH, fsInput: fsInput, fsSend: fsSend, sidePad: sidePad),
                           ),
-
+                          const SizedBox(height: 20),
                           // 主按钮
                           Padding(
                             padding: EdgeInsets.fromLTRB(sidePad, f(40, min: 28), sidePad, 0),
@@ -215,7 +216,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
                                   width: double.infinity,
                                   decoration: BoxDecoration(
                                     color: _buttonBlue.withValues(alpha: _submitting ? 0.7 : 1.0),
-                                    borderRadius: BorderRadius.circular(6),
+                                    borderRadius: BorderRadius.circular(32),
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
@@ -279,7 +280,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: labelSize, fontWeight: FontWeight.w500, color: Colors.black),
+          style: TextStyle(fontSize: labelSize, fontWeight: FontWeight.w600, color: Colors.black),
         ),
         const SizedBox(height: 14),
         SizedBox(
@@ -319,7 +320,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
       children: [
         Text(
           '验证码',
-          style: TextStyle(fontSize: labelSize, fontWeight: FontWeight.w500, color: Colors.black),
+          style: TextStyle(fontSize: labelSize, fontWeight: FontWeight.w600, color: Colors.black),
         ),
         const SizedBox(height: 14),
         SizedBox(

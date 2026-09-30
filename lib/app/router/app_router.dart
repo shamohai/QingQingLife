@@ -17,6 +17,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
 import '../../features/points_mall/presentation/pages/service_product_detail_page.dart';
 import '../../features/points_mall/presentation/pages/confirm_order_page.dart';
+import '../../features/points_mall/presentation/pages/all_products_page.dart';
 import '../../features/points_mall/presentation/pages/points_payment_success_page.dart';
 import '../../features/points/presentation/pages/points_detail_page.dart';
 import '../../features/points/presentation/pages/points_rules_page.dart';
@@ -116,6 +117,10 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.confirmOrder,
         pageBuilder: (c, s) => MaterialPage(child: ConfirmOrderPage(productId: s.pathParameters['id']!)),
+      ),
+      GoRoute(
+        path: RouteNames.allProducts,
+        pageBuilder: (c, s) => const MaterialPage(child: AllProductsPage()),
       ),
       GoRoute(
         path: RouteNames.paymentResult,
@@ -225,9 +230,3 @@ class _TabItem extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
