@@ -128,10 +128,10 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
           // const Divider(height: 1, thickness: 0.5, color: Color(0xFFE1E4DC)),
           // ── 热门兑换商品标题栏（蓝色图标）──
           Container(
-            margin: const EdgeInsets.only(top: 4),
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            margin: const EdgeInsets.only(top: 0),
+            padding: const EdgeInsets.symmetric(vertical: 4),
             child: SizedBox(
-              height: 40,
+              height: 36,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [

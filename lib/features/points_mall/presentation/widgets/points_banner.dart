@@ -122,18 +122,29 @@ class _PointsBannerState extends State<PointsBanner> {
           Positioned(
             left: 0,
             right: 0,
-            bottom: 34,
+            top: 188,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: List.generate(urls.length, (index) {
                 final bool isActive = _currentIndex == index;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  //margin: const EdgeInsets.symmetric(horizontal: 3),
-                  width: 28,
-                  height: 2,
-                  decoration: BoxDecoration(color: isActive ? const Color(0xFF0088FF) : Colors.white, borderRadius: BorderRadius.zero),
+                return GestureDetector(
+                  onTap: () {
+                    // 假设你的 PageView 控制器叫 _pageController
+                    // 点击后让轮播图跳转到对应的 index
+                    _pageController.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                  },
+                  // 💡 增加一点透明的 padding，扩大点击区域，防止指示器太细不好点
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: isActive ? 30 : 30,
+                      height: 3,
+                      decoration: BoxDecoration(color: isActive ? const Color(0xFF0088FF) : Colors.white, borderRadius: BorderRadius.zero),
+                    ),
+                  ),
                 );
               }),
             ),
