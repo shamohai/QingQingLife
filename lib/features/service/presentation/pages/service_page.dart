@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:web/web.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/router/route_names.dart';
@@ -45,22 +46,42 @@ class ServicePage extends ConsumerWidget {
                                 padding: const EdgeInsets.symmetric(horizontal: 14),
                                 child: Column(
                                   children: [
-                                    // 首项：上下 padding 14
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 14, bottom: 14),
-                                      child: ServiceListItem(data: cards[0], onBookTap: onBookTap),
-                                    ),
-                                    // 中间项 + 末项：分割线 + 上下 padding 14
-                                    for (int i = 1; i < cards.length; i++)
-                                      Column(
-                                        children: [
-                                          Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 0, endIndent: 0),
-                                          Padding(
-                                            padding: const EdgeInsets.only(top: 14, bottom: 14),
-                                            child: ServiceListItem(data: cards[i], onBookTap: onBookTap),
-                                          ),
-                                        ],
+                                    if (selectedTab == 'fuwu' || selectedTab == 'zhiyouhui') ...[
+                                      // 首项：上下 padding 14
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 14, bottom: 14),
+                                        child: ServiceListItem(data: cards[0], onBookTap: onBookTap),
                                       ),
+                                      // 中间项 + 末项：分割线 + 上下 padding 14
+                                      for (int i = 1; i < cards.length; i++)
+                                        Column(
+                                          children: [
+                                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 0, endIndent: 0),
+                                            Padding(
+                                              padding: const EdgeInsets.only(top: 14, bottom: 14),
+                                              child: ServiceListItem(data: cards[i], onBookTap: onBookTap),
+                                            ),
+                                          ],
+                                        ),
+                                    ]
+                                    else if (selectedTab == 'huodong' || selectedTab == 'goujiu') ...[
+                                      // 首项：上下 padding 14
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 14, bottom: 14),
+                                        child: ServiceListItem(data: cards[0], onBookTap: onBookTap),
+                                      ),
+                                      // 中间项 + 末项：分割线 + 上下 padding 14
+                                      for (int i = 1; i < cards.length; i++)
+                                        Column(
+                                          children: [
+                                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 0, endIndent: 0),
+                                            Padding(
+                                              padding: const EdgeInsets.only(top: 14, bottom: 14),
+                                              child: ServiceListItem(data: cards[i], onBookTap: onBookTap),
+                                            ),
+                                          ],
+                                        ),
+                                    ]
                                   ],
                                 ),
                               ),

@@ -20,7 +20,7 @@ final selectedTabProvider = NotifierProvider<ServiceTabNotifier, String>(() => S
 
 class ServiceTabNotifier extends Notifier<String> {
   @override
-  String build() => 'golf';
+  String build() => 'fuwu';
 
   void update(String tab) => state = tab;
 }

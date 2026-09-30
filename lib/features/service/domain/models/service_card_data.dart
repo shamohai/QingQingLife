@@ -8,7 +8,7 @@ class ServiceCardData {
   final String? heroAsset;        // 详情页头图，可选
   final String? description;      // 详情页描述，可选
 
-  /// 所属分类 Tab key：'golf' | 'zhiyouhui' | 'huodong' | 'goujiu'
+  /// 所属分类 Tab key：'fuwu' | 'zhiyouhui' | 'huodong' | 'goujiu'
   final String tabKey;
 
   const ServiceCardData({
@@ -24,10 +24,10 @@ class ServiceCardData {
 
   /// 按 Tab key 分组的静态 mock 数据，对应蓝湖设计稿
   static const Map<String, List<ServiceCardData>> staticListByTab = {
-    'golf': [
+    'fuwu': [
       ServiceCardData(
-        id: 'golf_1',
-        tabKey: 'golf',
+        id: 'fuwu_1',
+        tabKey: 'fuwu',
         imageAsset: 'assets/images/service/service_golf.png',
         title: '高尔夫',
         subtitle: '当前已有100人参与预约',
@@ -36,8 +36,8 @@ class ServiceCardData {
         description: '高尔夫是一项优雅而精准的运动，既能锻炼身体又能陶冶情操。本课程由专业教练指导，从基础挥杆姿势到进阶击球技巧，循序渐进帮助您掌握高尔夫核心技能。场地设施完善，环境优美，适合各水平学员。',
       ),
       ServiceCardData(
-        id: 'golf_2',
-        tabKey: 'golf',
+        id: 'fuwu_2',
+        tabKey: 'fuwu',
         imageAsset: 'assets/images/service/service_running.png',
         title: '跑步',
         subtitle: '当前已有100人参与预约',
@@ -46,8 +46,8 @@ class ServiceCardData {
         description: '科学跑步训练营，由国家级教练设计训练计划。涵盖热身拉伸、核心力量、配速训练、恢复拉伸全流程。帮助跑者提升耐力、改善姿态、预防损伤，享受奔跑的自由与快乐。',
       ),
       ServiceCardData(
-        id: 'golf_3',
-        tabKey: 'golf',
+        id: 'fuwu_3',
+        tabKey: 'fuwu',
         imageAsset: 'assets/images/service/service_cycling.png',
         title: '自行车',
         subtitle: '当前已有100人参与预约',
@@ -56,8 +56,8 @@ class ServiceCardData {
         description: '骑行技巧进阶课程，包含公路车与山地车双模式教学。从车辆调整、骑行姿势、变速技巧到爬坡冲刺，全方位提升骑行能力。配备专业领骑，路线风景优美，安全有保障。',
       ),
       ServiceCardData(
-        id: 'golf_4',
-        tabKey: 'golf',
+        id: 'fuwu_4',
+        tabKey: 'fuwu',
         imageAsset: 'assets/images/service/service_camping.png',
         title: '露营基地',
         subtitle: '当前已有100人参与预约',

@@ -15,7 +15,7 @@ class ServiceTabBar extends StatelessWidget {
 
   const ServiceTabBar({super.key, required this.selectedTab, required this.onTabChanged});
 
-  static const _tabKeys = ['golf', 'zhiyouhui', 'huodong', 'goujiu'];
+  static const _tabKeys = ['fuwu', 'zhiyouhui', 'huodong', 'goujiu'];
   static const _tabLabels = ['服务预约', '挚友报名会', '活动报名', '购酒享服务'];
 
   @override
