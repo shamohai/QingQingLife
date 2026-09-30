@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/models/service_card_data.dart';
 import '../../domain/models/service_record_item.dart';
-import '../../data/datasources/service_mock_datasource.dart';
 import '../../data/datasources/service_remote_datasource.dart';
 import '../../domain/models/share_cart_template_model.dart';
 
