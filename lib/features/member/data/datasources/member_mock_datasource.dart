@@ -56,7 +56,8 @@ class MockMemberDataSource implements MemberRepository {
     await Future.delayed(const Duration(milliseconds: 400));
     return ApiResponse.success(
       const MemberInfo(
-        id: 'u001',
+        // TODO(Mock): UID 对齐设计稿，后端 getmemberinfo 就绪后以接口返回为准
+        id: '434543456576543',
         nickname: '青轻用户_9527',
         memberLevel: 2,
         levelName: levelName,
@@ -176,14 +177,15 @@ class MockMemberDataSource implements MemberRepository {
   Future<ApiResponse<List<MemberAddress>>> getAddresses() async {
     await Future.delayed(const Duration(milliseconds: 300));
     return ApiResponse.success([
+      // TODO(Mock): 地址内容对齐设计稿，后端地址接口就绪后以接口返回为准
       const MemberAddress(
         id: 'addr_1',
         name: '张三',
         phone: '13800138000',
-        province: '北京',
-        city: '北京',
-        district: '朝阳区',
-        detail: '朝阳路 1 号',
+        province: '甘肃省',
+        city: '兰州市',
+        district: '七里河区',
+        detail: '建兰路街道兰州中心801室',
         isDefault: true,
         label: '家',
       ),

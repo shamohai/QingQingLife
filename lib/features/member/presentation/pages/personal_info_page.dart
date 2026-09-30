@@ -3,20 +3,23 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../providers/user_profile_provider.dart';
-import '../widgets/personal_info_form_card.dart';
+import '../widgets/account_security_card.dart';
 
-/// 个人信息页（/member/personal-info）
+/// 账号安全页（/member/personal-info）
 ///
-/// 入口：「我的」页头像 / 昵称区域点击（ProfileHeaderSection）。
+/// 入口：「我的」页头像 / 昵称区域点击（ProfileHeaderSection）、功能宫格「个人信息」。
 /// 结构（设计稿）：
-///   顶部 bg-top350 插画背景（底部渐隐衔接淡蓝底）
-///   → 透明返回栏「个人信息」→ 大头像（相机徽章）
-///   → 表单卡片（昵称 / 性别 / 生日 / 修改资料）
-/// 数据：昵称 / 头像取 userProfileProvider；头像更换与资料保存接口后端暂未提供，
-/// 相关交互标记 TODO，待接口就绪后接入。
+///   顶部 bg-top350 插画背景（底部渐隐衔接页面淡蓝底色）
+///   → 透明返回栏「账号安全」→ 大头像
+///   → 账号信息卡片（UID / 昵称 / 性别 / 出生日期 / 手机号 / 版本号 / 我的地址）
+///   → 底部固定操作栏（注销账号 / 修改个人信息）
+/// 「修改个人信息」跳转旧版表单页（/member/personal-info/edit）。
+/// 数据：账号信息取 userProfileProvider / memberAddressesProvider；
+/// 注销账号、修改绑定手机号接口后端暂未提供，相关交互标记 TODO，待接口就绪后接入。
 class PersonalInfoPage extends ConsumerStatefulWidget {
   const PersonalInfoPage({super.key});
 
@@ -25,6 +28,9 @@ class PersonalInfoPage extends ConsumerStatefulWidget {
 }
 
 class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
+  /// 底部操作栏内容高度（上 11 + 按钮 44 + 下 23，不含系统安全区）
+  static const double _barHeight = 78;
+
   @override
   void initState() {
     super.initState();
@@ -40,73 +46,55 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: const Color(0xFFDFEBFF),
+        backgroundColor: const Color(0xFFD4E2F7),
         // fit: expand 让 Stack 撑满视口（Scaffold body 的约束是松散的，
-        // 否则 Stack 会被内容撑出的高度决定，背景渐变无法铺满全屏）
+        // 否则 Stack 会被内容撑出的高度决定，背景无法铺满全屏）
         body: Stack(
           fit: StackFit.expand,
           children: [
-            // ── 背景：顶部插画 + 下方淡蓝渐变（不随内容滚动）──────────
-            Positioned.fill(child: _buildBackground()),
+            // ── 顶部插画背景（底部渐隐，不随内容滚动）─────────────────
+            Positioned(top: 0, left: 0, right: 0, child: _buildBanner()),
 
             // ── 前景内容 ───────────────────────────────────────────────
             SafeArea(
               bottom: false,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.only(bottom: AppSpacing.xxl + MediaQuery.paddingOf(context).bottom),
+                padding: EdgeInsets.only(bottom: _barHeight + MediaQuery.paddingOf(context).bottom + AppSpacing.lg),
                 child: Column(
                   children: [
                     _buildNavBar(context),
-                    // 头像上沿与导航栏底部的距离（设计稿 158.7 - 状态栏 44 - 导航栏 30 ≈ 85）
-                    const SizedBox(height: 85),
+                    // 头像上沿与导航栏底部的距离（设计稿 162.7 - 状态栏 44 - 导航栏 30 ≈ 88.7）
+                    const SizedBox(height: 88.7),
                     _buildHeader(profileState),
                   ],
                 ),
               ),
             ),
+
+            // ── 底部操作栏（固定，不随内容滚动）────────────────────────
+            Positioned(left: 0, right: 0, bottom: 0, child: _buildBottomBar(context)),
           ],
         ),
       ),
     );
   }
 
-  /// 背景：顶部背景插画（全宽等比） + 底部渐隐 + 下方淡蓝渐变。
-  ///
-  /// TODO(资源): 设计稿卡片下方为湖面背景插画（暂无切图资源），
-  /// 现以「#D4E2F7 → #DFEBFF」渐变近似，资源接入后替换。
-  Widget _buildBackground() {
-    return Column(
-      // 撑满宽度：否则无子级的 DecoratedBox（下方渐变）在松散约束下会塌缩为 0 宽
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+  /// 顶部插画背景（全宽等比） + 底部渐隐（衔接页面底色 #D4E2F7）
+  Widget _buildBanner() {
+    return Stack(
       children: [
-        Stack(
-          children: [
-            Image.asset('assets/images/member/bg-top350.png', width: double.infinity, fit: BoxFit.fitWidth),
-            // 插画底部渐隐，与下方淡蓝背景无缝衔接
-            const Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: 74,
-              child: IgnorePointer(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0x00D4E2F7), Color(0xFFD4E2F7)]),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const Expanded(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                stops: [0, 0.45, 0.9],
-                colors: [Color(0xFFD4E2F7), Color(0xFFD4E2F7), Color(0xFFDFEBFF)],
+        Image.asset('assets/images/member/bg-top350.png', width: double.infinity, fit: BoxFit.fitWidth),
+        // 插画底部渐隐，与页面底色无缝衔接（设计稿渐隐区约 85）
+        const Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 85,
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0x00D4E2F7), Color(0xFFD4E2F7)]),
               ),
             ),
           ),
@@ -130,7 +118,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
             ),
           ),
           const Text(
-            '个人信息',
+            '账号安全',
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white, height: 1.2),
           ),
         ],
@@ -138,68 +126,99 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
     );
   }
 
-  /// 头部区域：表单卡片 + 大头像（下沿压在卡片顶部之上）
+  /// 头部区域：账号信息卡片 + 大头像（头像上沿高出卡片，下沿压入卡片）
   Widget _buildHeader(UserProfileState state) {
     return Stack(
       alignment: Alignment.topCenter,
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(AppSpacing.md, 50.5, AppSpacing.md, 0),
-          child: PersonalInfoFormCard(initialNickname: state.nickname),
+        const Padding(
+          // 卡片上沿与头像上沿的距离（设计稿：头像顶 162.7 → 卡片顶 212.5）
+          padding: EdgeInsets.fromLTRB(14, 49.8, 14, 0),
+          child: AccountSecurityCard(),
         ),
         _buildAvatar(state),
       ],
     );
   }
 
-  /// 大头像（白描边）+ 右下角相机徽章
+  /// 大头像（设计稿无描边/徽章，直径 57px ≈ 80.7；无头像地址时展示占位人形图标）
   Widget _buildAvatar(UserProfileState state) {
     final hasAvatar = state.avatarUrl != null && state.avatarUrl!.isNotEmpty;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        GestureDetector(
-          onTap: _onAvatarTap,
-          child: Container(
-            width: 84,
-            height: 84,
-            padding: const EdgeInsets.all(2),
-            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-            child: CircleAvatar(
-              radius: 40,
-              backgroundColor: const Color(0xFFDDEAF6),
-              child: hasAvatar
-                  ? ClipOval(
-                      child: AppNetworkImage(url: state.avatarUrl!, width: 80, height: 80, fit: BoxFit.cover),
-                    )
-                  : const Icon(Icons.person_outline, size: 40, color: Color(0xFF8FA8BF)),
-            ),
-          ),
-        ),
-        Positioned(
-          right: 0,
-          bottom: 0,
-          child: GestureDetector(
-            onTap: _onAvatarTap,
-            child: Container(
-              width: 28,
-              height: 28,
-              padding: const EdgeInsets.all(2),
-              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-              child: Container(
-                decoration: const BoxDecoration(color: Color(0xFF22418A), shape: BoxShape.circle),
-                child: const Icon(Icons.photo_camera_outlined, size: 13, color: Colors.white),
-              ),
-            ),
-          ),
-        ),
-      ],
+    return CircleAvatar(
+      radius: 40.35,
+      backgroundColor: const Color(0xFFDDEAF6),
+      child: hasAvatar
+          ? ClipOval(
+              child: AppNetworkImage(url: state.avatarUrl!, width: 80.7, height: 80.7, fit: BoxFit.cover),
+            )
+          : const Icon(Icons.person_outline, size: 38, color: Color(0xFF8FA8BF)),
     );
   }
 
-  void _onAvatarTap() {
-    // TODO: 头像更换依赖图片上传接口，后端暂未提供，待接入后补充。
-    debugPrint('[PersonalInfoPage] 头像/相机徽章点击');
+  /// 底部操作栏：注销账号（描边） / 修改个人信息（渐变）
+  Widget _buildBottomBar(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFFDFEBFF),
+        boxShadow: [BoxShadow(color: Color(0x1F000000), blurRadius: 6, offset: Offset(0, -1))],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(13, 11, 13, 23),
+          child: Row(
+            children: [
+              Expanded(child: _buildLogoutButton()),
+              const SizedBox(width: 8),
+              Expanded(flex: 2, child: _buildEditInfoButton(context)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 左按钮「注销账号」（描边）
+  Widget _buildLogoutButton() {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        // TODO: 注销账号流程依赖后端注销/核验接口，后端暂未提供，待接入后补充。
+        debugPrint('[PersonalInfoPage] 注销账号点击');
+      },
+      child: Container(
+        height: 44,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: const Color(0xFFA8B9DD)),
+        ),
+        child: const Text(
+          '注销账号',
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xFF2B4990), height: 1.2),
+        ),
+      ),
+    );
+  }
+
+  /// 右按钮「修改个人信息」→ 旧版表单页（/member/personal-info/edit）
+  Widget _buildEditInfoButton(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => context.push(RouteNames.personalInfoEdit),
+      child: Container(
+        height: 44,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          gradient: const LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Color(0xFF22418A), Color(0xFF2F57BA)]),
+        ),
+        child: const Text(
+          '修改个人信息',
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white, height: 1.2),
+        ),
+      ),
+    );
   }
 }

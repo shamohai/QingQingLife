@@ -10,6 +10,7 @@ import '../../features/member/presentation/pages/profile_page.dart';
 import '../../features/member/presentation/pages/member_level_page.dart';
 import '../../features/member/presentation/pages/member_sign_in_page.dart';
 import '../../features/member/presentation/pages/personal_info_page.dart';
+import '../../features/member/presentation/pages/personal_info_edit_page.dart';
 import '../../features/member/presentation/pages/about_us_page.dart';
 import '../../features/notification/presentation/pages/notification_list_page.dart';
 import '../../features/service/presentation/pages/service_page.dart';
@@ -114,6 +115,12 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.personalInfo,
         pageBuilder: (c, s) => const MaterialPage(child: PersonalInfoPage()),
+        routes: [
+          GoRoute(
+            path: 'edit',
+            pageBuilder: (c, s) => const MaterialPage(child: PersonalInfoEditPage()),
+          ),
+        ],
       ),
       GoRoute(
         path: RouteNames.aboutUs,
