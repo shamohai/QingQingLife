@@ -28,7 +28,7 @@ class ShareCartTemplateItem extends StatelessWidget {
         // 中间文字
         Expanded(
           child: SizedBox(
-            height: 100,
+            height: 112,
             child: Padding(
               padding: EdgeInsets.only(top: AppSpacing.sm),
               child: Column(

@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
-import '../../../../app/router/route_names.dart';
 import '../../domain/models/service_project_detail_model.dart';
 
 /// 预约项目详情 — 底部固定操作栏

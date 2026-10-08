@@ -28,7 +28,7 @@ class ServiceProjectDetailPage extends ConsumerWidget {
       backgroundColor: AppColors.servicePageBackground,
       appBar: projectAsync.when(
         loading: () => _buildAppBar(context),
-        error: (_, __) => _buildAppBar(context),
+        error: (_, _) => _buildAppBar(context),
         data: (product) => _buildAppBar(context, title: product.title),
       ),
       body: projectAsync.when(
@@ -43,7 +43,7 @@ class ServiceProjectDetailPage extends ConsumerWidget {
       ),
       bottomNavigationBar: projectAsync.when(
         loading: () => const SizedBox.shrink(),
-        error: (_, __) => const SizedBox.shrink(),
+        error: (_, _) => const SizedBox.shrink(),
         data: (product) => SafeArea(
           top: false,
           bottom: true,
