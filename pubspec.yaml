@@ -1,4 +1,4 @@
-﻿name: qingqinglife
+name: qingqinglife
 description: 青轻生活馆 - 会员制电商 Flutter App
 
 publish_to: "none"
@@ -87,6 +87,7 @@ flutter:
     - assets/images/member/
     - assets/images/service/
     - assets/images/points/
+    - assets/images/order/
 
   # fonts:
   #   - family: Schyler

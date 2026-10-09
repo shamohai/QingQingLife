@@ -25,6 +25,8 @@ import '../../features/points_mall/presentation/pages/all_products_page.dart';
 import '../../features/points_mall/presentation/pages/points_payment_success_page.dart';
 import '../../features/points/presentation/pages/points_detail_page.dart';
 import '../../features/points/presentation/pages/points_rules_page.dart';
+import '../../features/order/presentation/pages/all_orders_page.dart';
+import '../../features/order/presentation/pages/order_detail_page.dart';
 import 'route_names.dart';
 
 final appRouter = Provider<GoRouter>((ref) {
@@ -159,6 +161,14 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.pointsRules,
         pageBuilder: (c, s) => const MaterialPage(child: PointsRulesPage()),
+      ),
+      GoRoute(
+        path: RouteNames.orders,
+        pageBuilder: (c, s) => const MaterialPage(child: AllOrdersPage()),
+      ),
+      GoRoute(
+        path: RouteNames.orderDetail,
+        pageBuilder: (c, s) => MaterialPage(child: OrderDetailPage(orderId: s.pathParameters['id']!)),
       ),
     ],
   );

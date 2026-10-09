@@ -1,4 +1,5 @@
 import '../../../../core/network/api_response.dart';
+import '../enums/order_type.dart';
 
 /// 订单仓库接口
 abstract class OrderRepository {
@@ -84,6 +85,7 @@ class OrderSummary {
   final int productCount;
   final String? firstProductImage;
   final String? firstProductName;
+  final OrderType orderType;
   final DateTime createTime;
   final DateTime? payTime;
 
@@ -96,6 +98,7 @@ class OrderSummary {
     required this.productCount,
     this.firstProductImage,
     this.firstProductName,
+    required this.orderType,
     required this.createTime,
     this.payTime,
   });
@@ -123,6 +126,10 @@ class OrderDetail {
   final String? logisticsNo;
   final String? remark;
   final List<OrderTimeline> timeline;
+  final OrderType? orderType;
+  final int? pointsCost;
+  final DateTime? exchangeTime;
+  final String? pickupCode;
 
   const OrderDetail({
     required this.id,
@@ -145,6 +152,10 @@ class OrderDetail {
     this.logisticsNo,
     this.remark,
     required this.timeline,
+    this.orderType,
+    this.pointsCost,
+    this.exchangeTime,
+    this.pickupCode,
   });
 }
 
