@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../product/domain/repositories/product_repository.dart';
 import '../../../../core/presentation/paging/paging_controller_mixin.dart';
 import '../../../../core/presentation/paging/paging_list_view.dart';
 import '../../../../core/providers/repository_providers.dart';
@@ -18,11 +17,7 @@ class ShopProductListNotifier extends PagingNotifier<ShopProduct> {
   @override
   Future<PagingResult<ShopProduct>> fetchPage(int page, int pageSize) async {
     final repository = ref.read(productRepositoryProvider);
-    final response = await repository.getProductList(
-      page: page,
-      pageSize: pageSize,
-      categoryId: categoryId == 'all' ? null : categoryId,
-    );
+    final response = await repository.getProductList(page: page, pageSize: pageSize, categoryId: categoryId == 'all' ? null : categoryId);
     if (!response.success || response.data == null) {
       throw Exception(response.message ?? '获取商品列表失败');
     }
@@ -40,17 +35,11 @@ class ShopProductListNotifier extends PagingNotifier<ShopProduct> {
           ),
         )
         .toList();
-    return PagingResult<ShopProduct>(
-      items: products,
-      hasMore: result.hasMore,
-      totalItems: result.total,
-      totalPages: (result.total / pageSize).ceil(),
-    );
+    return PagingResult<ShopProduct>(items: products, hasMore: result.hasMore, totalItems: result.total, totalPages: (result.total / pageSize).ceil());
   }
 }
 
-final shopProductListProvider =
-    NotifierProvider.autoDispose.family<ShopProductListNotifier, PagingData<ShopProduct>, String>(
+final shopProductListProvider = NotifierProvider.autoDispose.family<ShopProductListNotifier, PagingData<ShopProduct>, String>(
   (arg) => ShopProductListNotifier(arg),
 );
 

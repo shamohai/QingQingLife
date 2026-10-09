@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../product/domain/repositories/product_repository.dart';
 import '../../../../core/providers/repository_providers.dart';
 
 /// 商品数据（特色商城用）
@@ -68,9 +67,7 @@ final shopDataProvider = FutureProvider<ShopData>((ref) async {
     throw Exception(productsResponse.message ?? '获取商品列表失败');
   }
 
-  final categories = categoriesResponse.data!
-      .map((c) => ShopCategory(id: c.id, label: c.label, icon: _getIconForCategory(c.id)))
-      .toList();
+  final categories = categoriesResponse.data!.map((c) => ShopCategory(id: c.id, label: c.label, icon: _getIconForCategory(c.id))).toList();
 
   final products = productsResponse.data!.products
       .map(
@@ -86,11 +83,7 @@ final shopDataProvider = FutureProvider<ShopData>((ref) async {
       )
       .toList();
 
-  return ShopData(
-    categories: categories,
-    allProducts: products,
-    hotSearchKeywords: const ['青稞酒', '牛肉干', '菜籽油', '枸杞', '礼盒', '红酒', '特惠'],
-  );
+  return ShopData(categories: categories, allProducts: products, hotSearchKeywords: const ['青稞酒', '牛肉干', '菜籽油', '枸杞', '礼盒', '红酒', '特惠']);
 });
 
 IconData _getIconForCategory(String categoryId) {

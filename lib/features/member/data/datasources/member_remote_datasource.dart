@@ -6,7 +6,7 @@ import '../../../../core/network/providers.dart';
 import '../models/member_authority_model.dart';
 
 /// 会员数据源（对接真实 API）
-/// 
+///
 /// 所有接口均通过 [ApiClient] 发起，加密/签名由拦截器自动处理。
 class MemberRemoteDataSource {
   final ApiClient _apiClient;
@@ -14,11 +14,11 @@ class MemberRemoteDataSource {
   MemberRemoteDataSource(this._apiClient);
 
   /// 获取会员权益权限
-  /// 
+  ///
   /// 接口：POST /api/sys/v2/getmemberauthority
   /// 请求体：{"level": <会员等级>}
   /// 响应：[ApiResponse<MemberAuthorityModel>]
-  /// 
+  ///
   /// 使用示例：
   /// ```dart
   /// final dataSource = ref.read(memberRemoteDataSourceProvider);
@@ -29,10 +29,7 @@ class MemberRemoteDataSource {
   /// }
   /// ```
   Future<ApiResponse<MemberAuthorityModel>> getMemberAuthority({required int level}) async {
-    final response = await _apiClient.post<Map<String, dynamic>>(
-      '/api/sys/v2/getmemberauthority',
-      data: {'level': level},
-    );
+    final response = await _apiClient.post<Map<String, dynamic>>('/api/sys/v2/getmemberauthority', data: {'level': level});
     if (response.success && response.data != null) {
       return ApiResponse.success(MemberAuthorityModel.fromJson(response.data!));
     }

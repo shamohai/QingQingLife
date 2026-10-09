@@ -7,7 +7,11 @@ import '../domain/repositories/auth_repository.dart';
 import '../../features/cart/data/datasources/cart_mock_datasource.dart';
 import '../../features/cart/domain/repositories/cart_repository.dart';
 import '../../features/member/data/datasources/member_mock_datasource.dart';
+import '../../features/member/data/datasources/member_sign_in_mock_datasource.dart';
 import '../../features/member/domain/repositories/member_repository.dart';
+import '../../features/member/domain/repositories/member_sign_in_repository.dart';
+import '../../features/notification/data/datasources/notification_mock_datasource.dart';
+import '../../features/notification/domain/repositories/notification_repository.dart';
 import '../../features/order/data/datasources/order_mock_datasource.dart';
 import '../../features/order/domain/repositories/order_repository.dart';
 import '../../features/points/data/datasources/points_mock_datasource.dart';
@@ -50,7 +54,17 @@ OrderRepository orderRepository(Ref ref) {
 /// Member Repository Provider
 @riverpod
 MemberRepository memberRepository(Ref ref) {
+  // TODO(Mock): 会员相关后端接口（含会员权益 POST /api/sys/v2/getmemberauthority）尚未实现，
+  // 当前统一走 Mock。后端就绪后改为返回 MemberRemoteDataSource。
   return MockMemberDataSource();
+}
+
+/// Member Sign In Repository Provider
+@riverpod
+MemberSignInRepository memberSignInRepository(Ref ref) {
+  // TODO(Mock): 会员签到后端接口尚未提供，当前走 Mock。
+  // 接口就绪后改为返回 MemberSignInRemoteDataSource。
+  return MockMemberSignInDataSource();
 }
 
 /// Points Repository Provider
@@ -62,6 +76,14 @@ PointsRepository pointsRepository(Ref ref) {
   return MockPointsDataSource(apiClient: ref.read(apiClientProvider));
 }
 
+/// Notification Repository Provider
+@riverpod
+NotificationRepository notificationRepository(Ref ref) {
+  // TODO(Mock): 通知中心后端接口尚未定义，当前走 Mock。
+  // 接口就绪后改为返回 NotificationRemoteDataSource。
+  return MockNotificationDataSource();
+}
+
 /// 所有 Repository Provider 的聚合
 final allRepositoryProviders = [
   authRepositoryProvider,
@@ -69,5 +91,7 @@ final allRepositoryProviders = [
   cartRepositoryProvider,
   orderRepositoryProvider,
   memberRepositoryProvider,
+  memberSignInRepositoryProvider,
   pointsRepositoryProvider,
+  notificationRepositoryProvider,
 ];

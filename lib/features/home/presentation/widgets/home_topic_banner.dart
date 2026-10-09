@@ -2,7 +2,6 @@
 
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_image.dart';
-import '../../data/models/home_banner_item.dart';
 
 /// 专题活动横幅（横向滚动）
 class HomeTopicBanner extends StatelessWidget {
