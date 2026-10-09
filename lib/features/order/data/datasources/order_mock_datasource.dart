@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/repositories/order_repository.dart';
+import '../../domain/enums/order_type.dart';
 import '../../../../core/network/api_response.dart';
 
 /// Mock 订单数据源 - 开发/测试环境使用
@@ -44,43 +45,105 @@ class MockOrderDataSource implements OrderRepository {
     required int pageSize,
     OrderStatus? status,
   }) async {
-    // Mock 订单列表
+    final base = DateTime(2026, 10, 10, 12, 12, 11);
     final mockOrders = OrderListResult(
       orders: [
         OrderSummary(
-          id: 'o1',
-          orderNo: 'NO20240101001',
+          id: 'mall_pending_payment',
+          orderNo: 'DDBH3456789',
           status: OrderStatus.pendingPayment,
           statusText: '待付款',
-          totalPriceCents: 13990,
+          totalPriceCents: 80000,
           productCount: 1,
-          createTime: DateTime.now().subtract(const Duration(days: 1)),
+          orderType: OrderType.mall,
+          createTime: base,
         ),
         OrderSummary(
-          id: 'o2',
-          orderNo: 'NO20240102002',
+          id: 'mall_pending_shipment',
+          orderNo: 'DDBH3456790',
           status: OrderStatus.pendingShipment,
           statusText: '待发货',
-          totalPriceCents: 25800,
-          productCount: 2,
-          createTime: DateTime.now().subtract(const Duration(days: 2)),
+          totalPriceCents: 80000,
+          productCount: 1,
+          orderType: OrderType.mall,
+          createTime: base,
         ),
         OrderSummary(
-          id: 'o3',
-          orderNo: 'NO20240103003',
+          id: 'mall_shipped',
+          orderNo: 'DDBH3456791',
           status: OrderStatus.shipped,
-          statusText: '待收货',
-          totalPriceCents: 9800,
+          statusText: '待收货/待核销',
+          totalPriceCents: 80000,
           productCount: 1,
-          createTime: DateTime.now().subtract(const Duration(days: 3)),
+          orderType: OrderType.mall,
+          createTime: base,
+        ),
+        OrderSummary(
+          id: 'mall_completed_review',
+          orderNo: 'DDBH3456792',
+          status: OrderStatus.completed,
+          statusText: '待评价',
+          totalPriceCents: 80000,
+          productCount: 1,
+          orderType: OrderType.mall,
+          createTime: base,
+        ),
+        OrderSummary(
+          id: 'mall_completed',
+          orderNo: 'DDBH3456793',
+          status: OrderStatus.completed,
+          statusText: '交易完成',
+          totalPriceCents: 80000,
+          productCount: 1,
+          orderType: OrderType.mall,
+          createTime: base,
+        ),
+        OrderSummary(
+          id: 'points_pending_shipment',
+          orderNo: 'DDBH3456794',
+          status: OrderStatus.pendingShipment,
+          statusText: '待发货',
+          totalPriceCents: 0,
+          productCount: 1,
+          orderType: OrderType.points,
+          createTime: base,
+        ),
+        OrderSummary(
+          id: 'points_completed_coupon',
+          orderNo: 'DDBH3456795',
+          status: OrderStatus.completed,
+          statusText: '交易完成',
+          totalPriceCents: 0,
+          productCount: 1,
+          orderType: OrderType.points,
+          createTime: base,
+        ),
+        OrderSummary(
+          id: 'points_shipped_tour',
+          orderNo: 'DDBH3456796',
+          status: OrderStatus.shipped,
+          statusText: '待核销',
+          totalPriceCents: 0,
+          productCount: 1,
+          orderType: OrderType.points,
+          createTime: base,
+        ),
+        OrderSummary(
+          id: 'service_completed',
+          orderNo: 'DDBH3456797',
+          status: OrderStatus.completed,
+          statusText: '交易完成',
+          totalPriceCents: 80000,
+          productCount: 1,
+          orderType: OrderType.service,
+          createTime: base,
         ),
       ],
-      total: 3,
+      total: 9,
       page: page,
       pageSize: pageSize,
       hasMore: false,
     );
-
     return ApiResponse.success(mockOrders);
   }
 

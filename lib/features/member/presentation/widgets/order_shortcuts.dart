@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../../app/router/route_names.dart';
 
 class OrderShortcutItem {
   final IconData icon;
@@ -37,7 +39,7 @@ class OrderShortcuts extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('我的订单', style: AppTextStyles.headlineSmall),
-              TextButton(onPressed: () {}, child: Text('全部订单', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary))),
+              TextButton(onPressed: () => context.push(RouteNames.orders), child: Text('全部订单', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary))),
             ],
           ),
           const SizedBox(height: 16),
