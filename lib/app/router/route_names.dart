@@ -35,6 +35,7 @@ abstract final class RouteNames {
   // 积分明细页
   static const String pointsDetail = '/points/detail';
   static const String address = '/address';
+  static const String addressAdd = '/address/add';
   static const String addressEdit = '/address/edit';
 
   // 登录

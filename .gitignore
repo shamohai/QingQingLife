@@ -69,3 +69,4 @@ pubspec.lock
 .hot_reload_cmd
 /.codex/
 /.workbuddy/
+.lanhu_schema.json

@@ -12,6 +12,9 @@ import '../../features/member/presentation/pages/member_sign_in_page.dart';
 import '../../features/member/presentation/pages/personal_info_page.dart';
 import '../../features/member/presentation/pages/personal_info_edit_page.dart';
 import '../../features/member/presentation/pages/about_us_page.dart';
+import '../../features/member/presentation/pages/address_list_page.dart';
+import '../../features/member/presentation/pages/address_form_page.dart';
+import '../../features/member/domain/repositories/member_repository.dart';
 import '../../features/notification/presentation/pages/notification_list_page.dart';
 import '../../features/service/presentation/pages/service_page.dart';
 import '../../features/service/presentation/pages/service_cart_page.dart';
@@ -121,6 +124,18 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.aboutUs,
         pageBuilder: (c, s) => const MaterialPage(child: AboutUsPage()),
+      ),
+      GoRoute(
+        path: RouteNames.address,
+        pageBuilder: (c, s) => const MaterialPage(child: AddressListPage()),
+      ),
+      GoRoute(
+        path: RouteNames.addressAdd,
+        pageBuilder: (c, s) => const MaterialPage(child: AddressFormPage()),
+      ),
+      GoRoute(
+        path: RouteNames.addressEdit,
+        pageBuilder: (c, s) => MaterialPage(child: AddressFormPage(initial: s.extra is MemberAddress ? s.extra as MemberAddress : null)),
       ),
       GoRoute(
         path: RouteNames.notifications,
