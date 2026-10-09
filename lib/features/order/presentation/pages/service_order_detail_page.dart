@@ -226,7 +226,7 @@ class _ServiceOrderBody extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,17 +245,19 @@ class _ServiceOrderBody extends StatelessWidget {
                   const _UpsellProductItem(),
                   const SizedBox(height: 16),
 
-                  // 查看更多按钮
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '点击查看更多',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF8E8E97)),
-                      ),
-                      SizedBox(width: 4),
-                      Icon(Icons.keyboard_arrow_down_rounded, size: 20, color: Color(0xFF8E8E97)),
-                    ],
+                  // 查看更多按钮（分成两行显示）
+                  const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '点击查看更多',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF8E8E97)),
+                        ),
+                        SizedBox(height: 4),
+                        Icon(Icons.keyboard_arrow_down_rounded, size: 20, color: Color(0xFF8E8E97)),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -345,7 +347,7 @@ class _UpsellProductItem extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 商品图片与自营标签
+        // 商品图片
         ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: AppNetworkImage(url: 'assets/images/product/product1.jpg', width: 80, height: 80, fit: BoxFit.cover),
@@ -356,24 +358,24 @@ class _UpsellProductItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 2, right: 6),
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                    decoration: BoxDecoration(color: const Color(0xFF213775), borderRadius: BorderRadius.circular(2)),
-                    child: const Text('自营', style: TextStyle(fontSize: 10, color: Colors.white)),
-                  ),
-                  const Expanded(
-                    child: Text(
-                      '天佑德电商专供青稞酒特别版本42度500ml',
-                      style: TextStyle(fontSize: 16, color: Colors.black, height: 1.3),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+              RichText(
+                text: TextSpan(
+                  style: const TextStyle(fontSize: 14, color: Colors.black, height: 1.3),
+                  children: [
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 6, bottom: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                        decoration: BoxDecoration(color: const Color(0xFF213775), borderRadius: BorderRadius.circular(2)),
+                        child: const Text('自营', style: TextStyle(fontSize: 10, color: Colors.white, height: 1.0)),
+                      ),
                     ),
-                  ),
-                ],
+                    const TextSpan(text: '天佑德电商专供青稞酒特别版本42度500ml'),
+                  ],
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 12),
               const Text(
