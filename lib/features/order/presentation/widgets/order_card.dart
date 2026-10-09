@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
@@ -15,28 +16,32 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.md),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, 1))],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeaderRow(),
-            const SizedBox(height: AppSpacing.sm),
-            _buildProductRow(),
-            const SizedBox(height: AppSpacing.sm),
-            _buildStatusBadgeRow(),
-            const SizedBox(height: AppSpacing.xs),
-            _buildMetaRow(),
-            const SizedBox(height: AppSpacing.sm),
-            _buildActionButtonsRow(),
-          ],
+    return GestureDetector(
+      onTap: () => context.push('/orders/${item.id}'),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: AppSpacing.md),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, 1))],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeaderRow(),
+              const SizedBox(height: AppSpacing.sm),
+              _buildProductRow(),
+              const SizedBox(height: AppSpacing.sm),
+              _buildStatusBadgeRow(),
+              const SizedBox(height: AppSpacing.xs),
+              _buildMetaRow(),
+              const SizedBox(height: AppSpacing.sm),
+              _buildActionButtonsRow(context),
+            ],
+          ),
         ),
       ),
     );
@@ -260,20 +265,20 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtonsRow() {
+  Widget _buildActionButtonsRow(BuildContext context) {
     if (item.actions.length == 1) {
-      return Center(child: _buildButton(item.actions.first));
+      return Center(child: _buildButton(context, item.actions.first));
     }
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
-      children: item.actions.map((action) => _buildButton(action)).toList(),
+      children: item.actions.map((action) => _buildButton(context, action)).toList(),
     );
   }
 
   /// 按钮：primary 用渐变蓝背景，secondary 用灰色 outline 风格
-  Widget _buildButton(OrderActionButton action) {
+  Widget _buildButton(BuildContext context, OrderActionButton action) {
     return GestureDetector(
-      onTap: action.onTap,
+      onTap: action.onTap ?? () => context.push('/orders/${item.id}'),
       child: Container(
         margin: const EdgeInsets.only(left: AppSpacing.md),
         height: 44,

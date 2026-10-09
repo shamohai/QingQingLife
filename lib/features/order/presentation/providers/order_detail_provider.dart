@@ -5,19 +5,25 @@ import '../../domain/repositories/order_repository.dart';
 import '../../../../core/network/api_response.dart';
 
 /// 订单详情页 Mock 数据 Provider
-/// 根据 id（1-10）返回对应的订单详情，覆盖所有测试场景
+/// 根据 id（1-10 或 detail_1 ~ detail_10）返回对应的订单详情，覆盖所有测试场景
 final mockOrderDetailProvider = Provider<ApiResponse<OrderDetail>>((ref) {
-  return ApiResponse.success(_getMockDetail('detail_1'));
+  return ApiResponse.success(getMockOrderDetail('1'));
 });
 
 /// 通用 Mock 数据映射
-/// id: 'detail_1' ~ 'detail_10' 对应 10 个测试用例
+/// id: '1' ~ '10' 或 'detail_1' ~ 'detail_10' 对应 10 个测试用例
 final mockOrderDetailByIdProvider = FutureProvider.family<ApiResponse<OrderDetail>, String>((ref, id) async {
-  return ApiResponse.success(_getMockDetail(id));
+  return ApiResponse.success(getMockOrderDetail(id));
 });
 
-OrderDetail _getMockDetail(String id) {
+OrderDetail getMockOrderDetail(String id) {
   final base = DateTime(2026, 10, 10, 12, 12, 11);
+
+  // ID 归一化处理（例如 'detail_1' -> '1'）
+  String cleanId = id;
+  if (cleanId.startsWith('detail_')) {
+    cleanId = cleanId.substring('detail_'.length);
+  }
 
   // 通用商品（白酒）
   final commonItem = OrderItem(
@@ -39,19 +45,6 @@ OrderDetail _getMockDetail(String id) {
     skuId: 'sku_video',
     productName: '腾讯视频月卡',
     skuName: '腾讯视频月度会员卡',
-    imageUrl: 'assets/images/product/product1.jpg',
-    priceCents: 0,
-    quantity: 1,
-    totalCents: 0,
-  );
-
-  // 青海湖旅游券商品
-  final tourItem = OrderItem(
-    id: 'oi_tour',
-    productId: 'tour_1',
-    skuId: 'sku_tour',
-    productName: '青海湖三日游玩',
-    skuName: '青海湖三日畅游服务',
     imageUrl: 'assets/images/product/product1.jpg',
     priceCents: 0,
     quantity: 1,
@@ -82,16 +75,11 @@ OrderDetail _getMockDetail(String id) {
     fullAddress: '甘肃省兰州市七里河区建兰路街道兰州中心办公楼801室',
   );
 
-  final commonTimeline = [
-    OrderTimeline(time: DateTime(2026, 10, 8, 10, 0), title: '下单', desc: '下单成功', status: OrderStatus.pendingPayment),
-    OrderTimeline(time: DateTime(2026, 10, 8, 10, 5), title: '支付', desc: '已支付', status: OrderStatus.pendingPayment),
-    OrderTimeline(time: DateTime(2026, 10, 8, 14, 0), title: '发货', desc: '已发货', status: OrderStatus.pendingShipment),
-  ];
-
-  switch (id) {
-    case 'detail_1': // 服务订单详情(交易完成)
+  switch (cleanId) {
+    case '1':
+    case 'svc_completed': // 1. 服务订单详情(交易完成)
       return OrderDetail(
-        id: 'svc_completed',
+        id: '1',
         orderNo: 'DDBH3456789',
         status: OrderStatus.completed,
         statusText: '交易完成',
@@ -111,9 +99,10 @@ OrderDetail _getMockDetail(String id) {
           OrderTimeline(time: DateTime(2026, 10, 9, 10, 0), title: '完成', desc: '已结算', status: OrderStatus.completed),
         ],
       );
-    case 'detail_2': // 积分订单详情(交易完成 - 卡券)
+    case '2':
+    case 'pts_completed_coupon': // 2. 积分订单详情(交易完成 - 卡券)
       return OrderDetail(
-        id: 'pts_completed_coupon',
+        id: '2',
         orderNo: 'DDBH3456789',
         status: OrderStatus.completed,
         statusText: '交易完成',
@@ -133,9 +122,10 @@ OrderDetail _getMockDetail(String id) {
           OrderTimeline(time: DateTime(2026, 10, 8, 10, 1), title: '充值', desc: '当前卡券已充值', status: OrderStatus.completed),
         ],
       );
-    case 'detail_3': // 积分订单详情(待发货)
+    case '3':
+    case 'pts_pending_shipment': // 3. 积分订单详情(待发货)
       return OrderDetail(
-        id: 'pts_pending_shipment',
+        id: '3',
         orderNo: 'DDBH3456789',
         status: OrderStatus.pendingShipment,
         statusText: '待发货',
@@ -155,9 +145,10 @@ OrderDetail _getMockDetail(String id) {
           OrderTimeline(time: DateTime(2026, 10, 8, 10, 5), title: '发货', desc: '打包中', status: OrderStatus.pendingShipment),
         ],
       );
-    case 'detail_4': // 服务订单详情(待收货/待核销)
+    case '4':
+    case 'svc_shipped': // 4. 服务订单详情(待收货/待核销)
       return OrderDetail(
-        id: 'svc_shipped',
+        id: '4',
         orderNo: 'DDBH3456789',
         status: OrderStatus.shipped,
         statusText: '待收货/待核销',
@@ -178,12 +169,13 @@ OrderDetail _getMockDetail(String id) {
           OrderTimeline(time: DateTime(2026, 10, 9, 10, 0), title: '配送', desc: '待收货', status: OrderStatus.shipped),
         ],
       );
-    case 'detail_5': // 商城订单详情(评价页面) - completed 状态
+    case '5':
+    case 'mall_completed': // 5. 商城订单详情(待评价)
       return OrderDetail(
-        id: 'mall_completed',
+        id: '5',
         orderNo: 'DDBH3456789',
         status: OrderStatus.completed,
-        statusText: '交易完成',
+        statusText: '待评价',
         orderType: OrderType.mall,
         items: [commonItem],
         address: commonAddress,
@@ -201,9 +193,10 @@ OrderDetail _getMockDetail(String id) {
           OrderTimeline(time: DateTime(2026, 10, 8, 10, 0), title: '签收', desc: '已签收', status: OrderStatus.completed),
         ],
       );
-    case 'detail_6': // 商城订单详情(交易完成)
+    case '6':
+    case 'mall_transaction_done': // 6. 商城订单详情(交易完成)
       return OrderDetail(
-        id: 'mall_transaction_done',
+        id: '6',
         orderNo: 'DDBH3456789',
         status: OrderStatus.completed,
         statusText: '交易完成',
@@ -224,9 +217,10 @@ OrderDetail _getMockDetail(String id) {
           OrderTimeline(time: DateTime(2026, 10, 6, 10, 0), title: '签收', desc: '已签收', status: OrderStatus.completed),
         ],
       );
-    case 'detail_7': // 商城订单详情(待评价) - completed 状态
+    case '7':
+    case 'mall_pending_review': // 7. 商城订单详情(待评价)
       return OrderDetail(
-        id: 'mall_pending_review',
+        id: '7',
         orderNo: 'DDBH3456789',
         status: OrderStatus.completed,
         statusText: '待评价',
@@ -247,9 +241,10 @@ OrderDetail _getMockDetail(String id) {
           OrderTimeline(time: DateTime(2026, 10, 10, 10, 0), title: '签收', desc: '已签收', status: OrderStatus.completed),
         ],
       );
-    case 'detail_8': // 商城订单详情(待收货/待核销)
+    case '8':
+    case 'mall_shipped': // 8. 商城订单详情(待收货/待核销)
       return OrderDetail(
-        id: 'mall_shipped',
+        id: '8',
         orderNo: 'DDBH3456789',
         status: OrderStatus.shipped,
         statusText: '待收货/待核销',
@@ -270,9 +265,10 @@ OrderDetail _getMockDetail(String id) {
           OrderTimeline(time: DateTime(2026, 10, 9, 10, 0), title: '发货', desc: '已发货', status: OrderStatus.pendingShipment),
         ],
       );
-    case 'detail_9': // 商城订单详情(待发货)
+    case '9':
+    case 'mall_pending_shipment': // 9. 商城订单详情(待发货)
       return OrderDetail(
-        id: 'mall_pending_shipment',
+        id: '9',
         orderNo: 'DDBH3456789',
         status: OrderStatus.pendingShipment,
         statusText: '待发货',
@@ -291,9 +287,10 @@ OrderDetail _getMockDetail(String id) {
           OrderTimeline(time: DateTime(2026, 10, 10, 12, 5), title: '支付', desc: '已支付', status: OrderStatus.pendingPayment),
         ],
       );
-    case 'detail_10': // 商城订单详情(待付款)
+    case '10':
+    case 'mall_pending_payment': // 10. 商城订单详情(待付款)
       return OrderDetail(
-        id: 'mall_pending_payment',
+        id: '10',
         orderNo: 'DDBH3456789',
         status: OrderStatus.pendingPayment,
         statusText: '待付款',
