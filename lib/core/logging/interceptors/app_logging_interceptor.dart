@@ -77,17 +77,7 @@ class AppLoggingInterceptor extends Interceptor {
 
     if (kDebugMode) {
       debugPrint('\u2550' * 38);
-      debugPrint(
-        '[HTTP ERROR] ' +
-            err.type.toString() +
-            ' ' +
-            (err.response?.statusCode?.toString() ?? '?') +
-            ' ' +
-            uri.path +
-            ' (' +
-            (elapsed?.toString() ?? '?') +
-            'ms)',
-      );
+      debugPrint('[HTTP ERROR] ${err.type} ${err.response?.statusCode?.toString() ?? '?'} ${uri.path} (${elapsed?.toString() ?? '?'}ms)');
       debugPrint('\u2550' * 38);
       if (err.response?.data != null) {
         debugPrint('[Error Response Body]');
@@ -97,7 +87,7 @@ class AppLoggingInterceptor extends Interceptor {
     }
 
     AppLogger.error(
-      '[HTTP] ' + err.type.toString() + ' ' + (err.response?.statusCode?.toString() ?? '?') + ' ' + uri.path + ' (' + (elapsed?.toString() ?? '?') + 'ms)',
+      '[HTTP] ${err.type} ${err.response?.statusCode?.toString() ?? '?'} ${uri.path} (${elapsed?.toString() ?? '?'}ms)',
       module: 'network',
       event: 'http_error',
       error: err,

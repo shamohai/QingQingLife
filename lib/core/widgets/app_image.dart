@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_colors.dart';
 
 /// 统一网络图片展示组件
-/// 
+///
 /// 基于 [cached_network_image] 封装，实现了以下功能：
 /// 1. 自动进行内存与磁盘二级缓存，减少流量消耗。
 /// 2. 统一了图片加载中的占位图风格（Placeholder）。
 /// 3. 统一了加载失败后的错误视图（ErrorWidget）。
 /// 4. 支持便捷的圆角裁剪。
-/// 
+///
 /// [重要] 业务开发中应杜绝直接使用 Image.network，以确保用户体验的一致性。
 class AppNetworkImage extends StatelessWidget {
   final String url; // 图片远程 URL
@@ -55,19 +55,15 @@ class AppNetworkImage extends StatelessWidget {
     }
 
     // 统一的占位背景
-    final defaultPlaceholder = placeholder ??
+    final defaultPlaceholder =
+        placeholder ??
         Container(
           color: AppColors.surfaceVariant,
           child: const Center(child: SizedBox.shrink()),
         );
 
     // 统一的加载失败视图
-    final defaultError = errorWidget ??
-        Icon(
-          Icons.image_not_supported_outlined,
-          size: iconSize,
-          color: AppColors.onSurfaceVariant,
-        );
+    final defaultError = errorWidget ?? Icon(Icons.image_not_supported_outlined, size: iconSize, color: AppColors.onSurfaceVariant);
 
     // 判断是否为本地资源路径
     final bool isAsset = url.startsWith('assets/');
@@ -98,10 +94,7 @@ class AppNetworkImage extends StatelessWidget {
 
     // 如果设置了圆角，则使用 ClipRRect 进行裁剪
     if (radius > 0) {
-      image = ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: image,
-      );
+      image = ClipRRect(borderRadius: BorderRadius.circular(radius), child: image);
     }
 
     return image;
