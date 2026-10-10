@@ -1,8 +1,7 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../../../app/config/app_config.dart';
 import '../../../../app/theme/app_colors.dart';
@@ -24,7 +23,7 @@ import '../providers/share_cart_template_detail_provider.dart';
 ///   - AppBar：返回图标 + 动态标题（取自模板名称）
 ///   - Banner：headImg 网络图片，高度自适应，底部圆角
 ///   - 白色信息卡片：大标题「服务简介」+ 蓝色渐变指示条 + 接口 requirements 文案
-///   - 详情富文本：WebView 渲染 descriptionHtml
+///   - 详情富文本：HtmlWidget 渲染 descriptionHtml
 ///   - 客服信息区：二维码 + 电话
 ///   - 底部固定栏：渐变胶囊按钮「立即加购」→ 跳转 /service/cart?templateId=xxx
 class ServiceTemplateDetailPage extends ConsumerStatefulWidget {
@@ -37,17 +36,7 @@ class ServiceTemplateDetailPage extends ConsumerStatefulWidget {
 }
 
 class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetailPage> {
-  late final WebViewController _webViewController;
 
-  @override
-  void initState() {
-    super.initState();
-    _webViewController = WebViewController();
-    // Web 端不支持 setJavaScriptMode，仅在非 Web 平台设置
-    if (!kIsWeb) {
-      _webViewController.setJavaScriptMode(JavaScriptMode.disabled);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +66,7 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
     AsyncValue<dynamic> asyncValue,
   ) {
     String title = '服务详情';
-    final String? foundName = asyncValue.maybeWhen(
+    /*final String? foundName = asyncValue.maybeWhen(
       data: (detail) {
         final name = (detail as dynamic).templateName as String?;
         return (name != null && name.isNotEmpty) ? name : null;
@@ -86,7 +75,7 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
     );
     if (foundName != null) {
       title = foundName.length > 12 ? '${foundName.substring(0, 12)}…' : foundName;
-    }
+    }*/
     return AppBar(
       backgroundColor: AppColors.servicePageBackground,
       elevation: 0,
@@ -128,6 +117,7 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
               final bannerHeight = calculatedHeight > maxHeight ? maxHeight : calculatedHeight;
               return ClipRRect(
                 borderRadius: const BorderRadius.vertical(
+                    top:Radius.circular(AppRadius.md),
                     bottom: Radius.circular(AppRadius.md)),
                 child: AppNetworkImage(
                   url: headImg.isNotEmpty
@@ -188,10 +178,10 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
                         ),
                       ),
                     ),
-                  // 详情富文本：WebView 渲染 descriptionHtml
+                  // 详情富文本：HtmlWidget 渲染 descriptionHtml
                   if (descriptionHtml.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    _buildWebView(detail),
+                    _buildHtmlWidget(descriptionHtml),
                   ],
                 ],
               ),
@@ -262,14 +252,11 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
     );
   }
 
-  /// WebView 渲染详情 HTML
-  Widget _buildWebView(dynamic detail) {
-    final descriptionHtml = detail.descriptionHtml as String;
-    return SizedBox(
-      height: 300, // WebView 在滚动容器中需要固定高度
-      child: WebViewWidget(
-        controller: _webViewController..loadHtmlString(descriptionHtml, baseUrl: AppConfig.baseUrl),
-      ),
+  /// HtmlWidget 渲染详情富文本 HTML，高度随内容自动适应
+  Widget _buildHtmlWidget(String html) {
+    return HtmlWidget(
+      html,
+      baseUrl: Uri.parse(AppConfig.baseUrl),
     );
   }
 
