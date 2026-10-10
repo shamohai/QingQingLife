@@ -16,6 +16,7 @@ import 'points_pending_shipment_order_detail_page.dart';
 import 'points_shipped_order_detail_page.dart';
 import 'mall_completed_order_detail_page.dart';
 import 'mall_pending_review_order_detail_page.dart';
+import 'mall_shipped_order_detail_page.dart';
 
 /// 订单详情页
 ///
@@ -65,6 +66,9 @@ class OrderDetailPage extends ConsumerWidget {
           return PointsOrderDetailPage(orderId: orderId);
         }
         if (detail.orderType == OrderType.mall) {
+          if (orderId == '8' || detail.status == OrderStatus.shipped) {
+            return MallShippedOrderDetailPage(orderId: orderId);
+          }
           if (orderId == '7' || orderId == '5' || detail.statusText == '待评价') {
             return MallPendingReviewOrderDetailPage(orderId: orderId);
           }
