@@ -12,6 +12,7 @@ import '../../domain/repositories/order_repository.dart';
 import '../providers/order_detail_provider.dart';
 import 'service_order_detail_page.dart';
 import 'points_order_detail_page.dart';
+import 'points_pending_shipment_order_detail_page.dart';
 
 /// 订单详情页
 ///
@@ -52,6 +53,9 @@ class OrderDetailPage extends ConsumerWidget {
           return ServiceOrderDetailPage(orderId: orderId);
         }
         if (detail.orderType == OrderType.points) {
+          if (detail.status == OrderStatus.pendingShipment) {
+            return PointsPendingShipmentOrderDetailPage(orderId: orderId);
+          }
           return PointsOrderDetailPage(orderId: orderId);
         }
         return _OrderDetailPageScaffold(detail: detail);
@@ -344,7 +348,7 @@ class _OrderDetailBody extends StatelessWidget {
       case OrderStatus.pendingPayment:
         return '付款后预计今天发货';
       case OrderStatus.pendingShipment:
-        return '打包中，预计三天后到达';
+        return '打包中, 预计三天后到达';
       case OrderStatus.shipped:
         return '取件码：${detail.pickupCode ?? "待定"}';
       case OrderStatus.completed:
@@ -479,18 +483,15 @@ class _AmountRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(fontSize: 14, color: Color(0xFF8E8E97))),
-          Text(
-            value,
-            style: TextStyle(fontSize: 14, fontWeight: bold ? FontWeight.w600 : FontWeight.w400, color: accent ? const Color(0xFFFF2105) : AppColors.onSurface),
-          ),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 14, color: Color(0xFF8E8E97))),
+        Text(
+          value,
+          style: TextStyle(fontSize: 14, fontWeight: bold ? FontWeight.w600 : FontWeight.w400, color: accent ? const Color(0xFFFF2105) : AppColors.onSurface),
+        ),
+      ],
     );
   }
 }

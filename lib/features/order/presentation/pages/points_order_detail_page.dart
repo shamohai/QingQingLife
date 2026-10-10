@@ -157,10 +157,7 @@ class _PointsOrderBody extends StatelessWidget {
                       ),
                     ],
 
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Divider(height: 1, color: Color(0xFFE1E4DC)),
-                    ),
+                    const Padding(padding: EdgeInsets.symmetric(vertical: 3), child: SizedBox(height: 1)),
 
                     // 总计积分
                     _AmountRow(label: '总计积分', value: '${detail.pointsCost ?? 50}积分', isTotal: true),
@@ -339,7 +336,7 @@ class _AmountRow extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            fontSize: isTotal ? 16 : 14,
+            fontSize: isTotal ? 16 : 16,
             fontWeight: isTotal ? FontWeight.w600 : FontWeight.w400,
             color: isTotal ? const Color(0xFFFF2105) : Colors.black,
           ),
