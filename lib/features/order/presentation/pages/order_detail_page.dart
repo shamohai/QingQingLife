@@ -11,6 +11,7 @@ import '../../domain/enums/order_type.dart';
 import '../../domain/repositories/order_repository.dart';
 import '../providers/order_detail_provider.dart';
 import 'service_order_detail_page.dart';
+import 'points_order_detail_page.dart';
 
 /// 订单详情页
 ///
@@ -49,6 +50,9 @@ class OrderDetailPage extends ConsumerWidget {
         final detail = response.data!;
         if (detail.orderType == OrderType.service) {
           return ServiceOrderDetailPage(orderId: orderId);
+        }
+        if (detail.orderType == OrderType.points) {
+          return PointsOrderDetailPage(orderId: orderId);
         }
         return _OrderDetailPageScaffold(detail: detail);
       },

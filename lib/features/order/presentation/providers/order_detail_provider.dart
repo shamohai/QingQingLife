@@ -303,9 +303,7 @@ OrderDetail getMockOrderDetail(String id) {
         pointsDeductedCents: 0,
         payAmountCents: 80000,
         createTime: base,
-        timeline: [
-          OrderTimeline(time: DateTime(2026, 10, 10, 12, 0), title: '下单', desc: '下单成功', status: OrderStatus.pendingPayment),
-        ],
+        timeline: [OrderTimeline(time: DateTime(2026, 10, 10, 12, 0), title: '下单', desc: '下单成功', status: OrderStatus.pendingPayment)],
       );
     default:
       // 默认返回商城待付款
@@ -323,9 +321,7 @@ OrderDetail getMockOrderDetail(String id) {
         pointsDeductedCents: 0,
         payAmountCents: 80000,
         createTime: base,
-        timeline: [
-          OrderTimeline(time: DateTime(2026, 10, 10, 12, 0), title: '下单', desc: '下单成功', status: OrderStatus.pendingPayment),
-        ],
+        timeline: [OrderTimeline(time: DateTime(2026, 10, 10, 12, 0), title: '下单', desc: '下单成功', status: OrderStatus.pendingPayment)],
       );
   }
 }

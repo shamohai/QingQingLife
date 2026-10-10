@@ -32,11 +32,7 @@ class MockOrderDataSource implements OrderRepository {
   }
 
   @override
-  Future<ApiResponse<OrderListResult>> getOrderList({
-    required int page,
-    required int pageSize,
-    OrderStatus? status,
-  }) async {
+  Future<ApiResponse<OrderListResult>> getOrderList({required int page, required int pageSize, OrderStatus? status}) async {
     final base = DateTime(2026, 10, 10, 12, 12, 11);
     final mockOrders = OrderListResult(
       orders: [
@@ -174,10 +170,7 @@ class MockOrderDataSource implements OrderRepository {
     String? description,
   }) async {
     return ApiResponse.success(
-      AfterSaleResult(
-        afterSaleId: 'aftersale_${DateTime.now().millisecondsSinceEpoch}',
-        afterSaleNo: 'ASNO${DateTime.now().millisecondsSinceEpoch}',
-      ),
+      AfterSaleResult(afterSaleId: 'aftersale_${DateTime.now().millisecondsSinceEpoch}', afterSaleNo: 'ASNO${DateTime.now().millisecondsSinceEpoch}'),
     );
   }
 
