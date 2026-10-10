@@ -14,6 +14,7 @@ import 'service_order_detail_page.dart';
 import 'points_order_detail_page.dart';
 import 'points_pending_shipment_order_detail_page.dart';
 import 'points_shipped_order_detail_page.dart';
+import 'mall_completed_order_detail_page.dart';
 
 /// 订单详情页
 ///
@@ -61,6 +62,11 @@ class OrderDetailPage extends ConsumerWidget {
             return PointsShippedOrderDetailPage(orderId: orderId);
           }
           return PointsOrderDetailPage(orderId: orderId);
+        }
+        if (detail.orderType == OrderType.mall) {
+          if (detail.status == OrderStatus.completed) {
+            return MallCompletedOrderDetailPage(orderId: orderId);
+          }
         }
         return _OrderDetailPageScaffold(detail: detail);
       },
