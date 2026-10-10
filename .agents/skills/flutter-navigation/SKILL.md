@@ -1,6 +1,6 @@
 ---
 name: flutter-navigation
-description: 青轻生活馆路由、Tab 状态保持、嵌套路由规范。
+description: 青轻生活路由、Tab 状态保持、嵌套路由规范。
 ---
 
 # Navigation

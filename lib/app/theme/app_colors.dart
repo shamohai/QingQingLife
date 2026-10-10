@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// 青轻生活馆品牌色板（亮色 + 暗色双模式）
+/// 青轻生活品牌色板（亮色 + 暗色双模式）
 abstract final class AppColors {
   // ── 亮色（Light）────────────────────────────────────────────────────
 
@@ -42,7 +42,6 @@ abstract final class AppColors {
   static const Color outline = Color(0xFF747872);
   static const Color outlineVariant = Color(0xFFC4C8BF);
   static const Color divider = Color(0xFFE1E4DC);
-
 
   // ── 服务中心页面专用色（一期扩展，可随 Design Token 体系整合）─────────────────────
   static const Color servicePageBackground = Color(0xFFF3F5F7);

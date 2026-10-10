@@ -235,7 +235,7 @@ class _AboutLogoMark extends StatelessWidget {
               Transform.translate(
                 offset: const Offset(0, 2.2),
                 child: const Text(
-                  '青\n轻\n生\n活\n馆',
+                  '青\n轻\n生\n活\n',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.5,

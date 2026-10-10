@@ -1,6 +1,6 @@
 ---
 name: flutter-testing
-description: 青轻生活馆 Flutter 测试规范。
+description: 青轻生活 Flutter 测试规范。
 ---
 
 # Testing

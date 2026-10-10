@@ -1,4 +1,4 @@
-/// 青轻生活馆圆角规范
+/// 青轻生活圆角规范
 abstract final class AppRadius {
   static const double xs = 4;
   static const double sm = 8;

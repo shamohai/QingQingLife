@@ -196,7 +196,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           children: [
             const Center(
               child: Text(
-                '青轻生活馆',
+                '青轻生活',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.white,
@@ -254,7 +254,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             text: '《用户隐私政策》',
                             style: const TextStyle(color: _linkBlue, fontWeight: FontWeight.w500),
                           ),
-                          const TextSpan(text: '，未注册的手机号验证后将自动创建青轻生活馆账号。'),
+                          const TextSpan(text: '，未注册的手机号验证后将自动创建青轻生活账号。'),
                         ],
                       ),
                     ),

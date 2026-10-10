@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+
 import 'app_colors.dart';
 import 'app_text_styles.dart';
 import 'app_spacing.dart';
 import 'app_radius.dart';
 
-/// 青轻生活馆完整 ThemeData（Material 3，支持亮/暗双模式）
+/// 青轻生活完整 ThemeData（Material 3，支持亮/暗双模式）
 abstract final class AppTheme {
   static ThemeData get themeData => _themeData;
 
@@ -55,9 +56,7 @@ abstract final class AppTheme {
     // Card
     cardTheme: CardThemeData(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
       color: AppColors.surface,
     ),
 
@@ -85,10 +84,7 @@ abstract final class AppTheme {
         borderRadius: BorderRadius.circular(AppRadius.sm),
         borderSide: const BorderSide(color: AppColors.primary, width: 2),
       ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
     ),
   );
 
@@ -139,9 +135,7 @@ abstract final class AppTheme {
 
     cardTheme: CardThemeData(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
       color: AppColors.darkSurfaceVariant,
     ),
 
@@ -167,10 +161,7 @@ abstract final class AppTheme {
         borderRadius: BorderRadius.circular(AppRadius.sm),
         borderSide: const BorderSide(color: AppColors.darkPrimary, width: 2),
       ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
     ),
   );
 }

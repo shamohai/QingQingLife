@@ -187,7 +187,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
                           Padding(
                             padding: EdgeInsets.fromLTRB(sidePad, f(40, min: 28), sidePad, 0),
                             child: Text(
-                              '欢迎使用\n青轻生活馆',
+                              '欢迎使用\n青轻生活',
                               style: TextStyle(fontSize: fsTitle, fontWeight: FontWeight.w600, color: Colors.black, height: 1.39, letterSpacing: -2),
                               textAlign: TextAlign.left,
                             ),

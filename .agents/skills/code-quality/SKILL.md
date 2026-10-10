@@ -1,6 +1,6 @@
 ---
 name: code-quality
-description: 青轻生活馆生产级 Flutter 代码质量规范。
+description: 青轻生活生产级 Flutter 代码质量规范。
 ---
 
 # Code Quality

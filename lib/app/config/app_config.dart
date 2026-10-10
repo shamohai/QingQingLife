@@ -1,7 +1,7 @@
 /// App 全局配置常量
 abstract final class AppConfig {
   /// 应用名称
-  static const String appName = '青轻生活馆';
+  static const String appName = '青轻生活';
 
   /// 当前版本号（与 pubspec.yaml 中 version 字段保持同步）
   static const String appVersionName = '1.0.0';

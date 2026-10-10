@@ -1,4 +1,4 @@
-/// 青轻生活馆间距规范（基于 4dp 栅格）
+/// 青轻生活间距规范（基于 4dp 栅格）
 abstract final class AppSpacing {
   static const double xs = 4;
   static const double sm = 8;

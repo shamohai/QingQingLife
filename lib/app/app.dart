@@ -20,25 +20,16 @@ class App extends StatelessWidget {
         final versionCheckState = ref.watch(versionCheckProvider);
 
         return MaterialApp.router(
-          title: '青轻生活馆',
+          title: '青轻生活',
           debugShowCheckedModeBanner: false,
           themeMode: themeMode,
           theme: AppTheme.themeData,
           darkTheme: AppTheme.darkThemeData,
           routerConfig: router,
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [
-            Locale('zh', 'CN'),
-            Locale('en', 'US'),
-          ],
+          localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
+          supportedLocales: const [Locale('zh', 'CN'), Locale('en', 'US')],
           builder: (context, child) {
-            if (versionCheckState.state == VersionCheckState.checked &&
-                versionCheckState.info != null &&
-                versionCheckState.info!.shouldShowDialog) {
+            if (versionCheckState.state == VersionCheckState.checked && versionCheckState.info != null && versionCheckState.info!.shouldShowDialog) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (!context.mounted) return;
                 final info = versionCheckState.info!;

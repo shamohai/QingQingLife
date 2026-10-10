@@ -34,7 +34,7 @@ class MockNotificationDataSource implements NotificationRepository {
       category: NotificationCategory.system,
       source: NotificationSource.systemNotice,
       title: '积分到期提醒',
-      content: '【积分到期提醒】尊敬的会员您好！您在青轻生活馆账户内有部分积分即将到期失效，逾期未使用将自动清零，无法恢复。',
+      content: '【积分到期提醒】尊敬的会员您好！您在青轻生活账户内有部分积分即将到期失效，逾期未使用将自动清零，无法恢复。',
       createTime: _designTime,
     ),
     NotificationMessage(
