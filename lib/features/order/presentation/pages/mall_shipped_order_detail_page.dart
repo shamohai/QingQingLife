@@ -113,11 +113,7 @@ class _MallShippedOrderBody extends StatelessWidget {
           Container(
             width: double.infinity,
             decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFFE0E8FF), Color(0xFFF3F5F7)],
-              ),
+              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFE0E8FF), Color(0xFFF3F5F7)]),
             ),
             padding: const EdgeInsets.fromLTRB(26, 12, 14, 30),
             child: Row(
@@ -129,7 +125,6 @@ class _MallShippedOrderBody extends StatelessWidget {
                   height: 36,
                   errorBuilder: (context, error, stackTrace) => const Icon(Icons.local_shipping_rounded, size: 36, color: Color(0xFF213775)),
                 ),
-                const SizedBox(width: 12),
                 Text(
                   detail.statusText.isNotEmpty ? detail.statusText : '待收货/待核销',
                   style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black),
@@ -396,7 +391,11 @@ class _AmountRow extends StatelessWidget {
         Text(label, style: const TextStyle(fontSize: 14, color: Color(0xFF8E8E97))),
         Text(
           value,
-          style: TextStyle(fontSize: isTotal ? 16 : 16, fontWeight: isTotal ? FontWeight.w600 : FontWeight.w400, color: isTotal ? const Color(0xFFFF2105) : Colors.black),
+          style: TextStyle(
+            fontSize: isTotal ? 16 : 16,
+            fontWeight: isTotal ? FontWeight.w600 : FontWeight.w400,
+            color: isTotal ? const Color(0xFFFF2105) : Colors.black,
+          ),
         ),
       ],
     );

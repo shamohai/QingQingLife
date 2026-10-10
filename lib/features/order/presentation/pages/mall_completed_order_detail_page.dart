@@ -113,7 +113,6 @@ class _MallCompletedOrderBody extends StatelessWidget {
                   height: 36,
                   errorBuilder: (context, error, stackTrace) => const Icon(Icons.check_circle_rounded, size: 36, color: Color(0xFF213775)),
                 ),
-                const SizedBox(width: 12),
                 Text(
                   detail.statusText.isNotEmpty ? detail.statusText : '交易完成',
                   style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black),

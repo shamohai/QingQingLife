@@ -14,6 +14,7 @@ import 'service_order_detail_page.dart';
 import 'points_order_detail_page.dart';
 import 'points_pending_shipment_order_detail_page.dart';
 import 'points_shipped_order_detail_page.dart';
+import 'points_virtual_order_detail_page.dart';
 import 'mall_completed_order_detail_page.dart';
 import 'mall_pending_review_order_detail_page.dart';
 import 'mall_shipped_order_detail_page.dart';
@@ -59,6 +60,9 @@ class OrderDetailPage extends ConsumerWidget {
           return ServiceOrderDetailPage(orderId: orderId);
         }
         if (detail.orderType == OrderType.points) {
+          if (orderId == '4') {
+            return PointsVirtualOrderDetailPage(orderId: orderId);
+          }
           if (detail.status == OrderStatus.pendingShipment) {
             return PointsPendingShipmentOrderDetailPage(orderId: orderId);
           }

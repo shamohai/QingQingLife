@@ -146,16 +146,16 @@ OrderDetail getMockOrderDetail(String id) {
         ],
       );
     case '4':
-    case 'pts_shipped': // 4. 积分订单详情(待收货/待核销)
+    case 'pts_virtual': // 4. 积分订单详情(虚拟商品)
       return OrderDetail(
         id: '4',
         orderNo: 'DDBH3456789',
-        status: OrderStatus.shipped,
-        statusText: '待收货/待核销',
+        status: OrderStatus.completed,
+        statusText: '交易完成',
         orderType: OrderType.points,
         pointsCost: 50,
         exchangeTime: base,
-        items: [commonItem],
+        items: [videoItem],
         address: commonAddress,
         productTotalCents: 0,
         shippingFeeCents: 0,
@@ -163,10 +163,8 @@ OrderDetail getMockOrderDetail(String id) {
         pointsDeductedCents: 50,
         payAmountCents: 0,
         createTime: base,
-        shipTime: base,
         timeline: [
-          OrderTimeline(time: DateTime(2026, 10, 8, 10, 0), title: '兑换', desc: '兑换成功', status: OrderStatus.shipped),
-          OrderTimeline(time: DateTime(2026, 10, 9, 10, 0), title: '发货', desc: '已发货', status: OrderStatus.shipped),
+          OrderTimeline(time: DateTime(2026, 10, 8, 10, 0), title: '兑换', desc: '兑换成功', status: OrderStatus.completed),
         ],
       );
     case '5':
