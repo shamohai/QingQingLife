@@ -196,7 +196,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           children: [
             const Center(
               child: Text(
-                '青轻生活',
+                '青轻生活馆',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.white,
