@@ -28,6 +28,9 @@ class ShareCartTemplateDetail {
   /// 客服微信二维码图片 URL
   final String serviceQrImg;
 
+  /// 用户已选购的购物车信息，未选购或未登录时为 null
+  final CartInfo? cartInfo;
+
   const ShareCartTemplateDetail({
     required this.templateId,
     required this.templateName,
@@ -37,11 +40,13 @@ class ShareCartTemplateDetail {
     required this.contactPhone,
     required this.contactRemark,
     required this.serviceQrImg,
+    this.cartInfo,
   });
 
   factory ShareCartTemplateDetail.fromJson(Map<String, dynamic> json) {
     // 扁平响应：templateinfo 字段包裹实际数据
     final Map<String, dynamic> info = (json['templateinfo'] as Map?)?.cast<String, dynamic>() ?? {};
+    final Map<String, dynamic>? cartInfoJson = (json['cartinfo'] as Map?)?.cast<String, dynamic>();
     return ShareCartTemplateDetail(
       templateId: (info['templateid'] as num?)?.toInt() ?? 0,
       templateName: info['templatename'] as String? ?? '',
@@ -51,6 +56,33 @@ class ShareCartTemplateDetail {
       contactPhone: (json['templatecustomerserviceinfo'] as Map?)?['contactphone'] as String? ?? '',
       contactRemark: (json['templatecustomerserviceinfo'] as Map?)?['contactremark'] as String? ?? '',
       serviceQrImg: (json['templatecustomerserviceinfo'] as Map?)?['workwxqrimg'] as String? ?? '',
+      cartInfo: cartInfoJson != null ? CartInfo.fromJson(cartInfoJson) : null,
+    );
+  }
+}
+
+/// 购物车信息模型
+class CartInfo {
+  /// 购物车 ID
+  final int cartId;
+
+  /// 已选购的商品数量
+  final int currentProductCount;
+
+  /// 已选购的商品总金额
+  final double currentOrderAmount;
+
+  const CartInfo({
+    required this.cartId,
+    required this.currentProductCount,
+    required this.currentOrderAmount,
+  });
+
+  factory CartInfo.fromJson(Map<String, dynamic> json) {
+    return CartInfo(
+      cartId: (json['cartid'] as num?)?.toInt() ?? 0,
+      currentProductCount: (json['currentproductcount'] as num?)?.toInt() ?? 0,
+      currentOrderAmount: (json['currentorderamount'] as num?)?.toDouble() ?? 0.0,
     );
   }
 }
