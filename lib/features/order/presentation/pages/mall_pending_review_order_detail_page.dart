@@ -66,7 +66,9 @@ class MallPendingReviewOrderDetailPage extends ConsumerWidget {
                 ),
                 const SizedBox(width: 12),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    context.push('/orders/$orderId/review');
+                  },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                     decoration: BoxDecoration(color: const Color(0xFF213775), borderRadius: BorderRadius.circular(999)),

@@ -27,6 +27,7 @@ import '../../features/points/presentation/pages/points_detail_page.dart';
 import '../../features/points/presentation/pages/points_rules_page.dart';
 import '../../features/order/presentation/pages/all_orders_page.dart';
 import '../../features/order/presentation/pages/order_detail_page.dart';
+import '../../features/order/presentation/pages/mall_order_review_page.dart';
 import 'route_names.dart';
 
 final appRouter = Provider<GoRouter>((ref) {
@@ -169,6 +170,10 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.orderDetail,
         pageBuilder: (c, s) => MaterialPage(child: OrderDetailPage(orderId: s.pathParameters['id']!)),
+      ),
+      GoRoute(
+        path: '/orders/:id/review',
+        pageBuilder: (c, s) => MaterialPage(child: MallOrderReviewPage(orderId: s.pathParameters['id']!)),
       ),
     ],
   );
