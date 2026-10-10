@@ -13,6 +13,7 @@ import '../providers/order_detail_provider.dart';
 import 'service_order_detail_page.dart';
 import 'points_order_detail_page.dart';
 import 'points_pending_shipment_order_detail_page.dart';
+import 'points_shipped_order_detail_page.dart';
 
 /// 订单详情页
 ///
@@ -55,6 +56,9 @@ class OrderDetailPage extends ConsumerWidget {
         if (detail.orderType == OrderType.points) {
           if (detail.status == OrderStatus.pendingShipment) {
             return PointsPendingShipmentOrderDetailPage(orderId: orderId);
+          }
+          if (detail.status == OrderStatus.shipped) {
+            return PointsShippedOrderDetailPage(orderId: orderId);
           }
           return PointsOrderDetailPage(orderId: orderId);
         }
@@ -348,7 +352,7 @@ class _OrderDetailBody extends StatelessWidget {
       case OrderStatus.pendingPayment:
         return '付款后预计今天发货';
       case OrderStatus.pendingShipment:
-        return '打包中, 预计三天后到达';
+        return '打包中，预计三天后到达';
       case OrderStatus.shipped:
         return '取件码：${detail.pickupCode ?? "待定"}';
       case OrderStatus.completed:

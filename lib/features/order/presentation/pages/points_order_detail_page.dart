@@ -236,7 +236,7 @@ class _LogisticsCard extends StatelessWidget {
             ),
             // 第二行：竖线 + 包裹签收说明（带拨打电话功能）
             Padding(
-              padding: const EdgeInsets.only(left: 4.5),
+              padding: const EdgeInsets.only(left: 2),
               child: Container(
                 decoration: const BoxDecoration(
                   border: Border(left: BorderSide(color: Color(0xFFE9EEF3), width: 2)),

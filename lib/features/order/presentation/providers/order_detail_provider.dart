@@ -146,27 +146,27 @@ OrderDetail getMockOrderDetail(String id) {
         ],
       );
     case '4':
-    case 'svc_shipped': // 4. 服务订单详情(待收货/待核销)
+    case 'pts_shipped': // 4. 积分订单详情(待收货/待核销)
       return OrderDetail(
         id: '4',
         orderNo: 'DDBH3456789',
         status: OrderStatus.shipped,
         statusText: '待收货/待核销',
-        orderType: OrderType.service,
-        pickupCode: '9-9-8788',
-        items: [serviceItem],
+        orderType: OrderType.points,
+        pointsCost: 50,
+        exchangeTime: base,
+        items: [commonItem],
         address: commonAddress,
-        productTotalCents: 80000,
+        productTotalCents: 0,
         shippingFeeCents: 0,
         discountCents: 0,
-        pointsDeductedCents: 0,
-        payAmountCents: 80000,
+        pointsDeductedCents: 50,
+        payAmountCents: 0,
         createTime: base,
         shipTime: base,
         timeline: [
-          OrderTimeline(time: DateTime(2026, 10, 8, 10, 0), title: '下单', desc: '下单成功', status: OrderStatus.pendingPayment),
-          OrderTimeline(time: DateTime(2026, 10, 8, 10, 5), title: '支付', desc: '已支付', status: OrderStatus.pendingPayment),
-          OrderTimeline(time: DateTime(2026, 10, 9, 10, 0), title: '配送', desc: '待收货', status: OrderStatus.shipped),
+          OrderTimeline(time: DateTime(2026, 10, 8, 10, 0), title: '兑换', desc: '兑换成功', status: OrderStatus.shipped),
+          OrderTimeline(time: DateTime(2026, 10, 9, 10, 0), title: '发货', desc: '已发货', status: OrderStatus.shipped),
         ],
       );
     case '5':
