@@ -127,7 +127,6 @@ class _MallPendingShipmentOrderBody extends StatelessWidget {
                   height: 36,
                   errorBuilder: (context, error, stackTrace) => const Icon(Icons.access_time_rounded, size: 36, color: Color(0xFF213775)),
                 ),
-                const SizedBox(width: 12),
                 Text(
                   detail.statusText.isNotEmpty ? detail.statusText : '待发货',
                   style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black),
