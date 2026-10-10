@@ -303,6 +303,40 @@ OrderDetail getMockOrderDetail(String id) {
         createTime: base,
         timeline: [OrderTimeline(time: DateTime(2026, 10, 10, 12, 0), title: '下单', desc: '下单成功', status: OrderStatus.pendingPayment)],
       );
+    case '11':
+    case 'pts_service_no_upsell': // 11. 积分订单详情(服务商品无加购)
+      return OrderDetail(
+        id: '11',
+        orderNo: 'DDBH3456789',
+        status: OrderStatus.completed,
+        statusText: '交易完成',
+        orderType: OrderType.points,
+        pointsCost: 50,
+        exchangeTime: base,
+        items: [
+          OrderItem(
+            id: 'item_11',
+            productId: 'service_1',
+            skuId: 'sku_service_1',
+            productName: '青海湖三日游玩...',
+            skuName: '青海湖三日畅游服务',
+            imageUrl: commonItem.imageUrl,
+            priceCents: 0,
+            quantity: 1,
+            totalCents: 0,
+          ),
+        ],
+        address: commonAddress,
+        productTotalCents: 0,
+        shippingFeeCents: 0,
+        discountCents: 0,
+        pointsDeductedCents: 50,
+        payAmountCents: 0,
+        createTime: base,
+        timeline: [
+          OrderTimeline(time: DateTime(2026, 10, 8, 10, 0), title: '兑换', desc: '兑换成功', status: OrderStatus.completed),
+        ],
+      );
     default:
       // 默认返回商城待付款
       return OrderDetail(
