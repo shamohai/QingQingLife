@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:fluwx/fluwx.dart' as fluwx;
+import 'package:webview_flutter_web/webview_flutter_web.dart';
 
 import 'config/app_config.dart';
 import 'app.dart';
@@ -14,6 +16,9 @@ import '../core/logging/logging_initializer.dart';
 Future<void> bootstrap() async {
   // 确保 Flutter 框架绑定已初始化，这对于调用原生插件是必须的
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 初始化 WebView 平台实现（Web 端必需）
+  WebWebViewPlatform.registerWith(webPluginRegistrar);
 
   // 日志必须先于第三方 SDK 初始化，才能记录启动阶段的失败。
   // try {
