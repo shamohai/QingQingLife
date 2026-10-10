@@ -210,7 +210,7 @@ class _MallOrderReviewPageState extends ConsumerState<MallOrderReviewPage> {
 
                     // 3. 商品评价输入与上传图片卡片
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
                       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
