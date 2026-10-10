@@ -56,7 +56,10 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
         ),
         data: (detail) => _buildBody(detail, bottomInset),
       ),
-      bottomNavigationBar: _buildBottomBar(context),
+      bottomNavigationBar: detailAsync.maybeWhen(
+        data: (detail) => _buildBottomBar(context, detail),
+        orElse: () => null,
+      ),
     );
   }
 
@@ -115,7 +118,12 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
               final aspectRatio = 554 / 1080;
               final calculatedHeight = screenWidth * aspectRatio;
               final bannerHeight = calculatedHeight > maxHeight ? maxHeight : calculatedHeight;
-              return ClipRRect(
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(
                     top:Radius.circular(AppRadius.md),
                     bottom: Radius.circular(AppRadius.md)),
@@ -126,10 +134,11 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
                   height: bannerHeight,
                   fit: BoxFit.cover,
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
+      ),
         // ── Section B: 白色信息卡片 ──
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, 0),
@@ -261,9 +270,11 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
   }
 
   /// 底部固定操作栏：白色背景 + 向上阴影 + 渐变胶囊按钮
-  Widget _buildBottomBar(BuildContext context) {
+  Widget _buildBottomBar(BuildContext context, dynamic detail) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final btnWidth = screenWidth - AppSpacing.xxxl;
+    final headImg = detail.headImg as String;
+    final cartId = detail.cartInfo?.cartId ?? 0;
 
     return SafeArea(
       top: false,
@@ -277,8 +288,10 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
         child: Center(
           child: GestureDetector(
             onTap: () {
-              // 跳转到购物车页面，携带 templateId 参数
-              context.push('/service/cart?templateId=${widget.templateId}');
+              // 跳转到购物车页面，携带 templateId、headImg、cartId 参数
+              final encodedHeadImg = Uri.encodeComponent(headImg);
+              final uri = '/service/cart?templateId=${widget.templateId}&headImg=$encodedHeadImg&cartId=$cartId';
+              context.push(uri);
             },
             child: Container(
               width: btnWidth,

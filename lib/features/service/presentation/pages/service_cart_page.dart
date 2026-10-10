@@ -14,8 +14,22 @@ import '../../../cart/presentation/providers/cart_provider.dart';
 ///
 /// 与 [CartPage] 不是同一个页面，从特色商城「购酒享服务」分类的
 /// 「去购买」按钮跳转而来。共享 [cartDataProvider] 数据源。
+///
+/// 路由参数：
+/// - templateId: 模板 ID
+/// - headImg: 头图 URL（通过 #sym: 前缀传递）
+/// - cartId: 购物车 ID（通过 #sym: 前缀传递）
 class ServiceCartPage extends ConsumerWidget {
-  const ServiceCartPage({super.key});
+  final int templateId;
+  final String headImg;
+  final int cartId;
+
+  const ServiceCartPage({
+    super.key,
+    required this.templateId,
+    String? headImg,
+    required this.cartId,
+  }) : headImg = headImg ?? '';
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,7 +45,7 @@ class ServiceCartPage extends ConsumerWidget {
           slivers: [
             _buildTopBar(context),
             _buildBanner(),
-            _buildAddressBar(),
+            _buildAddressBar(context),
             if (state.items.isEmpty)
               const SliverFillRemaining(
                 hasScrollBody: false,
@@ -64,11 +78,6 @@ class ServiceCartPage extends ConsumerWidget {
               ),
               const SizedBox(width: AppSpacing.sm),
               const Text('购酒享服务', style: AppTextStyles.headlineSmall),
-              const Spacer(),
-              GestureDetector(
-                onTap: () => _showManageDialog(context),
-                child: Text('管理', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary)),
-              ),
             ],
           ),
         ),
@@ -80,29 +89,64 @@ class ServiceCartPage extends ConsumerWidget {
 
   Widget _buildBanner() {
     return SliverToBoxAdapter(
-      child: Container(
-        margin: const EdgeInsets.all(AppSpacing.lg),
-        height: 72,
-        decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(AppRadius.md)),
-        child: const Center(child: Text('活动介绍banner图', style: AppTextStyles.labelSmall)),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final screenWidth = constraints.maxWidth;
+          // 使用图片实际宽高比自适应高度，限制最大高度 150dp
+          const maxHeight = 230.0;
+          // 假设图片为标准 1080×554，实际根据 headImg 动态计算（这里取 0.5125 比例 = 1080×554）
+          final aspectRatio = 554 / 1080;
+          final calculatedHeight = screenWidth * aspectRatio;
+          final bannerHeight = calculatedHeight > maxHeight ? maxHeight : calculatedHeight;
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              child: headImg.isNotEmpty
+                  ? Image.network(
+                      headImg,
+                      width: double.infinity,
+                      height: bannerHeight,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: AppColors.surfaceVariant,
+                        child: const Center(child: Text('活动介绍banner图', style: AppTextStyles.labelSmall)),
+                      ),
+                    )
+                  : Container(
+                      color: AppColors.surfaceVariant,
+                      child: const Center(child: Text('活动介绍banner图', style: AppTextStyles.labelSmall)),
+                    ),
+            ),
+          );
+        },
       ),
     );
   }
 
   // ─── 配送地址栏 ─────────────────────────────────────────────────────
 
-  Widget _buildAddressBar() {
+  Widget _buildAddressBar(BuildContext context) {
     return SliverToBoxAdapter(
       child: Container(
         color: AppColors.surface,
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
         child: Row(
           children: [
+            const Text('配送至: ', style: AppTextStyles.bodyMedium),
             const Icon(Icons.location_on, size: 18, color: AppColors.onSurface),
             const SizedBox(width: AppSpacing.xs),
-            const Text('配送至: 天佑德营销中心', style: AppTextStyles.bodyMedium),
-            const Spacer(),
+            const Text('天佑德营销中心', style: AppTextStyles.bodyMedium),
+            const SizedBox(width: AppSpacing.xs),
             const Icon(Icons.expand_more, size: 20, color: AppColors.onSurfaceVariant),
+            const Spacer(),
+            GestureDetector(
+              onTap: () => _showManageDialog(context),
+              child: Text('管理', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary)),
+            ),
           ],
         ),
       ),
@@ -204,15 +248,18 @@ class ServiceCartPage extends ConsumerWidget {
   void _showManageDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('删除商品'),
         content: const Text('确定要清空购物车吗？'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('取消'),
+          ),
           TextButton(
             onPressed: () {
+              Navigator.pop(dialogContext);
               context.pop();
-              Navigator.pop(ctx);
             },
             child: const Text('清空', style: TextStyle(color: AppColors.error)),
           ),

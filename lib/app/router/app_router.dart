@@ -145,7 +145,18 @@ final appRouter = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.serviceCart,
-        pageBuilder: (c, s) => const MaterialPage(child: ServiceCartPage()),
+        pageBuilder: (c, s) {
+          final templateId = int.tryParse(s.uri.queryParameters['templateId'] ?? '') ?? 0;
+          final headImg = s.uri.queryParameters['headImg'] ?? '';
+          final cartId = int.tryParse(s.uri.queryParameters['cartId'] ?? '') ?? 0;
+          return MaterialPage(
+            child: ServiceCartPage(
+              templateId: templateId,
+              headImg: headImg,
+              cartId: cartId,
+            ),
+          );
+        },
       ),
       GoRoute(
         path: RouteNames.pointsDetail,
