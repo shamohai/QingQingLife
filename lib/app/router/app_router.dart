@@ -280,7 +280,14 @@ class _TabItem extends StatelessWidget {
         children: [
           Image.asset(isSelected ? selectedAsset : unselectedAsset, width: 26, height: 26),
           const SizedBox(height: 3),
-          Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w400,
+              color: isSelected ? const Color(0xFF213775) : const Color(0xFF656565),
+            ),
+          ),
         ],
       ),
     );
