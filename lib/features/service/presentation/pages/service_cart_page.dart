@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -67,10 +67,7 @@ class ServiceCartPage extends ConsumerWidget {
               const Spacer(),
               GestureDetector(
                 onTap: () => _showManageDialog(context),
-                child: Text(
-                  '管理',
-                  style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary),
-                ),
+                child: Text('管理', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary)),
               ),
             ],
           ),
@@ -86,16 +83,8 @@ class ServiceCartPage extends ConsumerWidget {
       child: Container(
         margin: const EdgeInsets.all(AppSpacing.lg),
         height: 72,
-        decoration: BoxDecoration(
-          color: AppColors.surfaceVariant,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-        ),
-        child: const Center(
-          child: Text(
-            '活动介绍banner图',
-            style: AppTextStyles.labelSmall,
-          ),
-        ),
+        decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(AppRadius.md)),
+        child: const Center(child: Text('活动介绍banner图', style: AppTextStyles.labelSmall)),
       ),
     );
   }
@@ -111,10 +100,7 @@ class ServiceCartPage extends ConsumerWidget {
           children: [
             const Icon(Icons.location_on, size: 18, color: AppColors.onSurface),
             const SizedBox(width: AppSpacing.xs),
-            const Text(
-              '配送至: 天佑德营销中心',
-              style: AppTextStyles.bodyMedium,
-            ),
+            const Text('配送至: 天佑德营销中心', style: AppTextStyles.bodyMedium),
             const Spacer(),
             const Icon(Icons.expand_more, size: 20, color: AppColors.onSurfaceVariant),
           ],
@@ -129,20 +115,17 @@ class ServiceCartPage extends ConsumerWidget {
     return SliverPadding(
       padding: const EdgeInsets.only(top: AppSpacing.sm),
       sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final item = items[index];
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
-              child: _ServiceCartItemRow(
-                item: item,
-                onToggle: () => ref.read(cartDataProvider.notifier).toggleSelect(item.id),
-                onQtyChanged: (qty) => ref.read(cartDataProvider.notifier).updateQuantity(item.id, qty),
-              ),
-            );
-          },
-          childCount: items.length,
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final item = items[index];
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+            child: _ServiceCartItemRow(
+              item: item,
+              onToggle: () => ref.read(cartDataProvider.notifier).toggleSelect(item.id),
+              onQtyChanged: (qty) => ref.read(cartDataProvider.notifier).updateQuantity(item.id, qty),
+            ),
+          );
+        }, childCount: items.length),
       ),
     );
   }
@@ -150,18 +133,9 @@ class ServiceCartPage extends ConsumerWidget {
   // ─── 继续加购区 ─────────────────────────────────────────────────────
 
   static const _continueAddProducts = [
-    _ContinueAddProduct(
-      name: '天佑德电商专供海拔系列2900青稞酒46度500ml',
-      priceCents: 20000,
-    ),
-    _ContinueAddProduct(
-      name: '天佑德电商专供海拔系列2900青稞酒46度500ml',
-      priceCents: 20000,
-    ),
-    _ContinueAddProduct(
-      name: '天佑德电商专供海拔系列2900青稞酒46度500ml',
-      priceCents: 20000,
-    ),
+    _ContinueAddProduct(name: '天佑德电商专供海拔系列2900青稞酒46度500ml', priceCents: 20000),
+    _ContinueAddProduct(name: '天佑德电商专供海拔系列2900青稞酒46度500ml', priceCents: 20000),
+    _ContinueAddProduct(name: '天佑德电商专供海拔系列2900青稞酒46度500ml', priceCents: 20000),
   ];
 
   Widget _buildContinueAddSection(WidgetRef ref) {
@@ -182,13 +156,7 @@ class ServiceCartPage extends ConsumerWidget {
 
   // ─── 底部结算栏 ─────────────────────────────────────────────────────
 
-  Widget _buildBottomBar(
-    BuildContext context,
-    CartState state,
-    bool allSelected,
-    Money selectedTotal,
-    WidgetRef ref,
-  ) {
+  Widget _buildBottomBar(BuildContext context, CartState state, bool allSelected, Money selectedTotal, WidgetRef ref) {
     return Container(
       padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.md + 8),
       decoration: BoxDecoration(
@@ -201,11 +169,7 @@ class ServiceCartPage extends ConsumerWidget {
           children: [
             Row(
               children: [
-                Checkbox(
-                  value: allSelected,
-                  onChanged: (v) => ref.read(cartDataProvider.notifier).toggleAll(v),
-                  activeColor: AppColors.primary,
-                ),
+                Checkbox(value: allSelected, onChanged: (v) => ref.read(cartDataProvider.notifier).toggleAll(v), activeColor: AppColors.primary),
                 const Text('全选', style: AppTextStyles.bodyMedium),
               ],
             ),
@@ -228,9 +192,7 @@ class ServiceCartPage extends ConsumerWidget {
                 width: 96,
                 height: 44,
                 decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(AppRadius.sm)),
-                child: const Center(
-                  child: Text('去结算', style: AppTextStyles.labelMedium),
-                ),
+                child: const Center(child: Text('去结算', style: AppTextStyles.labelMedium)),
               ),
             ),
           ],
@@ -267,11 +229,7 @@ class _ServiceCartItemRow extends StatelessWidget {
   final VoidCallback onToggle;
   final ValueChanged<int> onQtyChanged;
 
-  const _ServiceCartItemRow({
-    required this.item,
-    required this.onToggle,
-    required this.onQtyChanged,
-  });
+  const _ServiceCartItemRow({required this.item, required this.onToggle, required this.onQtyChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -285,20 +243,12 @@ class _ServiceCartItemRow extends StatelessWidget {
       child: Row(
         children: [
           // 复选框
-          Checkbox(
-            value: item.selected,
-            onChanged: (_) => onToggle(),
-            activeColor: AppColors.primary,
-          ),
+          Checkbox(value: item.selected, onChanged: (_) => onToggle(), activeColor: AppColors.primary),
           const SizedBox(width: AppSpacing.sm),
           // 商品图片占位
           ClipRRect(
             borderRadius: BorderRadius.circular(AppRadius.sm),
-            child: Container(
-              width: 80,
-              height: 80,
-              color: AppColors.surfaceVariant,
-            ),
+            child: Container(width: 80, height: 80, color: AppColors.surfaceVariant),
           ),
           const SizedBox(width: AppSpacing.md),
           // 商品名称 + 价格
@@ -339,11 +289,7 @@ class _QtyControl extends StatelessWidget {
   final VoidCallback? onMinus;
   final VoidCallback onPlus;
 
-  const _QtyControl({
-    required this.quantity,
-    this.onMinus,
-    required this.onPlus,
-  });
+  const _QtyControl({required this.quantity, this.onMinus, required this.onPlus});
 
   @override
   Widget build(BuildContext context) {
@@ -352,11 +298,7 @@ class _QtyControl extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: onMinus,
-          child: Icon(
-            Icons.remove_circle_outline,
-            size: 20,
-            color: onMinus == null ? AppColors.outlineVariant : AppColors.onSurface,
-          ),
+          child: Icon(Icons.remove_circle_outline, size: 20, color: onMinus == null ? AppColors.outlineVariant : AppColors.onSurface),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
@@ -389,20 +331,13 @@ class _ContinueAddItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
+      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(AppRadius.md)),
       child: Row(
         children: [
           // 图片占位
           ClipRRect(
             borderRadius: BorderRadius.circular(AppRadius.sm),
-            child: Container(
-              width: 64,
-              height: 64,
-              color: AppColors.surfaceVariant,
-            ),
+            child: Container(width: 64, height: 64, color: AppColors.surfaceVariant),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -429,10 +364,7 @@ class _ContinueAddItem extends StatelessWidget {
             child: Container(
               width: 28,
               height: 28,
-              decoration: BoxDecoration(
-                color: AppColors.primaryContainer,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: AppColors.primaryContainer, shape: BoxShape.circle),
               child: const Icon(Icons.add, size: 18, color: AppColors.primary),
             ),
           ),
