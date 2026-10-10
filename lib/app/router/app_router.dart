@@ -12,6 +12,7 @@ import '../../features/member/presentation/pages/member_sign_in_page.dart';
 import '../../features/member/presentation/pages/personal_info_page.dart';
 import '../../features/member/presentation/pages/personal_info_edit_page.dart';
 import '../../features/member/presentation/pages/about_us_page.dart';
+import '../../features/member/presentation/pages/account_deletion_page.dart';
 import '../../features/member/presentation/pages/address_list_page.dart';
 import '../../features/member/presentation/pages/address_form_page.dart';
 import '../../features/member/domain/repositories/member_repository.dart';
@@ -29,6 +30,8 @@ import '../../features/points_mall/presentation/pages/points_payment_success_pag
 import '../../features/points/presentation/pages/points_detail_page.dart';
 import '../../features/points/presentation/pages/points_rules_page.dart';
 import '../../features/order/presentation/pages/all_orders_page.dart';
+import '../../features/order/presentation/pages/invoice_center_page.dart';
+import '../../features/order/presentation/pages/invoice_detail_page.dart';
 import '../../features/order/presentation/pages/order_detail_page.dart';
 import 'route_names.dart';
 
@@ -119,6 +122,10 @@ final appRouter = Provider<GoRouter>((ref) {
             path: 'edit',
             pageBuilder: (c, s) => const MaterialPage(child: PersonalInfoEditPage()),
           ),
+          GoRoute(
+            path: 'account-deletion',
+            pageBuilder: (c, s) => const MaterialPage(child: AccountDeletionPage()),
+          ),
         ],
       ),
       GoRoute(
@@ -180,6 +187,16 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.orders,
         pageBuilder: (c, s) => const MaterialPage(child: AllOrdersPage()),
+      ),
+      GoRoute(
+        path: RouteNames.invoiceCenter,
+        pageBuilder: (c, s) => const MaterialPage(child: InvoiceCenterPage()),
+        routes: [
+          GoRoute(
+            path: 'detail/:id',
+            pageBuilder: (c, s) => MaterialPage(child: InvoiceDetailPage(invoiceId: s.pathParameters['id']!)),
+          ),
+        ],
       ),
       GoRoute(
         path: RouteNames.orderDetail,

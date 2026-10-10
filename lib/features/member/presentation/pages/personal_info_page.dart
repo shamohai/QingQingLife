@@ -118,7 +118,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
             ),
           ),
           const Text(
-            '账号安全',
+            '个人信息',
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white, height: 1.2),
           ),
         ],
@@ -169,7 +169,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
           padding: const EdgeInsets.fromLTRB(13, 11, 13, 23),
           child: Row(
             children: [
-              Expanded(child: _buildLogoutButton()),
+              Expanded(child: _buildLogoutButton(context)),
               const SizedBox(width: 8),
               Expanded(flex: 2, child: _buildEditInfoButton(context)),
             ],
@@ -179,14 +179,11 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
     );
   }
 
-  /// 左按钮「注销账号」（描边）
-  Widget _buildLogoutButton() {
+  /// 左按钮「注销账号」（描边）→ 注销协议页
+  Widget _buildLogoutButton(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () {
-        // TODO: 注销账号流程依赖后端注销/核验接口，后端暂未提供，待接入后补充。
-        debugPrint('[PersonalInfoPage] 注销账号点击');
-      },
+      onTap: () => context.push(RouteNames.accountDeletion),
       child: Container(
         height: 44,
         alignment: Alignment.center,
