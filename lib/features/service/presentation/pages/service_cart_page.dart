@@ -190,7 +190,22 @@ class ServiceCartPage extends ConsumerWidget {
           children: [
             const Padding(
               padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.md),
-              child: Text('继续加购', style: AppTextStyles.labelMedium),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 3,
+                    height: 16,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(color: AppColors.serviceProjectBlue, borderRadius: BorderRadius.all(Radius.circular(2))),
+                    ),
+                  ),
+                  SizedBox(width: AppSpacing.sm),
+                  Text(
+                    '继续加购',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface),
+                  ),
+                ],
+              ),
             ),
             ..._continueAddProducts.map((p) => _ContinueAddItem(product: p)),
             const SizedBox(height: AppSpacing.md),
