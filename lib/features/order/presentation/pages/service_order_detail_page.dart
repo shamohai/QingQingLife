@@ -206,7 +206,7 @@ class _ServiceOrderBody extends StatelessWidget {
 
                         // 2. 专属管家二维码卡片
                         Transform.translate(
-                          offset: const Offset(0, -6),
+                          offset: const Offset(0, -5),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 14),
                             child: Container(
