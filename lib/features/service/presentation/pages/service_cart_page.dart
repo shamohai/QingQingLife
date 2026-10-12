@@ -57,7 +57,7 @@ class ServiceCartPage extends ConsumerWidget {
         _buildTopBar(context),
         _buildBanner(),
         _buildAddressBar(context, state, ref, params),
-        _buildContinueAddSection(context, state, ref, params),
+        _buildContinueAddSection(state),
         const SliverToBoxAdapter(child: SizedBox(height: 96)),
       ],
     );
@@ -168,7 +168,7 @@ class ServiceCartPage extends ConsumerWidget {
                         selected: state.selectedMap[item.pid] ?? true,
                         isUpdating: state.cartUpdateInProgress,
                         onToggle: () => notifier.toggleSelect(item.pid),
-                        onQtyChanged: (qty) => notifier.addProductToCart(item.pid, qty),
+                        onQtyChanged: (_) => notifier.refreshCartProducts(),
                       ),
                   ],
                 ),
@@ -181,7 +181,7 @@ class ServiceCartPage extends ConsumerWidget {
 
   // ─── 继续加购区 ─────────────────────────────────────────────────
 
-  Widget _buildContinueAddSection(BuildContext context, ServiceCartState state, WidgetRef ref, ServiceCartInitialParams params) {
+  Widget _buildContinueAddSection(ServiceCartState state) {
     return SliverToBoxAdapter(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
@@ -218,7 +218,7 @@ class ServiceCartPage extends ConsumerWidget {
                 _ContinueAddItem(
                   product: p,
                   isUpdating: state.cartUpdateInProgress,
-                  onTap: () => _runCartAction(context, () => ref.read(serviceCartProvider(params).notifier).addCandidateProduct(p)),
+                  onTap: () {},
                 ),
             const SizedBox(height: AppSpacing.md),
           ],
@@ -305,15 +305,6 @@ class ServiceCartPage extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _runCartAction(BuildContext context, Future<void> Function() action) async {
-    try {
-      await action();
-    } catch (error) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('购物车更新失败：$error')));
-    }
   }
 
   void _showManageDialog(BuildContext context) {
@@ -495,6 +486,7 @@ class _ContinueAddItem extends StatelessWidget {
               ],
             ),
           ),
+          // 圆形加号按钮
           GestureDetector(
             onTap: isUpdating ? null : onTap,
             child: Container(

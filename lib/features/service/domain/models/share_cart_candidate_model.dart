@@ -73,23 +73,6 @@ class CandidateProduct {
     this.saleUnit = '',
   });
 
-  CandidateProduct copyWith({int? cartNum}) {
-    return CandidateProduct(
-      productId: productId,
-      productName: productName,
-      imgUrl: imgUrl,
-      price: price,
-      marketPrice: marketPrice,
-      cartNum: cartNum ?? this.cartNum,
-      minCount: minCount,
-      maxCount: maxCount,
-      defaultQuantity: defaultQuantity,
-      priceDesc: priceDesc,
-      marketPriceDesc: marketPriceDesc,
-      saleUnit: saleUnit,
-    );
-  }
-
   factory CandidateProduct.fromJson(Map<String, dynamic> json) {
     return CandidateProduct(
       productId: (json['productid'] as num?)?.toInt() ?? 0,
