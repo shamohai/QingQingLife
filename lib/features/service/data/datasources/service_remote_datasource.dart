@@ -69,6 +69,20 @@ class ServiceRemoteDataSource implements ServiceRepository {
       fromJson: (dynamic json) => CandidateProductList.fromJson(json as Map<String, dynamic>),
     );
   }
+
+  @override
+  Future<ApiResponse<ShareCartProductList>> addProductToShareCart(int shareCartId, int pid, int newCount) async {
+    return apiClient.post<ShareCartProductList>(
+      '/api/groupMall/shareCart/addproducttosharecart',
+      data: <String, dynamic> {
+        'sharecartid': shareCartId,
+        'pid': pid,
+        'newcount': newCount,
+        'increment': false,
+      },
+      fromJson: (dynamic json) => ShareCartProductList.fromJson(json as Map<String, dynamic>),
+    );
+  }
 }
 
 final serviceRemoteDataSourceProvider = Provider<ServiceRemoteDataSource>((ref) {

@@ -25,7 +25,6 @@
 ///   ]
 /// }
 
-
 /// 候选商品（继续加购区）
 class CandidateProduct {
   final int productId;
@@ -73,6 +72,23 @@ class CandidateProduct {
     this.marketPriceDesc = '',
     this.saleUnit = '',
   });
+
+  CandidateProduct copyWith({int? cartNum}) {
+    return CandidateProduct(
+      productId: productId,
+      productName: productName,
+      imgUrl: imgUrl,
+      price: price,
+      marketPrice: marketPrice,
+      cartNum: cartNum ?? this.cartNum,
+      minCount: minCount,
+      maxCount: maxCount,
+      defaultQuantity: defaultQuantity,
+      priceDesc: priceDesc,
+      marketPriceDesc: marketPriceDesc,
+      saleUnit: saleUnit,
+    );
+  }
 
   factory CandidateProduct.fromJson(Map<String, dynamic> json) {
     return CandidateProduct(

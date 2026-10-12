@@ -57,7 +57,7 @@ class ServiceCartPage extends ConsumerWidget {
         _buildTopBar(context),
         _buildBanner(),
         _buildAddressBar(context, state, ref, params),
-        _buildContinueAddSection(state),
+        _buildContinueAddSection(context, state, ref, params),
         const SliverToBoxAdapter(child: SizedBox(height: 96)),
       ],
     );
@@ -166,8 +166,9 @@ class ServiceCartPage extends ConsumerWidget {
                       _ServiceCartItemRow(
                         product: item,
                         selected: state.selectedMap[item.pid] ?? true,
+                        isUpdating: state.cartUpdateInProgress,
                         onToggle: () => notifier.toggleSelect(item.pid),
-                        onQtyChanged: (_) => notifier.refreshCartProducts(),
+                        onQtyChanged: (qty) => notifier.addProductToCart(item.pid, qty),
                       ),
                   ],
                 ),
@@ -180,7 +181,7 @@ class ServiceCartPage extends ConsumerWidget {
 
   // ─── 继续加购区 ─────────────────────────────────────────────────
 
-  Widget _buildContinueAddSection(ServiceCartState state) {
+  Widget _buildContinueAddSection(BuildContext context, ServiceCartState state, WidgetRef ref, ServiceCartInitialParams params) {
     return SliverToBoxAdapter(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
@@ -213,7 +214,12 @@ class ServiceCartPage extends ConsumerWidget {
                 child: AppEmpty(message: '暂无可加购商品'),
               )
             else
-              for (final p in state.candidateProducts) _ContinueAddItem(product: p),
+              for (final p in state.candidateProducts)
+                _ContinueAddItem(
+                  product: p,
+                  isUpdating: state.cartUpdateInProgress,
+                  onTap: () => _runCartAction(context, () => ref.read(serviceCartProvider(params).notifier).addCandidateProduct(p)),
+                ),
             const SizedBox(height: AppSpacing.md),
           ],
         ),
@@ -301,6 +307,15 @@ class ServiceCartPage extends ConsumerWidget {
     );
   }
 
+  Future<void> _runCartAction(BuildContext context, Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('购物车更新失败：$error')));
+    }
+  }
+
   void _showManageDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -327,10 +342,11 @@ class ServiceCartPage extends ConsumerWidget {
 class _ServiceCartItemRow extends StatelessWidget {
   final ShareCartProduct product;
   final bool selected;
+  final bool isUpdating;
   final VoidCallback onToggle;
   final ValueChanged<int> onQtyChanged;
 
-  const _ServiceCartItemRow({required this.product, required this.selected, required this.onToggle, required this.onQtyChanged});
+  const _ServiceCartItemRow({required this.product, required this.selected, required this.isUpdating, required this.onToggle, required this.onQtyChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -376,8 +392,8 @@ class _ServiceCartItemRow extends StatelessWidget {
           // 数量控制
           _QtyControl(
             quantity: product.count,
-            onMinus: product.count > 1 ? () => onQtyChanged(product.count - 1) : null,
-            onPlus: () => onQtyChanged(product.count + 1),
+            onMinus: !isUpdating && product.count > 1 ? () => onQtyChanged(product.count - 1) : null,
+            onPlus: isUpdating ? null : () => onQtyChanged(product.count + 1),
           ),
         ],
       ),
@@ -395,7 +411,7 @@ class _ServiceCartItemRow extends StatelessWidget {
 class _QtyControl extends StatelessWidget {
   final int quantity;
   final VoidCallback? onMinus;
-  final VoidCallback onPlus;
+  final VoidCallback? onPlus;
 
   const _QtyControl({required this.quantity, this.onMinus, required this.onPlus});
 
@@ -414,7 +430,7 @@ class _QtyControl extends StatelessWidget {
         ),
         GestureDetector(
           onTap: onPlus,
-          child: const Icon(Icons.add_circle_outline, size: 20, color: AppColors.onSurface),
+          child: Icon(Icons.add_circle_outline, size: 20, color: onPlus == null ? AppColors.outlineVariant : AppColors.onSurface),
         ),
       ],
     );
@@ -425,8 +441,10 @@ class _QtyControl extends StatelessWidget {
 
 class _ContinueAddItem extends StatelessWidget {
   final CandidateProduct product;
+  final bool isUpdating;
+  final VoidCallback onTap;
 
-  const _ContinueAddItem({required this.product});
+  const _ContinueAddItem({required this.product, required this.isUpdating, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -477,14 +495,18 @@ class _ContinueAddItem extends StatelessWidget {
               ],
             ),
           ),
-          // 圆形加号按钮
           GestureDetector(
-            onTap: () {},
+            onTap: isUpdating ? null : onTap,
             child: Container(
               width: 28,
               height: 28,
-              decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-              child: const Icon(Icons.add, size: 18, color: Colors.white),
+              decoration: BoxDecoration(color: isUpdating ? AppColors.outlineVariant : Colors.red, shape: BoxShape.circle),
+              child: isUpdating
+                  ? const Padding(
+                      padding: EdgeInsets.all(7),
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Icon(Icons.add, size: 18, color: Colors.white),
             ),
           ),
         ],

@@ -32,6 +32,9 @@ class ServiceCartState {
 
   /// 本地选中状态：pid -> selected
   final Map<int, bool> selectedMap;
+  final bool? isUpdatingCart;
+
+  bool get cartUpdateInProgress => isUpdatingCart == true;
 
   const ServiceCartState({
     required this.shareCartId,
@@ -41,6 +44,7 @@ class ServiceCartState {
     this.candidateProducts = const [],
     this.hasMoreCandidates = false,
     this.selectedMap = const {},
+    this.isUpdatingCart = false,
   });
 
   /// 当前选中的商品列表
@@ -72,6 +76,7 @@ class ServiceCartState {
     List<CandidateProduct>? candidateProducts,
     bool? hasMoreCandidates,
     Map<int, bool>? selectedMap,
+    bool? isUpdatingCart,
   }) {
     return ServiceCartState(
       shareCartId: shareCartId ?? this.shareCartId,
@@ -81,6 +86,7 @@ class ServiceCartState {
       candidateProducts: candidateProducts ?? this.candidateProducts,
       hasMoreCandidates: hasMoreCandidates ?? this.hasMoreCandidates,
       selectedMap: selectedMap ?? this.selectedMap,
+      isUpdatingCart: isUpdatingCart ?? cartUpdateInProgress,
     );
   }
 }
@@ -215,5 +221,64 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
     state = AsyncData(
       current.copyWith(cartProducts: productList.list, canSubmit: productList.canSubmit, verifyMsg: productList.verifyMsg, selectedMap: selectedMap),
     );
+  }
+
+  /// 点击候选商品的加号时，首次数量按默认数量设置，已在购物车时每次加一。
+  Future<void> addCandidateProduct(CandidateProduct candidate) async {
+    final current = state.value;
+    if (current == null || current.cartUpdateInProgress) return;
+
+    ShareCartProduct? existingProduct;
+    for (final product in current.cartProducts) {
+      if (product.pid == candidate.productId) {
+        existingProduct = product;
+        break;
+      }
+    }
+
+    final newCount = existingProduct == null
+        ? candidate.defaultQuantity.clamp(candidate.minCount, candidate.maxCount).toInt()
+        : (existingProduct.count + 1).clamp(candidate.minCount, candidate.maxCount).toInt();
+    if (existingProduct != null && newCount == existingProduct.count) return;
+
+    await addProductToCart(candidate.productId, newCount);
+  }
+
+  /// 设置权益购物车中商品的目标数量并同步服务端购物车列表。
+  Future<void> addProductToCart(int pid, int newCount) async {
+    final current = state.value;
+    if (current == null || current.shareCartId == 0 || current.cartUpdateInProgress || newCount < 1) return;
+
+    final ds = ref.read(serviceRemoteDataSourceProvider);
+    state = AsyncData(current.copyWith(isUpdatingCart: true));
+    try {
+      final mutationResponse = await ds.addProductToShareCart(current.shareCartId, pid, newCount);
+      if (!mutationResponse.success) {
+        mutationResponse.requireData;
+      }
+      final cartResponse = await ds.getShareCartProductList(current.shareCartId);
+      final cart = cartResponse.requireData;
+      final latest = state.value ?? current;
+      final selectedMap = <int, bool>{for (final product in cart.list) product.pid: latest.selectedMap[product.pid] ?? true};
+      final cartProductsById = {for (final product in cart.list) product.pid: product};
+      final candidateProducts = latest.candidateProducts
+          .map((candidate) => candidate.copyWith(cartNum: cartProductsById[candidate.productId]?.count ?? 0))
+          .toList();
+      state = AsyncData(
+        latest.copyWith(
+          cartProducts: cart.list,
+          candidateProducts: candidateProducts,
+          canSubmit: cart.canSubmit,
+          verifyMsg: cart.verifyMsg,
+          selectedMap: selectedMap,
+          isUpdatingCart: false,
+        ),
+      );
+    } finally {
+      final latest = state.value ?? current;
+      if (latest.cartUpdateInProgress) {
+        state = AsyncData(latest.copyWith(isUpdatingCart: false));
+      }
+    }
   }
 }

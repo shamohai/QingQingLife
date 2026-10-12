@@ -24,4 +24,9 @@ abstract class ServiceRepository {
   /// 获取继续加购候选商品列表（支持分页）
   /// 请求 body：{"sharecartid": shareCartId, "pageindex": pageIndex, "pagesize": pageSize}
   Future<ApiResponse<CandidateProductList>> getCandidateProductList(int shareCartId, int pageIndex, int pageSize);
+
+  /// 向权益购物车添加/修改商品数量
+  /// 请求 body：{"sharecartid": shareCartId, "pid": pid, "newcount": newCount, "increment": false}
+  /// 响应包含 cansubmit / verifymsg
+  Future<ApiResponse<ShareCartProductList>> addProductToShareCart(int shareCartId, int pid, int newCount);
 }

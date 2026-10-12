@@ -110,7 +110,7 @@ class ShareCartProductList {
   factory ShareCartProductList.fromJson(Map<String, dynamic> json) {
     final listJson = json['list'] as List<dynamic>? ?? [];
     return ShareCartProductList(
-      canSubmit: json['cansubmit'] as bool? ?? true,
+      canSubmit: json['cansubmit'] == true,
       verifyMsg: json['verifymsg'] as String? ?? '',
       totalCount: (json['totalcount'] as num?)?.toInt() ?? 0,
       list: listJson.map((e) => ShareCartProduct.fromJson(e as Map<String, dynamic>)).toList(),
