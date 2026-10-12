@@ -92,146 +92,182 @@ class _MallCompletedOrderBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final firstItem = detail.items.isNotEmpty ? detail.items.first : null;
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.only(bottom: AppSpacing.xl),
-      child: Column(
-        children: [
-          // 交易完成状态 Banner
-          Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFE0E8FF), Color(0xFFF3F5F7)]),
-            ),
-            padding: const EdgeInsets.fromLTRB(26, 12, 14, 30),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Image.asset(
-                  'assets/images/order/huaban.png',
-                  width: 36,
-                  height: 36,
-                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.check_circle_rounded, size: 36, color: Color(0xFF213775)),
-                ),
-                Text(
-                  detail.statusText.isNotEmpty ? detail.statusText : '交易完成',
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black),
-                ),
-              ],
-            ),
-          ),
-
-          // 1. 物流与地址信息卡片 (沿用 orders/2 时间轴：实心圆点、竖线、空心圆点)
-          Transform.translate(
-            offset: const Offset(0, -15),
-            child: _LogisticsCard(detail: detail),
-          ),
-
-          // 2. 商城商品与订单详情全能卡片
-          Transform.translate(
-            offset: const Offset(0, -5),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (firstItem != null) ...[
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: AppNetworkImage(url: firstItem.imageUrl, width: 100, height: 100, fit: BoxFit.cover),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  firstItem.productName,
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 6),
-                                const Row(children: [_Tag('52%vol'), SizedBox(width: 8), _Tag('清香型')]),
-                                const SizedBox(height: 8),
-                                Text(
-                                  firstItem.skuName,
-                                  style: const TextStyle(fontSize: 12, color: Color(0xFF8E8E97), height: 1.3),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
+    return CustomScrollView(
+      physics: const ClampingScrollPhysics(),
+      slivers: [
+        // 背景层 - 填满整个可滚动区域
+        SliverToBoxAdapter(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Stack(
+                children: [
+                  // 页面双渐变背景 (上半部 55% 为渐变，下半部 45% 为背景色)
+                  Positioned.fill(
+                    child: Column(
+                      children: [
+                        Expanded(
+                          flex: 55,
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [Color(0xFFE0E8FF), Color(0xFFF3F5F7)],
+                              ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                        ),
+                        Expanded(
+                          flex: 45,
+                          child: Container(decoration: const BoxDecoration(color: Color(0xFFF3F5F7))),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // 内容层
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+                    child: Column(
+                      children: [
+                        // 交易完成状态 Banner
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.fromLTRB(26, 12, 14, 30),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              RichText(
-                                text: TextSpan(
-                                  style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
-                                  children: [
-                                    const TextSpan(text: '¥', style: TextStyle(fontSize: 12)),
-                                    TextSpan(text: '${(firstItem.totalCents / 100).toInt()}', style: const TextStyle(fontSize: 16)),
-                                    const TextSpan(text: '.00', style: TextStyle(fontSize: 12)),
-                                  ],
-                                ),
+                              Image.asset(
+                                'assets/images/order/huaban.png',
+                                width: 36,
+                                height: 36,
+                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.check_circle_rounded, size: 36, color: Color(0xFF213775)),
                               ),
-                              const SizedBox(height: 4),
-                              Text('×${firstItem.quantity}', style: const TextStyle(fontSize: 12, color: Color(0xFF8E8E97))),
+                              Text(
+                                detail.statusText.isNotEmpty ? detail.statusText : '交易完成',
+                                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black),
+                              ),
                             ],
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
 
-                    const Padding(padding: EdgeInsets.symmetric(vertical: 3), child: SizedBox(height: 1)),
+                        // 1. 物流与地址信息卡片 (沿用 orders/2 时间轴：实心圆点、竖线、空心圆点)
+                        Transform.translate(
+                          offset: const Offset(0, -15),
+                          child: _LogisticsCard(detail: detail),
+                        ),
 
-                    // 费用明细
-                    _AmountRow(label: '商品总价', value: '¥${(detail.productTotalCents / 100).toStringAsFixed(2)}'),
-                    const SizedBox(height: 8),
-                    _AmountRow(label: '订单运费', value: '¥${(detail.shippingFeeCents / 100).toStringAsFixed(2)}'),
-                    const SizedBox(height: 8),
-                    _AmountRow(label: '优惠券抵扣', value: '-¥${(detail.discountCents / 100).toStringAsFixed(2)}'),
-                    const SizedBox(height: 8),
-                    _AmountRow(label: '总计金额', value: '¥${(detail.payAmountCents / 100).toStringAsFixed(2)}', isTotal: true),
+                        // 2. 商城商品与订单详情全能卡片
+                        Transform.translate(
+                          offset: const Offset(0, -5),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
+                            child: Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (firstItem != null) ...[
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: AppNetworkImage(url: firstItem.imageUrl, width: 100, height: 100, fit: BoxFit.cover),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                firstItem.productName,
+                                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              const SizedBox(height: 6),
+                                              const Row(children: [_Tag('52%vol'), SizedBox(width: 8), _Tag('清香型')]),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                firstItem.skuName,
+                                                style: const TextStyle(fontSize: 12, color: Color(0xFF8E8E97), height: 1.3),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            RichText(
+                                              text: TextSpan(
+                                                style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+                                                children: [
+                                                  const TextSpan(text: '¥', style: TextStyle(fontSize: 12)),
+                                                  TextSpan(text: '${(firstItem.totalCents / 100).toInt()}', style: const TextStyle(fontSize: 16)),
+                                                  const TextSpan(text: '.00', style: TextStyle(fontSize: 12)),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text('×${firstItem.quantity}', style: const TextStyle(fontSize: 12, color: Color(0xFF8E8E97))),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
 
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Divider(height: 1, color: Color(0xFFE1E4DC)),
+                                  const Padding(padding: EdgeInsets.symmetric(vertical: 3), child: SizedBox(height: 1)),
+
+                                  // 费用明细
+                                  _AmountRow(label: '商品总价', value: '¥${(detail.productTotalCents / 100).toStringAsFixed(2)}'),
+                                  const SizedBox(height: 8),
+                                  _AmountRow(label: '订单运费', value: '¥${(detail.shippingFeeCents / 100).toStringAsFixed(2)}'),
+                                  const SizedBox(height: 8),
+                                  _AmountRow(label: '优惠券抵扣', value: '-¥${(detail.discountCents / 100).toStringAsFixed(2)}'),
+                                  const SizedBox(height: 8),
+                                  _AmountRow(label: '总计金额', value: '¥${(detail.payAmountCents / 100).toStringAsFixed(2)}', isTotal: true),
+
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 12),
+                                    child: Divider(height: 1, color: Color(0xFFE1E4DC)),
+                                  ),
+
+                                  // 商城订单元数据信息
+                                  _MetaRow(label: '商城订单编号', value: detail.orderNo),
+                                  const SizedBox(height: 8),
+                                  _MetaRow(label: '交易单号', value: 'JYDH345678678654678976'),
+                                  const SizedBox(height: 8),
+                                  _MetaRow(label: '支付方式', value: '微信支付'),
+                                  const SizedBox(height: 8),
+                                  _MetaRow(label: '订单类型', value: '商城订单'),
+                                  const SizedBox(height: 8),
+                                  _MetaRow(label: '下单时间', value: _formatDate(detail.createTime)),
+                                  const SizedBox(height: 8),
+                                  _MetaRow(label: '付款时间', value: _formatDate(detail.payTime ?? detail.createTime)),
+                                  const SizedBox(height: 8),
+                                  _MetaRow(label: '发货时间', value: _formatDate(detail.shipTime ?? detail.createTime)),
+                                  const SizedBox(height: 8),
+                                  _MetaRow(label: '收货时间', value: _formatDate(detail.receiveTime ?? detail.createTime)),
+                                  const SizedBox(height: 8),
+                                  _MetaRow(label: '订单备注', value: '请尽快发货，打算朋友生日送礼！'),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-
-                    // 商城订单元数据信息
-                    _MetaRow(label: '商城订单编号', value: detail.orderNo),
-                    const SizedBox(height: 8),
-                    _MetaRow(label: '交易单号', value: 'JYDH345678678654678976'),
-                    const SizedBox(height: 8),
-                    _MetaRow(label: '支付方式', value: '微信支付'),
-                    const SizedBox(height: 8),
-                    _MetaRow(label: '订单类型', value: '商城订单'),
-                    const SizedBox(height: 8),
-                    _MetaRow(label: '下单时间', value: _formatDate(detail.createTime)),
-                    const SizedBox(height: 8),
-                    _MetaRow(label: '付款时间', value: _formatDate(detail.payTime ?? detail.createTime)),
-                    const SizedBox(height: 8),
-                    _MetaRow(label: '发货时间', value: _formatDate(detail.shipTime ?? detail.createTime)),
-                    const SizedBox(height: 8),
-                    _MetaRow(label: '收货时间', value: _formatDate(detail.receiveTime ?? detail.createTime)),
-                    const SizedBox(height: 8),
-                    _MetaRow(label: '订单备注', value: '请尽快发货，打算朋友生日送礼！'),
-                  ],
-                ),
-              ),
-            ),
+                  ),
+                ],
+              );
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
