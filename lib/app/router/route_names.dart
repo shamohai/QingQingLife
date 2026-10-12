@@ -61,6 +61,16 @@ abstract final class RouteNames {
 
   // 客服
   static const String customerService = '/customer-service';
+
+  // 预约项目详情
+  static const String serviceProjectDetail = '/service/project/:id';
+
+  // 预约项目填写信息
+  static const String serviceBookingForm = '/service/project/:id/book';
+
+  // 购酒享服务模板详情
+  static const String serviceTemplateDetail = '/service/template/:id';
+
   // 积分规则页
   static const String pointsRules = '/points/rules';
 

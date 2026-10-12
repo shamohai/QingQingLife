@@ -1,6 +1,6 @@
 ---
 name: ecommerce-components
-description: 青轻生活馆电商核心业务组件规范。
+description: 青轻生活电商核心业务组件规范。
 ---
 
 # 电商组件

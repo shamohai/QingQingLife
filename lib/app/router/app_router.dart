@@ -20,6 +20,9 @@ import '../../features/notification/presentation/pages/notification_list_page.da
 import '../../features/service/presentation/pages/service_page.dart';
 import '../../features/service/presentation/pages/service_cart_page.dart';
 import '../../features/service/presentation/pages/service_records_page.dart';
+import '../../features/service/presentation/pages/service_project_detail_page.dart';
+import '../../features/service/presentation/pages/service_booking_form_page.dart';
+import '../../features/service/presentation/pages/service_template_detail_page.dart';
 import '../../features/product/presentation/pages/product_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
@@ -33,6 +36,7 @@ import '../../features/order/presentation/pages/all_orders_page.dart';
 import '../../features/order/presentation/pages/invoice_center_page.dart';
 import '../../features/order/presentation/pages/invoice_detail_page.dart';
 import '../../features/order/presentation/pages/order_detail_page.dart';
+import '../../features/order/presentation/pages/mall_order_review_page.dart';
 import 'route_names.dart';
 
 final appRouter = Provider<GoRouter>((ref) {
@@ -91,6 +95,30 @@ final appRouter = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'records',
                     pageBuilder: (c, s) => MaterialPage(child: ServiceRecordsPage(activeTab: s.uri.queryParameters['activeTab'] ?? 'ongoing')),
+                  ),
+                  GoRoute(
+                    path: 'project/:id',
+                    pageBuilder: (c, s) => MaterialPage(
+                      child: ServiceProjectDetailPage(projectId: s.pathParameters['id']!),
+                    ),
+                  ),
+                  GoRoute(
+                    name: 'serviceBookingForm',
+                    path: RouteNames.serviceBookingForm,
+                    pageBuilder: (c, s) => MaterialPage(
+                      child: ServiceBookingFormPage(
+                        projectId: s.pathParameters['id']!,
+                        title: s.uri.queryParameters['title'] ?? '预约项目',
+                      ),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'template/:id',
+                    pageBuilder: (c, s) => MaterialPage(
+                      child: ServiceTemplateDetailPage(
+                        templateId: int.tryParse(s.pathParameters['id']!) ?? 0,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -202,6 +230,10 @@ final appRouter = Provider<GoRouter>((ref) {
         path: RouteNames.orderDetail,
         pageBuilder: (c, s) => MaterialPage(child: OrderDetailPage(orderId: s.pathParameters['id']!)),
       ),
+      GoRoute(
+        path: '/orders/:id/review',
+        pageBuilder: (c, s) => MaterialPage(child: MallOrderReviewPage(orderId: s.pathParameters['id']!)),
+      ),
     ],
   );
 });
@@ -280,7 +312,14 @@ class _TabItem extends StatelessWidget {
         children: [
           Image.asset(isSelected ? selectedAsset : unselectedAsset, width: 26, height: 26),
           const SizedBox(height: 3),
-          Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w400,
+              color: isSelected ? const Color(0xFF213775) : const Color(0xFF656565),
+            ),
+          ),
         ],
       ),
     );

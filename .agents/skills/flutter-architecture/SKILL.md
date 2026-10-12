@@ -1,6 +1,6 @@
 ---
 name: flutter-architecture
-description: 青轻生活馆 Flutter 中大型项目架构规范。
+description: 青轻生活 Flutter 中大型项目架构规范。
 ---
 
 # Flutter 中大型架构
@@ -25,18 +25,18 @@ lib/
 
 features/
 └── product/
-    ├── data/
-    │   ├── datasources/
-    │   ├── models/
-    │   └── repositories/
-    ├── domain/
-    │   ├── entities/
-    │   ├── repositories/
-    │   └── usecases/
-    └── presentation/
-        ├── pages/
-        ├── widgets/
-        └── providers/
+├── data/
+│ ├── datasources/
+│ ├── models/
+│ └── repositories/
+├── domain/
+│ ├── entities/
+│ ├── repositories/
+│ └── usecases/
+└── presentation/
+├── pages/
+├── widgets/
+└── providers/
 
 ---
 

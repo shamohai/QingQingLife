@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// 青轻生活馆品牌色板（亮色 + 暗色双模式）
+/// 青轻生活品牌色板（亮色 + 暗色双模式）
 abstract final class AppColors {
   // ── 亮色（Light）────────────────────────────────────────────────────
 
@@ -43,13 +43,24 @@ abstract final class AppColors {
   static const Color outlineVariant = Color(0xFFC4C8BF);
   static const Color divider = Color(0xFFE1E4DC);
 
-  // 覆盖层
+  // ── 服务中心页面专用色（一期扩展，可随 Design Token 体系整合）─────────────────────
+  static const Color servicePageBackground = Color(0xFFF3F5F7);
+  static const Color serviceTabActive = Color(0xFF213775);
+  static const Color serviceTabInactive = Color(0xFF666666);
+  static const Color serviceButtonRed = Color(0xFFFF2105);
+  static const Color serviceDivider = Color(0xFFEEEEEE);
+  static const Color serviceFloatBg = Color(0xFF213771);
+
+  // ── 预约项目详情专用色 ──
+  static const Color serviceProjectBlue = Color(0xFF0088FF);
+  static const Color serviceCtaGradStart = Color(0xFF3152AF);
+  // serviceCtaGradEnd 与 serviceTabActive (#213775) 相同，可直接复用
+
+  // ── 覆盖层
   static const Color overlay = Color(0x1F000000);
   static const Color scrim = Color(0x52000000);
 
   // ── 暗色（Dark）─────────────────────────────────────────────────────
-  // 命名与亮色对称，便于 ThemeData 中按需引用
-
   static const Color darkPrimary = Color(0xFF578DF7);
   static const Color darkOnPrimary = Color(0xFF002D6A);
   static const Color darkPrimaryContainer = Color(0xFF00439A);

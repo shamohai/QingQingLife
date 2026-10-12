@@ -1,6 +1,6 @@
 ---
 name: flutter-state-management
-description: 青轻生活馆 Riverpod 状态管理规范。
+description: 青轻生活 Riverpod 状态管理规范。
 ---
 
 # Riverpod

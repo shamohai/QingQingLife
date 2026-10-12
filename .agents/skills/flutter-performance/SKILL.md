@@ -1,6 +1,6 @@
 ---
 name: flutter-performance
-description: 青轻生活馆 Flutter 性能优化规范。
+description: 青轻生活 Flutter 性能优化规范。
 ---
 
 # 性能

@@ -74,7 +74,7 @@ class _RulesContent extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '青轻生活馆APP积分商城积分规则',
+              '青轻生活APP积分商城积分规则',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: AppColors.onSurface, height: 1.5),
             ),
             const SizedBox(height: 2),

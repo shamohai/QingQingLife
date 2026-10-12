@@ -1,6 +1,6 @@
 ---
 name: flutter-storage
-description: 青轻生活馆本地存储、登录态和缓存规范。
+description: 青轻生活本地存储、登录态和缓存规范。
 ---
 
 # Storage

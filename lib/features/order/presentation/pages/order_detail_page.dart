@@ -5,11 +5,22 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
-import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_image.dart';
+import '../../../../core/widgets/app_loading.dart';
 import '../../domain/enums/order_type.dart';
 import '../../domain/repositories/order_repository.dart';
 import '../providers/order_detail_provider.dart';
+import 'service_order_detail_page.dart';
+import 'points_order_detail_page.dart';
+import 'points_pending_shipment_order_detail_page.dart';
+import 'points_shipped_order_detail_page.dart';
+import 'points_virtual_order_detail_page.dart';
+import 'points_service_order_detail_page.dart';
+import 'mall_completed_order_detail_page.dart';
+import 'mall_pending_review_order_detail_page.dart';
+import 'mall_shipped_order_detail_page.dart';
+import 'mall_pending_shipment_order_detail_page.dart';
+import 'mall_pending_payment_order_detail_page.dart';
 
 /// 订单详情页
 ///
@@ -23,31 +34,131 @@ class OrderDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncDetail = ref.watch(mockOrderDetailByIdProvider(orderId));
 
+    return asyncDetail.when(
+      data: (response) {
+        if (!response.success || response.data == null) {
+          return Scaffold(
+            backgroundColor: const Color(0xFFF3F5F7),
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              centerTitle: false,
+              titleSpacing: 0,
+              title: const Text(
+                '订单详情',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface),
+              ),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 20),
+                onPressed: () => context.pop(),
+              ),
+            ),
+            body: const Center(child: Text('订单不存在')),
+          );
+        }
+        final detail = response.data!;
+        if (detail.orderType == OrderType.service) {
+          return ServiceOrderDetailPage(orderId: orderId);
+        }
+        if (detail.orderType == OrderType.points) {
+          if (orderId == '11') {
+            return PointsServiceOrderDetailPage(orderId: orderId);
+          }
+          if (orderId == '4') {
+            return PointsVirtualOrderDetailPage(orderId: orderId);
+          }
+          if (detail.status == OrderStatus.pendingShipment) {
+            return PointsPendingShipmentOrderDetailPage(orderId: orderId);
+          }
+          if (detail.status == OrderStatus.shipped) {
+            return PointsShippedOrderDetailPage(orderId: orderId);
+          }
+          return PointsOrderDetailPage(orderId: orderId);
+        }
+        if (detail.orderType == OrderType.mall) {
+          if (orderId == '10' || detail.status == OrderStatus.pendingPayment) {
+            return MallPendingPaymentOrderDetailPage(orderId: orderId);
+          }
+          if (orderId == '9' || detail.status == OrderStatus.pendingShipment) {
+            return MallPendingShipmentOrderDetailPage(orderId: orderId);
+          }
+          if (orderId == '8' || detail.status == OrderStatus.shipped) {
+            return MallShippedOrderDetailPage(orderId: orderId);
+          }
+          if (orderId == '7' || orderId == '5' || detail.statusText == '待评价') {
+            return MallPendingReviewOrderDetailPage(orderId: orderId);
+          }
+          if (detail.status == OrderStatus.completed) {
+            return MallCompletedOrderDetailPage(orderId: orderId);
+          }
+        }
+        return _OrderDetailPageScaffold(detail: detail);
+      },
+      loading: () => Scaffold(
+        backgroundColor: const Color(0xFFF3F5F7),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: false,
+          titleSpacing: 0,
+          title: const Text(
+            '订单详情',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 20),
+            onPressed: () => context.pop(),
+          ),
+        ),
+        body: const Center(child: AppLoading()),
+      ),
+      error: (err, stack) => Scaffold(
+        backgroundColor: const Color(0xFFF3F5F7),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          centerTitle: false,
+          titleSpacing: 0,
+          title: const Text(
+            '订单详情',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 20),
+            onPressed: () => context.pop(),
+          ),
+        ),
+        body: const Center(child: Text('加载失败')),
+      ),
+    );
+  }
+}
+
+class _OrderDetailPageScaffold extends StatelessWidget {
+  final OrderDetail detail;
+
+  const _OrderDetailPageScaffold({required this.detail});
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F7),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
+        centerTitle: false,
+        titleSpacing: 0,
         title: const Text(
           '订单详情',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface),
         ),
         leading: IconButton(
-          icon: Image.asset('assets/images/order/icon_back.png', width: 24, height: 24),
+          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 20),
           onPressed: () => context.pop(),
         ),
       ),
-      body: asyncDetail.when(
-        data: (response) {
-          if (!response.success || response.data == null) {
-            return const Center(child: Text('订单不存在'));
-          }
-          return _OrderDetailBody(detail: response.data!);
-        },
-        loading: () => const Center(child: AppLoading()),
-        error: (_, __) => const Center(child: Text('加载失败')),
-      ),
+      body: _OrderDetailBody(detail: detail),
     );
   }
 }
@@ -77,10 +188,7 @@ class _OrderDetailBody extends StatelessWidget {
                   style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: Color(0xFFFF2105)),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  _statusDesc(detail.status),
-                  style: const TextStyle(fontSize: 14, color: Color(0xFF8E8E97)),
-                ),
+                Text(_statusDesc(detail.status), style: const TextStyle(fontSize: 14, color: Color(0xFF8E8E97))),
               ],
             ),
           ),
@@ -88,7 +196,12 @@ class _OrderDetailBody extends StatelessWidget {
         // 订单编号
         SliverToBoxAdapter(
           child: _InfoCard(
-            title: '${isPoints ? '积分订单编号' : isService ? '服务订单编号' : '商城订单编号'}：${detail.orderNo}',
+            title:
+                '${isPoints
+                    ? '积分订单编号'
+                    : isService
+                    ? '服务订单编号'
+                    : '商城订单编号'}：${detail.orderNo}',
             subtitle: '创建时间：${_formatDate(detail.createTime)}',
           ),
         ),
@@ -101,32 +214,31 @@ class _OrderDetailBody extends StatelessWidget {
             ),
           ),
         ),
-        // 收货地址（如有）
-        if (detail.address != null)
-          SliverToBoxAdapter(
-            child: _InfoCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on_outlined, size: 18, color: Color(0xFF213775)),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${detail.address!.province}${detail.address!.city}${detail.address!.district}',
-                        style: const TextStyle(fontSize: 14, color: Color(0xFF8E8E97)),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${detail.address!.name}  ${detail.address!.phone}\n${detail.address!.detail}',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.onSurface, height: 1.4),
-                  ),
-                ],
-              ),
+        // 收货地址
+        SliverToBoxAdapter(
+          child: _InfoCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.location_on_outlined, size: 18, color: Color(0xFF213775)),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${detail.address.province}${detail.address.city}${detail.address.district}',
+                      style: const TextStyle(fontSize: 14, color: Color(0xFF8E8E97)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${detail.address.name}  ${detail.address.phone}\n${detail.address.detail}',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.onSurface, height: 1.4),
+                ),
+              ],
             ),
           ),
+        ),
         // 订单金额明细
         SliverToBoxAdapter(
           child: _InfoCard(
@@ -168,10 +280,7 @@ class _OrderDetailBody extends StatelessWidget {
           ),
         // 操作按钮
         SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xxxl),
-            child: _buildActions(context),
-          ),
+          child: Padding(padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xxxl), child: _buildActions(context)),
         ),
       ],
     );
@@ -186,29 +295,15 @@ class _OrderDetailBody extends StatelessWidget {
       case OrderType.mall:
         switch (status) {
           case OrderStatus.pendingPayment:
-            return _ActionRow([
-              _actionButton(context, '取消订单', false),
-              _actionButton(context, '立即付款', true),
-            ]);
+            return _actionRow([_actionButton(context, '取消订单', false), _actionButton(context, '立即付款', true)]);
           case OrderStatus.pendingShipment:
-            return _ActionRow([
-              _actionButton(context, '申请退款', false),
-              _actionButton(context, '修改地址', false),
-            ]);
+            return _actionRow([_actionButton(context, '申请退款', false), _actionButton(context, '修改地址', false)]);
           case OrderStatus.shipped:
-            return _ActionRow([
-              _actionButton(context, '申请退款', false),
-              _actionButton(context, '确认收货', true),
-            ]);
+            return _actionRow([_actionButton(context, '申请退款', false), _actionButton(context, '确认收货', true)]);
           case OrderStatus.completed:
-            return _ActionRow([
-              _actionButton(context, '申请退款', false),
-              _actionButton(context, '去评价', true),
-            ]);
+            return _actionRow([_actionButton(context, '申请退款', false), _actionButton(context, '去评价', true)]);
           default:
-            return _ActionRow([
-              _actionButton(context, '再次购买', true),
-            ]);
+            return _actionRow([_actionButton(context, '再次购买', true)]);
         }
       case OrderType.points:
         switch (status) {
@@ -244,18 +339,11 @@ class _OrderDetailBody extends StatelessWidget {
                   gradient: const LinearGradient(colors: [Color(0xFF3152AF), Color(0xFF213775)]),
                   borderRadius: BorderRadius.circular(999),
                 )
-              : BoxDecoration(
-                  color: const Color(0xFFF3F5F7),
-                  borderRadius: BorderRadius.circular(999),
-                ),
+              : BoxDecoration(color: const Color(0xFFF3F5F7), borderRadius: BorderRadius.circular(999)),
           child: Center(
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: primary ? FontWeight.w500 : FontWeight.w400,
-                color: primary ? Colors.white : AppColors.onSurface,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: primary ? FontWeight.w500 : FontWeight.w400, color: primary ? Colors.white : AppColors.onSurface),
             ),
           ),
         ),
@@ -285,10 +373,8 @@ class _OrderDetailBody extends StatelessWidget {
     );
   }
 
-  Widget _ActionRow(List<Widget> children) {
-    return Row(
-      children: children,
-    );
+  Widget _actionRow(List<Widget> children) {
+    return Row(children: children);
   }
 
   String _statusDesc(OrderStatus status) {
@@ -336,10 +422,16 @@ class _InfoCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (title != null) ...[
-              Text(title!, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF213775))),
+              Text(
+                title!,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF213775)),
+              ),
               if (subtitle != null) ...[
                 const SizedBox(height: 4),
-                Text(subtitle!, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97))),
+                Text(
+                  subtitle!,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97)),
+                ),
               ],
               const SizedBox(height: AppSpacing.md),
             ],
@@ -363,12 +455,7 @@ class _ProductRow extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(AppRadius.sm),
-          child: AppNetworkImage(
-            url: item.imageUrl,
-            width: 80,
-            height: 80,
-            fit: BoxFit.cover,
-          ),
+          child: AppNetworkImage(url: item.imageUrl, width: 80, height: 80, fit: BoxFit.cover),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -430,22 +517,16 @@ class _AmountRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(fontSize: 14, color: Color(0xFF8E8E97))),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: bold ? FontWeight.w600 : FontWeight.w400,
-              color: accent ? const Color(0xFFFF2105) : AppColors.onSurface,
-            ),
-          ),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 14, color: Color(0xFF8E8E97))),
+        Text(
+          value,
+          style: TextStyle(fontSize: 14, fontWeight: bold ? FontWeight.w600 : FontWeight.w400, color: accent ? const Color(0xFFFF2105) : AppColors.onSurface),
+        ),
+      ],
     );
   }
 }
+// (remainder of file)

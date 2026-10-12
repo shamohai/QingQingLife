@@ -1,6 +1,6 @@
 ---
 name: flutter-network-api
-description: 青轻生活馆现有后端 API 对接规范。
+description: 青轻生活现有后端 API 对接规范。
 ---
 
 # API

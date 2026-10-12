@@ -1,5 +1,5 @@
 name: qingqinglife
-description: 青轻生活馆 - 会员制电商 Flutter App
+description: 青轻生活 - 会员制电商 Flutter App
 
 publish_to: "none"
 
@@ -52,6 +52,8 @@ dependencies:
   path_provider: ^2.1.0
   flutter_launcher_icons: ^0.14.4
   webview_flutter: ^4.14.1
+  webview_flutter_web: ^0.2.3+4
+  flutter_widget_from_html: ^0.17.4
   package_info_plus: ^10.2.1
 
   platform_adaptive_widgets:
