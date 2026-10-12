@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_image.dart';
@@ -61,203 +60,237 @@ class _ServiceOrderBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final firstItem = detail.items.isNotEmpty ? detail.items.first : null;
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.only(bottom: AppSpacing.xxxl),
-      child: Column(
-        children: [
-          // 交易状态 Banner（紧凑高度，紧贴导航栏下方，完美匹配 17sp 设计稿）
-          Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFE0E8FF), Color(0xFFF3F5F7)]),
-            ),
-            padding: const EdgeInsets.fromLTRB(26, 12, 14, 30),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Image.asset(
-                  'assets/images/order/huaban.png',
-                  width: 36,
-                  height: 36,
-                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.check_circle_rounded, size: 36, color: Color(0xFF213775)),
-                ),
-                Text(
-                  detail.statusText.isNotEmpty ? detail.statusText : '交易完成',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
-                ),
-              ],
-            ),
-          ),
-
-          // 1. 服务项目主卡片（向上偏移与渐变背景融合）
-          Transform.translate(
-            offset: const Offset(0, -15),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 服务信息 Row
-                    if (firstItem != null) ...[
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: AppNetworkImage(url: firstItem.imageUrl, width: 100, height: 100, fit: BoxFit.cover),
+    return CustomScrollView(
+      physics: const ClampingScrollPhysics(),
+      slivers: [
+        // 背景层 - 填满整个可滚动区域
+        SliverToBoxAdapter(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Stack(
+                children: [
+                  // 页面双渐变背景 (上半部 55% 为渐变，下半部 45% 为白色背景)
+                  Positioned.fill(
+                    child: Column(
+                      children: [
+                        Expanded(
+                          flex: 55,
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFE0E8FF), Color(0xFFF3F5F7)]),
+                            ),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
+                        ),
+                        Expanded(
+                          flex: 45,
+                          child: Container(decoration: const BoxDecoration(color: Color(0xFFF3F5F7))),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // 内容层
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.xxxl),
+                    child: Column(
+                      children: [
+                        // 交易状态 Banner（紧凑高度，紧贴导航栏下方，完美匹配 17sp 设计稿）
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.fromLTRB(26, 12, 14, 30),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Image.asset(
+                                'assets/images/order/huaban.png',
+                                width: 36,
+                                height: 36,
+                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.check_circle_rounded, size: 36, color: Color(0xFF213775)),
+                              ),
+                              Text(
+                                detail.statusText.isNotEmpty ? detail.statusText : '交易完成',
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // 1. 服务项目主卡片（向上偏移与渐变背景融合）
+                        Transform.translate(
+                          offset: const Offset(0, -15),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // 服务信息 Row
+                                  if (firstItem != null) ...[
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: AppNetworkImage(url: firstItem.imageUrl, width: 100, height: 100, fit: BoxFit.cover),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                firstItem.productName,
+                                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              const SizedBox(height: 6),
+                                              // 标签行
+                                              const Row(children: [_Tag('购酒送服务'), SizedBox(width: 8), _Tag('服务套餐')]),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                firstItem.skuName,
+                                                style: const TextStyle(fontSize: 12, color: Color(0xFF8E8E97), height: 1.3),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            RichText(
+                                              text: TextSpan(
+                                                style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+                                                children: [
+                                                  const TextSpan(text: '¥', style: TextStyle(fontSize: 12)),
+                                                  TextSpan(text: '${(firstItem.totalCents / 100).toInt()}', style: const TextStyle(fontSize: 16)),
+                                                  const TextSpan(text: '.00', style: TextStyle(fontSize: 12)),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text('×${firstItem.quantity}', style: const TextStyle(fontSize: 12, color: Color(0xFF8E8E97))),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+
+                                  const Padding(padding: EdgeInsets.symmetric(vertical: 5), child: SizedBox(height: 1)),
+
+                                  // 金额细项
+                                  _AmountRow(label: '商品总价', value: '¥${(detail.productTotalCents / 100).toStringAsFixed(2)}'),
+                                  const SizedBox(height: 8),
+                                  _AmountRow(label: '总计金额', value: '¥${(detail.payAmountCents / 100).toStringAsFixed(2)}', isTotal: true),
+
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 12),
+                                    child: Divider(height: 1, color: Color(0xFFE1E4DC)),
+                                  ),
+
+                                  // 订单元数据信息
+                                  _MetaRow(label: '服务订单编号', value: detail.orderNo),
+                                  const SizedBox(height: 8),
+                                  _MetaRow(label: '订单类型', value: '服务订单'),
+                                  const SizedBox(height: 8),
+                                  _MetaRow(label: '下单时间', value: _formatDate(detail.createTime)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // 2. 专属管家二维码卡片
+                        Transform.translate(
+                          offset: const Offset(0, -6),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+                              child: Column(
+                                children: [
+                                  const Text(
+                                    '长按保存二维码  添加您的专属管家',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF213775)),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Image.asset(
+                                    'assets/images/order/butler_qr.png',
+                                    width: 153,
+                                    height: 153,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) => Container(
+                                      width: 153,
+                                      height: 153,
+                                      color: const Color(0xFFF3F5F7),
+                                      child: const Icon(Icons.qr_code_2_rounded, size: 80, color: Color(0xFF213775)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 4),
+
+                        // 3. 加购产品明细卡片
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  firstItem.productName,
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                const Text(
+                                  '加购产品明细',
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
                                 ),
-                                const SizedBox(height: 6),
-                                // 标签行
-                                const Row(children: [_Tag('购酒送服务'), SizedBox(width: 8), _Tag('服务套餐')]),
-                                const SizedBox(height: 8),
-                                Text(
-                                  firstItem.skuName,
-                                  style: const TextStyle(fontSize: 12, color: Color(0xFF8E8E97), height: 1.3),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
+                                const SizedBox(height: 12),
+
+                                // 列表项 1
+                                const _UpsellProductItem(),
+                                const SizedBox(height: 12),
+
+                                // 列表项 2
+                                const _UpsellProductItem(),
+                                const SizedBox(height: 16),
+
+                                // 查看更多按钮
+                                const Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        '点击查看更多',
+                                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF8E8E97)),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Icon(Icons.keyboard_arrow_down_rounded, size: 20, color: Color(0xFF8E8E97)),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              RichText(
-                                text: TextSpan(
-                                  style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
-                                  children: [
-                                    const TextSpan(text: '¥', style: TextStyle(fontSize: 12)),
-                                    TextSpan(text: '${(firstItem.totalCents / 100).toInt()}', style: const TextStyle(fontSize: 16)),
-                                    const TextSpan(text: '.00', style: TextStyle(fontSize: 12)),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text('×${firstItem.quantity}', style: const TextStyle(fontSize: 12, color: Color(0xFF8E8E97))),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-
-                    const Padding(padding: EdgeInsets.symmetric(vertical: 5), child: SizedBox(height: 1)),
-
-                    // 金额细项
-                    _AmountRow(label: '商品总价', value: '¥${(detail.productTotalCents / 100).toStringAsFixed(2)}'),
-                    const SizedBox(height: 8),
-                    _AmountRow(label: '总计金额', value: '¥${(detail.payAmountCents / 100).toStringAsFixed(2)}', isTotal: true),
-
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Divider(height: 1, color: Color(0xFFE1E4DC)),
-                    ),
-
-                    // 订单元数据信息
-                    _MetaRow(label: '服务订单编号', value: detail.orderNo),
-                    const SizedBox(height: 8),
-                    _MetaRow(label: '订单类型', value: '服务订单'),
-                    const SizedBox(height: 8),
-                    _MetaRow(label: '下单时间', value: _formatDate(detail.createTime)),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // 2. 专属管家二维码卡片
-          Transform.translate(
-            offset: const Offset(0, -10),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
-                child: Column(
-                  children: [
-                    const Text(
-                      '长按保存二维码  添加您的专属管家',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF213775)),
-                    ),
-                    const SizedBox(height: 12),
-                    Image.asset(
-                      'assets/images/order/butler_qr.png',
-                      width: 153,
-                      height: 153,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        width: 153,
-                        height: 153,
-                        color: const Color(0xFFF3F5F7),
-                        child: const Icon(Icons.qr_code_2_rounded, size: 80, color: Color(0xFF213775)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // 3. 加购产品明细卡片
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    '加购产品明细',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // 列表项 1
-                  const _UpsellProductItem(),
-                  const SizedBox(height: 12),
-
-                  // 列表项 2
-                  const _UpsellProductItem(),
-                  const SizedBox(height: 16),
-
-                  // 查看更多按钮
-                  const Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '点击查看更多',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF8E8E97)),
                         ),
-                        SizedBox(height: 4),
-                        Icon(Icons.keyboard_arrow_down_rounded, size: 20, color: Color(0xFF8E8E97)),
                       ],
                     ),
                   ),
                 ],
-              ),
-            ),
+              );
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
