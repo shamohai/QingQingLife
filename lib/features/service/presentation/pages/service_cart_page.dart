@@ -40,24 +40,24 @@ class ServiceCartPage extends ConsumerWidget {
         child: asyncState.when(
           loading: () => const Center(child: AppLoading()),
           error: (error, _) => Center(
-            child: AppError(message: '加载失败，请稍后重试', onRetry: () => ref.invalidate(serviceCartProvider(params))),
+            child: AppError(message: '加载失败，请稍后重试', onRetry: () => ref.read(serviceCartProvider(params).notifier).retry()),
           ),
-          data: (state) => _buildContent(context, ref, state),
+          data: (state) => _buildContent(context, ref, state, params),
         ),
       ),
-      bottomNavigationBar: asyncState.when<Widget?>(loading: () => null, error: (_, _) => null, data: (state) => _buildBottomBar(context, state, ref)),
+      bottomNavigationBar: asyncState.when<Widget?>(loading: () => null, error: (_, _) => null, data: (state) => _buildBottomBar(context, state, ref, params)),
     );
   }
 
   // ─── 内容区（数据已就绪） ─────────────────────────────────────────
 
-  Widget _buildContent(BuildContext context, WidgetRef ref, ServiceCartState state) {
+  Widget _buildContent(BuildContext context, WidgetRef ref, ServiceCartState state, ServiceCartInitialParams params) {
     return CustomScrollView(
       slivers: [
         _buildTopBar(context),
         _buildBanner(),
-        _buildAddressBar(context, state, ref),
-        _buildContinueAddSection(state, ref),
+        _buildAddressBar(context, state, ref, params),
+        _buildContinueAddSection(state),
         const SliverToBoxAdapter(child: SizedBox(height: 96)),
       ],
     );
@@ -124,8 +124,8 @@ class ServiceCartPage extends ConsumerWidget {
 
   // ─── 配送地址栏 + 购物车商品列表 ────────────────────────────────
 
-  Widget _buildAddressBar(BuildContext context, ServiceCartState state, WidgetRef ref) {
-    final notifier = ref.read(serviceCartProvider(ServiceCartInitialParams(templateId: templateId, headImg: headImg, existingCartId: cartId)).notifier);
+  Widget _buildAddressBar(BuildContext context, ServiceCartState state, WidgetRef ref, ServiceCartInitialParams params) {
+    final notifier = ref.read(serviceCartProvider(params).notifier);
 
     return SliverToBoxAdapter(
       child: Container(
@@ -180,9 +180,7 @@ class ServiceCartPage extends ConsumerWidget {
 
   // ─── 继续加购区 ─────────────────────────────────────────────────
 
-  Widget _buildContinueAddSection(ServiceCartState state, WidgetRef ref) {
-    if (state.candidateProducts.isEmpty) return const SliverToBoxAdapter(child: SizedBox());
-
+  Widget _buildContinueAddSection(ServiceCartState state) {
     return SliverToBoxAdapter(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
@@ -209,7 +207,13 @@ class ServiceCartPage extends ConsumerWidget {
                 ],
               ),
             ),
-            for (final p in state.candidateProducts) _ContinueAddItem(product: p),
+            if (state.candidateProducts.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.xl),
+                child: AppEmpty(message: '暂无可加购商品'),
+              )
+            else
+              for (final p in state.candidateProducts) _ContinueAddItem(product: p),
             const SizedBox(height: AppSpacing.md),
           ],
         ),
@@ -219,8 +223,8 @@ class ServiceCartPage extends ConsumerWidget {
 
   // ─── 底部结算栏 ─────────────────────────────────────────────────
 
-  Widget _buildBottomBar(BuildContext context, ServiceCartState state, WidgetRef ref) {
-    final notifier = ref.read(serviceCartProvider(ServiceCartInitialParams(templateId: templateId, headImg: headImg, existingCartId: cartId)).notifier);
+  Widget _buildBottomBar(BuildContext context, ServiceCartState state, WidgetRef ref, ServiceCartInitialParams params) {
+    final notifier = ref.read(serviceCartProvider(params).notifier);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.md + 8),
@@ -230,52 +234,67 @@ class ServiceCartPage extends ConsumerWidget {
       ),
       child: SafeArea(
         top: false,
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
-                Checkbox(
-                  value: state.allSelected,
-                  onChanged: (v) => notifier.toggleAll(v ?? false),
-                  activeColor: AppColors.serviceProjectBlue,
-                  shape: const CircleBorder(),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: state.allSelected,
+                      onChanged: (v) => notifier.toggleAll(v ?? false),
+                      activeColor: AppColors.serviceProjectBlue,
+                      shape: const CircleBorder(),
+                    ),
+                    const Text('全选', style: AppTextStyles.bodyMedium),
+                  ],
                 ),
-                const Text('全选', style: AppTextStyles.bodyMedium),
+                const Spacer(),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('合计', style: AppTextStyles.bodySmall),
+                    const SizedBox(width: AppSpacing.xs),
+                    Text(
+                      state.selectedTotalFormatted,
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.error),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: AppSpacing.lg),
+                GestureDetector(
+                  onTap: state.canSubmit ? () => context.push('/checkout') : null,
+                  child: Container(
+                    width: 96,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: state.canSubmit ? AppColors.serviceProjectBlue : AppColors.outlineVariant,
+                      borderRadius: BorderRadius.circular(AppRadius.round),
+                      gradient: const LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [AppColors.serviceTabActive, AppColors.serviceCtaGradStart],
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '结算',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: state.canSubmit ? Colors.white : AppColors.onSurfaceVariant),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
-            const Spacer(),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('合计', style: AppTextStyles.bodySmall),
-                Text(
-                  state.selectedTotalFormatted,
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.error),
+            if (!state.canSubmit && state.verifyMsg.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.sm),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(state.verifyMsg, style: const TextStyle(fontSize: 12, color: AppColors.error)),
                 ),
-              ],
-            ),
-            const SizedBox(width: AppSpacing.lg),
-            GestureDetector(
-              onTap: state.canSubmit
-                  ? () {
-                      if (state.verifyMsg.isNotEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.verifyMsg)));
-                      } else {
-                        context.push('/checkout');
-                      }
-                    }
-                  : null,
-              child: Container(
-                width: 96,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: state.canSubmit ? AppColors.primary : AppColors.outlineVariant,
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
-                ),
-                child: const Center(child: Text('去结算', style: AppTextStyles.labelMedium)),
               ),
-            ),
           ],
         ),
       ),

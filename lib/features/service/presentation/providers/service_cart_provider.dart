@@ -93,59 +93,58 @@ class ServiceCartInitialParams {
   /// 0 表示购物车尚未创建，需要调用 createShareCart
   final int existingCartId;
 
-  const ServiceCartInitialParams({
-    required this.templateId,
-    required this.headImg,
-    this.existingCartId = 0,
-  });
+  const ServiceCartInitialParams({required this.templateId, required this.headImg, this.existingCartId = 0});
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is ServiceCartInitialParams && other.templateId == templateId && other.headImg == headImg && other.existingCartId == existingCartId;
+  }
+
+  @override
+  int get hashCode => Object.hash(templateId, headImg, existingCartId);
 }
 
 /// 服务购物车 Provider（family，按参数对象隔离）
 ///
 /// 路由进入方式：/service/cart?templateId=xxx&headImg=xxx&cartId=xxx
 /// cartId == 0 时先调用 createShareCart 获取 shareCartId，再拉取商品列表。
-final serviceCartProvider =
-    AsyncNotifierProvider.family<ServiceCartNotifier, ServiceCartState, ServiceCartInitialParams>(
-      ServiceCartNotifier.new,
-    );
+final serviceCartProvider = AsyncNotifierProvider.family<ServiceCartNotifier, ServiceCartState, ServiceCartInitialParams>(ServiceCartNotifier.new);
 
 class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
   final ServiceCartInitialParams _params;
+  int? _createdShareCartId;
 
   ServiceCartNotifier(this._params);
 
   @override
   Future<ServiceCartState> build() async {
+    return _load();
+  }
+
+  Future<ServiceCartState> _load() async {
     final ds = ref.read(serviceRemoteDataSourceProvider);
 
     // Step 1: 确定 shareCartId
-    int shareCartId;
-    if (_params.existingCartId > 0) {
-      shareCartId = _params.existingCartId;
+    final shareCartId = _createdShareCartId ?? _params.existingCartId;
+    if (shareCartId > 0) {
+      _createdShareCartId = shareCartId;
     } else {
       final createResp = await ds.createShareCart(_params.templateId);
-      shareCartId = createResp.requireData;
+      _createdShareCartId = createResp.requireData;
     }
 
-    // Step 2 & 3: 并行拉取购物车商品和候选商品
-    final results = await Future.wait([
-      ds.getShareCartProductList(shareCartId),
-      ds.getCandidateProductList(shareCartId, 1, 20),
-    ]);
-
-    final productResp = results[0] as dynamic;
-    final candidateResp = results[1] as dynamic;
-
-    final productList = (productResp as dynamic).requireData as ShareCartProductList;
-    final candidateList = (candidateResp as dynamic).requireData as CandidateProductList;
+    final effectiveShareCartId = _createdShareCartId!;
+    final productListFuture = ds.getShareCartProductList(effectiveShareCartId);
+    final candidateListFuture = ds.getCandidateProductList(effectiveShareCartId, 1, 20);
+    final productList = (await productListFuture).requireData;
+    final candidateList = (await candidateListFuture).requireData;
 
     // 构建 selectedMap（默认全部选中）
-    final selectedMap = <int, bool>{
-      for (final p in productList.list) p.pid: true,
-    };
+    final selectedMap = <int, bool>{for (final p in productList.list) p.pid: true};
 
     return ServiceCartState(
-      shareCartId: shareCartId,
+      shareCartId: effectiveShareCartId,
       cartProducts: productList.list,
       canSubmit: productList.canSubmit,
       verifyMsg: productList.verifyMsg,
@@ -153,6 +152,16 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
       hasMoreCandidates: candidateList.totalCount > candidateList.products.length,
       selectedMap: selectedMap,
     );
+  }
+
+  /// 重试加载时复用已创建的购物车，避免重复创建。
+  Future<void> retry() async {
+    state = const AsyncLoading();
+    try {
+      state = AsyncData(await _load());
+    } catch (error, stackTrace) {
+      state = AsyncError(error, stackTrace);
+    }
   }
 
   /// 切换单个商品选中状态
@@ -168,9 +177,7 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
   void toggleAll(bool value) {
     final current = state.value;
     if (current == null) return;
-    final newMap = <int, bool>{
-      for (final p in current.cartProducts) p.pid: value,
-    };
+    final newMap = <int, bool>{for (final p in current.cartProducts) p.pid: value};
     state = AsyncData(current.copyWith(selectedMap: newMap));
   }
 
@@ -204,17 +211,9 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
 
     final productList = resp.requireData;
     // 保留现有 selectedMap 对新商品的默认值
-    final selectedMap = <int, bool>{
-      for (final p in productList.list)
-        p.pid: current.selectedMap[p.pid] ?? true,
-    };
+    final selectedMap = <int, bool>{for (final p in productList.list) p.pid: current.selectedMap[p.pid] ?? true};
     state = AsyncData(
-      current.copyWith(
-        cartProducts: productList.list,
-        canSubmit: productList.canSubmit,
-        verifyMsg: productList.verifyMsg,
-        selectedMap: selectedMap,
-      ),
+      current.copyWith(cartProducts: productList.list, canSubmit: productList.canSubmit, verifyMsg: productList.verifyMsg, selectedMap: selectedMap),
     );
   }
 }

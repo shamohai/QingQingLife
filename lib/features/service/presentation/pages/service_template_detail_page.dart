@@ -301,7 +301,7 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
                 gradient: const LinearGradient(
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
-                  colors: [AppColors.serviceCtaGradStart, AppColors.serviceTabActive],
+                  colors: [AppColors.serviceTabActive, AppColors.serviceCtaGradStart],
                 ),
               ),
               child: const Center(
