@@ -92,7 +92,7 @@ class _PointsOrderBody extends StatelessWidget {
                   ),
                   // 内容层
                   Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.xxxl),
+                    padding: const EdgeInsets.only(bottom: AppSpacing.xl),
                     child: Column(
                       children: [
                         // 交易完成状态 Banner（紧凑高度，紧贴导航栏下方）
