@@ -12,7 +12,9 @@ import '../../features/member/domain/repositories/member_repository.dart';
 import '../../features/member/domain/repositories/member_sign_in_repository.dart';
 import '../../features/notification/data/datasources/notification_mock_datasource.dart';
 import '../../features/notification/domain/repositories/notification_repository.dart';
+import '../../features/order/data/datasources/invoice_mock_datasource.dart';
 import '../../features/order/data/datasources/order_mock_datasource.dart';
+import '../../features/order/domain/repositories/invoice_repository.dart';
 import '../../features/order/domain/repositories/order_repository.dart';
 import '../../features/points/data/datasources/points_mock_datasource.dart';
 import '../../features/points/domain/repositories/points_repository.dart';
@@ -49,6 +51,14 @@ CartRepository cartRepository(Ref ref) {
 @riverpod
 OrderRepository orderRepository(Ref ref) {
   return MockOrderDataSource();
+}
+
+/// Invoice Repository Provider
+@riverpod
+InvoiceRepository invoiceRepository(Ref ref) {
+  // TODO(Mock): 发票中心后端接口尚未定义，当前走 Mock。
+  // 接口就绪后改为返回 Remote 实现。
+  return MockInvoiceDataSource();
 }
 
 /// Member Repository Provider

@@ -151,37 +151,78 @@ class MockMemberDataSource implements MemberRepository {
     return ApiResponse.success(const StatementResult(items: [], total: 0, page: 1, pageSize: 10, hasMore: false));
   }
 
+  /// 内存态地址列表（Mock 期间模拟新增 / 编辑 / 删除 / 默认地址切换，重启后重置；
+  /// 后端地址接口就绪后由 Remote 数据源替换）
+  // TODO(Mock): 地址内容对齐设计稿，后端地址接口就绪后以接口返回为准
+  final List<MemberAddress> _addresses = [
+    const MemberAddress(
+      id: 'addr_1',
+      name: '吴彦祖',
+      phone: '13099876878',
+      province: '甘肃省',
+      city: '兰州市',
+      district: '七里河区',
+      detail: '建兰路街道兰州中心办公楼801室',
+      isDefault: true,
+    ),
+    const MemberAddress(
+      id: 'addr_2',
+      name: '吴彦祖',
+      phone: '13099876878',
+      province: '甘肃省',
+      city: '兰州市',
+      district: '七里河区',
+      detail: '建兰路街道兰州中心办公楼801室',
+      isDefault: false,
+    ),
+  ];
+
+  /// 新增地址的自增 ID
+  int _addressIdSeq = 3;
+
   @override
   Future<ApiResponse<List<MemberAddress>>> getAddresses() async {
-    return ApiResponse.success([
-      // TODO(Mock): 地址内容对齐设计稿，后端地址接口就绪后以接口返回为准
-      const MemberAddress(
-        id: 'addr_1',
-        name: '张三',
-        phone: '13800138000',
-        province: '甘肃省',
-        city: '兰州市',
-        district: '七里河区',
-        detail: '建兰路街道兰州中心801室',
-        isDefault: true,
-        label: '家',
-      ),
-    ]);
+    return ApiResponse.success(List.of(_addresses));
   }
 
   @override
   Future<ApiResponse<MemberAddress>> saveAddress(MemberAddress address) async {
+    if (address.id == null) {
+      // 新增
+      final created = address.copyWith(id: 'addr_${_addressIdSeq++}');
+      _addresses.add(created);
+      if (created.isDefault) _applyDefaultAddress(created.id!);
+      return ApiResponse.success(created);
+    }
+    // 编辑
+    final index = _addresses.indexWhere((e) => e.id == address.id);
+    if (index < 0) return ApiResponse.error('地址不存在');
+    _addresses[index] = address;
+    if (address.isDefault) _applyDefaultAddress(address.id!);
     return ApiResponse.success(address);
   }
 
   @override
   Future<ApiResponse<void>> deleteAddress(String addressId) async {
+    _addresses.removeWhere((e) => e.id == addressId);
     return ApiResponse.success(null);
   }
 
   @override
   Future<ApiResponse<void>> setDefaultAddress(String addressId) async {
+    _applyDefaultAddress(addressId);
     return ApiResponse.success(null);
+  }
+
+  /// 将指定地址设为唯一默认地址
+  void _applyDefaultAddress(String addressId) {
+    for (var i = 0; i < _addresses.length; i++) {
+      final item = _addresses[i];
+      final shouldBeDefault = item.id == addressId;
+      if (item.isDefault != shouldBeDefault) {
+        _addresses[i] = item.copyWith(isDefault: shouldBeDefault);
+      }
+    }
   }
 
   @override

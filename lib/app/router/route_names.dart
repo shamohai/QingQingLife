@@ -19,6 +19,10 @@ abstract final class RouteNames {
   // 订单相关
   static const String orders = '/orders';
   static const String orderDetail = '/orders/:id';
+  // 发票中心
+  static const String invoiceCenter = '/orders/invoices';
+  // 发票申请记录详情
+  static const String invoiceDetail = '/orders/invoices/detail/:id';
 
   // 会员相关
   static const String memberLevel = '/member/level';
@@ -26,6 +30,8 @@ abstract final class RouteNames {
   static const String personalInfo = '/member/personal-info';
   // 个人信息编辑页（旧版表单，由账号安全页底部「修改个人信息」进入）
   static const String personalInfoEdit = '/member/personal-info/edit';
+  // 注销协议页（由账号安全页底部「注销账号」进入，personalInfo 子路由）
+  static const String accountDeletion = '/member/personal-info/account-deletion';
   static const String aboutUs = '/member/about-us';
   static const String coupons = '/coupons';
   static const String pointsPage = '/points';
@@ -35,6 +41,7 @@ abstract final class RouteNames {
   // 积分明细页
   static const String pointsDetail = '/points/detail';
   static const String address = '/address';
+  static const String addressAdd = '/address/add';
   static const String addressEdit = '/address/edit';
 
   // 登录

@@ -211,6 +211,58 @@ final class OrderRepositoryProvider
 
 String _$orderRepositoryHash() => r'66c4f1582b578137a3b5f755281b6d7a0937aac8';
 
+/// Invoice Repository Provider
+
+@ProviderFor(invoiceRepository)
+final invoiceRepositoryProvider = InvoiceRepositoryProvider._();
+
+/// Invoice Repository Provider
+
+final class InvoiceRepositoryProvider
+    extends
+        $FunctionalProvider<
+          InvoiceRepository,
+          InvoiceRepository,
+          InvoiceRepository
+        >
+    with $Provider<InvoiceRepository> {
+  /// Invoice Repository Provider
+  InvoiceRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'invoiceRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$invoiceRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<InvoiceRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  InvoiceRepository create(Ref ref) {
+    return invoiceRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(InvoiceRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<InvoiceRepository>(value),
+    );
+  }
+}
+
+String _$invoiceRepositoryHash() => r'5bc0bfc2efc8230227f64c818835bf7c3dbd78dd';
+
 /// Member Repository Provider
 
 @ProviderFor(memberRepository)
