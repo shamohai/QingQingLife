@@ -1,64 +1,220 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../../core/utils/money.dart';
-import '../../../../cart/presentation/providers/cart_provider.dart';
+import '../../../../core/utils/money.dart';
+import '../../domain/models/share_cart_candidate_model.dart';
+import '../../domain/models/share_cart_product_model.dart';
+import '../../data/datasources/service_remote_datasource.dart';
 
-/// 购酒享服务结算页专用数据 Provider
+/// 购酒享服务购物车页面专用状态
 ///
-/// 一期使用静态 mock 数据，后续对接真实 API 时替换为 Repository 调用。
-/// 购物车数据共享 [cartDataProvider]，此处仅管理"继续加购"商品列表与地址文案。
+/// 按 templateId + cartId 实例化，管理三步 API 调用结果：
+/// 1. createShareCart         -> shareCartId
+/// 2. getShareCartProductList  -> ShareCartProductList
+/// 3. getCandidateProductList  -> CandidateProductList
+class ServiceCartState {
+  /// 有效的 shareCartId（0 表示尚未创建）
+  final int shareCartId;
 
-// ── 继续加购商品数据类 ────────────────────────────────────────────────────
+  /// 购物车中的商品列表
+  final List<ShareCartProduct> cartProducts;
 
-class ContinueAddProduct {
-  final String id;
-  final String imageUrl;
-  final String name;
-  final int priceCents;
+  /// 是否允许提交订单
+  final bool canSubmit;
 
-  const ContinueAddProduct({
-    required this.id,
-    required this.imageUrl,
-    required this.name,
-    required this.priceCents,
+  /// 不允许提交时的原因
+  final String verifyMsg;
+
+  /// 继续加购候选商品列表
+  final List<CandidateProduct> candidateProducts;
+
+  /// 候选商品是否还有更多页
+  final bool hasMoreCandidates;
+
+  /// 本地选中状态：pid -> selected
+  final Map<int, bool> selectedMap;
+
+  const ServiceCartState({
+    required this.shareCartId,
+    this.cartProducts = const [],
+    this.canSubmit = true,
+    this.verifyMsg = '',
+    this.candidateProducts = const [],
+    this.hasMoreCandidates = false,
+    this.selectedMap = const {},
+  });
+
+  /// 当前选中的商品列表
+  List<ShareCartProduct> get selectedProducts {
+    return cartProducts.where((p) => selectedMap[p.pid] ?? true).toList();
+  }
+
+  /// 是否全选
+  bool get allSelected {
+    if (cartProducts.isEmpty) return false;
+    return cartProducts.every((p) => selectedMap[p.pid] ?? true);
+  }
+
+  /// 选中商品合计金额（分）
+  int get selectedTotalCents {
+    return selectedProducts.fold(0, (sum, p) => sum + (p.price * 100).round() * p.count);
+  }
+
+  /// 格式化后的选中合计金额字符串
+  String get selectedTotalFormatted {
+    return Money.fromCents(selectedTotalCents).format();
+  }
+
+  ServiceCartState copyWith({
+    int? shareCartId,
+    List<ShareCartProduct>? cartProducts,
+    bool? canSubmit,
+    String? verifyMsg,
+    List<CandidateProduct>? candidateProducts,
+    bool? hasMoreCandidates,
+    Map<int, bool>? selectedMap,
+  }) {
+    return ServiceCartState(
+      shareCartId: shareCartId ?? this.shareCartId,
+      cartProducts: cartProducts ?? this.cartProducts,
+      canSubmit: canSubmit ?? this.canSubmit,
+      verifyMsg: verifyMsg ?? this.verifyMsg,
+      candidateProducts: candidateProducts ?? this.candidateProducts,
+      hasMoreCandidates: hasMoreCandidates ?? this.hasMoreCandidates,
+      selectedMap: selectedMap ?? this.selectedMap,
+    );
+  }
+}
+
+/// 初始化参数，由路由传入
+class ServiceCartInitialParams {
+  final int templateId;
+  final String headImg;
+
+  /// 0 表示购物车尚未创建，需要调用 createShareCart
+  final int existingCartId;
+
+  const ServiceCartInitialParams({
+    required this.templateId,
+    required this.headImg,
+    this.existingCartId = 0,
   });
 }
 
-// ── Mock 数据 ──────────────────────────────────────────────────────────────
+/// 服务购物车 Provider（family，按参数对象隔离）
+///
+/// 路由进入方式：/service/cart?templateId=xxx&headImg=xxx&cartId=xxx
+/// cartId == 0 时先调用 createShareCart 获取 shareCartId，再拉取商品列表。
+final serviceCartProvider =
+    AsyncNotifierProvider.family<ServiceCartNotifier, ServiceCartState, ServiceCartInitialParams>(
+      ServiceCartNotifier.new,
+    );
 
-const _mockContinueAddItems = <ContinueAddProduct>[
-  ContinueAddProduct(
-    id: 'ca1',
-    imageUrl: 'assets/images/service/ecommerce1.jpg',
-    name: '天佑德电商专供青稞酒特别版本42度500ml',
-    priceCents: 80000,
-  ),
-  ContinueAddProduct(
-    id: 'ca2',
-    imageUrl: 'assets/images/service/ecommerce2.jpg',
-    name: '天佑德电商专供青稞酒特别版本42度500ml',
-    priceCents: 80000,
-  ),
-  ContinueAddProduct(
-    id: 'ca3',
-    imageUrl: 'assets/images/service/ecommerce3.jpg',
-    name: '天佑德电商专供青稞酒特别版本42度500ml',
-    priceCents: 80000,
-  ),
-];
+class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
+  final ServiceCartInitialParams _params;
 
-const _mockAddressText = '请选择配送地址';
+  ServiceCartNotifier(this._params);
 
-// ── Provider ───────────────────────────────────────────────────────────────
+  @override
+  Future<ServiceCartState> build() async {
+    final ds = ref.read(serviceRemoteDataSourceProvider);
 
-/// 继续加购商品列表（静态 mock）
-final continueAddItemsProvider = Provider<List<ContinueAddProduct>>((ref) => _mockContinueAddItems);
+    // Step 1: 确定 shareCartId
+    int shareCartId;
+    if (_params.existingCartId > 0) {
+      shareCartId = _params.existingCartId;
+    } else {
+      final createResp = await ds.createShareCart(_params.templateId);
+      shareCartId = createResp.requireData;
+    }
 
-/// 配送地址文案（静态 mock）
-final addressTextProvider = Provider<String>((ref) => _mockAddressText);
+    // Step 2 & 3: 并行拉取购物车商品和候选商品
+    final results = await Future.wait([
+      ds.getShareCartProductList(shareCartId),
+      ds.getCandidateProductList(shareCartId, 1, 20),
+    ]);
 
-/// 当前选中商品的总价（复用 cartDataProvider）
-final selectedTotalProvider = Provider<Money>((ref) {
-  final state = ref.watch(cartDataProvider);
-  return Money.fromCents(state.selectedTotalCents);
-});
+    final productResp = results[0] as dynamic;
+    final candidateResp = results[1] as dynamic;
+
+    final productList = (productResp as dynamic).requireData as ShareCartProductList;
+    final candidateList = (candidateResp as dynamic).requireData as CandidateProductList;
+
+    // 构建 selectedMap（默认全部选中）
+    final selectedMap = <int, bool>{
+      for (final p in productList.list) p.pid: true,
+    };
+
+    return ServiceCartState(
+      shareCartId: shareCartId,
+      cartProducts: productList.list,
+      canSubmit: productList.canSubmit,
+      verifyMsg: productList.verifyMsg,
+      candidateProducts: candidateList.products,
+      hasMoreCandidates: candidateList.totalCount > candidateList.products.length,
+      selectedMap: selectedMap,
+    );
+  }
+
+  /// 切换单个商品选中状态
+  void toggleSelect(int pid) {
+    final current = state.value;
+    if (current == null) return;
+    final newMap = Map<int, bool>.from(current.selectedMap);
+    newMap[pid] = !(newMap[pid] ?? true);
+    state = AsyncData(current.copyWith(selectedMap: newMap));
+  }
+
+  /// 全选 / 取消全选
+  void toggleAll(bool value) {
+    final current = state.value;
+    if (current == null) return;
+    final newMap = <int, bool>{
+      for (final p in current.cartProducts) p.pid: value,
+    };
+    state = AsyncData(current.copyWith(selectedMap: newMap));
+  }
+
+  /// 刷新候选商品（分页加载）
+  Future<void> loadMoreCandidates() async {
+    final current = state.value;
+    if (current == null || !current.hasMoreCandidates) return;
+
+    final ds = ref.read(serviceRemoteDataSourceProvider);
+    final nextPage = current.candidateProducts.length ~/ 20 + 1;
+    final resp = await ds.getCandidateProductList(current.shareCartId, nextPage, 20);
+    if (!resp.success) return;
+
+    final newData = resp.requireData;
+    state = AsyncData(
+      current.copyWith(
+        candidateProducts: [...current.candidateProducts, ...newData.products],
+        hasMoreCandidates: current.candidateProducts.length + newData.products.length < newData.totalCount,
+      ),
+    );
+  }
+
+  /// 刷新购物车商品（数量变化后重新拉取）
+  Future<void> refreshCartProducts() async {
+    final current = state.value;
+    if (current == null || current.shareCartId == 0) return;
+
+    final ds = ref.read(serviceRemoteDataSourceProvider);
+    final resp = await ds.getShareCartProductList(current.shareCartId);
+    if (!resp.success) return;
+
+    final productList = resp.requireData;
+    // 保留现有 selectedMap 对新商品的默认值
+    final selectedMap = <int, bool>{
+      for (final p in productList.list)
+        p.pid: current.selectedMap[p.pid] ?? true,
+    };
+    state = AsyncData(
+      current.copyWith(
+        cartProducts: productList.list,
+        canSubmit: productList.canSubmit,
+        verifyMsg: productList.verifyMsg,
+        selectedMap: selectedMap,
+      ),
+    );
+  }
+}
