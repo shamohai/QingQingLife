@@ -57,7 +57,7 @@ class ServiceCartPage extends ConsumerWidget {
         _buildTopBar(context),
         _buildBanner(),
         _buildAddressBar(context, state, ref, params),
-        _buildContinueAddSection(state),
+        _buildContinueAddSection(context, state, ref, params),
         const SliverToBoxAdapter(child: SizedBox(height: 96)),
       ],
     );
@@ -155,7 +155,7 @@ class ServiceCartPage extends ConsumerWidget {
             if (state.cartProducts.isEmpty)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: AppSpacing.xl),
-                child: AppEmpty(message: '购物车是空的，去逛逛吧'),
+                child: AppEmpty(message: '暂无商品'),
               )
             else
               Padding(
@@ -168,7 +168,7 @@ class ServiceCartPage extends ConsumerWidget {
                         selected: state.selectedMap[item.pid] ?? true,
                         isUpdating: state.cartUpdateInProgress,
                         onToggle: () => notifier.toggleSelect(item.pid),
-                        onQtyChanged: (_) => notifier.refreshCartProducts(),
+                        onQtyChanged: (qty) => notifier.addProductToCart(item.pid, qty),
                       ),
                   ],
                 ),
@@ -181,7 +181,7 @@ class ServiceCartPage extends ConsumerWidget {
 
   // ─── 继续加购区 ─────────────────────────────────────────────────
 
-  Widget _buildContinueAddSection(ServiceCartState state) {
+  Widget _buildContinueAddSection(BuildContext context, ServiceCartState state, WidgetRef ref, ServiceCartInitialParams params) {
     return SliverToBoxAdapter(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
@@ -211,14 +211,14 @@ class ServiceCartPage extends ConsumerWidget {
             if (state.candidateProducts.isEmpty)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: AppSpacing.xl),
-                child: AppEmpty(message: '暂无可加购商品'),
+                child: AppEmpty(message: '暂无商品'),
               )
             else
               for (final p in state.candidateProducts)
                 _ContinueAddItem(
                   product: p,
                   isUpdating: state.cartUpdateInProgress,
-                  onTap: () {},
+                  onTap: () => _runCartAction(context, () => ref.read(serviceCartProvider(params).notifier).addCandidateProduct(p)),
                 ),
             const SizedBox(height: AppSpacing.md),
           ],
@@ -305,6 +305,15 @@ class ServiceCartPage extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _runCartAction(BuildContext context, Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('购物车更新失败：')));
+    }
   }
 
   void _showManageDialog(BuildContext context) {
@@ -486,19 +495,25 @@ class _ContinueAddItem extends StatelessWidget {
               ],
             ),
           ),
-          // 圆形加号按钮
-          GestureDetector(
+          // 圆形加号按钮：InkWell 提供 44x44 点击热区，避免滚动容器中手势竞争
+          InkWell(
             onTap: isUpdating ? null : onTap,
             child: Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(color: isUpdating ? AppColors.outlineVariant : Colors.red, shape: BoxShape.circle),
+              width: 44,
+              height: 44,
+              alignment: Alignment.center,
               child: isUpdating
-                  ? const Padding(
-                      padding: EdgeInsets.all(7),
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.outlineVariant),
                     )
-                  : const Icon(Icons.add, size: 18, color: Colors.white),
+                  : Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                      child: const Icon(Icons.add, size: 18, color: Colors.white),
+                    ),
             ),
           ),
         ],

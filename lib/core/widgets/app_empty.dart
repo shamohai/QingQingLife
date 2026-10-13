@@ -18,12 +18,16 @@ class AppEmpty extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          Image.asset(
+            width: 200,
+            'assets/images/service/icon_empty.png',
+            fit: BoxFit.cover,
+          ),
           const SizedBox(height: 12),
           Text(
             message,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              color: Colors.grey,
             ),
           ),
         ],

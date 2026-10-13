@@ -222,4 +222,59 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
       current.copyWith(cartProducts: productList.list, canSubmit: productList.canSubmit, verifyMsg: productList.verifyMsg, selectedMap: selectedMap),
     );
   }
+
+  /// 点击候选商品的加号：首次用默认数量，已在购物车则 +1。
+  /// 直接调接口，不再客户端提前 return（避免达到 maxCount 时静默失败）。
+  Future<void> addCandidateProduct(CandidateProduct candidate) async {
+    final current = state.value;
+    if (current == null || current.cartUpdateInProgress) return;
+    ShareCartProduct? existingProduct;
+    for (final product in current.cartProducts) {
+      if (product.pid == candidate.productId) {
+        existingProduct = product;
+        break;
+      }
+    }
+    final newCount = existingProduct == null
+        ? candidate.defaultQuantity.clamp(candidate.minCount, candidate.maxCount).toInt()
+        : (existingProduct.count + 1).clamp(candidate.minCount, candidate.maxCount).toInt();
+    await addProductToCart(candidate.productId, newCount);
+  }
+
+  /// 向服务端写入目标数量，再拉取最新购物车列表更新本地状态。
+  Future<void> addProductToCart(int pid, int newCount) async {
+    final current = state.value;
+    if (current == null || current.shareCartId == 0 || current.cartUpdateInProgress || newCount < 1) return;
+    final ds = ref.read(serviceRemoteDataSourceProvider);
+    state = AsyncData(current.copyWith(isUpdatingCart: true));
+    try {
+      final mutationResponse = await ds.addProductToShareCart(current.shareCartId, pid, newCount);
+      if (!mutationResponse.success) {
+        mutationResponse.requireData;
+      }
+      final cartResponse = await ds.getShareCartProductList(current.shareCartId);
+      final cart = cartResponse.requireData;
+      final latest = state.value ?? current;
+      final selectedMap = <int, bool>{for (final product in cart.list) product.pid: latest.selectedMap[product.pid] ?? true};
+      final cartProductsById = {for (final product in cart.list) product.pid: product};
+      final candidateProducts = latest.candidateProducts
+          .map((candidate) => candidate.copyWith(cartNum: cartProductsById[candidate.productId]?.count ?? 0))
+          .toList();
+      state = AsyncData(
+        latest.copyWith(
+          cartProducts: cart.list,
+          candidateProducts: candidateProducts,
+          canSubmit: cart.canSubmit,
+          verifyMsg: cart.verifyMsg,
+          selectedMap: selectedMap,
+          isUpdatingCart: false,
+        ),
+      );
+    } finally {
+      final latest = state.value ?? current;
+      if (latest.cartUpdateInProgress) {
+        state = AsyncData(latest.copyWith(isUpdatingCart: false));
+      }
+    }
+  }
 }
