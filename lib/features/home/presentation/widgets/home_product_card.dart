@@ -16,77 +16,51 @@ class HomeProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardWidth = compact ? 108.0 : 160.0;
-    final imageHeight = compact ? 80.0 : 120.0;
+    final cardWidth = compact ? 112.0 : 160.0;
+    final imageHeight = compact ? 112.0 : 120.0;
     return SizedBox(
       width: cardWidth,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        child: Container(
-          color: AppColors.surface,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          // 商品图片
+          Stack(
             children: [
-              Stack(
-                children: [
-                  AppNetworkImage(
-                    url: product.imageUrl,
-                    width: cardWidth,
-                    height: imageHeight,
-                    fit: BoxFit.cover,
-                    memCacheWidth: cardWidth.toInt(),
-                    memCacheHeight: imageHeight.toInt(),
-                  ),
-                  if (product.tag != null)
-                    Positioned(
-                      top: 6,
-                      left: 6,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(AppRadius.xs),
-                        ),
-                        child: Text(product.tag!, style: AppTextStyles.tagStyle),
-                      ),
-                    ),
-                ],
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.sm),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        product.name,
-                        style: AppTextStyles.bodySmall,
-                        maxLines: compact ? 1 : 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        Money.fromCents(product.priceCents).format(),
-                        style: AppTextStyles.priceMedium,
-                      ),
-                      if (product.salesCount != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          '${product.salesCount}人付款',
-                          style: AppTextStyles.labelSmall.copyWith(
-                            color: AppColors.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.md),
+                child: AppNetworkImage(
+                  url: product.imageUrl,
+                  width: cardWidth,
+                  height: imageHeight,
+                  fit: BoxFit.cover,
+                  memCacheWidth: cardWidth.toInt(),
+                  memCacheHeight: imageHeight.toInt(),
                 ),
               ),
+              if (product.tag != null)
+                Positioned(
+                  top: 6,
+                  left: 6,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(AppRadius.xs)),
+                    child: Text(product.tag!, style: AppTextStyles.tagStyle),
+                  ),
+                ),
             ],
           ),
-        ),
+          const SizedBox(height: 8),
+          // 商品名称
+          Text(product.name, style: AppTextStyles.bodySmall, maxLines: compact ? 1 : 2, overflow: TextOverflow.ellipsis),
+          const SizedBox(height: AppSpacing.xs),
+          // 价格
+          Text(Money.fromCents(product.priceCents).format(), style: AppTextStyles.priceMedium),
+          if (product.salesCount != null) ...[
+            const SizedBox(height: 2),
+            Text('${product.salesCount}人付款', style: AppTextStyles.labelSmall.copyWith(color: AppColors.onSurfaceVariant)),
+          ],
+        ],
       ),
     );
   }
