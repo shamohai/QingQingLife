@@ -78,7 +78,7 @@ class HomePage extends ConsumerWidget {
         ),
         data: (staticData) => CustomScrollView(
           slivers: [
-            // 状态栏区域已在 HomeAppBar 中处理
+            // 顶部栏：Logo + 搜索框 + 消息（系统状态栏由 SafeArea 自动处理）
             SliverToBoxAdapter(child: const HomeAppBar()),
             // Banner
             SliverPadding(

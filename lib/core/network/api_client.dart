@@ -40,26 +40,26 @@ class ApiClient {
   }
 
   /// 发起 GET 请求
-  Future<ApiResponse<T>> get<T>(String path, {Map<String, dynamic>? queryParameters, T Function(dynamic)? fromJson}) async {
-    final response = await dio.get(path, queryParameters: queryParameters);
+  Future<ApiResponse<T>> get<T>(String path, {Map<String, dynamic>? queryParameters, T Function(dynamic)? fromJson, Options? options}) async {
+    final response = await dio.get(path, queryParameters: queryParameters, options: options);
     return _parse<T>(response, fromJson);
   }
 
   /// 发起 POST 请求
-  Future<ApiResponse<T>> post<T>(String path, {dynamic data, Map<String, dynamic>? queryParameters, T Function(dynamic)? fromJson}) async {
-    final response = await dio.post(path, data: data, queryParameters: queryParameters);
+  Future<ApiResponse<T>> post<T>(String path, {dynamic data, Map<String, dynamic>? queryParameters, T Function(dynamic)? fromJson, Options? options}) async {
+    final response = await dio.post(path, data: data, queryParameters: queryParameters, options: options);
     return _parse<T>(response, fromJson);
   }
 
   /// 发起 PUT 请求
-  Future<ApiResponse<T>> put<T>(String path, {dynamic data, Map<String, dynamic>? queryParameters, T Function(dynamic)? fromJson}) async {
-    final response = await dio.put(path, data: data, queryParameters: queryParameters);
+  Future<ApiResponse<T>> put<T>(String path, {dynamic data, Map<String, dynamic>? queryParameters, T Function(dynamic)? fromJson, Options? options}) async {
+    final response = await dio.put(path, data: data, queryParameters: queryParameters, options: options);
     return _parse<T>(response, fromJson);
   }
 
   /// 发起 DELETE 请求
-  Future<ApiResponse<T>> delete<T>(String path, {Map<String, dynamic>? queryParameters, T Function(dynamic)? fromJson}) async {
-    final response = await dio.delete(path, queryParameters: queryParameters);
+  Future<ApiResponse<T>> delete<T>(String path, {Map<String, dynamic>? queryParameters, T Function(dynamic)? fromJson, Options? options}) async {
+    final response = await dio.delete(path, queryParameters: queryParameters, options: options);
     return _parse<T>(response, fromJson);
   }
 

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../../../app/theme/app_colors.dart';
 import '../../data/models/service_product_detail_model.dart';
 
 /// 积分商城服务商品详情 — Hero 区域
