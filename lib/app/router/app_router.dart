@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -23,6 +23,8 @@ import '../../features/service/presentation/pages/service_records_page.dart';
 import '../../features/service/presentation/pages/service_project_detail_page.dart';
 import '../../features/service/presentation/pages/service_booking_form_page.dart';
 import '../../features/service/presentation/pages/service_template_detail_page.dart';
+import '../../features/service/presentation/pages/service_checkout_page.dart';
+import '../../features/service/presentation/providers/service_cart_provider.dart';
 import '../../features/product/presentation/pages/product_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
@@ -198,11 +200,27 @@ final appRouter = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.checkout,
-        pageBuilder: (c, s) => const MaterialPage(child: CartPage()),
+        pageBuilder: (c, s) {
+          final templateId = int.tryParse(s.uri.queryParameters['templateId'] ?? '') ?? 0;
+          final headImg = s.uri.queryParameters['headImg'] ?? '';
+          final cartId = int.tryParse(s.uri.queryParameters['cartId'] ?? '') ?? 0;
+          return MaterialPage(child: ServiceCheckoutPage(params: ServiceCartInitialParams(templateId: templateId, headImg: headImg, existingCartId: cartId)));
+        },
       ),
       GoRoute(
         path: RouteNames.serviceCart,
-        pageBuilder: (c, s) => const MaterialPage(child: ServiceCartPage()),
+        pageBuilder: (c, s) {
+          final templateId = int.tryParse(s.uri.queryParameters['templateId'] ?? '') ?? 0;
+          final headImg = s.uri.queryParameters['headImg'] ?? '';
+          final cartId = int.tryParse(s.uri.queryParameters['cartId'] ?? '') ?? 0;
+          return MaterialPage(
+            child: ServiceCartPage(
+              templateId: templateId,
+              headImg: headImg,
+              cartId: cartId,
+            ),
+          );
+        },
       ),
       GoRoute(
         path: RouteNames.pointsDetail,
