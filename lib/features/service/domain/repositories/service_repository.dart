@@ -1,8 +1,9 @@
-import '../../../../core/network/api_response.dart';
+﻿import '../../../../core/network/api_response.dart';
 import '../models/share_cart_template_model.dart';
 import '../models/share_cart_template_detail_model.dart';
 import '../models/share_cart_product_model.dart';
 import '../models/share_cart_candidate_model.dart';
+import '../models/service_submit_order_model.dart';
 
 /// 服务中心仓库接口
 abstract class ServiceRepository {
@@ -29,4 +30,9 @@ abstract class ServiceRepository {
   /// 请求 body：{"sharecartid": shareCartId, "pid": pid, "newcount": newCount, "increment": false}
   /// 响应包含 cansubmit / verifymsg
   Future<ApiResponse<ShareCartProductList>> addProductToShareCart(int shareCartId, int pid, int newCount);
+
+  /// 提交权益团购订单
+  /// 请求 body：{"sharecartid": int, "addressid": int}
+  /// 响应包含 cansubmit / verifymsg，成功后包含 orderId
+  Future<ApiResponse<ServiceSubmitOrderResult>> submitGroupOrder(int shareCartId, int addressId);
 }

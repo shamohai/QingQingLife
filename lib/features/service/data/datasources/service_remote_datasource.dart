@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../core/network/api_client.dart';
 import '../../../../../core/network/api_response.dart';
@@ -8,6 +8,7 @@ import '../../domain/models/share_cart_template_model.dart';
 import '../../domain/models/share_cart_template_detail_model.dart';
 import '../../domain/models/share_cart_product_model.dart';
 import '../../domain/models/share_cart_candidate_model.dart';
+import '../../domain/models/service_submit_order_model.dart';
 
 /// 服务中心远程数据源
 class ServiceRemoteDataSource implements ServiceRepository {
@@ -81,6 +82,19 @@ class ServiceRemoteDataSource implements ServiceRepository {
         'increment': false,
       },
       fromJson: (dynamic json) => ShareCartProductList.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+
+  @override
+  Future<ApiResponse<ServiceSubmitOrderResult>> submitGroupOrder(int shareCartId, int addressId) async {
+    return apiClient.post<ServiceSubmitOrderResult>(
+      '/api/groupMall/order/submitgrouporder',
+      data: <String, dynamic> {
+        'sharecartid': shareCartId,
+        'addressid': addressId,
+      },
+      fromJson: (dynamic json) => ServiceSubmitOrderResult.fromJson(json as Map<String, dynamic>),
     );
   }
 }

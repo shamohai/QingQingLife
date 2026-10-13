@@ -1,7 +1,8 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/money.dart';
 import '../../domain/models/share_cart_candidate_model.dart';
+import '../../domain/models/service_submit_order_model.dart';
 import '../../domain/models/share_cart_product_model.dart';
 import '../../data/datasources/service_remote_datasource.dart';
 
@@ -270,6 +271,28 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
           isUpdatingCart: false,
         ),
       );
+    } finally {
+      final latest = state.value ?? current;
+      if (latest.cartUpdateInProgress) {
+        state = AsyncData(latest.copyWith(isUpdatingCart: false));
+      }
+    }
+  }
+
+  /// 提交权益团购订单。addressId 临时写死为 mock 值，待地址选择功能上线后由页面传入。
+  Future<ServiceSubmitOrderResult> submitOrder(int addressId) async {
+    final current = state.value;
+    if (current == null || current.shareCartId == 0 || current.cartUpdateInProgress) {
+      return const ServiceSubmitOrderResult(guidetext: '购物车未就绪', orderId: 0, result: -1, descr: '');
+    }
+    state = AsyncData(current.copyWith(isUpdatingCart: true));
+    try {
+      final ds = ref.read(serviceRemoteDataSourceProvider);
+      final resp = await ds.submitGroupOrder(current.shareCartId, addressId);
+      if (!resp.success) {
+        resp.requireData;
+      }
+      return resp.requireData;
     } finally {
       final latest = state.value ?? current;
       if (latest.cartUpdateInProgress) {
