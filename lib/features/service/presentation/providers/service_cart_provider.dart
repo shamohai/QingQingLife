@@ -236,8 +236,8 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
       }
     }
     final newCount = existingProduct == null
-        ? candidate.defaultQuantity.clamp(candidate.minCount, candidate.maxCount).toInt()
-        : (existingProduct.count + 1).clamp(candidate.minCount, candidate.maxCount).toInt();
+        ? 1
+        : (existingProduct.count + 1).toInt();
     await addProductToCart(candidate.productId, newCount);
   }
 

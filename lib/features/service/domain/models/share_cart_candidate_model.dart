@@ -46,9 +46,6 @@ class CandidateProduct {
   /// 最多可购数量
   final int maxCount;
 
-  /// 默认数量
-  final int defaultQuantity;
-
   /// 价格描述（如 "¥199.00/瓶"）
   final String priceDesc;
 
@@ -67,7 +64,6 @@ class CandidateProduct {
     required this.cartNum,
     required this.minCount,
     required this.maxCount,
-    required this.defaultQuantity,
     this.priceDesc = '',
     this.marketPriceDesc = '',
     this.saleUnit = '',
@@ -83,7 +79,6 @@ class CandidateProduct {
       cartNum: (json['cartnum'] as num?)?.toInt() ?? 0,
       minCount: (json['mincount'] as num?)?.toInt() ?? 1,
       maxCount: (json['maxcount'] as num?)?.toInt() ?? 99,
-      defaultQuantity: (json['num'] as num?)?.toInt() ?? 1,
       priceDesc: json['pricedesc'] as String? ?? '',
       marketPriceDesc: json['marketpricedesc'] as String? ?? '',
       saleUnit: json['saleunit'] as String? ?? '',
@@ -100,7 +95,6 @@ class CandidateProduct {
       cartNum: cartNum ?? this.cartNum,
       minCount: minCount,
       maxCount: maxCount,
-      defaultQuantity: defaultQuantity,
       priceDesc: priceDesc,
       marketPriceDesc: marketPriceDesc,
       saleUnit: saleUnit,

@@ -102,7 +102,7 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
     final descriptionHtml = detail.descriptionHtml as String;
     final serviceQrImg = detail.serviceQrImg as String;
     final contactRemark = detail.contactRemark as String;
-    final contactPhone = detail.contactPhone as String;
+    final contacttPhone = detail.contacttPhone as String;
 
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -198,7 +198,7 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
           ),
         ),
         // ── Section C: 客服信息区 ──
-        if (serviceQrImg.isNotEmpty || contactPhone.isNotEmpty)
+        if (serviceQrImg.isNotEmpty || contacttPhone.isNotEmpty)
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(
                 AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, 0),
@@ -234,10 +234,10 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
                                 height: 1.4,
                               ),
                             ),
-                          if (contactPhone.isNotEmpty) ...[
+                          if (contacttPhone.isNotEmpty) ...[
                             const SizedBox(height: 4),
                             Text(
-                              contactPhone,
+                              contacttPhone,
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,

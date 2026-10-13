@@ -365,7 +365,11 @@ class _ServiceCartItemRow extends StatelessWidget {
                     width: 80,
                     height: 80,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(color: AppColors.surfaceVariant),
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 80,
+                      height: 80,
+                      color: AppColors.surfaceVariant,
+                    ),
                   )
                 : Container(width: 80, height: 80, color: AppColors.surfaceVariant),
           ),
@@ -461,7 +465,11 @@ class _ContinueAddItem extends StatelessWidget {
                     width: 80,
                     height: 80,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(color: AppColors.surfaceVariant),
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 80,
+                      height: 80,
+                      color: AppColors.surfaceVariant,
+                    ),
                   )
                 : Container(width: 80, height: 80, color: AppColors.surfaceVariant),
           ),

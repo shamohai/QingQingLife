@@ -20,7 +20,7 @@ class ShareCartTemplateDetail {
   final String descriptionHtml;
 
   /// 客服电话
-  final String contactPhone;
+  final String contacttPhone;
 
   /// 客服备注文案（如"客服电话（周一至周五 9:00 ~ 17:00)："）
   final String contactRemark;
@@ -37,7 +37,7 @@ class ShareCartTemplateDetail {
     required this.headImg,
     required this.requirements,
     required this.descriptionHtml,
-    required this.contactPhone,
+    required this.contacttPhone,
     required this.contactRemark,
     required this.serviceQrImg,
     this.cartInfo,
@@ -53,7 +53,7 @@ class ShareCartTemplateDetail {
       headImg: info['headimg'] as String? ?? '',
       requirements: info['requirements'] as String? ?? '',
       descriptionHtml: info['descriptionhtml'] as String? ?? '',
-      contactPhone: (json['templatecustomerserviceinfo'] as Map?)?['contactphone'] as String? ?? '',
+      contacttPhone: (json['templatecustomerserviceinfo'] as Map?)?['contacttphone'] as String? ?? '',
       contactRemark: (json['templatecustomerserviceinfo'] as Map?)?['contactremark'] as String? ?? '',
       serviceQrImg: (json['templatecustomerserviceinfo'] as Map?)?['workwxqrimg'] as String? ?? '',
       cartInfo: cartInfoJson != null ? CartInfo.fromJson(cartInfoJson) : null,
