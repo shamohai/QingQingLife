@@ -18,6 +18,8 @@ class App extends StatelessWidget {
         final themeMode = ref.watch(themeProvider);
         final router = ref.watch(appRouter);
         final versionCheckState = ref.watch(versionCheckProvider);
+        // 触发启动时版本检查（仅执行一次）
+        ref.read(autoVersionCheckProvider);
 
         return MaterialApp.router(
           title: '青轻生活',

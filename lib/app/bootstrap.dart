@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluwx/fluwx.dart' as fluwx;
 
 import 'config/app_config.dart';
 import 'app.dart';
+
 import '../core/update/shiply/shiply_initializer.dart';
 import '../core/logging/app_logger.dart';
 import '../core/logging/logging_initializer.dart';
@@ -23,12 +26,24 @@ Future<void> bootstrap() async {
   //   debugPrint('[Bootstrap] Logging init failed (non-fatal): $e\n$stackTrace');
   // }
 
-  if (LoggingInitializer.isInitialized) {
-    AppLogger.info('Registering WeChat appId=${AppConfig.wechatAppId}', module: 'wechat', event: 'register_start');
-  }
+  // 微信 SDK 注册：放入后台异步执行，避免阻塞首帧渲染
+  // registerApi 在真机上可能耗时较长（特别是微信未安装时），不应阻塞 UI 启动
+  unawaited(_registerWeChatAsync());
 
-  // 注册微信 SDK (fluwx)
+  // 初始化 Shiply SDK（热更新）
+  // 同样放入后台，不阻塞启动
+  unawaited(ShiplyInitializer.initialize(appVersion: AppConfig.appVersionName, appVersionCode: AppConfig.appVersionCode));
+
+  // 使用 Riverpod 的 ProviderScope 包裹根 Widget，开启状态管理
+  runApp(const ProviderScope(child: App()));
+}
+
+// 异步注册微信 SDK，不阻塞启动流程
+Future<void> _registerWeChatAsync() async {
   try {
+    if (LoggingInitializer.isInitialized) {
+      AppLogger.info('Registering WeChat appId=${AppConfig.wechatAppId}', module: 'wechat', event: 'register_start');
+    }
     final registered = await fluwx.Fluwx().registerApi(appId: AppConfig.wechatAppId);
     if (LoggingInitializer.isInitialized) {
       AppLogger.info('registerApi returned=$registered', module: 'wechat', event: 'register_result');
@@ -36,19 +51,6 @@ Future<void> bootstrap() async {
   } catch (e, stackTrace) {
     if (LoggingInitializer.isInitialized) {
       AppLogger.error('registerApi failed', module: 'wechat', event: 'register_error', error: e, stackTrace: stackTrace);
-    } else {
-      //debugPrint('[Bootstrap][WeChat] registerApi failed: $e\n$stackTrace');
     }
   }
-
-  // 初始化 Shiply SDK
-  // 用于实现 App 的热更新和灰度发布功能，需要在应用早期加载
-  try {
-    await ShiplyInitializer.initialize(appVersion: AppConfig.appVersionName, appVersionCode: AppConfig.appVersionCode);
-  } catch (e) {
-    //debugPrint('[Bootstrap] Shiply init failed: $e');
-  }
-
-  // 使用 Riverpod 的 ProviderScope 包裹根 Widget，开启状态管理
-  runApp(const ProviderScope(child: App()));
 }
