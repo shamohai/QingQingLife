@@ -6,7 +6,7 @@ import '../../../../core/network/api_response.dart';
 /// Mock 商品数据源 - 基于蓝湖设计稿 v1.0
 class MockProductDataSource implements ProductRepository {
   // 本地 assets 路径
-  static const _bannerUrl = ['assets/images/home/banner_1.png', 'assets/images/home/banner_2png', 'assets/images/home/banner_3.png'];
+  static const _bannerUrl = ['assets/images/home/banner_1.png', 'assets/images/home/banner_2.png', 'assets/images/home/banner_3.png'];
   static const _kingKongIcons = [
     'assets/images/home/kingkong_self.png',
     'assets/images/home/kingkong_region.png',

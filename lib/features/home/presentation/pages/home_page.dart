@@ -15,7 +15,6 @@ import '../widgets/home_hot_products.dart';
 import '../widgets/home_activity_section.dart';
 import '../widgets/home_topic_activity_section.dart';
 import '../widgets/home_product_showcase.dart';
-import '../widgets/home_bottom_nav.dart';
 
 /// 首页静态数据 Provider（轮播、金刚区、新人礼、专题、每月权益、可用商品、活动模块）
 final homeStaticDataProvider = FutureProvider<HomeStaticData>((ref) async {
@@ -123,8 +122,6 @@ class HomePage extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
               sliver: SliverToBoxAdapter(child: HomeProductShowcase(products: staticData.hotProducts)),
             ),
-            // 底部导航栏
-            const SliverToBoxAdapter(child: HomeBottomNav()),
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
           ],
         ),
