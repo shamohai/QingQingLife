@@ -82,7 +82,7 @@ class OrderCard extends StatelessWidget {
             height: 100,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 if (item.items.isNotEmpty) ...[
                   Text(
@@ -91,7 +91,7 @@ class OrderCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
                   Text(
                     item.items.first.skuName,
                     style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97), height: 1.4),
@@ -105,7 +105,9 @@ class OrderCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 5),
+                  _buildSpecTags(),
+                  const SizedBox(height: 5),
                   const Text(
                     '【规格一】天佑德电商专供青稞酒特别版本42度500ml',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97), height: 1.4),
@@ -113,7 +115,6 @@ class OrderCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
-                _buildSpecTags(),
               ],
             ),
           ),
@@ -125,13 +126,7 @@ class OrderCard extends StatelessWidget {
   }
 
   Widget _buildSpecTags() {
-    return Row(
-      children: [
-        _specTag('清香型'),
-        SizedBox(width: 4),
-        _specTag('52%vol'),
-      ],
-    );
+    return Row(children: [_specTag('清香型'), SizedBox(width: 4), _specTag('52%vol')]);
   }
 
   Widget _specTag(String label) {
@@ -207,16 +202,9 @@ class OrderCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(width: 16),
-          Container(
-            width: 7,
-            height: 12,
-            decoration: const BoxDecoration(
-              color: Color(0xFF8E8E97),
-              borderRadius: BorderRadius.all(Radius.circular(99)),
-            ),
-          ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 10),
+          Icon(Icons.chevron_right, color: Color(0xFF8E8E97)),
+          const SizedBox(width: 4),
         ],
       ),
     );
@@ -224,7 +212,8 @@ class OrderCard extends StatelessWidget {
 
   Widget _buildMetaRow() {
     final timeLabel = item.orderType == OrderType.points ? '兑换时间' : '下单时间';
-    final timeStr = '${item.createTime.year}-${item.createTime.month.toString().padLeft(2, '0')}-${item.createTime.day.toString().padLeft(2, '0')}  ${item.createTime.hour.toString().padLeft(2, '0')}:${item.createTime.minute.toString().padLeft(2, '0')}:${item.createTime.second.toString().padLeft(2, '0')}';
+    final timeStr =
+        '${item.createTime.year}-${item.createTime.month.toString().padLeft(2, '0')}-${item.createTime.day.toString().padLeft(2, '0')}  ${item.createTime.hour.toString().padLeft(2, '0')}:${item.createTime.minute.toString().padLeft(2, '0')}:${item.createTime.second.toString().padLeft(2, '0')}';
     return Row(
       children: [
         Text(
@@ -266,9 +255,7 @@ class OrderCard extends StatelessWidget {
   }
 
   Widget _buildActionButtonsRow(BuildContext context) {
-    if (item.actions.length == 1) {
-      return Center(child: _buildButton(context, item.actions.first));
-    }
+    if (item.actions.isEmpty) return const SizedBox.shrink();
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: item.actions.map((action) => _buildButton(context, action)).toList(),
@@ -285,17 +272,10 @@ class OrderCard extends StatelessWidget {
         width: 96,
         decoration: action.isPrimary
             ? BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF3152AF), Color(0xFF213775)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
+                gradient: const LinearGradient(colors: [Color(0xFF3152AF), Color(0xFF213775)], begin: Alignment.centerLeft, end: Alignment.centerRight),
                 borderRadius: BorderRadius.circular(999),
               )
-            : BoxDecoration(
-                color: const Color(0xFFF3F5F7),
-                borderRadius: BorderRadius.circular(999),
-              ),
+            : BoxDecoration(color: const Color(0xFFF3F5F7), borderRadius: BorderRadius.circular(999)),
         child: Center(
           child: Text(
             action.label,

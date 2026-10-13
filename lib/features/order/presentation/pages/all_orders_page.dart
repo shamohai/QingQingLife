@@ -18,29 +18,7 @@ class AllOrdersPage extends ConsumerStatefulWidget {
   ConsumerState<AllOrdersPage> createState() => _AllOrdersPageState();
 }
 
-class _AllOrdersPageState extends ConsumerState<AllOrdersPage> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 6, vsync: this);
-    _tabController.addListener(_onTabChanged);
-  }
-
-  @override
-  void dispose() {
-    _tabController.removeListener(_onTabChanged);
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  void _onTabChanged() {
-    if (!_tabController.indexIsChanging) {
-      ref.read(allOrdersProvider.notifier).selectTab(_tabController.index);
-    }
-  }
-
+class _AllOrdersPageState extends ConsumerState<AllOrdersPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(allOrdersProvider);
@@ -55,18 +33,16 @@ class _AllOrdersPageState extends ConsumerState<AllOrdersPage> with SingleTicker
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // 白色头部区域（h=144，底部圆角14）
+            // 白色头部区域（包含顶部导航栏与二级 Tab 导航栏）
             const SliverToBoxAdapter(child: _HeaderSection()),
-            // Tab 指示器条
-            SliverToBoxAdapter(child: _TabIndicator(controller: _tabController)),
             // 订单列表（灰色背景滚动区域）
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xxl),
               sliver: state.isLoading && state.orders.isEmpty
                   ? const SliverToBoxAdapter(child: Center(child: AppLoading()))
                   : state.orders.isEmpty
-                      ? const SliverToBoxAdapter(child: AppEmpty(message: '暂无订单'))
-                      : _buildOrdersSliver(state, notifier),
+                  ? const SliverToBoxAdapter(child: AppEmpty(message: '暂无订单'))
+                  : _buildOrdersSliver(state, notifier),
             ),
           ],
         ),
@@ -91,15 +67,12 @@ class _AllOrdersPageState extends ConsumerState<AllOrdersPage> with SingleTicker
       filtered = targetStatus != null ? state.orders.where((o) => o.status == targetStatus).toList() : state.orders;
     }
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) => OrderCard(item: filtered[index]),
-        childCount: filtered.length,
-      ),
+      delegate: SliverChildBuilderDelegate((context, index) => OrderCard(item: filtered[index]), childCount: filtered.length),
     );
   }
 }
 
-// ── 白色头部容器（高 144，底部圆角 14） ───────────────────────────────
+// ── 白色头部容器 ──────────────────────────────────────────────────
 class _HeaderSection extends StatelessWidget {
   const _HeaderSection();
 
@@ -107,43 +80,80 @@ class _HeaderSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 144,
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(AppRadius.lg)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const _AppBarRow(),
-          const SizedBox(height: 12),
-          const _SearchBar(),
-          const SizedBox(height: 18),
-          const _TabRow(),
-        ],
+        mainAxisSize: MainAxisSize.min,
+        children: const [_TopNavBar(), SizedBox(height: 12), _TabRow()],
       ),
     );
   }
 }
 
-// ── 返回 + 标题行 ──────────────────────────────────────────────────────
-class _AppBarRow extends StatelessWidget {
-  const _AppBarRow();
+// ── 顶部导航栏（后退 + 全部订单 + 搜索框 + 外侧搜索按钮 同一行） ──────
+class _TopNavBar extends StatelessWidget {
+  const _TopNavBar();
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: AppSpacing.lg, top: 8),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
-            child: Image.asset('assets/images/order/icon_back.png', width: 24, height: 24),
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 20),
+            onPressed: () => Navigator.of(context).pop(),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 4),
           const Text(
             '全部订单',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.onSurface),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Container(
+              height: 36,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: const Color(0xFF213775), width: 1),
+              ),
+              child: Row(
+                children: const [
+                  Icon(Icons.search, size: 18, color: Color(0xFF213775)),
+                  SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      '商品名称/订单编号',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12, color: Color(0xFF949599)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              // 点击搜索处理
+            },
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+              child: Text(
+                '搜索',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF213775)),
+              ),
+            ),
           ),
         ],
       ),
@@ -151,70 +161,28 @@ class _AppBarRow extends StatelessWidget {
   }
 }
 
-// ── 搜索栏 ────────────────────────────────────────────────────────────
-class _SearchBar extends StatelessWidget {
-  const _SearchBar();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 21),
-      child: Container(
-        height: 40,
-        width: 248,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: const Color(0xFF213775), width: 1),
-        ),
-        child: Row(
-          children: [
-            const SizedBox(width: 16),
-            Image.asset('assets/images/order/icon_filter.png', width: 16, height: 16, fit: BoxFit.contain),
-            const SizedBox(width: 8),
-            const Expanded(
-              child: Text(
-                '商品名称/订单编号',
-                style: TextStyle(fontSize: 14, color: Color(0xFF949599)),
-              ),
-            ),
-            const Text(
-              '搜索',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF213775)),
-            ),
-            const SizedBox(width: 16),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Tab 行（纯 Row，不使用 TabBar） ──────────────────────────────────
+// ── Tab 行（二级导航栏，支持滑动，带选中变色加粗与指示横线） ───────────────
 class _TabRow extends ConsumerWidget {
   const _TabRow();
+
+  static const List<String> _tabs = ['全部订单', '待付款', '待发货', '待收货/待核销', '评价', '售后/退款'];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final active = ref.watch(allOrdersProvider).activeTabIndex;
     final notifier = ref.read(allOrdersProvider.notifier);
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 24),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Row(
-        children: [
-          _TabLabel(text: '全部订单', isActive: active == 0, onTap: () => notifier.selectTab(0)),
-          const SizedBox(width: 32),
-          _TabLabel(text: '待付款', isActive: active == 1, onTap: () => notifier.selectTab(1)),
-          const SizedBox(width: 32),
-          _TabLabel(text: '待发货', isActive: active == 2, onTap: () => notifier.selectTab(2)),
-          const SizedBox(width: 32),
-          _TabLabel(text: '待收货/待核销', isActive: active == 3, onTap: () => notifier.selectTab(3)),
-          const SizedBox(width: 32),
-          _TabLabel(text: '评价', isActive: active == 4, onTap: () => notifier.selectTab(4)),
-          const SizedBox(width: 32),
-          _TabLabel(text: '售后/退款', isActive: active == 5, onTap: () => notifier.selectTab(5)),
-        ],
+        children: List.generate(_tabs.length, (index) {
+          final isSelected = active == index;
+          return Padding(
+            padding: EdgeInsets.only(right: index == _tabs.length - 1 ? 0 : 24.0),
+            child: _TabLabel(text: _tabs[index], isActive: isSelected, onTap: () => notifier.selectTab(index)),
+          );
+        }),
       ),
     );
   }
@@ -224,95 +192,35 @@ class _TabLabel extends StatelessWidget {
   final String text;
   final bool isActive;
   final VoidCallback onTap;
+
   const _TabLabel({required this.text, required this.isActive, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: isActive ? FontWeight.w500 : FontWeight.w400,
-          color: isActive ? const Color(0xFF213775) : AppColors.onSurface,
-        ),
-      ),
-    );
-  }
-}
-
-// ── Tab 指示器 pill（h=4，跟随 active index 动画） ──────────────────
-class _TabIndicator extends StatefulWidget {
-  final TabController controller;
-  const _TabIndicator({required this.controller});
-
-  @override
-  State<_TabIndicator> createState() => _TabIndicatorState();
-}
-
-class _TabIndicatorState extends State<_TabIndicator> with SingleTickerProviderStateMixin {
-  late AnimationController _animController;
-  late Animation<double> _anim;
-
-  // 每个 tab 的宽度（根据设计稿文字宽度估算）
-  static const _tabWidths = [64.0, 48.0, 48.0, 104.0, 32.0, 72.0];
-  static const _tabGap = 32.0;
-
-  @override
-  void initState() {
-    super.initState();
-    _animController = AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
-    _anim = Tween<double>(begin: 0, end: 0).animate(_animController);
-    widget.controller.addListener(_onTabChanged);
-  }
-
-  @override
-  void dispose() {
-    widget.controller.removeListener(_onTabChanged);
-    _animController.dispose();
-    super.dispose();
-  }
-
-  void _onTabChanged() {
-    if (!widget.controller.indexIsChanging) return;
-    final newIndex = widget.controller.index;
-    final newOffset = _offsetForIndex(newIndex);
-    setState(() {
-      _anim = Tween<double>(begin: _anim.value, end: newOffset).animate(_animController);
-    });
-    _animController.forward(from: 0);
-  }
-
-  double _offsetForIndex(int index) {
-    double x = 0;
-    for (int i = 0; i < index; i++) {
-      x += _tabWidths[i] + _tabGap;
-    }
-    return x;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 4,
-      child: Stack(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          AnimatedBuilder(
-            animation: _anim,
-            builder: (context, _) {
-              return Positioned(
-                left: _anim.value,
-                child: Container(
-                  width: 30,
-                  height: 4,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF213775),
-                    borderRadius: BorderRadius.all(Radius.circular(99)),
-                  ),
-                ),
-              );
-            },
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                color: isActive ? const Color(0xFF213775) : AppColors.onSurface,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            height: 3,
+            width: isActive ? 28 : 0,
+            decoration: BoxDecoration(color: isActive ? const Color(0xFF213775) : Colors.transparent, borderRadius: BorderRadius.circular(2)),
           ),
         ],
       ),
