@@ -6,8 +6,7 @@ import '../../../../core/network/api_response.dart';
 /// Mock 商品数据源 - 基于蓝湖设计稿 v1.0
 class MockProductDataSource implements ProductRepository {
   // 本地 assets 路径
-  static const _bannerUrl =
-      'assets/images/home/banner_main.png';
+  static const _bannerUrl = ['assets/images/home/banner_1.png', 'assets/images/home/banner_2png', 'assets/images/home/banner_3.png'];
   static const _kingKongIcons = [
     'assets/images/home/kingkong_self.png',
     'assets/images/home/kingkong_region.png',
@@ -26,9 +25,9 @@ class MockProductDataSource implements ProductRepository {
     return ApiResponse.success(
       HomeProductData(
         banners: [
-          HomeBanner(imageUrl: _bannerUrl, title: '新人专享', actionUrl: '/activity/new-user'),
-          HomeBanner(imageUrl: _bannerUrl, title: '特产热卖', actionUrl: '/activity/special'),
-          HomeBanner(imageUrl: _bannerUrl, title: '积分兑换', actionUrl: '/points/mall'),
+          HomeBanner(imageUrl: _bannerUrl[0], title: '新人专享', actionUrl: '/activity/new-user'),
+          HomeBanner(imageUrl: _bannerUrl[1], title: '特产热卖', actionUrl: '/activity/special'),
+          HomeBanner(imageUrl: _bannerUrl[2], title: '积分兑换', actionUrl: '/points/mall'),
         ],
         kingKongItems: [
           HomeKingKongItem(iconUrl: _kingKongIcons[0], label: '天佑德自营', actionUrl: '/shop?type=self'),
@@ -218,4 +217,3 @@ class MockProductDataSource implements ProductRepository {
 
 /// MockProductRepository Provider - 开发环境使用
 final mockProductRepositoryProvider = Provider<ProductRepository>((ref) => MockProductDataSource());
-
