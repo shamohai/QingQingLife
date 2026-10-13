@@ -153,24 +153,28 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '服务简介',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: Colors.black),
-                  ),
-                  // 蓝色渐变指示条 94×7
-                  Transform.translate(
-                    offset: const Offset(0, -10),
-                    child: Container(
-                      width: 94,
-                      height: 7,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(AppRadius.round),
-                        gradient: const LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                          colors: [AppColors.serviceProjectBlue, Color(0x00F3F5F7)],
+                  SizedBox(
+                    height: 43,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Positioned(
+                          left: 0,
+                          top: 25,
+                          child: Container(
+                            width: 94,
+                            height: 7,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(AppRadius.round),
+                              gradient: const LinearGradient(colors: [AppColors.serviceProjectBlue, Color(0x00F3F5F7)]),
+                            ),
+                          ),
                         ),
-                      ),
+                        Text(
+                          '服务简介',
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: Colors.black, height: 1.5),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 10),

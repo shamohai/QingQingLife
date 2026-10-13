@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -99,28 +99,8 @@ final appRouter = Provider<GoRouter>((ref) {
                     pageBuilder: (c, s) => MaterialPage(child: ServiceRecordsPage(activeTab: s.uri.queryParameters['activeTab'] ?? 'ongoing')),
                   ),
                   GoRoute(
-                    path: 'project/:id',
-                    pageBuilder: (c, s) => MaterialPage(
-                      child: ServiceProjectDetailPage(projectId: s.pathParameters['id']!),
-                    ),
-                  ),
-                  GoRoute(
-                    name: 'serviceBookingForm',
-                    path: RouteNames.serviceBookingForm,
-                    pageBuilder: (c, s) => MaterialPage(
-                      child: ServiceBookingFormPage(
-                        projectId: s.pathParameters['id']!,
-                        title: s.uri.queryParameters['title'] ?? '预约项目',
-                      ),
-                    ),
-                  ),
-                  GoRoute(
                     path: 'template/:id',
-                    pageBuilder: (c, s) => MaterialPage(
-                      child: ServiceTemplateDetailPage(
-                        templateId: int.tryParse(s.pathParameters['id']!) ?? 0,
-                      ),
-                    ),
+                    pageBuilder: (c, s) => MaterialPage(child: ServiceTemplateDetailPage(templateId: int.tryParse(s.pathParameters['id']!) ?? 0)),
                   ),
                 ],
               ),
@@ -135,6 +115,17 @@ final appRouter = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: RouteNames.serviceProjectDetail,
+        pageBuilder: (c, s) => MaterialPage(child: ServiceProjectDetailPage(projectId: s.pathParameters['id']!)),
+      ),
+      GoRoute(
+        name: 'serviceBookingForm',
+        path: RouteNames.serviceBookingForm,
+        pageBuilder: (c, s) => MaterialPage(
+          child: ServiceBookingFormPage(projectId: s.pathParameters['id']!, title: s.uri.queryParameters['title'] ?? '预约项目'),
+        ),
       ),
       GoRoute(
         path: RouteNames.memberLevel,
@@ -204,7 +195,11 @@ final appRouter = Provider<GoRouter>((ref) {
           final templateId = int.tryParse(s.uri.queryParameters['templateId'] ?? '') ?? 0;
           final headImg = s.uri.queryParameters['headImg'] ?? '';
           final cartId = int.tryParse(s.uri.queryParameters['cartId'] ?? '') ?? 0;
-          return MaterialPage(child: ServiceCheckoutPage(params: ServiceCartInitialParams(templateId: templateId, headImg: headImg, existingCartId: cartId)));
+          return MaterialPage(
+            child: ServiceCheckoutPage(
+              params: ServiceCartInitialParams(templateId: templateId, headImg: headImg, existingCartId: cartId),
+            ),
+          );
         },
       ),
       GoRoute(
@@ -214,11 +209,7 @@ final appRouter = Provider<GoRouter>((ref) {
           final headImg = s.uri.queryParameters['headImg'] ?? '';
           final cartId = int.tryParse(s.uri.queryParameters['cartId'] ?? '') ?? 0;
           return MaterialPage(
-            child: ServiceCartPage(
-              templateId: templateId,
-              headImg: headImg,
-              cartId: cartId,
-            ),
+            child: ServiceCartPage(templateId: templateId, headImg: headImg, cartId: cartId),
           );
         },
       ),
@@ -259,6 +250,7 @@ final appRouter = Provider<GoRouter>((ref) {
 /// 底部 Tab 主框架
 class MainShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
+
   const MainShell({super.key, required this.navigationShell});
   void _goBranch(int index) => navigationShell.goBranch(index, initialLocation: true);
   static const _tabAssets = [
@@ -271,6 +263,7 @@ class MainShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final idx = navigationShell.currentIndex;
+
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: Container(
@@ -332,11 +325,7 @@ class _TabItem extends StatelessWidget {
           const SizedBox(height: 3),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w400,
-              color: isSelected ? const Color(0xFF213775) : const Color(0xFF656565),
-            ),
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w400, color: isSelected ? const Color(0xFF213775) : const Color(0xFF656565)),
           ),
         ],
       ),

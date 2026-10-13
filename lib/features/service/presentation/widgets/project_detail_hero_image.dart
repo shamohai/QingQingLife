@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_radius.dart';
 
@@ -8,22 +9,25 @@ import '../../../../app/theme/app_radius.dart';
 /// 图片宽全屏减去左右各 14dp，高 180dp，cover 填充。
 class ProjectDetailHeroImage extends StatelessWidget {
   final String heroAsset;
+  final double horizontalPadding;
+  final double? aspectRatio;
 
-  const ProjectDetailHeroImage({super.key, required this.heroAsset});
+  const ProjectDetailHeroImage({super.key, required this.heroAsset, this.horizontalPadding = AppSpacing.lg, this.aspectRatio});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, 0),
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
         child: ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)), // 这里设置圆角半径
-          child: Image.asset(
-            heroAsset,
-            width: double.infinity,
-            fit: BoxFit.cover,
-          ),
+          borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
+          child: aspectRatio == null
+              ? Image.asset(heroAsset, width: double.infinity, fit: BoxFit.cover)
+              : AspectRatio(
+                  aspectRatio: aspectRatio!,
+                  child: Image.asset(heroAsset, width: double.infinity, fit: BoxFit.cover),
+                ),
         ),
       ),
     );

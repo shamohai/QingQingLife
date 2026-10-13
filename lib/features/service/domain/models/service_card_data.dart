@@ -5,10 +5,13 @@ class ServiceCardData {
   final String title;
   final String subtitle;
   final String buttonText;
-  final String? heroAsset;        // 详情页头图，可选
-  final String? description;      // 详情页描述，可选
-  final String? dateRange;        // 活动日期范围，如 "2026-08-01 至 2026-09-01"
-  final int? limitCount;          // 人数限制
+  final String? heroAsset; // 详情页头图，可选
+  final String? description; // 详情页描述，可选
+  final String? dateRange; // 活动日期范围，如 "2026-08-01 至 2026-09-01"
+  final int? limitCount; // 人数限制
+  final String? registrationRange;
+  final String? activityAddress;
+  final String? detailImageAsset;
 
   /// 所属分类 Tab key：'fuwu' | 'zhiyouhui' | 'huodong' | 'goujiu'
   final String tabKey;
@@ -23,6 +26,9 @@ class ServiceCardData {
     this.description,
     this.dateRange,
     this.limitCount,
+    this.registrationRange,
+    this.activityAddress,
+    this.detailImageAsset,
     required this.tabKey,
   });
 
@@ -122,7 +128,10 @@ class ServiceCardData {
         buttonText: '立即报名',
         dateRange: '2026-08-01 至 2026-09-01',
         limitCount: 100,
-        heroAsset: 'assets/images/service/service_huodong.webp',
+        registrationRange: '2026-08-01 至 2026-09-01',
+        activityAddress: '青海省海东市互助土族自治县天佑德大道',
+        heroAsset: 'assets/images/service/activity_detail_hero.png',
+        detailImageAsset: 'assets/images/service/activity_detail_content.png',
         description: '春季户外骑行活动，路线全长约30公里，途经湖畔、森林、花海等多重景观。设置多个补给站与打卡点，配备领骑车与收容车，全程安全无忧。春风拂面，骑行赏花，尽享春日限定浪漫。',
       ),
       ServiceCardData(
@@ -134,7 +143,10 @@ class ServiceCardData {
         buttonText: '立即报名',
         dateRange: '2026-09-15 至 2026-10-15',
         limitCount: 80,
-        heroAsset: 'assets/images/service/service_huodong.webp',
+        registrationRange: '2026-08-01 至 2026-09-01',
+        activityAddress: '青海省海东市互助土族自治县天佑德大道',
+        heroAsset: 'assets/images/service/activity_detail_hero.png',
+        detailImageAsset: 'assets/images/service/activity_detail_content.png',
         description: '会员专属品酒会，精选全球十大产区代表性佳酿，搭配米其林级餐点。邀请资深品酒师现场讲解风土风味、年份特征、配餐艺术。在优雅氛围中品味美酒，拓展高端社交圈层。',
       ),
       ServiceCardData(
@@ -146,7 +158,10 @@ class ServiceCardData {
         buttonText: '立即报名',
         dateRange: '2026-07-01 至 2026-08-31',
         limitCount: 150,
-        heroAsset: 'assets/images/service/service_huodong.webp',
+        registrationRange: '2026-08-01 至 2026-09-01',
+        activityAddress: '青海省海东市互助土族自治县天佑德大道',
+        heroAsset: 'assets/images/service/activity_detail_hero.png',
+        detailImageAsset: 'assets/images/service/activity_detail_content.png',
         description: '夏日露营季，精选湖畔营地，夜观繁星、晨赏日出。活动含帐篷搭建教学、户外烹饪体验、篝火晚会、水上项目等。亲子同行、情侣约会、好友聚会皆宜，定制专属夏日记忆。',
       ),
       ServiceCardData(
@@ -158,7 +173,10 @@ class ServiceCardData {
         buttonText: '立即报名',
         dateRange: '2026-10-01 至 2026-11-30',
         limitCount: 60,
-        heroAsset: 'assets/images/service/service_huodong.webp',
+        registrationRange: '2026-08-01 至 2026-09-01',
+        activityAddress: '青海省海东市互助土族自治县天佑德大道',
+        heroAsset: 'assets/images/service/activity_detail_hero.png',
+        detailImageAsset: 'assets/images/service/activity_detail_content.png',
         description: '秋季登山徒步，路线穿越彩林层染的山谷，海拔落差适中，适合有一定户外基础的参与者。专业领队带队，配备急救包与通讯设备。登顶俯瞰秋色满山，收获身心双重升华。',
       ),
     ],
