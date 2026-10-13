@@ -231,6 +231,7 @@ class ServiceCartPage extends ConsumerWidget {
 
   Widget _buildBottomBar(BuildContext context, ServiceCartState state, WidgetRef ref, ServiceCartInitialParams params) {
     final notifier = ref.read(serviceCartProvider(params).notifier);
+    final canCheckout = state.canSubmit && state.cartProducts.isNotEmpty;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.md + 8),
@@ -270,23 +271,25 @@ class ServiceCartPage extends ConsumerWidget {
                 ),
                 const SizedBox(width: AppSpacing.lg),
                 GestureDetector(
-                  onTap: state.canSubmit ? () => context.push('/checkout') : null,
+                  onTap: canCheckout ? () => context.push('/checkout') : null,
                   child: Container(
                     width: 96,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: state.canSubmit ? AppColors.serviceProjectBlue : AppColors.outlineVariant,
+                      color: canCheckout ? null : AppColors.outlineVariant,
                       borderRadius: BorderRadius.circular(AppRadius.round),
-                      gradient: const LinearGradient(
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                        colors: [AppColors.serviceTabActive, AppColors.serviceCtaGradStart],
-                      ),
+                      gradient: canCheckout
+                          ? const LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              colors: [AppColors.serviceTabActive, AppColors.serviceCtaGradStart],
+                            )
+                          : null,
                     ),
                     child: Center(
                       child: Text(
                         '结算',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: state.canSubmit ? Colors.white : AppColors.onSurfaceVariant),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: canCheckout ? Colors.white : AppColors.onSurfaceVariant),
                       ),
                     ),
                   ),
@@ -365,11 +368,7 @@ class _ServiceCartItemRow extends StatelessWidget {
                     width: 80,
                     height: 80,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 80,
-                      height: 80,
-                      color: AppColors.surfaceVariant,
-                    ),
+                    errorBuilder: (context, error, stackTrace) => Container(width: 80, height: 80, color: AppColors.surfaceVariant),
                   )
                 : Container(width: 80, height: 80, color: AppColors.surfaceVariant),
           ),
@@ -465,11 +464,7 @@ class _ContinueAddItem extends StatelessWidget {
                     width: 80,
                     height: 80,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 80,
-                      height: 80,
-                      color: AppColors.surfaceVariant,
-                    ),
+                    errorBuilder: (context, error, stackTrace) => Container(width: 80, height: 80, color: AppColors.surfaceVariant),
                   )
                 : Container(width: 80, height: 80, color: AppColors.surfaceVariant),
           ),
@@ -511,11 +506,7 @@ class _ContinueAddItem extends StatelessWidget {
               height: 44,
               alignment: Alignment.center,
               child: isUpdating
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.outlineVariant),
-                    )
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.outlineVariant))
                   : Container(
                       width: 28,
                       height: 28,
