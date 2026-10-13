@@ -9,7 +9,7 @@ final pointsMallDataProvider = FutureProvider<PointsMallHomeData>((ref) async {
   final response = await repository.getPointsMallHome();
 
   if (!response.success || response.data == null) {
-    throw Exception(response.message ?? '获取积分商城数据失败');
+    throw Exception(response.message);
   }
 
   return response.data!;
