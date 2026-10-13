@@ -396,7 +396,7 @@ class _ServiceCartItemRow extends StatelessWidget {
           // 数量控制
           _QtyControl(
             quantity: product.count,
-            onMinus: !isUpdating && product.count > 1 ? () => onQtyChanged(product.count - 1) : null,
+            onMinus: !isUpdating && product.count > 0 ? () => onQtyChanged(product.count - 1) : null,
             onPlus: isUpdating ? null : () => onQtyChanged(product.count + 1),
           ),
         ],

@@ -244,7 +244,7 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
   /// 向服务端写入目标数量，再拉取最新购物车列表更新本地状态。
   Future<void> addProductToCart(int pid, int newCount) async {
     final current = state.value;
-    if (current == null || current.shareCartId == 0 || current.cartUpdateInProgress || newCount < 1) return;
+    if (current == null || current.shareCartId == 0 || current.cartUpdateInProgress || newCount < 0) return;
     final ds = ref.read(serviceRemoteDataSourceProvider);
     state = AsyncData(current.copyWith(isUpdatingCart: true));
     try {
