@@ -254,20 +254,36 @@ class ServiceCartPage extends ConsumerWidget {
                       activeColor: AppColors.serviceProjectBlue,
                       shape: const CircleBorder(),
                     ),
-                    const Text('全选', style: AppTextStyles.bodyMedium),
+                    //const Text('全选', style: AppTextStyles.bodyMedium),
                   ],
                 ),
-                const Spacer(),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('合计', style: AppTextStyles.bodySmall),
-                    const SizedBox(width: AppSpacing.xs),
-                    Text(
-                      state.selectedTotalFormatted,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.error),
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('合计', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black)),
+                          const SizedBox(width: AppSpacing.xs),
+                          Text(
+                            state.selectedTotalFormatted,
+                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.error),
+                          ),
+                        ],
+                      ),
+                      if (!state.canSubmit && state.verifyMsg.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: AppSpacing.xs),
+                          child: Text(
+                            state.verifyMsg,
+                            textAlign: TextAlign.right,
+                            style: const TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
                 const SizedBox(width: AppSpacing.lg),
                 GestureDetector(
@@ -296,14 +312,6 @@ class ServiceCartPage extends ConsumerWidget {
                 ),
               ],
             ),
-            if (!state.canSubmit && state.verifyMsg.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.sm),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(state.verifyMsg, style: const TextStyle(fontSize: 12, color: AppColors.error)),
-                ),
-              ),
           ],
         ),
       ),
