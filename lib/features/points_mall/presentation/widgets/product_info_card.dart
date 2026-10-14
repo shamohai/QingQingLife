@@ -96,7 +96,7 @@ class ProductInfoCard extends StatelessWidget {
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.white),
                     ),
                     Text(
-                      '已售：${_formatSales(product.salesCount)}万件',
+                      '已售：${_formatSales(product.salesCount)}',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.white),
                     ),
                   ],
@@ -122,8 +122,10 @@ class ProductInfoCard extends StatelessWidget {
   }
 
   static String _formatSales(int count) {
-    if (count >= 10000) return '${(count / 10000).toStringAsFixed(0)}';
-    return count.toString();
+    if (count >= 10000) {
+      return '${(count / 10000).toStringAsFixed(1)}万件';
+    }
+    return '$count件';
   }
 }
 

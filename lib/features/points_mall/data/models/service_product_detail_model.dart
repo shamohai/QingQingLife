@@ -197,6 +197,7 @@ class ServiceProductDetail {
   final Decimal marketPrice;
   final String mainImageUrl;
   final String description;
+  final List<String> carouselImages;
 
   // ── API 原始字段（供后续扩展使用）────────────────────────────────────────
 
@@ -280,6 +281,7 @@ class ServiceProductDetail {
     required this.marketPrice,
     required this.mainImageUrl,
     required this.description,
+    required this.carouselImages,
     // API 原始字段
     this.productId = 0,
     this.priceCents = 0,
@@ -309,9 +311,9 @@ class ServiceProductDetail {
   factory ServiceProductDetail.fromJson(Map<String, dynamic> json) {
     // carouselimg 是 String 列表，取第一张作为主图/封面
     final carouselimgs = json['carouselimg'] as List<dynamic>? ?? [];
-    final imgList = carouselimgs.map((e) => e as String).where((u) => u.isNotEmpty).toList();
-    final mainImage = imgList.isNotEmpty ? imgList.first : '';
-    final heroImage = imgList.length > 1 ? imgList[1] : mainImage;
+    final carouselImages = carouselimgs.map((e) => e as String).where((u) => u.isNotEmpty).toList();
+    final mainImage = carouselImages.isNotEmpty ? carouselImages.first : '';
+    final heroImage = carouselImages.length > 1 ? carouselImages[1] : mainImage;
 
     final serviceCouponMap = json['servicecoupon'] as Map<String, dynamic>?;
     final serviceCoupon = serviceCouponMap != null ? ServiceCouponInfo.fromJson(serviceCouponMap) : null;
@@ -327,6 +329,7 @@ class ServiceProductDetail {
       marketPrice: _parseDecimal(json['marketprice']),
       mainImageUrl: mainImage,
       description: serviceCoupon?.descriptionHtml ?? '',
+      carouselImages: carouselImages,
       // API 原始字段
       productId: (json['pid'] as int?)?.toInt() ?? 0,
       priceCents: (json['price'] as int?)?.toInt() ?? 0, // 积分
@@ -390,6 +393,11 @@ class ServiceProductDetail {
     salesCount: 90000,
     marketPrice: Decimal.parse('760.00'),
     mainImageUrl: 'assets/images/service/service_product_main.png',
+    carouselImages: [
+      'assets/images/service/service_product_hero_bg.png',
+      'assets/images/service/service_product_hero_bg2.png',
+      'assets/images/service/service_product_hero_bg3.png',
+    ],
     description: '持本旅游券即可兑换青海环线 3 天 2 晚跟团之旅，打卡青海经典核心美景，远离城市喧嚣，沉浸式感受青藏高原辽阔风光。行程轻松不赶路，适合朋友结伴、家庭出游，随团省心出行，不用费心规划路线。',
     productId: 1,
     priceCents: 76000,

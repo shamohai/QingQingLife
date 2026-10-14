@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../app/theme/app_colors.dart';
+import '../../../../core/widgets/app_image.dart';
 import '../../data/models/service_product_detail_model.dart';
 
 /// 积分商城服务商品详情 — Hero 区域
@@ -25,11 +25,13 @@ class _HeroSectionState extends State<HeroSection> {
   int _currentPage = 0;
   Timer? _timer;
 
-  final List<String> _images = [
-    'assets/images/service/service_product_hero_bg.png',
-    'assets/images/service/service_product_hero_bg2.png',
-    'assets/images/service/service_product_hero_bg3.png',
-  ];
+  List<String> get _images => widget.product.carouselImages.isNotEmpty
+      ? widget.product.carouselImages
+      : [
+          'assets/images/service/service_product_hero_bg.png',
+          'assets/images/service/service_product_hero_bg2.png',
+          'assets/images/service/service_product_hero_bg3.png',
+        ];
 
   @override
   void initState() {
@@ -40,8 +42,11 @@ class _HeroSectionState extends State<HeroSection> {
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (_pageController.hasClients) {
-        final nextPage = (_currentPage + 1) % _images.length;
-        _pageController.animateToPage(nextPage, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+        final list = _images;
+        if (list.isNotEmpty) {
+          final nextPage = (_currentPage + 1) % list.length;
+          _pageController.animateToPage(nextPage, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+        }
       }
     });
   }
@@ -56,6 +61,7 @@ class _HeroSectionState extends State<HeroSection> {
   @override
   Widget build(BuildContext context) {
     final statusBarHeight = MediaQuery.of(context).padding.top;
+    final images = _images;
 
     return Stack(
       children: [
@@ -69,9 +75,13 @@ class _HeroSectionState extends State<HeroSection> {
                 _currentPage = index;
               });
             },
-            itemCount: _images.length,
+            itemCount: images.length,
             itemBuilder: (context, index) {
-              return Image.asset(_images[index], fit: BoxFit.cover, width: double.infinity);
+              return AppNetworkImage(
+                url: images[index],
+                fit: BoxFit.cover,
+                width: double.infinity,
+              );
             },
           ),
         ),
@@ -120,24 +130,25 @@ class _HeroSectionState extends State<HeroSection> {
         //   ),
         // ),
 
-        // 4. 指示器（锚点）- 移动到顶层以确保不被遮罩覆盖
-        Positioned(
-          bottom: 18,
-          left: 0,
-          right: 0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              _images.length,
-              (index) => Container(
-                width: 10,
-                height: 10,
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                decoration: BoxDecoration(color: _currentPage == index ? const Color(0xFF0088FF) : Colors.white, shape: BoxShape.circle),
+        // 4. 指示器（锚点）- 移动到顶层以确保不被遮罩覆盖（多于1张图时才显示）
+        if (images.length > 1)
+          Positioned(
+            bottom: 18,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                images.length,
+                (index) => Container(
+                  width: 10,
+                  height: 10,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  decoration: BoxDecoration(color: _currentPage == index ? const Color(0xFF0088FF) : Colors.white, shape: BoxShape.circle),
+                ),
               ),
             ),
           ),
-        ),
       ],
     );
   }
