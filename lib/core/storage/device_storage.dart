@@ -21,7 +21,6 @@ class DeviceStorage {
     }
     // 生成新 ID：时间戳 + 4位随机数（对齐 JS 版逻辑）
     final min = 1000;
-    final max = 9999;
     final rand = min + Random().nextInt(9000) ;
     final deviceId = '${DateTime.now().millisecondsSinceEpoch}$rand';
     await prefs.setString(_key, deviceId);

@@ -63,6 +63,8 @@ class CreditMallProduct {
   final int praise;
   final int commentCount;
   final int storeId;
+  /// 是否是积分产品（Boolean 字段：iscredit）
+  final bool isCredit;
 
   const CreditMallProduct({
     required this.productId,
@@ -78,7 +80,10 @@ class CreditMallProduct {
     required this.praise,
     required this.commentCount,
     required this.storeId,
+    this.isCredit = false,
   });
+
+  bool get isService => isCredit;
 
   factory CreditMallProduct.fromJson(Map<String, dynamic> json) {
     return CreditMallProduct(
@@ -95,6 +100,7 @@ class CreditMallProduct {
       praise: (json['praise'] as num?)?.toInt() ?? 0,
       commentCount: (json['commentcount'] as num?)?.toInt() ?? 0,
       storeId: (json['storeid'] as num?)?.toInt() ?? 0,
+      isCredit: json['iscredit'] == true || json['iscredit'] == 1 || json['iscredit'] == 'true',
     );
   }
 }

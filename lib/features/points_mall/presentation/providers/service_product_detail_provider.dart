@@ -11,7 +11,7 @@ final serviceProductDetailProvider =
   final repository = ref.read(pointsRepositoryProvider);
   final response = await repository.getServiceProductDetail(productId);
   if (!response.success || response.data == null) {
-    throw Exception(response.message ?? '获取服务商品详情失败');
+    throw Exception(response.message);
   }
   return response.data!;
 });

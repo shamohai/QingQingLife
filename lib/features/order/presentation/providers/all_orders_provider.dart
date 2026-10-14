@@ -46,11 +46,7 @@ class OrderActionButton {
   final bool isPrimary; // true = 蓝色，false = 灰色
   final VoidCallback? onTap;
 
-  const OrderActionButton({
-    required this.label,
-    this.isPrimary = false,
-    this.onTap,
-  });
+  const OrderActionButton({required this.label, this.isPrimary = false, this.onTap});
 }
 
 /// 全部订单状态
@@ -59,18 +55,10 @@ class AllOrdersState {
   final bool isLoading;
   final int activeTabIndex;
 
-  const AllOrdersState({
-    this.orders = const [],
-    this.isLoading = false,
-    this.activeTabIndex = 0,
-  });
+  const AllOrdersState({this.orders = const [], this.isLoading = false, this.activeTabIndex = 0});
 
   AllOrdersState copyWith({List<OrderCardItem>? orders, bool? isLoading, int? activeTabIndex}) {
-    return AllOrdersState(
-      orders: orders ?? this.orders,
-      isLoading: isLoading ?? this.isLoading,
-      activeTabIndex: activeTabIndex ?? this.activeTabIndex,
-    );
+    return AllOrdersState(orders: orders ?? this.orders, isLoading: isLoading ?? this.isLoading, activeTabIndex: activeTabIndex ?? this.activeTabIndex);
   }
 }
 
@@ -160,30 +148,15 @@ class AllOrdersNotifier extends Notifier<AllOrdersState> {
       case OrderType.mall:
         switch (status) {
           case OrderStatus.pendingPayment:
-            return [
-              const OrderActionButton(label: '取消订单'),
-              const OrderActionButton(label: '立即付款', isPrimary: true),
-            ];
+            return [const OrderActionButton(label: '取消订单'), const OrderActionButton(label: '立即付款', isPrimary: true)];
           case OrderStatus.pendingShipment:
-            return [
-              const OrderActionButton(label: '申请退款'),
-              const OrderActionButton(label: '修改地址'),
-            ];
+            return [const OrderActionButton(label: '申请退款'), const OrderActionButton(label: '修改地址')];
           case OrderStatus.shipped:
-            return [
-              const OrderActionButton(label: '申请退款'),
-              const OrderActionButton(label: '确认收货', isPrimary: true),
-            ];
+            return [const OrderActionButton(label: '申请退款'), const OrderActionButton(label: '确认收货', isPrimary: true)];
           case OrderStatus.completed:
-            return [
-              const OrderActionButton(label: '申请退款'),
-              const OrderActionButton(label: '去评价', isPrimary: true),
-            ];
+            return [const OrderActionButton(label: '申请退款'), const OrderActionButton(label: '去评价', isPrimary: true)];
           default:
-            return [
-              const OrderActionButton(label: '申请退款'),
-              const OrderActionButton(label: '查看详情', isPrimary: true),
-            ];
+            return [const OrderActionButton(label: '申请退款'), const OrderActionButton(label: '查看详情', isPrimary: true)];
         }
       case OrderType.points:
         switch (status) {
@@ -200,6 +173,4 @@ class AllOrdersNotifier extends Notifier<AllOrdersState> {
   }
 }
 
-final allOrdersProvider = NotifierProvider<AllOrdersNotifier, AllOrdersState>(
-  () => AllOrdersNotifier(),
-);
+final allOrdersProvider = NotifierProvider<AllOrdersNotifier, AllOrdersState>(() => AllOrdersNotifier());

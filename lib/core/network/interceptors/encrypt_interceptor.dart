@@ -29,6 +29,14 @@ class EncryptInterceptor extends Interceptor {
   /// 请求体中 authtoken 为 0 时的占位值
   static const String _noAuthToken = '0';
 
+  /// 缓存的设备信息，避免每次请求都异步获取
+  static String? _cachedDeviceId;
+  static String? _cachedPhoneModel;
+  static String? _cachedAppVersion;
+  static int? _cachedPlatform;
+  static int? _cachedOsNumber;
+  static bool _deviceInfoInitialized = false;
+
   @override
   Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     try {
@@ -36,12 +44,14 @@ class EncryptInterceptor extends Interceptor {
       final rawToken = options.extra['authtoken'] as String?;
       final authtoken = (rawToken != null && rawToken.isNotEmpty) ? rawToken : _noAuthToken;
 
-      // 2. 收集设备信息
-      final deviceId = await DeviceStorage.getDeviceId();
-      final platform = _getFlutterPlatform();
-      final os = _getOsNumber(platform);
-      final phoneModel = _getPhoneModel();
-      final version = await _getAppVersion();
+      // 2. 获取设备信息（首次请求时初始化，后续复用缓存）
+      await _ensureDeviceInfoInitialized();
+
+      final platform = _cachedPlatform!;
+      final os = _cachedOsNumber!;
+      final phoneModel = _cachedPhoneModel!;
+      final version = _cachedAppVersion!;
+      final deviceId = _cachedDeviceId!;
       final channel = ApiSecurityConstants.defaultChannel;
 
       // 3. 构建明文请求体（JSON）
@@ -91,6 +101,18 @@ class EncryptInterceptor extends Interceptor {
   @override
   Future<void> onResponse(Response response, ResponseInterceptorHandler handler) async {
     return handler.next(response);
+  }
+
+  /// 确保设备信息已初始化（仅首次请求时执行异步操作）
+  static Future<void> _ensureDeviceInfoInitialized() async {
+    if (_deviceInfoInitialized) return;
+
+    _cachedDeviceId = await DeviceStorage.getDeviceId();
+    _cachedPlatform = _getFlutterPlatform();
+    _cachedOsNumber = _getOsNumber(_cachedPlatform!);
+    _cachedPhoneModel = _getPhoneModel();
+    _cachedAppVersion = await _getAppVersion();
+    _deviceInfoInitialized = true;
   }
 
   /// 获取 Flutter 运行平台（0=app, 1=小程序, 2=web）

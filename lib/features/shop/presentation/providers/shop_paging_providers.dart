@@ -19,7 +19,7 @@ class ShopProductListNotifier extends PagingNotifier<ShopProduct> {
     final repository = ref.read(productRepositoryProvider);
     final response = await repository.getProductList(page: page, pageSize: pageSize, categoryId: categoryId == 'all' ? null : categoryId);
     if (!response.success || response.data == null) {
-      throw Exception(response.message ?? '获取商品列表失败');
+      throw Exception(response.message);
     }
     final result = response.data!;
     final products = result.products
@@ -48,7 +48,7 @@ final shopCategoriesProvider = FutureProvider<List<ShopCategory>>((ref) async {
   final repository = ref.read(productRepositoryProvider);
   final response = await repository.getCategories();
   if (!response.success || response.data == null) {
-    throw Exception(response.message ?? '获取分类失败');
+    throw Exception(response.message);
   }
   return response.data!.map((c) => ShopCategory(id: c.id, label: c.label, icon: _getIconForCategory(c.id))).toList();
 });

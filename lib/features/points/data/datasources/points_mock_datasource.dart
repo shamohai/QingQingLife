@@ -522,6 +522,7 @@ class MockPointsDataSource implements PointsRepository {
                 praise: p['praise'] as int,
                 commentCount: p['commentCount'] as int,
                 storeId: p['storeId'] as int,
+                isCredit: (p['isCredit'] as bool?) ?? (p['iscredit'] as bool?) ?? false,
               ),
             )
             .toList(),

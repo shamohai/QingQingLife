@@ -14,15 +14,14 @@ import '../widgets/home_monthly_benefits.dart';
 import '../widgets/home_hot_products.dart';
 import '../widgets/home_activity_section.dart';
 import '../widgets/home_topic_activity_section.dart';
-import '../widgets/home_branding_footer.dart';
-import '../widgets/home_product_grid.dart';
+import '../widgets/home_product_showcase.dart';
 
 /// 首页静态数据 Provider（轮播、金刚区、新人礼、专题、每月权益、可用商品、活动模块）
 final homeStaticDataProvider = FutureProvider<HomeStaticData>((ref) async {
   final repository = ref.read(productRepositoryProvider);
   final response = await repository.getHomeProductData();
   if (!response.success || response.data == null) {
-    throw Exception(response.message ?? '获取首页数据失败');
+    throw Exception(response.message);
   }
   final data = response.data!;
   return HomeStaticData(
@@ -31,6 +30,7 @@ final homeStaticDataProvider = FutureProvider<HomeStaticData>((ref) async {
     newUserGifts: data.newUserGifts,
     monthlyBenefits: data.monthlyBenefits,
     hotProducts: data.hotProducts,
+    hotSearchKeywords: data.hotSearchKeywords,
     topicActivities: data.topicActivities,
     activityBlocks: data.activityBlocks,
     topicActivityBlocks: data.topicActivityBlocks,
@@ -44,6 +44,7 @@ class HomeStaticData {
   final List<repo.HomeNewUserGift> newUserGifts;
   final List<repo.HomeMonthlyBenefit> monthlyBenefits;
   final List<repo.ProductCard> hotProducts;
+  final List<String> hotSearchKeywords;
   final Map<String, String> topicActivities;
   final List<repo.HomeActivityBlock> activityBlocks;
   final List<repo.HomeTopicActivityBlock> topicActivityBlocks;
@@ -54,6 +55,7 @@ class HomeStaticData {
     required this.newUserGifts,
     required this.monthlyBenefits,
     required this.hotProducts,
+    required this.hotSearchKeywords,
     required this.topicActivities,
     required this.activityBlocks,
     required this.topicActivityBlocks,
@@ -68,6 +70,7 @@ class HomePage extends ConsumerWidget {
     final staticDataAsync = ref.watch(homeStaticDataProvider);
 
     return Scaffold(
+      backgroundColor: const Color(0xFF213775), // 设计稿深蓝背景
       body: staticDataAsync.when(
         loading: () => const Center(child: AppLoading()),
         error: (error, stackTrace) => Center(
@@ -75,59 +78,51 @@ class HomePage extends ConsumerWidget {
         ),
         data: (staticData) => CustomScrollView(
           slivers: [
+            // 顶部栏：Logo + 搜索框 + 消息（系统状态栏由 SafeArea 自动处理）
             SliverToBoxAdapter(child: const HomeAppBar()),
+            // Banner
             SliverPadding(
               padding: const EdgeInsets.only(top: AppSpacing.sm),
-              sliver: SliverToBoxAdapter(
-                child: home_widgets.HomeBanner(imageUrls: staticData.banners.map((b) => b.imageUrl).toList()),
-              ),
+              sliver: SliverToBoxAdapter(child: home_widgets.HomeBanner(imageUrls: staticData.banners.map((b) => b.imageUrl).toList())),
             ),
+            // White Card 1: 新人礼 + 可用商品
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
               sliver: SliverToBoxAdapter(
-                child: HomePromoSection(
-                  gifts: staticData.newUserGifts,
-                  products: staticData.hotProducts,
-                ),
+                child: HomePromoSection(gifts: staticData.newUserGifts, products: staticData.hotProducts),
               ),
             ),
+            // White Card 2: 金刚区 (10 items, 2x5)
             SliverPadding(
-              padding: const EdgeInsets.only(top: AppSpacing.sm),
-              sliver: SliverToBoxAdapter(
-                child: HomeKingKongGrid(items: staticData.kingKongItems),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+              sliver: SliverToBoxAdapter(child: HomeKingKongGrid(items: staticData.kingKongItems)),
             ),
+            // White Card 3: 每月权益
             SliverPadding(
-              padding: const EdgeInsets.only(top: AppSpacing.lg),
-              sliver: SliverToBoxAdapter(
-                child: HomeMonthlyBenefits(benefits: staticData.monthlyBenefits),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
+              sliver: SliverToBoxAdapter(child: HomeMonthlyBenefits(benefits: staticData.monthlyBenefits)),
             ),
+            // White Card 4: 热卖商品
             SliverPadding(
-              padding: const EdgeInsets.only(top: AppSpacing.lg),
-              sliver: SliverToBoxAdapter(
-                child: const HomeHotProducts(),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
+              sliver: SliverToBoxAdapter(child: const HomeHotProducts()),
             ),
+            // White Card 5: 线上活动
             SliverPadding(
-              padding: const EdgeInsets.only(top: AppSpacing.lg),
-              sliver: SliverToBoxAdapter(
-                child: HomeActivitySection(blocks: staticData.activityBlocks),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
+              sliver: SliverToBoxAdapter(child: HomeActivitySection(blocks: staticData.activityBlocks)),
             ),
+            // White Card 6: 线下活动
             SliverPadding(
-              padding: const EdgeInsets.only(top: AppSpacing.lg),
-              sliver: SliverToBoxAdapter(
-                child: HomeTopicActivitySection(blocks: staticData.topicActivityBlocks),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
+              sliver: SliverToBoxAdapter(child: HomeTopicActivitySection(blocks: staticData.topicActivityBlocks)),
             ),
-            const SliverToBoxAdapter(
-              child: HomeBrandingFooter(),
+            // 底部商品展示区
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
+              sliver: SliverToBoxAdapter(child: HomeProductShowcase(products: staticData.hotProducts)),
             ),
-            const HomeProductGrid(),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: AppSpacing.xxl),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
           ],
         ),
       ),

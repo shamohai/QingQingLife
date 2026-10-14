@@ -11,7 +11,6 @@ import '../widgets/all_product_card.dart';
 import '../widgets/all_products_search_bar.dart';
 import '../widgets/responsive_product_grid_delegate.dart';
 import '../../data/models/get_credit_product_list_model.dart';
-import '../../data/models/get_recommend_product_list_model.dart';
 
 /// 全部商品页面
 ///
@@ -41,11 +40,10 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
   }
 
   void _onProductTap(BuildContext context, CreditProductItem item) {
-    final isService = item.productType == CreditProductType.serviceCouponIntegral || item.productType == CreditProductType.serviceCouponSale;
-    if (isService) {
+    if (item.isService) {
       GoRouter.of(context).push('/points/service/${item.productId}');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('即将兑换：${item.productName}')));
+      GoRouter.of(context).push('/product/${item.productId}');
     }
   }
 

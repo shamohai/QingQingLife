@@ -49,7 +49,7 @@ final pointsMallHotProductsProvider = FutureProvider<List<PointsProduct>>((ref) 
           points: item.creditPrice,
           commentCount: item.commentCount,
           tag: '热门',
-          type: PointsProductType.physical,
+          type: item.isService ? PointsProductType.service : PointsProductType.physical,
         );
       }).toList();
     }

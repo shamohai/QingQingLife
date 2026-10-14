@@ -59,12 +59,12 @@ final shopDataProvider = FutureProvider<ShopData>((ref) async {
 
   final categoriesResponse = await repository.getCategories();
   if (!categoriesResponse.success || categoriesResponse.data == null) {
-    throw Exception(categoriesResponse.message ?? '获取分类失败');
+    throw Exception(categoriesResponse.message);
   }
 
   final productsResponse = await repository.getProductList(page: 1, pageSize: 100);
   if (!productsResponse.success || productsResponse.data == null) {
-    throw Exception(productsResponse.message ?? '获取商品列表失败');
+    throw Exception(productsResponse.message);
   }
 
   final categories = categoriesResponse.data!.map((c) => ShopCategory(id: c.id, label: c.label, icon: _getIconForCategory(c.id))).toList();

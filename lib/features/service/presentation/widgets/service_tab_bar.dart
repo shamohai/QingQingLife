@@ -30,7 +30,11 @@ class ServiceTabBar extends StatelessWidget {
       borderRadius: const BorderRadius.vertical(bottom: Radius.circular(AppRadius.lg)),
       child: Container(
         width: double.infinity,
-        color: Colors.white,
+        // 设计稿阴影：0px 2px 4px 0px rgba(0,0,0,0.1)
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          boxShadow: [BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, 2))],
+        ),
         padding: const EdgeInsets.only(top: AppSpacing.xl),
         child: SizedBox(
           height: 44,
@@ -54,7 +58,8 @@ class ServiceTabBar extends StatelessWidget {
                         tabLabel,
                         style: AppTextStyles.labelLarge.copyWith(
                           fontSize: 16,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                          // 设计稿 fontWeight: 500 (Medium)，非 600
+                          fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
                           color: isSelected ? AppColors.serviceTabActive : AppColors.serviceTabInactive,
                         ),
                         maxLines: 1,
@@ -63,9 +68,11 @@ class ServiceTabBar extends StatelessWidget {
                       ),
                       const SizedBox(height: 3),
                       if (isSelected)
+                        // 设计稿指示条：高 6px，宽约 68px，圆角 100px
                         Container(
-                          height: 3,
-                          decoration: BoxDecoration(color: AppColors.serviceTabActive, borderRadius: BorderRadius.circular(999)),
+                          height: 6,
+                          width: 68,
+                          decoration: BoxDecoration(color: AppColors.serviceTabActive, borderRadius: BorderRadius.circular(AppRadius.round)),
                         ),
                     ],
                   ),

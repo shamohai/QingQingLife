@@ -1,5 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../../../app/theme/app_colors.dart';
 import '../../data/models/service_product_detail_model.dart';
 
@@ -38,11 +41,7 @@ class _HeroSectionState extends State<HeroSection> {
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (_pageController.hasClients) {
         final nextPage = (_currentPage + 1) % _images.length;
-        _pageController.animateToPage(
-          nextPage,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
+        _pageController.animateToPage(nextPage, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
       }
     });
   }
@@ -72,43 +71,34 @@ class _HeroSectionState extends State<HeroSection> {
             },
             itemCount: _images.length,
             itemBuilder: (context, index) {
-              return Image.asset(
-                _images[index],
-                fit: BoxFit.cover,
-                width: double.infinity,
-              );
+              return Image.asset(_images[index], fit: BoxFit.cover, width: double.infinity);
             },
           ),
         ),
 
         // 2. 返回胶囊按钮（设计稿：margin-top=50, margin-left=24）
         Positioned(
-          top: statusBarHeight + 50,
-          left: 24,
-          child: GestureDetector(
-            onTap: widget.onBack,
-            child: Container(
-              width: 106,
-              height: 40,
-              decoration: BoxDecoration(
-                color: const Color(0x4D000000),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/images/service/icon_back_detail.png',
-                    width: 24,
-                    height: 24,
-                  ),
-                  const SizedBox(width: 6),
-                  const Text(
+          top: statusBarHeight + 2,
+          child: Container(
+            height: 40,
+            decoration: BoxDecoration(color: const Color(0x4D000000), borderRadius: BorderRadius.circular(6)),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24),
+                  onPressed: () => context.pop(),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(right: 10),
+                  child: Text(
                     '商品详情',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -143,10 +133,7 @@ class _HeroSectionState extends State<HeroSection> {
                 width: 10,
                 height: 10,
                 margin: const EdgeInsets.symmetric(horizontal: 4),
-                decoration: BoxDecoration(
-                  color: _currentPage == index ? const Color(0xFF0088FF) : Colors.white,
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: _currentPage == index ? const Color(0xFF0088FF) : Colors.white, shape: BoxShape.circle),
               ),
             ),
           ),

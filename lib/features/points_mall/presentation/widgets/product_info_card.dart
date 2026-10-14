@@ -76,10 +76,10 @@ class ProductInfoCard extends StatelessWidget {
                       width: 111,
                       height: 25,
                       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.round)),
-                      child: const Center(
+                      child: Center(
                         child: Text(
-                          '市场价:760.00',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFFFF2105)),
+                          '市场价:¥${product.marketPrice.toStringAsFixed(2)}',
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFFFF2105)),
                         ),
                       ),
                     ),
@@ -111,9 +111,9 @@ class ProductInfoCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
             decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(14))),
-            child: const Text(
-              '持本旅游券即可兑换青海环线 3 天 2 晚跟团之旅，打卡青海经典核心美景，远离城市喧嚣，沉浸式感受青藏高原辽阔风光。行程轻松不赶路，适合朋友结伴、家庭出游，随团省心出行，不用费心规划路线。',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF1F2024), height: 1.5),
+            child: Text(
+              product.description,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF1F2024), height: 1.5),
             ),
           ),
         ],

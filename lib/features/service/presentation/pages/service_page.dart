@@ -8,15 +8,20 @@ import '../../../../core/widgets/app_empty.dart';
 import '../providers/service_provider.dart';
 import '../widgets/service_tab_bar.dart';
 import '../widgets/service_list_item.dart';
+import '../widgets/service_activity_card_item.dart';
 import '../widgets/service_floating_buttons.dart';
 import '../widgets/share_cart_template_item.dart';
 
 class ServicePage extends ConsumerWidget {
-  const ServicePage({super.key});
+  /// AppBar/页面标题，由调用方传入（如上一页面点击的 id 对应的名称）
+  final String? title;
+
+  const ServicePage({super.key, this.title});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedTab = ref.watch(selectedTabProvider);
+    final isHuodong = selectedTab == 'huodong';
 
     void onBookTap(String id, {bool isGoujiu = false}) {
       if (isGoujiu) {
@@ -37,15 +42,64 @@ class ServicePage extends ConsumerWidget {
                 // 顶部固定 Tab 栏
                 ServiceTabBar(selectedTab: selectedTab, onTabChanged: (tab) => ref.read(selectedTabProvider.notifier).update(tab)),
                 // 可滚动内容区
-                Expanded(child: selectedTab == 'goujiu' ? _buildGoujiuBody(context, ref) : _buildOtherBody(ref, onBookTap)),
+                Expanded(
+                  child: isHuodong
+                      ? _buildHuodongBody(ref, onBookTap)
+                      : selectedTab == 'goujiu'
+                          ? _buildGoujiuBody(context, ref)
+                          : _buildOtherBody(ref, onBookTap),
+                ),
               ],
             ),
           ),
-          // 悬浮按钮组（绝对定位，不随列表滚动）
-          const ServiceFloatingButtons(),
+          // 悬浮按钮组（huodong tab 不显示）
+          if (!isHuodong) const ServiceFloatingButtons(),
         ],
       ),
     );
+  }
+
+  /// 活动报名列表（带日期 + 人数限制的专用卡片）
+  Widget _buildHuodongBody(WidgetRef ref, void Function(String, {bool isGoujiu}) onBookTap) {
+    final cards = ref.watch(serviceCardDataProvider);
+    return cards.isEmpty
+        ? const SizedBox(height: 200, child: AppEmpty(message: '暂无活动'))
+        : ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            children: [
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 14, bottom: 14),
+                        child: ServiceActivityCardItem(
+                          data: cards[0],
+                          onTap: () => onBookTap(cards[0].id),
+                        ),
+                      ),
+                      for (int i = 1; i < cards.length; i++)
+                        Column(
+                          children: [
+                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 0, endIndent: 0),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 14, bottom: 14),
+                              child: ServiceActivityCardItem(
+                                data: cards[i],
+                                onTap: () => onBookTap(cards[i].id),
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
   }
 
   Widget _buildOtherBody(WidgetRef ref, void Function(String, {bool isGoujiu}) onBookTap) {

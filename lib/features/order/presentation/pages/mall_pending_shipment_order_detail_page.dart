@@ -102,196 +102,227 @@ class _MallPendingShipmentOrderBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final firstItem = detail.items.isNotEmpty ? detail.items.first : null;
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.only(bottom: AppSpacing.xl),
-      child: Column(
-        children: [
-          // 待发货状态 Banner
-          Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFFE0E8FF), Color(0xFFF3F5F7)],
-              ),
-            ),
-            padding: const EdgeInsets.fromLTRB(26, 12, 14, 30),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Image.asset(
-                  'assets/images/order/huaban.png',
-                  width: 36,
-                  height: 36,
-                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.access_time_rounded, size: 36, color: Color(0xFF213775)),
-                ),
-                Text(
-                  detail.statusText.isNotEmpty ? detail.statusText : '待发货',
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black),
-                ),
-              ],
-            ),
-          ),
-
-          // 1. 地址信息卡片（同 orders/3：第一行图标+省市区同行，右侧修改地址垂直居中）
-          Transform.translate(
-            offset: const Offset(0, -15),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.location_on_outlined, size: 18, color: Color(0xFF213775)),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  '${detail.address.province} ${detail.address.city} ${detail.address.district} 建兰路街道',
-                                  style: const TextStyle(fontSize: 14, color: Color(0xFF8E8E97), height: 1.3),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            detail.address.detail,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
-                          ),
-                          const SizedBox(height: 6),
-                          Text('${detail.address.name}   ${detail.address.phone}', style: const TextStyle(fontSize: 14, color: Color(0xFF8E8E97))),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: () {},
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Text(
-                          '修改地址>',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF213775)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // 2. 商城商品与订单详情全能卡片
-          Transform.translate(
-            offset: const Offset(0, -5),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (firstItem != null) ...[
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: AppNetworkImage(url: firstItem.imageUrl, width: 100, height: 100, fit: BoxFit.cover),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  firstItem.productName,
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 6),
-                                const Row(children: [_Tag('52%vol'), SizedBox(width: 8), _Tag('清香型')]),
-                                const SizedBox(height: 8),
-                                Text(
-                                  firstItem.skuName,
-                                  style: const TextStyle(fontSize: 12, color: Color(0xFF8E8E97), height: 1.3),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
+    return CustomScrollView(
+      physics: const ClampingScrollPhysics(),
+      slivers: [
+        // 背景层 - 填满整个可滚动区域
+        SliverToBoxAdapter(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Stack(
+                children: [
+                  // 页面双渐变背景 (上半部 55% 为渐变，下半部 45% 为背景色)
+                  Positioned.fill(
+                    child: Column(
+                      children: [
+                        Expanded(
+                          flex: 55,
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFE0E8FF), Color(0xFFF3F5F7)]),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                        ),
+                        Expanded(
+                          flex: 45,
+                          child: Container(decoration: const BoxDecoration(color: Color(0xFFF3F5F7))),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // 内容层
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+                    child: Column(
+                      children: [
+                        // 待发货状态 Banner
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.fromLTRB(26, 12, 14, 30),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              RichText(
-                                text: TextSpan(
-                                  style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
-                                  children: [
-                                    const TextSpan(text: '¥', style: TextStyle(fontSize: 12)),
-                                    TextSpan(text: '${(firstItem.totalCents / 100).toInt()}', style: const TextStyle(fontSize: 16)),
-                                    const TextSpan(text: '.00', style: TextStyle(fontSize: 12)),
-                                  ],
-                                ),
+                              Image.asset(
+                                'assets/images/order/huaban.png',
+                                width: 36,
+                                height: 36,
+                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.access_time_rounded, size: 36, color: Color(0xFF213775)),
                               ),
-                              const SizedBox(height: 4),
-                              Text('×${firstItem.quantity}', style: const TextStyle(fontSize: 12, color: Color(0xFF8E8E97))),
+                              Text(
+                                detail.statusText.isNotEmpty ? detail.statusText : '待发货',
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
+                              ),
                             ],
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
 
-                    const Padding(padding: EdgeInsets.symmetric(vertical: 3), child: SizedBox(height: 1)),
+                        // 1. 地址信息卡片（同 orders/3：第一行图标+省市区同行，右侧修改地址垂直居中）
+                        Transform.translate(
+                          offset: const Offset(0, -15),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.location_on_outlined, size: 18, color: Color(0xFF213775)),
+                                            const SizedBox(width: 4),
+                                            Expanded(
+                                              child: Text(
+                                                '${detail.address.province} ${detail.address.city} ${detail.address.district} 建兰路街道',
+                                                style: const TextStyle(fontSize: 14, color: Color(0xFF8E8E97), height: 1.3),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          detail.address.detail,
+                                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          '${detail.address.name}   ${detail.address.phone}',
+                                          style: const TextStyle(fontSize: 14, color: Color(0xFF8E8E97)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  GestureDetector(
+                                    onTap: () {},
+                                    child: const Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8),
+                                      child: Text(
+                                        '修改地址>',
+                                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF213775)),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
 
-                    // 费用明细
-                    _AmountRow(label: '商品总价', value: '¥${(detail.productTotalCents / 100).toStringAsFixed(2)}'),
-                    const SizedBox(height: 8),
-                    _AmountRow(label: '订单运费', value: '¥${(detail.shippingFeeCents / 100).toStringAsFixed(2)}'),
-                    const SizedBox(height: 8),
-                    _AmountRow(label: '优惠券抵扣', value: '-¥${(detail.discountCents / 100).toStringAsFixed(2)}'),
-                    const SizedBox(height: 8),
-                    _AmountRow(label: '总计金额', value: '¥${(detail.payAmountCents / 100).toStringAsFixed(2)}', isTotal: true),
+                        // 2. 商城商品与订单详情全能卡片
+                        Transform.translate(
+                          offset: const Offset(0, -5),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (firstItem != null) ...[
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: AppNetworkImage(url: firstItem.imageUrl, width: 100, height: 100, fit: BoxFit.cover),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                firstItem.productName,
+                                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              const SizedBox(height: 6),
+                                              const Row(children: [_Tag('52%vol'), SizedBox(width: 8), _Tag('清香型')]),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                firstItem.skuName,
+                                                style: const TextStyle(fontSize: 12, color: Color(0xFF8E8E97), height: 1.3),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            RichText(
+                                              text: TextSpan(
+                                                style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+                                                children: [
+                                                  const TextSpan(text: '¥', style: TextStyle(fontSize: 12)),
+                                                  TextSpan(text: '${(firstItem.totalCents / 100).toInt()}', style: const TextStyle(fontSize: 16)),
+                                                  const TextSpan(text: '.00', style: TextStyle(fontSize: 12)),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text('×${firstItem.quantity}', style: const TextStyle(fontSize: 12, color: Color(0xFF8E8E97))),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
 
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Divider(height: 1, color: Color(0xFFE1E4DC)),
+                                  const Padding(padding: EdgeInsets.symmetric(vertical: 3), child: SizedBox(height: 1)),
+
+                                  // 费用明细
+                                  _AmountRow(label: '商品总价', value: '¥${(detail.productTotalCents / 100).toStringAsFixed(2)}'),
+                                  const SizedBox(height: 8),
+                                  _AmountRow(label: '订单运费', value: '¥${(detail.shippingFeeCents / 100).toStringAsFixed(2)}'),
+                                  const SizedBox(height: 8),
+                                  _AmountRow(label: '优惠券抵扣', value: '-¥${(detail.discountCents / 100).toStringAsFixed(2)}'),
+                                  const SizedBox(height: 8),
+                                  _AmountRow(label: '总计金额', value: '¥${(detail.payAmountCents / 100).toStringAsFixed(2)}', isTotal: true),
+
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 12),
+                                    child: Divider(height: 1, color: Color(0xFFE1E4DC)),
+                                  ),
+
+                                  // 商城订单元数据信息
+                                  _MetaRow(label: '商城订单编号', value: detail.orderNo),
+                                  const SizedBox(height: 8),
+                                  _MetaRow(label: '交易单号', value: 'JYDH345678678654678976'),
+                                  const SizedBox(height: 8),
+                                  _MetaRow(label: '支付方式', value: '微信支付'),
+                                  const SizedBox(height: 8),
+                                  _MetaRow(label: '订单类型', value: '商城订单'),
+                                  const SizedBox(height: 8),
+                                  _MetaRow(label: '下单时间', value: _formatDate(detail.createTime)),
+                                  const SizedBox(height: 8),
+                                  _MetaRow(label: '付款时间', value: _formatDate(detail.payTime ?? detail.createTime)),
+                                  const SizedBox(height: 8),
+                                  _MetaRow(label: '订单备注', value: '请尽快发货，打算朋友生日送礼！'),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-
-                    // 商城订单元数据信息
-                    _MetaRow(label: '商城订单编号', value: detail.orderNo),
-                    const SizedBox(height: 8),
-                    _MetaRow(label: '交易单号', value: 'JYDH345678678654678976'),
-                    const SizedBox(height: 8),
-                    _MetaRow(label: '支付方式', value: '微信支付'),
-                    const SizedBox(height: 8),
-                    _MetaRow(label: '订单类型', value: '商城订单'),
-                    const SizedBox(height: 8),
-                    _MetaRow(label: '下单时间', value: _formatDate(detail.createTime)),
-                    const SizedBox(height: 8),
-                    _MetaRow(label: '付款时间', value: _formatDate(detail.payTime ?? detail.createTime)),
-                    const SizedBox(height: 8),
-                    _MetaRow(label: '订单备注', value: '请尽快发货，打算朋友生日送礼！'),
-                  ],
-                ),
-              ),
-            ),
+                  ),
+                ],
+              );
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -335,7 +366,11 @@ class _AmountRow extends StatelessWidget {
         Text(label, style: const TextStyle(fontSize: 14, color: Color(0xFF8E8E97))),
         Text(
           value,
-          style: TextStyle(fontSize: isTotal ? 16 : 16, fontWeight: isTotal ? FontWeight.w600 : FontWeight.w400, color: isTotal ? const Color(0xFFFF2105) : Colors.black),
+          style: TextStyle(
+            fontSize: isTotal ? 16 : 16,
+            fontWeight: isTotal ? FontWeight.w600 : FontWeight.w400,
+            color: isTotal ? const Color(0xFFFF2105) : Colors.black,
+          ),
         ),
       ],
     );

@@ -17,6 +17,8 @@ class CreditProductItem {
   final int commentCount;
   final int storeId;
   final String? warning;
+  /// 是否是积分产品（Boolean 字段：iscredit）
+  final bool isCredit;
 
   const CreditProductItem({
     required this.productId,
@@ -29,7 +31,10 @@ class CreditProductItem {
     required this.commentCount,
     required this.storeId,
     this.warning,
+    this.isCredit = false,
   });
+
+  bool get isService => isCredit;
 
   factory CreditProductItem.fromJson(Map<String, dynamic> json) {
     return CreditProductItem(
@@ -37,12 +42,13 @@ class CreditProductItem {
       productType: CreditProductType.fromJson(json['producttype']),
       productName: json['productname'] as String? ?? '',
       imgUrl: json['imgurl'] as String? ?? '',
-      creditPrice: (json['creditcount'] as num?)?.toInt() ?? 0,
+      creditPrice: (json['creditcount'] as num?)?.toInt() ?? (json['creditprice'] as num?)?.toInt() ?? 0,
       stock: json['stock'] != null ? (json['stock'] as num).toInt() : null,
       praise: (json['praise'] as num?)?.toInt() ?? 0,
       commentCount: (json['commentcount'] as num?)?.toInt() ?? 0,
       storeId: (json['storeid'] as num?)?.toInt() ?? 0,
       warning: json['warning'] as String?,
+      isCredit: json['iscredit'] == true || json['iscredit'] == 1 || json['iscredit'] == 'true',
     );
   }
 }
