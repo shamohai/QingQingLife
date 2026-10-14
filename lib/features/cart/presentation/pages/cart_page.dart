@@ -1,168 +1,387 @@
 import 'package:flutter/material.dart';
-
-import '../../../../app/theme/app_radius.dart';
-import '../../../../core/widgets/app_empty.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_spacing.dart';
-import '../../../../app/theme/app_text_styles.dart';
-import '../providers/cart_provider.dart';
-import '../widgets/cart_item_card.dart';
+import '../../domain/models/cart_page_models.dart';
+import '../providers/cart_page_provider.dart';
 import '../widgets/cart_bottom_bar.dart';
-import '../../../../core/widgets/app_image.dart';
+import '../widgets/cart_design_tokens.dart';
+import '../widgets/cart_item_card.dart';
+import '../widgets/cart_page_header.dart';
+import '../widgets/cart_recommendation_card.dart';
 
 class CartPage extends ConsumerWidget {
   const CartPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(cartDataProvider);
+    final state = ref.watch(cartPageProvider);
+    final controller = ref.read(cartPageProvider.notifier);
 
     return Scaffold(
-      bottomNavigationBar: state.items.isEmpty ? null : const CartBottomBar(),
-      body: CustomScrollView(
-        slivers: [
-          _buildTopbar(state, context, ref),
-          if (state.couponCode != null) _buildCouponBanner(state),
-          // 商品列表
-          if (state.items.isEmpty)
-            const SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(child: AppEmpty(message: '购物车是空的，去逛逛吧')),
-            )
-          else
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (BuildContext ctx, int index) {
-                  final item = state.items[index];
-                  return CartItemCard(
-                    item: item,
-                    onToggle: () => ref.read(cartDataProvider.notifier).toggleSelect(item.id),
-                    onQuantityChanged: (q) => ref.read(cartDataProvider.notifier).updateQuantity(item.id, q),
-                  );
-                },
-                childCount: state.items.length,
-              ),
+      backgroundColor: CartDesignTokens.pageBackground,
+      bottomNavigationBar: state.items.isEmpty
+          ? null
+          : CartBottomBar(
+              state: state,
+              onToggleAll: controller.toggleAll,
+              onPrimaryAction: () => state.isManaging ? _confirmDelete(context, ref) : _showCheckoutSummary(context, state),
+              onClearAll: () => _confirmClearAll(context, ref),
             ),
-          const SliverToBoxAdapter(child: Divider(height: 1, thickness: 1)),
-          _buildRecommendationsHeader(),
-          _buildRecommendationsGrid(),
+      body: Column(
+        children: [
+          CartPageHeader(
+            address: state.selectedAddress,
+            isManaging: state.isManaging,
+            hasItems: state.items.isNotEmpty,
+            onBack: () => _goBack(context),
+            onAddressTap: () => _showAddressSelector(context, ref, state),
+            onManageTap: controller.toggleManaging,
+          ),
+          Expanded(
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+              slivers: [
+                const SliverToBoxAdapter(child: SizedBox(height: 12)),
+                SliverToBoxAdapter(
+                  child: state.items.isEmpty
+                      ? const _EmptyCartPanel()
+                      : _CartItemsPanel(
+                          items: state.items,
+                          isManaging: state.isManaging,
+                          onToggle: controller.toggleItem,
+                          onQuantityChanged: controller.updateQuantity,
+                          onSwipeDelete: (id) => _confirmSwipeDelete(context, ref, id),
+                        ),
+                ),
+                const SliverToBoxAdapter(child: _RecommendationHeading()),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  sliver: SliverLayoutBuilder(
+                    builder: (context, constraints) {
+                      final cardWidth = (constraints.crossAxisExtent - 14) / 2;
+                      return SliverGrid(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 14,
+                          mainAxisSpacing: 14,
+                          mainAxisExtent: cardWidth + 164,
+                        ),
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          final product = state.recommendations[index];
+                          return CartRecommendationCard(
+                            product: product,
+                            onAdd: () {
+                              controller.addRecommendation(product);
+                              ScaffoldMessenger.of(context)
+                                ..hideCurrentSnackBar()
+                                ..showSnackBar(const SnackBar(content: Text('已加入购物车'), duration: Duration(milliseconds: 900)));
+                            },
+                          );
+                        }, childCount: state.recommendations.length),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  SliverToBoxAdapter _buildTopbar(CartState state, BuildContext context, WidgetRef ref) {
-    return SliverToBoxAdapter(
-      child: SafeArea(
-        child: Container(
-          color: AppColors.surface,
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
-          child: Row(
+  void _goBack(BuildContext context) {
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      navigator.pop();
+      return;
+    }
+    context.go('/');
+  }
+
+  Future<void> _showAddressSelector(BuildContext context, WidgetRef ref, CartPageState state) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      showDragHandle: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(18))),
+      builder: (sheetContext) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('购物车', style: AppTextStyles.headlineSmall),
-              const Spacer(),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.location_on, size: 16, color: AppColors.onSurface),
-                  const SizedBox(width: 4),
-                  Text('天佑德营销中心', style: AppTextStyles.labelMedium),
-                ],
+              const Text(
+                '配送地址',
+                style: TextStyle(color: Color(0xFF111111), fontSize: 18, fontWeight: FontWeight.w600),
               ),
-              const Spacer(),
-              if (state.items.isNotEmpty)
-                GestureDetector(
-                  onTap: () => _showManageDialog(context, ref),
-                  child: Text(
-                    '管理',
-                    style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary),
+              const SizedBox(height: 12),
+              ...state.addresses.map(
+                (address) => ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    address == state.selectedAddress ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+                    color: CartDesignTokens.primary,
+                  ),
+                  title: Text(address, style: const TextStyle(fontSize: 14)),
+                  onTap: () {
+                    ref.read(cartPageProvider.notifier).setAddress(address);
+                    Navigator.pop(sheetContext);
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final confirmed = await _showDeleteConfirmation(context, '你确定要删除勾选商品吗？');
+
+    if (confirmed == true) {
+      ref.read(cartPageProvider.notifier).deleteSelected();
+    }
+  }
+
+  Future<void> _confirmClearAll(BuildContext context, WidgetRef ref) async {
+    final confirmed = await _showDeleteConfirmation(context, '确定要清空购物车吗？');
+
+    if (confirmed == true) {
+      ref.read(cartPageProvider.notifier).clearAll();
+    }
+  }
+
+  Future<bool?> _confirmSwipeDelete(BuildContext context, WidgetRef ref, String id) async {
+    final confirmed = await _showDeleteConfirmation(context, '你确定要删除该商品吗？');
+
+    if (confirmed == true) {
+      ref.read(cartPageProvider.notifier).deleteItem(id);
+    }
+
+    return confirmed;
+  }
+
+  Future<bool?> _showDeleteConfirmation(BuildContext context, String message) {
+    return showDialog<bool>(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.3),
+      builder: (dialogContext) => Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        clipBehavior: Clip.antiAlias,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 414),
+          child: SizedBox(
+            height: 207,
+            child: Column(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Text(
+                        message,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.black, fontSize: 20, height: 1.4, fontWeight: FontWeight.w600),
+                      ),
+                    ),
                   ),
                 ),
-            ],
+                const Divider(height: 1, color: CartDesignTokens.faint),
+                SizedBox(
+                  height: 70,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(dialogContext, false),
+                          style: TextButton.styleFrom(foregroundColor: CartDesignTokens.muted, shape: const RoundedRectangleBorder()),
+                          child: const Text('取消', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500)),
+                        ),
+                      ),
+                      const VerticalDivider(width: 1, color: CartDesignTokens.faint),
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(dialogContext, true),
+                          style: TextButton.styleFrom(foregroundColor: CartDesignTokens.primary, shape: const RoundedRectangleBorder()),
+                          child: const Text('确认', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  SliverToBoxAdapter _buildCouponBanner(CartState state) {
-    return SliverToBoxAdapter(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFF3E0),
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.card_giftcard, size: 18, color: AppColors.warning),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                '已使用优惠券：${state.couponCode}',
-                style: AppTextStyles.bodySmall,
+  Future<void> _showCheckoutSummary(BuildContext context, CartPageState state) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      showDragHandle: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(18))),
+      builder: (sheetContext) => _CheckoutSummarySheet(state: state),
+    );
+  }
+}
+
+class _CartItemsPanel extends StatelessWidget {
+  const _CartItemsPanel({required this.items, required this.isManaging, required this.onToggle, required this.onQuantityChanged, required this.onSwipeDelete});
+
+  final List<CartDisplayItem> items;
+  final bool isManaging;
+  final ValueChanged<String> onToggle;
+  final void Function(String id, int quantity) onQuantityChanged;
+  final Future<bool?> Function(String id) onSwipeDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 26),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(CartDesignTokens.panelRadius)),
+      child: Column(
+        children: List.generate(items.length * 2 - 1, (index) {
+          if (index.isOdd) return const SizedBox(height: 20);
+          final item = items[index ~/ 2];
+          final card = CartItemCard(item: item, onToggle: () => onToggle(item.id), onQuantityChanged: (quantity) => onQuantityChanged(item.id, quantity));
+
+          if (isManaging) return card;
+
+          return Dismissible(
+            key: ValueKey('swipe-${item.id}'),
+            direction: DismissDirection.endToStart,
+            confirmDismiss: (_) => onSwipeDelete(item.id),
+            background: const _SwipeDeleteBackground(),
+            secondaryBackground: const _SwipeDeleteBackground(),
+            child: card,
+          );
+        }),
+      ),
+    );
+  }
+}
+
+class _SwipeDeleteBackground extends StatelessWidget {
+  const _SwipeDeleteBackground();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.only(right: 22),
+      decoration: BoxDecoration(color: CartDesignTokens.dangerSurface, borderRadius: BorderRadius.circular(CartDesignTokens.cardRadius)),
+      child: Semantics(
+        label: '删除商品',
+        child: const Icon(Icons.delete_outline_rounded, color: CartDesignTokens.danger, size: 28),
+      ),
+    );
+  }
+}
+
+class _EmptyCartPanel extends StatelessWidget {
+  const _EmptyCartPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 230,
+      margin: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(CartDesignTokens.panelRadius)),
+      child: const Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.shopping_cart_outlined, size: 54, color: Color(0xFFB4B8C0)),
+          SizedBox(height: 14),
+          Text(
+            '购物车还是空的',
+            style: TextStyle(color: Color(0xFF555555), fontSize: 16, fontWeight: FontWeight.w500),
+          ),
+          SizedBox(height: 6),
+          Text('看看下面为你推荐的商品吧', style: TextStyle(color: CartDesignTokens.muted, fontSize: 13)),
+        ],
+      ),
+    );
+  }
+}
+
+class _RecommendationHeading extends StatelessWidget {
+  const _RecommendationHeading();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 82,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(width: 42, child: Divider(color: CartDesignTokens.faint)),
+          const SizedBox(width: 14),
+          Container(
+            width: 28,
+            height: 28,
+            decoration: const BoxDecoration(color: CartDesignTokens.price, shape: BoxShape.circle),
+            child: const Icon(Icons.favorite_rounded, color: Colors.white, size: 18),
+          ),
+          const SizedBox(width: 6),
+          const Text(
+            '猜你喜欢',
+            style: TextStyle(color: Color(0xFF111111), fontSize: 18, height: 1, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(width: 14),
+          const SizedBox(width: 42, child: Divider(color: CartDesignTokens.faint)),
+        ],
+      ),
+    );
+  }
+}
+
+class _CheckoutSummarySheet extends StatelessWidget {
+  const _CheckoutSummarySheet({required this.state});
+
+  final CartPageState state;
+
+  @override
+  Widget build(BuildContext context) {
+    String money(int cents) => '¥${(cents / 100).toStringAsFixed(2)}';
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('结算预览', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 18),
+          _SummaryRow(label: '商品数量', value: '${state.selectedQuantity} 件'),
+          _SummaryRow(label: '商品金额', value: money(state.selectedSubtotalCents)),
+          _SummaryRow(label: '优惠金额', value: '-${money(state.selectedSavingsCents)}'),
+          const Divider(height: 28),
+          _SummaryRow(label: '应付合计', value: money(state.selectedPayableCents), emphasized: true),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(colors: [CartDesignTokens.primary, CartDesignTokens.primaryEnd]),
+                borderRadius: BorderRadius.circular(100),
+              ),
+              child: TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('确认', style: TextStyle(color: Colors.white, fontSize: 17)),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  SliverToBoxAdapter _buildRecommendationsHeader() {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-        child: Text(
-          '猜你喜欢',
-          style: AppTextStyles.headlineSmall.copyWith(fontSize: 15, fontWeight: FontWeight.w600),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRecommendationsGrid() {
-    final mockUrls = const [
-      'assets/images/product/product1.jpg',
-      'assets/images/product/product2.jpg',
-      'assets/images/product/product3.jpg',
-      'assets/images/product/product4.jpg',
-    ];
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      sliver: SliverGrid(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: AppSpacing.md,
-          mainAxisSpacing: AppSpacing.md,
-          childAspectRatio: 0.9,
-        ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) => _RecommendationCell(url: mockUrls[index]),
-          childCount: mockUrls.length,
-        ),
-      ),
-    );
-  }
-
-  void _showManageDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('删除商品'),
-        content: const Text('确定要清空购物车吗？'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
-          TextButton(
-            onPressed: () {
-              ref.read(cartDataProvider.notifier).clearAll();
-              Navigator.pop(ctx);
-            },
-            child: const Text('清空', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -170,22 +389,38 @@ class CartPage extends ConsumerWidget {
   }
 }
 
-class _RecommendationCell extends StatelessWidget {
-  final String url;
-  const _RecommendationCell({required this.url});
+class _SummaryRow extends StatelessWidget {
+  const _SummaryRow({required this.label, required this.value, this.emphasized = false});
+
+  final String label;
+  final String value;
+  final bool emphasized;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          child: AppNetworkImage(url: url, width: double.infinity, height: 144, fit: BoxFit.cover),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text('商品', style: AppTextStyles.bodySmall),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 7),
+      child: Row(
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: emphasized ? const Color(0xFF111111) : CartDesignTokens.muted,
+              fontSize: emphasized ? 16 : 14,
+              fontWeight: emphasized ? FontWeight.w600 : FontWeight.w400,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            value,
+            style: TextStyle(
+              color: emphasized ? CartDesignTokens.summary : const Color(0xFF333333),
+              fontSize: emphasized ? 21 : 14,
+              fontWeight: emphasized ? FontWeight.w600 : FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

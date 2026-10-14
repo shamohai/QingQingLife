@@ -18,6 +18,7 @@ abstract final class RouteNames {
 
   // 订单相关
   static const String orders = '/orders';
+  static const String mallConfirmOrder = '/orders/confirm';
   static const String orderDetail = '/orders/:id';
   // 发票中心
   static const String invoiceCenter = '/orders/invoices';

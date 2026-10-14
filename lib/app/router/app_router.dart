@@ -27,7 +27,7 @@ import '../../features/product/presentation/pages/product_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
 import '../../features/points_mall/presentation/pages/service_product_detail_page.dart';
-import '../../features/points_mall/presentation/pages/confirm_order_page.dart';
+import '../../features/points_mall/presentation/pages/confirm_order_page.dart' as points_mall;
 import '../../features/points_mall/presentation/pages/all_products_page.dart';
 import '../../features/points_mall/presentation/pages/points_payment_success_page.dart';
 import '../../features/points/presentation/pages/points_detail_page.dart';
@@ -37,6 +37,7 @@ import '../../features/order/presentation/pages/invoice_center_page.dart';
 import '../../features/order/presentation/pages/invoice_detail_page.dart';
 import '../../features/order/presentation/pages/order_detail_page.dart';
 import '../../features/order/presentation/pages/mall_order_review_page.dart';
+import '../../features/order/presentation/pages/confirm_order_page.dart' as order;
 import 'route_names.dart';
 
 final appRouter = Provider<GoRouter>((ref) {
@@ -53,6 +54,10 @@ final appRouter = Provider<GoRouter>((ref) {
         path: RouteNames.phoneBind,
         pageBuilder: (c, s) => const MaterialPage(child: PhoneBindPage()),
       ),
+      GoRoute(
+        path: RouteNames.productDetail,
+        pageBuilder: (c, s) => MaterialPage(child: ProductDetailPage(productId: s.pathParameters['id']!)),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (c, s, ns) => MainShell(navigationShell: ns),
         branches: [
@@ -61,12 +66,6 @@ final appRouter = Provider<GoRouter>((ref) {
               GoRoute(
                 path: RouteNames.home,
                 pageBuilder: (c, s) => const NoTransitionPage(child: HomePage()),
-                routes: [
-                  GoRoute(
-                    path: 'product/:id',
-                    pageBuilder: (c, s) => MaterialPage(child: ProductDetailPage(productId: s.pathParameters['id']!)),
-                  ),
-                ],
               ),
             ],
           ),
@@ -98,27 +97,18 @@ final appRouter = Provider<GoRouter>((ref) {
                   ),
                   GoRoute(
                     path: 'project/:id',
-                    pageBuilder: (c, s) => MaterialPage(
-                      child: ServiceProjectDetailPage(projectId: s.pathParameters['id']!),
-                    ),
+                    pageBuilder: (c, s) => MaterialPage(child: ServiceProjectDetailPage(projectId: s.pathParameters['id']!)),
                   ),
                   GoRoute(
                     name: 'serviceBookingForm',
                     path: RouteNames.serviceBookingForm,
                     pageBuilder: (c, s) => MaterialPage(
-                      child: ServiceBookingFormPage(
-                        projectId: s.pathParameters['id']!,
-                        title: s.uri.queryParameters['title'] ?? '预约项目',
-                      ),
+                      child: ServiceBookingFormPage(projectId: s.pathParameters['id']!, title: s.uri.queryParameters['title'] ?? '预约项目'),
                     ),
                   ),
                   GoRoute(
                     path: 'template/:id',
-                    pageBuilder: (c, s) => MaterialPage(
-                      child: ServiceTemplateDetailPage(
-                        templateId: int.tryParse(s.pathParameters['id']!) ?? 0,
-                      ),
-                    ),
+                    pageBuilder: (c, s) => MaterialPage(child: ServiceTemplateDetailPage(templateId: int.tryParse(s.pathParameters['id']!) ?? 0)),
                   ),
                 ],
               ),
@@ -182,7 +172,7 @@ final appRouter = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.confirmOrder,
-        pageBuilder: (c, s) => MaterialPage(child: ConfirmOrderPage(productId: s.pathParameters['id']!)),
+        pageBuilder: (c, s) => MaterialPage(child: points_mall.ConfirmOrderPage(productId: s.pathParameters['id']!)),
       ),
       GoRoute(
         path: RouteNames.allProducts,
@@ -215,6 +205,10 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.orders,
         pageBuilder: (c, s) => const MaterialPage(child: AllOrdersPage()),
+      ),
+      GoRoute(
+        path: RouteNames.mallConfirmOrder,
+        pageBuilder: (c, s) => const MaterialPage(child: order.ConfirmOrderPage()),
       ),
       GoRoute(
         path: RouteNames.invoiceCenter,
@@ -314,11 +308,7 @@ class _TabItem extends StatelessWidget {
           const SizedBox(height: 3),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w400,
-              color: isSelected ? const Color(0xFF213775) : const Color(0xFF656565),
-            ),
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w400, color: isSelected ? const Color(0xFF213775) : const Color(0xFF656565)),
           ),
         ],
       ),

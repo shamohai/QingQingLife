@@ -8,18 +8,18 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/utils/money.dart';
 import '../../../../core/widgets/app_empty.dart';
-import '../../../cart/presentation/providers/cart_provider.dart';
+import '../providers/service_cart_provider.dart';
 
 /// 购酒享服务购物车页面
 ///
 /// 与 [CartPage] 不是同一个页面，从特色商城「购酒享服务」分类的
-/// 「去购买」按钮跳转而来。共享 [cartDataProvider] 数据源。
+/// 「去购买」按钮跳转而来，使用本 feature 自己的购物车数据源。
 class ServiceCartPage extends ConsumerWidget {
   const ServiceCartPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(cartDataProvider);
+    final state = ref.watch(serviceCartDataProvider);
     final selectedTotal = Money.fromCents(state.selectedTotalCents);
     final allSelected = state.allSelected;
 
@@ -111,7 +111,7 @@ class ServiceCartPage extends ConsumerWidget {
 
   // ─── 购物车商品列表 ─────────────────────────────────────────────────
 
-  Widget _buildCartItems(List<CartItem> items, WidgetRef ref) {
+  Widget _buildCartItems(List<ServiceCartItem> items, WidgetRef ref) {
     return SliverPadding(
       padding: const EdgeInsets.only(top: AppSpacing.sm),
       sliver: SliverList(
@@ -121,8 +121,8 @@ class ServiceCartPage extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
             child: _ServiceCartItemRow(
               item: item,
-              onToggle: () => ref.read(cartDataProvider.notifier).toggleSelect(item.id),
-              onQtyChanged: (qty) => ref.read(cartDataProvider.notifier).updateQuantity(item.id, qty),
+              onToggle: () => ref.read(serviceCartDataProvider.notifier).toggleSelect(item.id),
+              onQtyChanged: (qty) => ref.read(serviceCartDataProvider.notifier).updateQuantity(item.id, qty),
             ),
           );
         }, childCount: items.length),
@@ -156,7 +156,7 @@ class ServiceCartPage extends ConsumerWidget {
 
   // ─── 底部结算栏 ─────────────────────────────────────────────────────
 
-  Widget _buildBottomBar(BuildContext context, CartState state, bool allSelected, Money selectedTotal, WidgetRef ref) {
+  Widget _buildBottomBar(BuildContext context, ServiceCartState state, bool allSelected, Money selectedTotal, WidgetRef ref) {
     return Container(
       padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.md + 8),
       decoration: BoxDecoration(
@@ -169,7 +169,7 @@ class ServiceCartPage extends ConsumerWidget {
           children: [
             Row(
               children: [
-                Checkbox(value: allSelected, onChanged: (v) => ref.read(cartDataProvider.notifier).toggleAll(v), activeColor: AppColors.primary),
+                Checkbox(value: allSelected, onChanged: (v) => ref.read(serviceCartDataProvider.notifier).toggleAll(v), activeColor: AppColors.primary),
                 const Text('全选', style: AppTextStyles.bodyMedium),
               ],
             ),
@@ -225,7 +225,7 @@ class ServiceCartPage extends ConsumerWidget {
 // ─── 购物车商品行（无左侧 checkbox，复用 CartItemCard 风格）────────────
 
 class _ServiceCartItemRow extends StatelessWidget {
-  final CartItem item;
+  final ServiceCartItem item;
   final VoidCallback onToggle;
   final ValueChanged<int> onQtyChanged;
 

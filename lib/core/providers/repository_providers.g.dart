@@ -118,52 +118,6 @@ final class ProductRepositoryProvider
 
 String _$productRepositoryHash() => r'18d5ebb994b77f8be993a6e1f385f724fc57e4e7';
 
-/// Cart Repository Provider
-
-@ProviderFor(cartRepository)
-final cartRepositoryProvider = CartRepositoryProvider._();
-
-/// Cart Repository Provider
-
-final class CartRepositoryProvider
-    extends $FunctionalProvider<CartRepository, CartRepository, CartRepository>
-    with $Provider<CartRepository> {
-  /// Cart Repository Provider
-  CartRepositoryProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'cartRepositoryProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$cartRepositoryHash();
-
-  @$internal
-  @override
-  $ProviderElement<CartRepository> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  CartRepository create(Ref ref) {
-    return cartRepository(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(CartRepository value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<CartRepository>(value),
-    );
-  }
-}
-
-String _$cartRepositoryHash() => r'64b87c9133025bff8969db75b6d211d07fdd1d41';
-
 /// Order Repository Provider
 
 @ProviderFor(orderRepository)

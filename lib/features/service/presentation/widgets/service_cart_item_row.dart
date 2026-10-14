@@ -3,24 +3,18 @@ import 'package:flutter/material.dart';
 import '../../../../../app/theme/app_colors.dart';
 import '../../../../../app/theme/app_radius.dart';
 import '../../../../../core/utils/money.dart';
-import '../../../../cart/presentation/providers/cart_provider.dart';
-import '../../../domain/models/share_cart_template_model.dart';
+import '../providers/service_cart_provider.dart';
 
 /// 购物车商品行（购酒享服务结算页专用）
 ///
 /// 布局：左侧小图标 + 商品图(80×80) + 名称+价格列 + 自营标签 + 数量控制器
 /// 自带货品卡片内部分割线（由父级 Container 管理圆角/阴影）
 class ServiceCartItemRow extends StatelessWidget {
-  final CartItem item;
+  final ServiceCartItem item;
   final VoidCallback onToggle;
   final ValueChanged<int> onQtyChanged;
 
-  const ServiceCartItemRow({
-    super.key,
-    required this.item,
-    required this.onToggle,
-    required this.onQtyChanged,
-  });
+  const ServiceCartItemRow({super.key, required this.item, required this.onToggle, required this.onQtyChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +25,7 @@ class ServiceCartItemRow extends StatelessWidget {
         child: Row(
           children: [
             // 左侧小图标
-            const SizedBox(
-              width: 20,
-              height: 20,
-              child: Icon(Icons.local_drink_rounded, size: 20, color: AppColors.serviceTabActive),
-            ),
+            const SizedBox(width: 20, height: 20, child: Icon(Icons.local_drink_rounded, size: 20, color: AppColors.serviceTabActive)),
             const SizedBox(width: 14),
             // 商品图片
             ClipRRect(
@@ -45,11 +35,7 @@ class ServiceCartItemRow extends StatelessWidget {
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  width: 80,
-                  height: 80,
-                  color: AppColors.surfaceVariant,
-                ),
+                errorBuilder: (_, _, _) => Container(width: 80, height: 80, color: AppColors.surfaceVariant),
               ),
             ),
             const SizedBox(width: 10),
@@ -66,18 +52,11 @@ class ServiceCartItemRow extends StatelessWidget {
                       child: Container(
                         width: 28,
                         height: 14,
-                        decoration: BoxDecoration(
-                          color: AppColors.serviceTabActive,
-                          borderRadius: BorderRadius.circular(AppRadius.xs),
-                        ),
+                        decoration: BoxDecoration(color: AppColors.serviceTabActive, borderRadius: BorderRadius.circular(AppRadius.xs)),
                         child: const Center(
                           child: Text(
                             '自营',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.white,
-                            ),
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w400, color: Colors.white),
                           ),
                         ),
                       ),
@@ -93,21 +72,13 @@ class ServiceCartItemRow extends StatelessWidget {
                         children: [
                           Text(
                             item.name,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black,
-                            ),
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
                             Money.fromCents(item.priceCents).format(),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.error,
-                            ),
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.error),
                           ),
                         ],
                       ),
@@ -136,11 +107,7 @@ class _QtyControl extends StatelessWidget {
   final VoidCallback? onMinus;
   final VoidCallback onPlus;
 
-  const _QtyControl({
-    required this.quantity,
-    this.onMinus,
-    required this.onPlus,
-  });
+  const _QtyControl({required this.quantity, this.onMinus, required this.onPlus});
 
   @override
   Widget build(BuildContext context) {
@@ -149,11 +116,7 @@ class _QtyControl extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: onMinus,
-          child: Icon(
-            Icons.remove_circle_outline,
-            size: 22,
-            color: onMinus == null ? AppColors.outlineVariant : AppColors.onSurface,
-          ),
+          child: Icon(Icons.remove_circle_outline, size: 22, color: onMinus == null ? AppColors.outlineVariant : AppColors.onSurface),
         ),
         const SizedBox(width: 4),
         SizedBox(

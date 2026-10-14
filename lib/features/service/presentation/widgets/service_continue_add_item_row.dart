@@ -12,11 +12,7 @@ class ServiceContinueAddItemRow extends StatelessWidget {
   final ContinueAddProduct product;
   final VoidCallback onAdd;
 
-  const ServiceContinueAddItemRow({
-    super.key,
-    required this.product,
-    required this.onAdd,
-  });
+  const ServiceContinueAddItemRow({super.key, required this.product, required this.onAdd});
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +30,7 @@ class ServiceContinueAddItemRow extends StatelessWidget {
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  width: 80,
-                  height: 80,
-                  color: AppColors.surfaceVariant,
-                ),
+                errorBuilder: (_, _, _) => Container(width: 80, height: 80, color: AppColors.surfaceVariant),
               ),
             ),
             const SizedBox(width: 10),
@@ -55,18 +47,11 @@ class ServiceContinueAddItemRow extends StatelessWidget {
                       child: Container(
                         width: 28,
                         height: 14,
-                        decoration: BoxDecoration(
-                          color: AppColors.serviceTabActive,
-                          borderRadius: BorderRadius.circular(AppRadius.xs),
-                        ),
+                        decoration: BoxDecoration(color: AppColors.serviceTabActive, borderRadius: BorderRadius.circular(AppRadius.xs)),
                         child: const Center(
                           child: Text(
                             '自营',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.white,
-                            ),
+                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w400, color: Colors.white),
                           ),
                         ),
                       ),
@@ -81,21 +66,13 @@ class ServiceContinueAddItemRow extends StatelessWidget {
                         children: [
                           Text(
                             product.name,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black,
-                            ),
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
                             Money.fromCents(product.priceCents).format(),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.error,
-                            ),
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.error),
                           ),
                         ],
                       ),
@@ -111,10 +88,7 @@ class ServiceContinueAddItemRow extends StatelessWidget {
               child: Container(
                 width: 36,
                 height: 36,
-                decoration: const BoxDecoration(
-                  color: AppColors.serviceTabActive,
-                  shape: BoxShape.circle,
-                ),
+                decoration: const BoxDecoration(color: AppColors.serviceTabActive, shape: BoxShape.circle),
                 child: const Icon(Icons.add, size: 20, color: Colors.white),
               ),
             ),
