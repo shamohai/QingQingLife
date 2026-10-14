@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
@@ -17,11 +18,7 @@ class ServiceBookingFormPage extends ConsumerStatefulWidget {
   final String projectId;
   final String title;
 
-  const ServiceBookingFormPage({
-    super.key,
-    required this.projectId,
-    required this.title,
-  });
+  const ServiceBookingFormPage({super.key, required this.projectId, required this.title});
 
   @override
   ConsumerState<ServiceBookingFormPage> createState() => _ServiceBookingFormPageState();
@@ -93,9 +90,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
   }
 
   void _showError(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating));
   }
 
   Future<void> _openDatePicker() async {
@@ -111,10 +106,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
   }
 
   Future<void> _openTimePicker() async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
+    final picked = await showTimePicker(context: context, initialTime: TimeOfDay.now());
     if (picked != null && mounted) {
       setState(() => _selectedTime = picked);
     }
@@ -122,13 +114,25 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
 
   Future<void> _handleSubmit() async {
     final nameError = _validateName();
-    if (nameError != null) { _showError(nameError); return; }
+    if (nameError != null) {
+      _showError(nameError);
+      return;
+    }
     final phoneError = _validatePhone();
-    if (phoneError != null) { _showError(phoneError); return; }
+    if (phoneError != null) {
+      _showError(phoneError);
+      return;
+    }
     final idError = _validateIdCard();
-    if (idError != null) { _showError(idError); return; }
+    if (idError != null) {
+      _showError(idError);
+      return;
+    }
     final partyError = _validatePartySize();
-    if (partyError != null) { _showError(partyError); return; }
+    if (partyError != null) {
+      _showError(partyError);
+      return;
+    }
 
     if (!mounted) return;
     setState(() => _isSubmitting = true);
@@ -136,12 +140,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
     await Future.delayed(const Duration(milliseconds: 300));
     if (!mounted) return;
     setState(() => _isSubmitting = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('报名信息已提交'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('报名信息已提交'), behavior: SnackBarBehavior.floating));
     context.pop();
   }
 
@@ -162,8 +161,8 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
       inputFormatters: keyboardType == TextInputType.phone
           ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), LengthLimitingTextInputFormatter(maxLength ?? 11)]
           : keyboardType == TextInputType.number
-              ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), LengthLimitingTextInputFormatter(maxLength ?? 3)]
-              : [],
+          ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), LengthLimitingTextInputFormatter(maxLength ?? 3)]
+          : [],
       style: const TextStyle(fontSize: 16, color: Colors.black),
       decoration: InputDecoration(
         isDense: true,
@@ -188,10 +187,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
         icon: const Icon(Icons.arrow_back, color: Colors.black),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      title: Text(
-        title ?? '报名信息',
-        style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: Colors.black),
-      ),
+      title: Text(title ?? '报名信息', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: Colors.black)),
       centerTitle: false,
     );
   }
@@ -202,7 +198,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
       backgroundColor: AppColors.servicePageBackground,
       appBar: _buildAppBar(context, title: widget.title),
       body: SafeArea(
-        bottom: true,
+        bottom: false,
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
@@ -216,12 +212,8 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, 0),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)), // 这里设置圆角半径
-                          child: Image.asset(
-                            'assets/images/service/service_project_hero.png',
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
+                          child: Image.asset('assets/images/service/service_project_hero.png', width: double.infinity, fit: BoxFit.cover),
                         ),
                       ),
                     ),
@@ -283,9 +275,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                               BookingFormField(
                                 label: '预约时段',
                                 imageAsset: 'assets/images/service/service_booking_time.png',
-                                valueWidget: _selectedTime == null
-                                    ? _buildValueText('请选择预约时段')
-                                    : _buildValueText(_selectedTime!.format(context), Colors.black),
+                                valueWidget: _selectedTime == null ? _buildValueText('请选择预约时段') : _buildValueText(_selectedTime!.format(context), Colors.black),
                                 showChevron: true,
                                 onTap: _openTimePicker,
                               ),
@@ -293,14 +283,14 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                               const SizedBox(height: 16),
 
                               // Notes
-                              const Text('备注', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF213775))),
+                              const Text(
+                                '备注',
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF213775)),
+                              ),
                               const SizedBox(height: 10),
                               Container(
                                 height: 140,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF3F5F7),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                                decoration: BoxDecoration(color: const Color(0xFFF3F5F7), borderRadius: BorderRadius.circular(8)),
                                 padding: const EdgeInsets.all(12),
                                 child: TextField(
                                   controller: _notesCtrl,
@@ -313,41 +303,13 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                                     enabledBorder: InputBorder.none,
                                     focusedBorder: InputBorder.none,
                                     contentPadding: EdgeInsets.zero,
-                                    filled: false
+                                    filled: false,
                                   ),
                                 ),
                               ),
 
-                              const SizedBox(height: 30),
-
-                              // Submit button
-                              GestureDetector(
-                                onTap: _isSubmitting ? null : _handleSubmit,
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 51,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(AppRadius.round),
-                                    gradient: const LinearGradient(
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                      colors: [AppColors.serviceCtaGradStart, AppColors.serviceTabActive],
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: _isSubmitting
-                                        ? const SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                          )
-                                        : const Text(
-                                            '提交报名',
-                                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white, height: 1.5),
-                                          ),
-                                  ),
-                                ),
-                              ),
+                              // 底部留出按钮空间
+                              const SizedBox(height: 80),
                             ],
                           ),
                         ),
@@ -360,7 +322,37 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
           ],
         ),
       ),
+      // 固定底部提交按钮
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Container(
+          color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
+          child: GestureDetector(
+            onTap: _isSubmitting ? null : _handleSubmit,
+            child: Container(
+              width: double.infinity,
+              height: 51,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRadius.round),
+                gradient: const LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [AppColors.serviceCtaGradStart, AppColors.serviceTabActive],
+                ),
+              ),
+              child: Center(
+                child: _isSubmitting
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Text(
+                        '提交报名',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white, height: 1.5),
+                      ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
-

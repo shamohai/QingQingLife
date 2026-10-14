@@ -175,7 +175,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
       backgroundColor: AppColors.servicePageBackground,
       appBar: _buildAppBar(),
       body: SafeArea(
-        bottom: true,
+        bottom: false,
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
@@ -260,31 +260,8 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 30),
-                              // Submit Button（渐变胶囊）
-                              GestureDetector(
-                                onTap: _isSubmitting ? null : _handleSubmit,
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 51,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(AppRadius.round),
-                                    gradient: const LinearGradient(
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                      colors: [AppColors.serviceCtaGradStart, AppColors.serviceTabActive],
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: _isSubmitting
-                                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                                        : const Text(
-                                            '提交报名',
-                                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white, height: 1.5),
-                                          ),
-                                  ),
-                                ),
-                              ),
+                              // 底部留出按钮空间
+                              const SizedBox(height: 80),
                             ],
                           ),
                         ),
@@ -295,6 +272,37 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
               ),
             ),
           ],
+        ),
+      ),
+      // 固定底部提交按钮
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Container(
+          color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
+          child: GestureDetector(
+            onTap: _isSubmitting ? null : _handleSubmit,
+            child: Container(
+              width: double.infinity,
+              height: 51,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRadius.round),
+                gradient: const LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [AppColors.serviceCtaGradStart, AppColors.serviceTabActive],
+                ),
+              ),
+              child: Center(
+                child: _isSubmitting
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Text(
+                        '提交报名',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white, height: 1.5),
+                      ),
+              ),
+            ),
+          ),
         ),
       ),
     );
