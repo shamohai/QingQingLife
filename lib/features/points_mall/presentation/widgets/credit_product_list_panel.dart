@@ -9,7 +9,6 @@ import '../providers/credit_product_list_provider.dart';
 import '../widgets/points_category_sidebar.dart';
 import '../../data/models/points_mall_home_data.dart';
 import '../../data/models/get_credit_product_list_model.dart';
-import '../../data/models/get_recommend_product_list_model.dart';
 
 /// 积分商城商品列表面板
 ///
@@ -68,9 +67,11 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
   }
 
   Widget _buildProductCard(BuildContext context, CreditProductItem item) {
-    final isService = _isServiceType(item.productType);
+    final isService = item.isService;
     return GestureDetector(
-      onTap: isService ? () => GoRouter.of(context).push(RouteNames.serviceProductDetail.replaceFirst(':id', item.productId.toString())) : null,
+      onTap: () => GoRouter.of(context).push(
+        (isService ? RouteNames.serviceProductDetail : RouteNames.productDetail).replaceFirst(':id', item.productId.toString()),
+      ),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -154,7 +155,7 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
                           )
                         else
                           OutlinedButton(
-                            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('兑换商品：${item.productName}'))),
+                            onPressed: () => GoRouter.of(context).push(RouteNames.productDetail.replaceFirst(':id', item.productId.toString())),
                             style: OutlinedButton.styleFrom(
                               side: const BorderSide(color: Color(0xFFFF2105), width: 1),
                               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
@@ -177,9 +178,5 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
         ),
       ),
     );
-  }
-
-  bool _isServiceType(CreditProductType type) {
-    return type == CreditProductType.serviceCouponIntegral || type == CreditProductType.serviceCouponSale;
   }
 }

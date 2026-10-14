@@ -17,9 +17,9 @@ class App extends StatelessWidget {
       builder: (context, ref, _) {
         final themeMode = ref.watch(themeProvider);
         final router = ref.watch(appRouter);
-        final versionCheckState = ref.watch(versionCheckProvider);
-        // 触发启动时版本检查（仅执行一次）
-        ref.read(autoVersionCheckProvider);
+        // final versionCheckState = ref.watch(versionCheckProvider);
+        // // 触发启动时版本检查（仅执行一次）
+        // ref.read(autoVersionCheckProvider);
 
         return MaterialApp.router(
           title: '青轻生活',
@@ -31,22 +31,23 @@ class App extends StatelessWidget {
           localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
           supportedLocales: const [Locale('zh', 'CN'), Locale('en', 'US')],
           builder: (context, child) {
-            if (versionCheckState.state == VersionCheckState.checked && versionCheckState.info != null && versionCheckState.info!.shouldShowDialog) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (!context.mounted) return;
-                final info = versionCheckState.info!;
-                showDialog(
-                  context: context,
-                  barrierDismissible: !info.isForceUpdate,
-                  builder: (dialogContext) => UpdateDialog(
-                    info: info,
-                    onConfirm: () {
-                      // TODO: 触发实际更新逻辑
-                    },
-                  ),
-                );
-              });
-            }
+            // // 检查是否需要显示更新弹窗，测试时关闭
+            // if (versionCheckState.state == VersionCheckState.checked && versionCheckState.info != null && versionCheckState.info!.shouldShowDialog) {
+            //   WidgetsBinding.instance.addPostFrameCallback((_) {
+            //     if (!context.mounted) return;
+            //     final info = versionCheckState.info!;
+            //     showDialog(
+            //       context: context,
+            //       barrierDismissible: !info.isForceUpdate,
+            //       builder: (dialogContext) => UpdateDialog(
+            //         info: info,
+            //         onConfirm: () {
+            //           // TODO: 触发实际更新逻辑
+            //         },
+            //       ),
+            //     );
+            //   });
+            // }
             return child ?? const SizedBox.shrink();
           },
         );
