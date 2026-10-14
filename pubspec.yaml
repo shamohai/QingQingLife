@@ -22,6 +22,8 @@ dependencies:
   # Routing
   go_router: ^18.0.0
 
+  decimal: ^3.2.6
+
   # Network
   dio: ^5.11.0
   crypto: ^3.0.7

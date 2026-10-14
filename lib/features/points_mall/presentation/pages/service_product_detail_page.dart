@@ -43,6 +43,7 @@ class ServiceProductDetailPage extends ConsumerWidget {
 
   Widget _buildContent(BuildContext context, WidgetRef ref, ServiceProductDetail product) {
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
+
     return Stack(
       children: [
         CustomScrollView(
@@ -70,12 +71,7 @@ class ServiceProductDetailPage extends ConsumerWidget {
           left: 0,
           right: 0,
           bottom: 0,
-          child: SafeArea(
-            top: false,
-            left: false,
-            right: false,
-            child: BottomActionBar(onExchange: () => _handleExchange(context, product)),
-          ),
+          child: SafeArea(top: false, left: false, right: false, child: BottomActionBar(onExchange: () => _handleExchange(context, product))),
         ),
       ],
     );

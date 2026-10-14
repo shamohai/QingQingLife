@@ -3,15 +3,17 @@
 /// 接口：POST /api/product/getproductinfo
 library;
 
+import 'package:decimal/decimal.dart';
+
 import 'get_recommend_product_list_model.dart';
 
 // ── BaiLiHui 产品类型枚举 ────────────────────────────────────────────────────
 
 enum BaiLiHuiProductType {
   selfOperatedPhysical(0), // 自营实物
-  electronicCard(1),       // 电子卡券
-  phoneRecharge(2),        // 直充话费
-  ecommerce(3);            // 电商
+  electronicCard(1), // 电子卡券
+  phoneRecharge(2), // 直充话费
+  ecommerce(3); // 电商
 
   const BaiLiHuiProductType(this.value);
   final int value;
@@ -21,9 +23,7 @@ enum BaiLiHuiProductType {
     return _byValue[v] ?? BaiLiHuiProductType.selfOperatedPhysical;
   }
 
-  static final Map<int, BaiLiHuiProductType> _byValue = {
-    for (final e in BaiLiHuiProductType.values) e.value: e,
-  };
+  static final Map<int, BaiLiHuiProductType> _byValue = {for (final e in BaiLiHuiProductType.values) e.value: e};
 }
 
 // ── 促销信息嵌套模型 ─────────────────────────────────────────────────────────
@@ -63,9 +63,7 @@ class PromotionInfo {
       discountValue: (json['discountvalue'] as double?)?.toDouble(),
       discount: (json['discount'] as double?)?.toDouble(),
       disAmount: (json['disamount'] as double?)?.toDouble(),
-      giftpIds: giftpJson
-          .map((e) => PromotionGiftProduct.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      giftpIds: giftpJson.map((e) => PromotionGiftProduct.fromJson(e as Map<String, dynamic>)).toList(),
     );
   }
 }
@@ -79,11 +77,7 @@ class PromotionGiftProduct {
   const PromotionGiftProduct({required this.pid, required this.pname, required this.num});
 
   factory PromotionGiftProduct.fromJson(Map<String, dynamic> json) {
-    return PromotionGiftProduct(
-      pid: (json['pid'] as int?)?.toInt() ?? 0,
-      pname: json['pname'] as String? ?? '',
-      num: (json['num'] as int?)?.toInt() ?? 0,
-    );
+    return PromotionGiftProduct(pid: (json['pid'] as int?)?.toInt() ?? 0, pname: json['pname'] as String? ?? '', num: (json['num'] as int?)?.toInt() ?? 0);
   }
 }
 
@@ -152,11 +146,7 @@ class CommonPara {
   const CommonPara({required this.id, required this.name, required this.value});
 
   factory CommonPara.fromJson(Map<String, dynamic> json) {
-    return CommonPara(
-      id: (json['id'] as int?)?.toInt() ?? 0,
-      name: json['name'] as String? ?? '',
-      value: json['value'] as String? ?? '',
-    );
+    return CommonPara(id: (json['id'] as int?)?.toInt() ?? 0, name: json['name'] as String? ?? '', value: json['value'] as String? ?? '');
   }
 }
 
@@ -169,12 +159,7 @@ class ServiceCouponInfo {
   final String? descriptionHtml;
   final int surplusCount;
 
-  const ServiceCouponInfo({
-    required this.couponConfigId,
-    this.couponName,
-    this.descriptionHtml,
-    required this.surplusCount,
-  });
+  const ServiceCouponInfo({required this.couponConfigId, this.couponName, this.descriptionHtml, required this.surplusCount});
 
   factory ServiceCouponInfo.fromJson(Map<String, dynamic> json) {
     return ServiceCouponInfo(
@@ -209,7 +194,7 @@ class ServiceProductDetail {
   final int points;
   final int remainingStock;
   final int salesCount;
-  final double marketPrice;
+  final Decimal marketPrice;
   final String mainImageUrl;
   final String description;
 
@@ -217,48 +202,70 @@ class ServiceProductDetail {
 
   /// 商品id（API: pid）
   final int productId;
+
   /// 商品单价（API: price，单位：分）
   final int priceCents;
+
   /// 价格+规格描述文字（API: pricedesc）
   final String? priceDesc;
+
   /// 是否为定制商品（API: istemplate）
   final bool isTemplate;
+
   /// 是否为积分商品（API: iscredit）
   final bool isCredit;
+
   /// 商品状态 0=正常售卖 1=下架（API: productstate）
   final int productState;
-  /// 运费（API: shipfee，单位：分）
-  final int shipFeeCents;
+
+  /// 运费（API: shipfee）
+  final Decimal shipFee;
+
   /// 商品规格（API: saleunit）
   final String? saleUnit;
+
   /// 最高可抵用青稞粒数（API: creditcount）
   final int creditCount;
+
   /// 商品类型（API: producttype）
   final CreditProductType productType;
+
   /// 百礼汇产品类型（API: baiLiHuiType）
   final BaiLiHuiProductType? baiLiHuiType;
+
   /// 福禄商品类型 0=直充 1=卡密（API: fulutype）
   final int? fuluType;
+
   /// 定制类型（API: templatetype）
   final int? templateType;
+
   /// 是否有购买权限（API: auth）
   final bool auth;
+
   /// 权限提示（API: authtips）
   final String? authTips;
+
   /// 数据版本（API: datatag）
   final String? datatag;
+
   /// 商品规格参数列表（API: parameter）
   final List<CommonPara> specs;
+
   /// 单品促销（折扣/立减/折后价）（API: singlepromotion）
   final PromotionInfo? singlePromotion;
+
   /// 赠品促销（API: giftpromotion）
   final List<PromotionInfo> giftpromotion;
+
   /// 买赠促销（API: buysendpromotion）
   final List<PromotionInfo> buysendPromotion;
+
   /// 店铺活动（API: storepromotion）
   final List<PromotionInfo> storePromotion;
+
   /// 优惠券列表（API: couponlist）
   final List<CouponItem> coupons;
+
   /// 产品关联的服务券配置（API: servicecoupon）
   final ServiceCouponInfo? serviceCoupon;
 
@@ -280,7 +287,7 @@ class ServiceProductDetail {
     this.isTemplate = false,
     this.isCredit = false,
     this.productState = 0,
-    this.shipFeeCents = 0,
+    required this.shipFee,
     this.saleUnit,
     this.creditCount = 0,
     this.productType = CreditProductType.ordinary,
@@ -302,75 +309,58 @@ class ServiceProductDetail {
   factory ServiceProductDetail.fromJson(Map<String, dynamic> json) {
     // carouselimg 是 String 列表，取第一张作为主图/封面
     final carouselimgs = json['carouselimg'] as List<dynamic>? ?? [];
-    final imgList = carouselimgs
-        .map((e) => e as String)
-        .where((u) => u.isNotEmpty)
-        .toList();
+    final imgList = carouselimgs.map((e) => e as String).where((u) => u.isNotEmpty).toList();
     final mainImage = imgList.isNotEmpty ? imgList.first : '';
     final heroImage = imgList.length > 1 ? imgList[1] : mainImage;
 
-    // price/prepaidprice 可能是 Decimal（字符串或数字），统一转 int（分）
-    int parsePriceToInt(dynamic v) {
-      if (v == null) return 0;
-      if (v is int) return v;
-      if (v is double) return (v * 100).round();
-      if (v is String) {
-        final parsed = double.tryParse(v);
-        return parsed != null ? (parsed * 100).round() : 0;
-      }
-      return 0;
-    }
-
-    double parsePriceToDouble(dynamic v) {
-      if (v == null) return 0.0;
-      if (v is double) return v;
-      if (v is int) return v.toDouble();
-      if (v is String) return double.tryParse(v) ?? 0.0;
-      return 0.0;
-    }
+    final serviceCouponMap = json['servicecoupon'] as Map<String, dynamic>?;
+    final serviceCoupon = serviceCouponMap != null ? ServiceCouponInfo.fromJson(serviceCouponMap) : null;
 
     return ServiceProductDetail(
       id: json['pid'] != null ? (json['pid'] as num).toString() : '',
       heroImageUrl: heroImage.isEmpty ? null : heroImage,
       title: json['name'] as String? ?? '',
       tags: const [],
-      points: parsePriceToInt(json['prepaidprice']),
-      remainingStock: (json['stocknum'] as int?)?.toInt() ?? 0,
+      points: (json['price'] as int?)?.toInt() ?? 0, // 积分
+      remainingStock: serviceCoupon?.surplusCount ?? (json['stocknum'] as int?)?.toInt() ?? 0,
       salesCount: (json['monthsale'] as int?)?.toInt() ?? 0,
-      marketPrice: parsePriceToDouble(json['marketprice']),
+      marketPrice: _parseDecimal(json['marketprice']),
       mainImageUrl: mainImage,
-      description: '', // API 暂无 description 字段
+      description: serviceCoupon?.descriptionHtml ?? '',
       // API 原始字段
       productId: (json['pid'] as int?)?.toInt() ?? 0,
-      priceCents: parsePriceToInt(json['price']),
+      priceCents: (json['price'] as int?)?.toInt() ?? 0, // 积分
       priceDesc: json['pricedesc'] as String?,
       isTemplate: json['istemplate'] == true || json['istemplate'] == 1,
       isCredit: json['iscredit'] == true || json['iscredit'] == 1,
       productState: (json['productstate'] as int?)?.toInt() ?? 0,
-      shipFeeCents: parsePriceToInt(json['shipfee']),
+      shipFee: _parseDecimal(json['shipfee']),
       saleUnit: json['saleunit'] as String?,
       creditCount: (json['creditcount'] as int?)?.toInt() ?? 0,
       productType: CreditProductType.fromJson(json['producttype']),
-      baiLiHuiType: json['baiLiHuiType'] != null
-          ? BaiLiHuiProductType.fromJson(json['baiLiHuiType'])
-          : null,
+      baiLiHuiType: json['baiLiHuiType'] != null ? BaiLiHuiProductType.fromJson(json['baiLiHuiType']) : null,
       fuluType: json['fulutype'] as int?,
       templateType: json['templatetype'] as int?,
       auth: json['auth'] == true || json['auth'] == 1,
       authTips: json['authtips'] as String?,
       datatag: json['datatag'] as String?,
       specs: _parseList(json['parameter'], CommonPara.fromJson),
-      singlePromotion: json['singlepromotion'] != null
-          ? PromotionInfo.fromJson(json['singlepromotion'] as Map<String, dynamic>)
-          : null,
+      singlePromotion: json['singlepromotion'] != null ? PromotionInfo.fromJson(json['singlepromotion'] as Map<String, dynamic>) : null,
       giftpromotion: _parseList(json['giftpromotion'], PromotionInfo.fromJson),
       buysendPromotion: _parseList(json['buysendpromotion'], PromotionInfo.fromJson),
       storePromotion: _parseList(json['storepromotion'], PromotionInfo.fromJson),
       coupons: _parseList(json['couponlist'], CouponItem.fromJson),
-      serviceCoupon: json['servicecoupon'] != null
-          ? ServiceCouponInfo.fromJson(json['servicecoupon'] as Map<String, dynamic>)
-          : null,
+      serviceCoupon: serviceCoupon,
     );
+  }
+
+  /// 通用 Decimal 解析辅助
+  static Decimal _parseDecimal(dynamic v) {
+    if (v == null) return Decimal.zero;
+    if (v is Decimal) return v;
+    if (v is num) return Decimal.parse(v.toString());
+    if (v is String) return Decimal.tryParse(v) ?? Decimal.zero;
+    return Decimal.zero;
   }
 
   /// 通用列表解析辅助
@@ -387,10 +377,10 @@ class ServiceProductDetail {
   bool get canPurchase => isOnSale && auth;
 
   /// 格式化市场价显示
-  String get marketPriceDisplay => marketPrice > 0 ? '市场价:¥${marketPrice.toStringAsFixed(2)}' : '';
+  String get marketPriceDisplay => marketPrice > Decimal.zero ? '市场价:¥${marketPrice.toStringAsFixed(2)}' : '';
 
   /// Mock 数据（开发/测试环境降级使用）
-  static const ServiceProductDetail mock = ServiceProductDetail(
+  static final ServiceProductDetail mock = ServiceProductDetail(
     id: 'service_001',
     heroImageUrl: null,
     title: '天佑德电商专供青海环线三日游旅游券（青海三日游）',
@@ -398,12 +388,12 @@ class ServiceProductDetail {
     points: 1000,
     remainingStock: 100,
     salesCount: 90000,
-    marketPrice: 760.00,
+    marketPrice: Decimal.parse('760.00'),
     mainImageUrl: 'assets/images/service/service_product_main.png',
-    description:
-        '持本旅游券即可兑换青海环线 3 天 2 晚跟团之旅，打卡青海经典核心美景，远离城市喧嚣，沉浸式感受青藏高原辽阔风光。行程轻松不赶路，适合朋友结伴、家庭出游，随团省心出行，不用费心规划路线。',
+    description: '持本旅游券即可兑换青海环线 3 天 2 晚跟团之旅，打卡青海经典核心美景，远离城市喧嚣，沉浸式感受青藏高原辽阔风光。行程轻松不赶路，适合朋友结伴、家庭出游，随团省心出行，不用费心规划路线。',
     productId: 1,
     priceCents: 76000,
+    shipFee: Decimal.zero,
     productType: CreditProductType.serviceCouponIntegral,
     isCredit: true,
     productState: 0,

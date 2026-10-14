@@ -1,11 +1,10 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:uuid/uuid.dart';
 
 import '../app_logger.dart';
+import '../../utils/common_utils.dart';
 
 /// Dio request/response logging interceptor.
 /// Logs full request params/body before send and response body after receive.
@@ -13,16 +12,7 @@ class AppLoggingInterceptor extends Interceptor {
   static const _traceIdHeader = '__trace_id';
   static const _startTimeKey = '_log_request_start';
 
-  static String safeEncode(dynamic value) {
-    if (value == null) return 'null';
-    if (value is String) return value;
-    if (value is num || value is bool) return value.toString();
-    try {
-      return const JsonEncoder.withIndent('  ').convert(value);
-    } catch (_) {
-      return value.toString();
-    }
-  }
+  static String safeEncode(dynamic value) => CommonUtils.safeEncode(value);
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
