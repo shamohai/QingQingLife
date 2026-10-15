@@ -11,6 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   cupertino_icons: ^1.0.9
 
   # State management
@@ -19,6 +21,8 @@ dependencies:
 
   # Routing
   go_router: ^18.0.0
+
+  decimal: ^3.2.6
 
   # Network
   dio: ^5.11.0
@@ -63,7 +67,7 @@ dependencies:
     version: ^2.1.2
 
   # Social login
-  fluwx: ^6.0.2
+  fluwx: ^6.0.6
   talker_flutter: ^5.1.20
 
 dev_dependencies:

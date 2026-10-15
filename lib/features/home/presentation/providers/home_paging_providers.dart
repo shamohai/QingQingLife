@@ -15,7 +15,7 @@ class HomeHotProductsNotifier extends PagingNotifier<ProductCard> {
     final repository = ref.read(productRepositoryProvider);
     final response = await repository.getProductList(page: page, pageSize: pageSize, categoryId: 'hot');
     if (!response.success || response.data == null) {
-      throw Exception(response.message ?? '获取热卖商品失败');
+      throw Exception(response.message);
     }
     final result = response.data!;
     return PagingResult<ProductCard>(
@@ -41,7 +41,7 @@ class HomeProductGridNotifier extends PagingNotifier<ProductCard> {
     final repository = ref.read(productRepositoryProvider);
     final response = await repository.getProductList(page: page, pageSize: pageSize);
     if (!response.success || response.data == null) {
-      throw Exception(response.message ?? '获取商品列表失败');
+      throw Exception(response.message);
     }
     final result = response.data!;
     return PagingResult<ProductCard>(

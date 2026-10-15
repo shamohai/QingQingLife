@@ -8,22 +8,24 @@ import '../../../../core/widgets/app_empty.dart';
 import '../providers/service_provider.dart';
 import '../widgets/service_tab_bar.dart';
 import '../widgets/service_list_item.dart';
+import '../widgets/service_activity_card_item.dart';
 import '../widgets/service_floating_buttons.dart';
 import '../widgets/share_cart_template_item.dart';
 
 class ServicePage extends ConsumerWidget {
-  const ServicePage({super.key});
+  /// AppBar/页面标题，由调用方传入（如上一页面点击的 id 对应的名称）
+  final String? title;
+
+  const ServicePage({super.key, this.title});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedTab = ref.watch(selectedTabProvider);
+    final isHuodong = selectedTab == 'huodong';
 
-    void onBookTap(String id, {bool isGoujiu = false}) {
-      if (isGoujiu) {
-        context.push(RouteNames.serviceTemplateDetail.replaceFirst(':id', id));
-      } else {
-        context.push(RouteNames.serviceProjectDetail.replaceFirst(':id', id));
-      }
+    // 列表项点击 → 跳转到详情页 (serviceProjectDetail)
+    void onItemTap(String id) {
+      context.push(RouteNames.serviceProjectDetail.replaceFirst(':id', id));
     }
 
     return Scaffold(
@@ -37,18 +39,62 @@ class ServicePage extends ConsumerWidget {
                 // 顶部固定 Tab 栏
                 ServiceTabBar(selectedTab: selectedTab, onTabChanged: (tab) => ref.read(selectedTabProvider.notifier).update(tab)),
                 // 可滚动内容区
-                Expanded(child: selectedTab == 'goujiu' ? _buildGoujiuBody(context, ref) : _buildOtherBody(ref, onBookTap)),
+                Expanded(
+                  child: isHuodong
+                      ? _buildHuodongBody(ref, onItemTap)
+                      : selectedTab == 'goujiu'
+                      ? _buildGoujiuBody(context, ref)
+                      : _buildOtherBody(ref, onItemTap),
+                ),
               ],
             ),
           ),
-          // 悬浮按钮组（绝对定位，不随列表滚动）
-          const ServiceFloatingButtons(),
+          // 悬浮按钮组（huodong tab 不显示）
+          if (!isHuodong) const ServiceFloatingButtons(),
         ],
       ),
     );
   }
 
-  Widget _buildOtherBody(WidgetRef ref, void Function(String, {bool isGoujiu}) onBookTap) {
+  /// 活动报名列表（第三个 tab）：列表项点击跳转到详情页
+  Widget _buildHuodongBody(WidgetRef ref, void Function(String) onItemTap) {
+    final cards = ref.watch(serviceCardDataProvider);
+    return cards.isEmpty
+        ? const SizedBox(height: 200, child: AppEmpty(message: '暂无活动'))
+        : ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            children: [
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 14, bottom: 14),
+                        child: ServiceActivityCardItem(data: cards[0], onTap: () => onItemTap(cards[0].id)),
+                      ),
+                      for (int i = 1; i < cards.length; i++)
+                        Column(
+                          children: [
+                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 0, endIndent: 0),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 14, bottom: 14),
+                              child: ServiceActivityCardItem(data: cards[i], onTap: () => onItemTap(cards[i].id)),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+  }
+
+  /// 服务预约列表（第一个 tab）：列表项点击跳转到详情页
+  Widget _buildOtherBody(WidgetRef ref, void Function(String) onItemTap) {
     final cards = ref.watch(serviceCardDataProvider);
     return cards.isEmpty
         ? const SizedBox(height: 200, child: AppEmpty(message: '暂无服务'))
@@ -64,7 +110,7 @@ class ServicePage extends ConsumerWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(top: 14, bottom: 14),
-                        child: ServiceListItem(data: cards[0], onBookTap: onBookTap),
+                        child: ServiceListItem(data: cards[0], onBookTap: onItemTap),
                       ),
                       for (int i = 1; i < cards.length; i++)
                         Column(
@@ -72,7 +118,7 @@ class ServicePage extends ConsumerWidget {
                             Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 0, endIndent: 0),
                             Padding(
                               padding: const EdgeInsets.only(top: 14, bottom: 14),
-                              child: ServiceListItem(data: cards[i], onBookTap: onBookTap),
+                              child: ServiceListItem(data: cards[i], onBookTap: onItemTap),
                             ),
                           ],
                         ),

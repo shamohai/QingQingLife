@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/repositories/member_repository.dart';
 import '../../../../core/network/api_response.dart';
 import '../models/member_authority_model.dart';
+import '../models/member_rank_models.dart';
 
 /// Mock 会员数据源 - 开发/测试环境使用
 ///
@@ -52,6 +53,62 @@ class MockMemberDataSource implements MemberRepository {
 
   /// 各等级权益开放数量（对应 level 1~5：人之德/家之德/国之德/天之德/顾问级）
   static const List<int> _levelGridCounts = [6, 9, 12, 15, 18];
+
+  /// Mock 等级定义（id / 名称 / 起始积分 / 结束积分），
+  /// 对齐设计稿：人之德/家之德/国之德/天之德/顾问级。
+  static const List<RankBaseInfo> _mockRanks = [
+    RankBaseInfo(userrid: 1, userridname: '人之德', currentrankstart: 0, currentrankend: 200),
+    RankBaseInfo(userrid: 2, userridname: '家之德', currentrankstart: 200, currentrankend: 500),
+    RankBaseInfo(userrid: 3, userridname: '国之德', currentrankstart: 500, currentrankend: 800),
+    RankBaseInfo(userrid: 4, userridname: '天之德', currentrankstart: 800, currentrankend: 10000),
+    RankBaseInfo(userrid: 5, userridname: '顾问级', currentrankstart: 10000, currentrankend: 0),
+  ];
+
+  /// 获取会员等级列表（Mock）
+  ///
+  /// 对齐真实接口 POST /api/sys/app/getranklist 的返回结构。
+  @override
+  Future<ApiResponse<GetRankListResp>> getRankList() async {
+    return ApiResponse.success(const GetRankListResp(ranks: _mockRanks));
+  }
+
+  /// 获取指定等级的权益明细（Mock）
+  ///
+  /// 对齐真实接口 POST /api/sys/app/getrankdetail 的返回结构：
+  /// services（普通权益由 [gridBenefits] 派生）+ monthlyproductlist（月度权益券）。
+  @override
+  Future<ApiResponse<GetRankDetailResp>> getRankDetail({required int level}) async {
+    final index = (level - 1).clamp(0, _levelGridCounts.length - 1);
+    final rank = _mockRanks[index];
+    final count = _levelGridCounts[index];
+
+    final services = gridBenefits.take(count).map((e) {
+      return SysServiceItem(
+        serviceid: e.auth,
+        servicecode: 'SC${e.auth}',
+        servicename: e.authname,
+        instancetype: ServiceInstanceType.serviceCoupon,
+        group: ServiceGroup.general,
+        icon: e.showimg,
+        hasowned: e.isown,
+        bindinfo: ServiceBindInfo(
+          bindproductlist: [ServiceProductItem(serviceid: e.auth, productname: e.authname, servicedescr: e.introduce, isreceived: false)],
+        ),
+      );
+    }).toList();
+
+    return ApiResponse.success(GetRankDetailResp(monthlyproductlist: _mockMonthlyProducts, rankbaseinfo: rank, services: services));
+  }
+
+  /// Mock 月度权益产品（对齐设计稿：399元券/大额神券/天佑德/视频会员等）
+  static const List<ServiceProductItem> _mockMonthlyProducts = [
+    ServiceProductItem(serviceid: 101, servicecode: 'MC1', productname: '399元券', servicedescr: '全场通用'),
+    ServiceProductItem(serviceid: 102, servicecode: 'MC2', productname: '大额神券', servicedescr: '张张可叠加'),
+    ServiceProductItem(serviceid: 103, servicecode: 'MC3', productname: '天佑德', servicedescr: '品鉴装兑换'),
+    ServiceProductItem(serviceid: 104, servicecode: 'MC4', productname: '咪咕视频', servicedescr: '会员月卡'),
+    ServiceProductItem(serviceid: 105, servicecode: 'MC5', productname: '腾讯视频', servicedescr: '会员月卡'),
+    ServiceProductItem(serviceid: 106, servicecode: 'MC6', productname: '爱奇艺', servicedescr: '会员月卡'),
+  ];
 
   /// 会员等级卡片权益数（设计稿：顾问级为十项，与「我的」页展示一致）
   static List<String> get cardBenefitNames => gridBenefits.take(10).map((e) => e.authname).toList();

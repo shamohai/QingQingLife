@@ -1,4 +1,5 @@
 import '../../data/models/member_authority_model.dart';
+import '../../data/models/member_rank_models.dart';
 import '../../../../core/network/api_response.dart';
 
 /// 会员仓库接口
@@ -8,6 +9,17 @@ abstract class MemberRepository {
 
   /// 获取会员等级权益
   Future<ApiResponse<MemberLevelBenefits>> getLevelBenefits(int level);
+
+  /// 获取会员等级列表（真实接口：POST /api/sys/app/getranklist）
+  ///
+  /// 返回全部等级的定义（等级 id / 名称 / 积分区间），用于会员详情页等级页签。
+  Future<ApiResponse<GetRankListResp>> getRankList();
+
+  /// 获取指定等级的权益明细（真实接口：POST /api/sys/app/getrankdetail）
+  ///
+  /// [level] 为等级 id（getranklist 返回的 userrid）。
+  /// 返回该等级的月度权益产品与权益列表（普通权益 / 月度权益 / 生日赠礼）。
+  Future<ApiResponse<GetRankDetailResp>> getRankDetail({required int level});
 
   /// 获取会员权益权限（真实接口：POST /api/sys/v2/getmemberauthority）
   Future<ApiResponse<MemberAuthorityModel>> getMemberAuthority({required int level});

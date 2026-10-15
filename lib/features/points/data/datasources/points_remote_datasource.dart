@@ -86,7 +86,11 @@ class PointsRemoteDataSource implements PointsRepository {
 
   @override
   Future<ApiResponse<ServiceProductDetail>> getServiceProductDetail(String productId) async {
-    throw UnimplementedError('getServiceProductDetail not implemented in PointsRemoteDataSource');
+    return _apiClient.post<ServiceProductDetail>(
+      '/api/product/getproductinfo',
+      data: <String, dynamic>{'pid': int.tryParse(productId) ?? 0},
+      fromJson: (dynamic json) => ServiceProductDetail.fromJson(json as Map<String, dynamic>),
+    );
   }
 
   @override

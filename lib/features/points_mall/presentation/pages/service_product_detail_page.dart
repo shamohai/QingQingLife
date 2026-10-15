@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../../app/router/route_names.dart';
 import '../../../../../core/widgets/app_loading.dart';
 import '../../../../../core/widgets/app_error.dart';
 import '../providers/service_product_detail_provider.dart';
@@ -43,6 +42,7 @@ class ServiceProductDetailPage extends ConsumerWidget {
 
   Widget _buildContent(BuildContext context, WidgetRef ref, ServiceProductDetail product) {
     final bottomInset = MediaQuery.viewPaddingOf(context).bottom;
+
     return Stack(
       children: [
         CustomScrollView(
@@ -70,18 +70,9 @@ class ServiceProductDetailPage extends ConsumerWidget {
           left: 0,
           right: 0,
           bottom: 0,
-          child: SafeArea(
-            top: false,
-            left: false,
-            right: false,
-            child: BottomActionBar(onExchange: () => _handleExchange(context, product)),
-          ),
+          child: SafeArea(top: false, left: false, right: false, child: BottomActionBar(product: product, productId: productId)),
         ),
       ],
     );
-  }
-
-  void _handleExchange(BuildContext context, ServiceProductDetail product) {
-    GoRouter.of(context).push(RouteNames.confirmOrder.replaceFirst(':id', product.id));
   }
 }

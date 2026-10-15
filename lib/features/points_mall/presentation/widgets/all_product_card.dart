@@ -2,7 +2,6 @@
 
 import '../../../../../core/widgets/app_image.dart';
 import '../../data/models/get_credit_product_list_model.dart';
-import '../../data/models/get_recommend_product_list_model.dart';
 
 /// 全部商品网格中的商品卡片
 ///
@@ -16,7 +15,7 @@ class AllProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isService = item.productType == CreditProductType.serviceCouponIntegral || item.productType == CreditProductType.serviceCouponSale;
+    final isService = item.isService;
 
     return Container(
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),

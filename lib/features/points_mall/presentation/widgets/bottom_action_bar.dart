@@ -1,16 +1,25 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../app/router/route_names.dart';
+import '../../../../features/auth/presentation/providers/auth_provider.dart';
+import '../../data/models/service_product_detail_model.dart';
+import 'exchange_confirm_dialog.dart';
+import 'tips_dialog.dart';
 
 /// 积分商城服务商品详情 — 固定底部操作栏
 ///
 /// 深蓝色渐变胶囊按钮，固定在页面底部，不随滚动移动。
 /// 尺寸严格按设计稿归一化：bar 71px，CTA 337×42px。
-class BottomActionBar extends StatelessWidget {
-  final VoidCallback onExchange;
+class BottomActionBar extends ConsumerWidget {
+  final ServiceProductDetail product;
+  final String productId;
 
-  const BottomActionBar({super.key, required this.onExchange});
+  const BottomActionBar({super.key, required this.product, required this.productId});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       height: 80,
       decoration: const BoxDecoration(
@@ -22,7 +31,7 @@ class BottomActionBar extends StatelessWidget {
         bottom: true,
         child: Center(
           child: GestureDetector(
-            onTap: onExchange,
+            onTap: () => _handleExchange(context, ref),
             child: Container(
               width: 337,
               height: 42,
@@ -41,5 +50,42 @@ class BottomActionBar extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _handleExchange(BuildContext context, WidgetRef ref) async {
+    // 1. 判断当前用户有没有登录
+    final isLoggedIn = await ref.read(authProvider.notifier).isLoggedIn();
+
+    if (!context.mounted) return;
+
+    if (!isLoggedIn) {
+      GoRouter.of(context).push(RouteNames.login);
+      return;
+    }
+
+    final effectiveId = productId.isNotEmpty ? productId : (product.id.isNotEmpty ? product.id : 'service_001');
+
+    // 2. auth 权限判断
+    if (product.auth) {
+      // 有权限 → 弹出兑换确认弹窗（蓝湖设计稿样式）
+      final confirmed = await showDialog<bool>(
+        context: context,
+        barrierColor: const Color(0x4D000000),
+        barrierDismissible: false,
+        builder: (_) => const ExchangeConfirmDialog(),
+      );
+      if (!context.mounted) return;
+      if (confirmed == true) {
+        GoRouter.of(context).push(RouteNames.confirmOrder.replaceFirst(':id', effectiveId));
+      }
+    } else {
+      if (!context.mounted) return;
+      // 无权限 → 弹 Tips 提示框
+      await showDialog<bool>(
+        context: context,
+        barrierColor: const Color(0x4D000000), // rgba(0,0,0,0.3)
+        builder: (_) => TipsDialog(title: '提示', content: (product.authTips?.isEmpty ?? true) ? '当前暂无兑换权限' : product.authTips!, confirmText: '确定'),
+      );
+    }
   }
 }

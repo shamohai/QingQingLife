@@ -1,5 +1,6 @@
 import 'package:fluwx/fluwx.dart' as fluwx;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../core/domain/repositories/auth_repository.dart';
 import '../../../../core/logging/app_logger.dart';
@@ -13,9 +14,14 @@ final authProvider = NotifierProvider<AuthNotifier, AuthStatus>(() => AuthNotifi
 
 class AuthNotifier extends Notifier<AuthStatus> {
   fluwx.FluwxCancelable? _authSubscriber;
+  final _uuid = const Uuid();
 
   @override
-  AuthStatus build() => AuthStatus.initial;
+  AuthStatus build() {
+    // 监听 sessionProvider，刷新后自动恢复登录态
+    ref.watch(sessionProvider);
+    return AuthStatus.initial;
+  }
 
   AuthRepository get _repository => ref.read(authRepositoryProvider);
   SessionNotifier get _session => ref.read(sessionProvider.notifier);
@@ -44,6 +50,13 @@ class AuthNotifier extends Notifier<AuthStatus> {
     }
   }
 
+  /// Web/测试环境专用：直接写入测试 token，跳过微信授权。
+  /// 不触发任何网络请求，token 写入 sessionStorage，关闭浏览器后清除。
+  Future<void> webLogin() async {
+    final token = _uuid.v4();
+    await _session.login(token);
+  }
+
   Future<void> _handleWeChatResponse(fluwx.WeChatResponse response) async {
     AppLogger.info('Response received: ${response.runtimeType}, errCode=${response.errCode}', module: 'wechat', event: 'response_received');
     if (response is fluwx.WeChatAuthResponse) {
@@ -69,7 +82,6 @@ class AuthNotifier extends Notifier<AuthStatus> {
     if (response.success) {
       final result = response.data!;
       await _session.login(result.accessToken, refreshToken: result.refreshToken);
-      state = AuthStatus.authenticated;
     } else if (response.code == 295) {
       await _session.savePendingWechatCode(code);
       state = AuthStatus.wechatAuthenticated;
@@ -85,7 +97,6 @@ class AuthNotifier extends Notifier<AuthStatus> {
     if (response.success) {
       final result = response.data!;
       await _session.login(result.accessToken, refreshToken: result.refreshToken);
-      state = AuthStatus.authenticated;
     } else {
       state = AuthStatus.unauthenticated;
     }
@@ -99,7 +110,6 @@ class AuthNotifier extends Notifier<AuthStatus> {
       final result = response.data!;
       await _session.login(result.accessToken, refreshToken: result.refreshToken);
       await _session.clearPendingWechatCode();
-      state = AuthStatus.authenticated;
     } else {
       state = AuthStatus.wechatAuthenticated;
     }
@@ -109,7 +119,6 @@ class AuthNotifier extends Notifier<AuthStatus> {
     final response = await _repository.sendSmsCode(phone: phone);
     if (!response.success) {
       AppLogger.warning('SMS code request failed', module: 'auth', event: 'send_sms_failed', data: {'code': response.code, 'message': response.message});
-
     }
     return response.success;
   }
@@ -120,7 +129,6 @@ class AuthNotifier extends Notifier<AuthStatus> {
     _authSubscriber = null;
     await _repository.logout();
     await _session.logout();
-    state = AuthStatus.unauthenticated;
   }
 
   Future<ApiResponse<UserInfo>> getCurrentUser() async => _repository.getCurrentUser();

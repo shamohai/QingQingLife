@@ -18,7 +18,9 @@ import '../widgets/member_summary_card.dart';
 /// 结构（设计稿）：
 ///   蓝色渐变区：返回栏「会员详情」+ 等级页签 + 等级信息卡片 + 每月权益
 ///   白色区：会员权益标题 + 权益宫格（米橙色卡片）
-/// 数据：等级页签/每月权益为 TODO(Mock)；权益宫格走 getmemberauthority（当前 Mock）。
+/// 数据：
+///   等级页签 ← getRankList   （POST /api/sys/app/getranklist）
+///   等级权益 ← getRankDetail （POST /api/sys/app/getrankdetail）
 class MemberLevelPage extends ConsumerStatefulWidget {
   const MemberLevelPage({super.key});
 
@@ -38,6 +40,8 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(memberLevelProvider);
+    // 等级列表由 getRankList 异步返回，首次加载完成前为空
+    final hasLevels = state.levels.isNotEmpty;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
@@ -61,19 +65,23 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
                     child: Column(
                       children: [
                         _buildAppBar(context),
-                        MemberLevelTabs(
-                          levels: state.levels,
-                          selectedIndex: state.selectedLevelIndex,
-                          onSelect: (index) => ref.read(memberLevelProvider.notifier).selectLevel(index),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(AppSpacing.md, 6, AppSpacing.md, 0),
-                          child: MemberSummaryCard(level: state.selectedLevel, growthValue: state.memberInfo.growthValue),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(AppSpacing.md, 12, AppSpacing.md, 0),
-                          child: MemberMonthlyBenefits(coupons: state.monthlyCoupons),
-                        ),
+                        if (hasLevels) ...[
+                          MemberLevelTabs(
+                            levels: state.levels,
+                            selectedIndex: state.selectedLevelIndex,
+                            onSelect: (index) => ref.read(memberLevelProvider.notifier).selectLevel(index),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(AppSpacing.md, 6, AppSpacing.md, 0),
+                            child: MemberSummaryCard(level: state.selectedLevel, growthValue: state.growthValue),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(AppSpacing.md, 12, AppSpacing.md, 0),
+                            child: MemberMonthlyBenefits(coupons: state.monthlyCoupons),
+                          ),
+                        ] else
+                          // 等级列表加载中/失败时的占位，避免等级卡片取空列表越界
+                          const SizedBox(height: 120, child: Center(child: AppLoading())),
                         const SizedBox(height: 16),
                       ],
                     ),
@@ -123,7 +131,7 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
 
   /// 会员权益区：加载/错误/空/内容四种状态
   Widget _buildBenefitsSection(BuildContext context, MemberLevelState state) {
-    final auths = state.authority?.auths ?? const [];
+    final auths = state.benefitAuths;
 
     Widget content;
     if (state.showGridLoading) {
@@ -131,7 +139,7 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
         padding: EdgeInsets.symmetric(vertical: 60),
         child: Center(child: AppLoading()),
       );
-    } else if (state.hasError && state.authority == null) {
+    } else if (state.hasError && state.detail == null) {
       content = Padding(
         padding: const EdgeInsets.symmetric(vertical: 40),
         child: AppError(message: state.errorMessage!, onRetry: () => ref.read(memberLevelProvider.notifier).load()),

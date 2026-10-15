@@ -41,7 +41,7 @@ class AuthMixedDataSource implements AuthRepository {
   Future<void> logout() => remote.logout();
 
   @override
-  Future<ApiResponse<UserInfo>> getCurrentUser() => remote.getCurrentUser();
+  Future<ApiResponse<UserInfo>> getCurrentUser() => mock.getCurrentUser();
 
   @override
   Future<ApiResponse<String>> refreshToken() => remote.refreshToken();

@@ -2,40 +2,50 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/repository_providers.dart';
+import '../../data/models/member_rank_models.dart';
 import '../../data/models/member_authority_model.dart';
-import '../../domain/repositories/member_repository.dart';
 import 'user_profile_provider.dart';
 
-/// 会员等级选项
-///
-/// TODO(Mock): 等级体系接口后端尚未提供，当前为本地 Mock
-/// （设计稿等级：人之德/家之德/国之德/天之德/顾问级，默认选中顾问级）。
+/// 会员等级选项（由 getranklist 返回的 [RankBaseInfo] 映射而来）
 class MemberLevelOption {
-  /// 等级名
+  /// 等级 id（RankBaseInfo.userrid，用于 getrankdetail 入参）
+  final int id;
+
+  /// 等级名（RankBaseInfo.userridname）
   final String name;
 
-  /// 达到该等级所需成长值（卡片展示「成长值/该值升级」）
+  /// 达到该等级所需成长值（RankBaseInfo.currentrankstart，卡片展示「成长值/该值升级」）
   final int growthThreshold;
 
-  /// 顶部卡片「可尊享 X 项会员权益」（顾问级为十项，与「我的」页一致）
+  /// 下一等级起始积分（RankBaseInfo.currentrankend，等于 0 表示无上限）
+  final int nextGrowthThreshold;
+
+  /// 顶部卡片「可尊享 X 项会员权益」（由 getrankdetail 的权益条数回填）
   final int cardBenefitsCount;
 
-  /// 会员权益宫格开放条数（对应接口 level = 页签序号 + 1）
-  final int gridBenefitsCount;
+  const MemberLevelOption({required this.id, required this.name, required this.growthThreshold, this.nextGrowthThreshold = 0, this.cardBenefitsCount = 0});
 
-  const MemberLevelOption({required this.name, required this.growthThreshold, required this.cardBenefitsCount, required this.gridBenefitsCount});
+  MemberLevelOption copyWith({int? cardBenefitsCount}) {
+    return MemberLevelOption(
+      id: id,
+      name: name,
+      growthThreshold: growthThreshold,
+      nextGrowthThreshold: nextGrowthThreshold,
+      cardBenefitsCount: cardBenefitsCount ?? this.cardBenefitsCount,
+    );
+  }
 }
 
-/// 每月权益券
-///
-/// TODO(Mock): 每月权益/领取接口后端尚未提供，当前为本地 Mock；
-/// 后端就绪后补充 showimg（券面图）、领取状态等字段，券面替换为 AppNetworkImage。
+/// 每月权益券（由 getrankdetail 的 monthlyproductlist 映射而来）
 class MemberMonthlyCoupon {
   final String id;
   final String title;
   final String subtitle;
 
-  const MemberMonthlyCoupon({required this.id, required this.title, required this.subtitle});
+  /// 是否已领取（monthlyproductlist[].isreceived）
+  final bool received;
+
+  const MemberMonthlyCoupon({required this.id, required this.title, required this.subtitle, this.received = false});
 }
 
 /// 会员详情页状态
@@ -46,17 +56,20 @@ class MemberLevelState {
   /// 错误信息（非 null 表示加载失败）
   final String? errorMessage;
 
-  /// 会员信息（用户当前成长值等，来源「我的」页全局状态）
-  final MemberInfo memberInfo;
+  /// 用户当前成长值（来源 getranklist，取当前等级的 currentrankstart）
+  final int growthValue;
 
-  /// 等级页签列表
+  /// 等级页签列表（getranklist）
   final List<MemberLevelOption> levels;
 
   /// 当前选中的等级页签
   final int selectedLevelIndex;
 
-  /// 会员权益权限数据（当前由 MockMemberDataSource 提供；后端就绪后走 getmemberauthority）
-  final MemberAuthorityModel? authority;
+  /// 当前选中等级的权益明细原始数据（getrankdetail）
+  final GetRankDetailResp? detail;
+
+  /// 权益宫格数据（getrankdetail.services 过滤月度权益后映射）
+  final List<MemberAuthItem> benefitAuths;
 
   /// 每月权益券列表
   final List<MemberMonthlyCoupon> monthlyCoupons;
@@ -64,89 +77,152 @@ class MemberLevelState {
   const MemberLevelState({
     this.loading = false,
     this.errorMessage,
-    required this.memberInfo,
-    required this.levels,
+    required this.growthValue,
+    this.levels = const [],
     this.selectedLevelIndex = 0,
-    this.authority,
-    required this.monthlyCoupons,
+    this.detail,
+    this.benefitAuths = const [],
+    this.monthlyCoupons = const [],
   });
 
-  MemberLevelOption get selectedLevel => levels[selectedLevelIndex];
+  /// 当前选中的等级（等级列表尚未加载完成时返回占位项，避免越界）
+  MemberLevelOption get selectedLevel {
+    if (levels.isEmpty) return const MemberLevelOption(id: 0, name: '', growthThreshold: 0);
+    return levels[selectedLevelIndex.clamp(0, levels.length - 1)];
+  }
 
   bool get hasError => errorMessage != null;
 
-  /// 首次加载（尚无数据）时展示加载态；切换页签时保留旧内容、宫格区局部刷新
-  bool get showGridLoading => loading && authority == null;
+  /// 首次加载（尚无明细数据）时展示加载态；切换页签时保留旧内容、宫格区局部刷新
+  bool get showGridLoading => loading && detail == null;
 }
 
 final memberLevelProvider = NotifierProvider<MemberLevelNotifier, MemberLevelState>(() => MemberLevelNotifier());
 
 /// 会员详情页控制器
 ///
-/// 数据链路：Page → [memberLevelProvider] → MemberRepository → DataSource（当前为 Mock）
+/// 数据链路：Page → [memberLevelProvider] → MemberRepository → MemberMixedDataSource
+///   - 等级页签：getRankList()          → POST /api/sys/app/getranklist
+///   - 等级权益：getRankDetail(level)   → POST /api/sys/app/getrankdetail
 class MemberLevelNotifier extends Notifier<MemberLevelState> {
-  /// 等级页签 Mock（设计稿：人之德/家之德/国之德/天之德/顾问级）
-  static const List<MemberLevelOption> _mockLevels = [
-    MemberLevelOption(name: '人之德', growthThreshold: 0, cardBenefitsCount: 2, gridBenefitsCount: 6),
-    MemberLevelOption(name: '家之德', growthThreshold: 200, cardBenefitsCount: 4, gridBenefitsCount: 9),
-    MemberLevelOption(name: '国之德', growthThreshold: 500, cardBenefitsCount: 6, gridBenefitsCount: 12),
-    MemberLevelOption(name: '天之德', growthThreshold: 800, cardBenefitsCount: 8, gridBenefitsCount: 15),
-    MemberLevelOption(name: '顾问级', growthThreshold: 10000, cardBenefitsCount: 10, gridBenefitsCount: 18),
-  ];
-
-  /// 每月权益券 Mock（对齐设计稿：399元券/大额神券/天佑德/视频会员等）
-  static const List<MemberMonthlyCoupon> _mockCoupons = [
-    MemberMonthlyCoupon(id: 'mc1', title: '399元券', subtitle: '全场通用'),
-    MemberMonthlyCoupon(id: 'mc2', title: '大额神券', subtitle: '张张可叠加'),
-    MemberMonthlyCoupon(id: 'mc3', title: '天佑德', subtitle: '品鉴装兑换'),
-    MemberMonthlyCoupon(id: 'mc4', title: '咪咕视频', subtitle: '会员月卡'),
-    MemberMonthlyCoupon(id: 'mc5', title: '腾讯视频', subtitle: '会员月卡'),
-    MemberMonthlyCoupon(id: 'mc6', title: '爱奇艺', subtitle: '会员月卡'),
-  ];
-
   @override
   MemberLevelState build() {
-    return MemberLevelState(
-      memberInfo: ref.read(userProfileProvider).memberInfo,
-      levels: _mockLevels,
-      // 默认选中「顾问级」（设计稿）
-      selectedLevelIndex: _mockLevels.length - 1,
-      monthlyCoupons: _mockCoupons,
-    );
+    return const MemberLevelState(growthValue: 0);
   }
 
-  /// 加载当前选中等级的会员权益
+  /// 加载等级列表（首次）+ 当前选中等级的权益明细
   Future<void> load() async {
     if (state.loading) return;
 
     state = _copy(loading: true);
     try {
-      var profile = ref.read(userProfileProvider);
-      if (profile.memberInfo.memberLevel <= 0) {
-        await ref.read(userProfileProvider.notifier).load();
-        profile = ref.read(userProfileProvider);
-      }
+      // 用户当前等级（rankcredits）：复用「我的」页已缓存的会员资料
+      final profileState = ref.read(userProfileProvider);
+      final currentLevelId = profileState.memberLevel;
+      final repository = ref.read(memberRepositoryProvider);
 
-      // 等级参数：Mock 以页签序号 + 1 作为等级值（1~5）；真实接口就绪后按后端等级定义传值
-      final level = state.selectedLevelIndex + 1;
-      final resp = await ref.read(memberRepositoryProvider).getMemberAuthority(level: level);
-
-      if (resp.success && resp.data != null) {
-        state = _copy(loading: false, clearError: true, memberInfo: profile.memberInfo, authority: resp.data);
+      // ── 1) 等级列表（getranklist）─────────────────────────────
+      var levels = state.levels;
+      var index = state.selectedLevelIndex;
+      int growthValue = state.growthValue;
+      if (levels.isEmpty) {
+        final listResp = await repository.getRankList();
+        if (!listResp.success || listResp.data == null || listResp.data!.ranks.isEmpty) {
+          state = _copy(loading: false, errorMessage: _friendlyMessage(listResp.message));
+          return;
+        }
+        levels = listResp.data!.ranks.map(_toLevelOption).toList();
+        // 首次进入默认选中用户当前等级（按 userrid 匹配），匹配不到则兜底为最高等级
+        index = _matchCurrentLevelIndex(levels, currentLevelId);
+        // 用户当前成长值：当前等级的起始积分
+        growthValue = levels[index].growthThreshold;
       } else {
-        state = _copy(loading: false, errorMessage: _friendlyMessage(resp.message), memberInfo: profile.memberInfo);
+        index = index.clamp(0, levels.length - 1);
       }
+
+      // ── 2) 当前等级权益明细（getrankdetail）──────────────────
+      final levelId = levels[index].id;
+      final detailResp = await repository.getRankDetail(level: levelId);
+      if (!detailResp.success || detailResp.data == null) {
+        state = _copy(loading: false, errorMessage: _friendlyMessage(detailResp.message), levels: levels, selectedLevelIndex: index, growthValue: growthValue);
+        return;
+      }
+
+      final detail = detailResp.data!;
+      final benefitAuths = _mapBenefitAuths(detail);
+      final updatedLevels = [...levels];
+      updatedLevels[index] = levels[index].copyWith(cardBenefitsCount: benefitAuths.length);
+
+      state = _copy(
+        loading: false,
+        clearError: true,
+        levels: updatedLevels,
+        selectedLevelIndex: index,
+        growthValue: growthValue,
+        detail: detail,
+        benefitAuths: benefitAuths,
+        monthlyCoupons: _mapMonthlyCoupons(detail),
+      );
     } catch (e) {
       debugPrint('[MemberLevel] load error: $e');
       state = _copy(loading: false, errorMessage: '会员权益加载失败，请稍后重试');
     }
   }
 
-  /// 切换等级页签：更新选中项并按新等级重新加载权益
+  /// 切换等级页签：更新选中项并按新等级重新拉取权益明细
   Future<void> selectLevel(int index) async {
     if (index < 0 || index >= state.levels.length || index == state.selectedLevelIndex) return;
-    state = _copy(selectedLevelIndex: index, loading: false, clearError: true, clearAuthority: true);
+    // 清空上一等级的明细/宫格/月度权益，避免切换瞬间展示其他等级的数据
+    state = _copy(selectedLevelIndex: index, loading: false, clearError: true, clearDetail: true, clearBenefitAuths: true, monthlyCoupons: const []);
     await load();
+  }
+
+  // ── 映射：接口字段 → UI 模型 ───────────────────────────────
+
+  /// RankBaseInfo → 等级页签选项
+  MemberLevelOption _toLevelOption(RankBaseInfo rank) {
+    return MemberLevelOption(id: rank.userrid, name: rank.userridname, growthThreshold: rank.currentrankstart, nextGrowthThreshold: rank.currentrankend);
+  }
+
+  /// 匹配用户当前等级所在的页签下标（找不到时兜底为最高等级）
+  int _matchCurrentLevelIndex(List<MemberLevelOption> levels, int currentLevelId) {
+    final idx = levels.indexWhere((e) => e.id == currentLevelId);
+    return idx >= 0 ? idx : levels.length - 1;
+  }
+
+  /// getrankdetail.services → 权益宫格（排除月度权益，其余按接口顺序）
+  List<MemberAuthItem> _mapBenefitAuths(GetRankDetailResp detail) {
+    final items = <MemberAuthItem>[];
+    for (final service in detail.services) {
+      if (service.group == ServiceGroup.monthly) continue;
+      items.add(
+        MemberAuthItem(
+          auth: service.serviceid,
+          authname: service.servicename,
+          introduce: service.description,
+          isown: service.hasowned,
+          isuse: false,
+          tipsmsg: '',
+          showimg: service.icon,
+          newwelfare: false,
+          sort: items.length + 1,
+        ),
+      );
+    }
+    return items;
+  }
+
+  /// getrankdetail → 每月权益券（优先 monthlyproductlist，回退 group=MONTHLY 的 services）
+  List<MemberMonthlyCoupon> _mapMonthlyCoupons(GetRankDetailResp detail) {
+    if (detail.monthlyproductlist.isNotEmpty) {
+      return detail.monthlyproductlist
+          .map((e) => MemberMonthlyCoupon(id: '${e.serviceid}', title: e.productname, subtitle: e.servicedescr, received: e.isreceived))
+          .toList();
+    }
+    return detail.services
+        .where((e) => e.group == ServiceGroup.monthly)
+        .map((e) => MemberMonthlyCoupon(id: '${e.serviceid}', title: e.servicename, subtitle: e.description, received: e.hasowned))
+        .toList();
   }
 
   /// 后端 message 可能为空或为 `unknown error`，统一转成可展示的文案
@@ -160,19 +236,24 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
     bool? loading,
     String? errorMessage,
     bool clearError = false,
-    MemberInfo? memberInfo,
+    int? growthValue,
+    List<MemberLevelOption>? levels,
     int? selectedLevelIndex,
-    MemberAuthorityModel? authority,
-    bool clearAuthority = false,
+    GetRankDetailResp? detail,
+    bool clearDetail = false,
+    List<MemberAuthItem>? benefitAuths,
+    bool clearBenefitAuths = false,
+    List<MemberMonthlyCoupon>? monthlyCoupons,
   }) {
     return MemberLevelState(
       loading: loading ?? state.loading,
       errorMessage: clearError ? null : (errorMessage ?? state.errorMessage),
-      memberInfo: memberInfo ?? state.memberInfo,
-      levels: state.levels,
+      growthValue: growthValue ?? state.growthValue,
+      levels: levels ?? state.levels,
       selectedLevelIndex: selectedLevelIndex ?? state.selectedLevelIndex,
-      authority: clearAuthority ? null : (authority ?? state.authority),
-      monthlyCoupons: state.monthlyCoupons,
+      detail: clearDetail ? null : (detail ?? state.detail),
+      benefitAuths: clearBenefitAuths ? const [] : (benefitAuths ?? state.benefitAuths),
+      monthlyCoupons: monthlyCoupons ?? state.monthlyCoupons,
     );
   }
 }

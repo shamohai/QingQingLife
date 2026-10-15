@@ -8,8 +8,11 @@ import '../providers/member_level_provider.dart';
 /// 设计稿：标题行「🎁 每月权益 (权益月月享，每月只可领取一个)」，
 /// 下方为横向滚动的券面 + 橙色「领取」按钮。
 ///
-/// TODO: 券面图（设计切图/后端 showimg）资源尚未提供，当前使用 Flutter 原生样式券面还原；
-/// 资源就绪后替换为 AppNetworkImage。领取接口后端未实现，暂记录日志。
+/// 数据：来自 getRankDetail（POST /api/sys/app/getrankdetail）的 monthlyproductlist，
+/// 券面标题/副标题绑定 productname / servicedescr，领取状态绑定 isreceived。
+///
+/// TODO: 券面图（设计切图/后端 productimg）资源尚未提供，当前使用 Flutter 原生样式券面还原；
+/// 资源就绪后替换为 AppNetworkImage。领取接口（ReceiveUserService）后端未实现，暂记录日志。
 class MemberMonthlyBenefits extends StatelessWidget {
   final List<MemberMonthlyCoupon> coupons;
 
@@ -116,19 +119,24 @@ class _CouponItem extends StatelessWidget {
         ),
         const SizedBox(height: 6),
 
-        // ── 领取按钮 ──────────────────────────────────────────────
+        // ── 领取按钮（已领取时置灰并展示「已领取」）─────────────────
         GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () {
-            // TODO: 每月权益领取接口后端未实现，待接入后补充
-            debugPrint('[MemberMonthlyBenefits] 领取点击: ${coupon.title}');
-          },
+          onTap: coupon.received
+              ? null
+              : () {
+                  // TODO: 每月权益领取接口（ReceiveUserService）后端未实现，待接入后补充
+                  debugPrint('[MemberMonthlyBenefits] 领取点击: ${coupon.title}');
+                },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
-            decoration: const BoxDecoration(color: Color(0xFFFF8C1F), borderRadius: BorderRadius.all(Radius.circular(999))),
-            child: const Text(
-              '领取',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white, height: 1.3),
+            decoration: BoxDecoration(
+              color: coupon.received ? const Color(0xFFC9CDD4) : const Color(0xFFFF8C1F),
+              borderRadius: const BorderRadius.all(Radius.circular(999)),
+            ),
+            child: Text(
+              coupon.received ? '已领取' : '领取',
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white, height: 1.3),
             ),
           ),
         ),

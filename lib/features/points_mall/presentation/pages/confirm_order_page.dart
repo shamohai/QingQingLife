@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/widgets/app_error.dart';
 import '../../../../../core/widgets/app_loading.dart';
 import '../../../../app/router/route_names.dart';
+import '../../data/models/get_recommend_product_list_model.dart';
 import '../../data/models/points_payment_success_data.dart';
 import '../../data/models/service_product_detail_model.dart';
 import '../providers/confirm_order_provider.dart';
@@ -13,6 +14,7 @@ import '../providers/service_product_detail_provider.dart';
 import '../widgets/confirm_order_bottom_bar.dart';
 import '../widgets/confirm_order_header.dart';
 import '../widgets/confirm_order_product_card.dart';
+import '../widgets/confirm_order_redeemer_form.dart';
 
 class ConfirmOrderPage extends ConsumerWidget {
   final String productId;
@@ -35,11 +37,13 @@ class ConfirmOrderPage extends ConsumerWidget {
   }
 
   Widget _buildContent(WidgetRef ref, ServiceProductDetail product) {
+    //测试时先注释掉
+    final isGiftCard = product.productType == CreditProductType.giftCard;
+    //final isGiftCard = product.productType == CreditProductType.serviceCouponIntegral;
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
-        SliverToBoxAdapter(child: const ConfirmOrderHeader()),
-        const SliverToBoxAdapter(child: SizedBox(height: 8)),
+        if (!isGiftCard) ...[const SliverToBoxAdapter(child: ConfirmOrderHeader()), const SliverToBoxAdapter(child: SizedBox(height: 8))],
         SliverToBoxAdapter(
           child: Consumer(
             builder: (context, ref, _) {
@@ -56,7 +60,8 @@ class ConfirmOrderPage extends ConsumerWidget {
             },
           ),
         ),
-        SliverToBoxAdapter(child: const SizedBox(height: 78)),
+        if (isGiftCard) SliverToBoxAdapter(child: ConfirmOrderRedeemerForm(onSubmitted: () => _handleSubmit(ref, product))),
+        const SliverToBoxAdapter(child: SizedBox(height: 78)),
       ],
     );
   }
@@ -68,10 +73,10 @@ class ConfirmOrderPage extends ConsumerWidget {
       data: (product) => pointsAsync.when(
         data: (d) => ConfirmOrderBottomBar(product: product, pointsBalance: d.currentPoints, onSubmit: () => _handleSubmit(ref, product)),
         loading: () => const SizedBox(height: 56),
-        error: (_, __) => const SizedBox(height: 56),
+        error: (_, _) => const SizedBox(height: 56),
       ),
       loading: () => const SizedBox(height: 56),
-      error: (_, __) => const SizedBox(height: 56),
+      error: (_, _) => const SizedBox(height: 56),
     );
   }
 

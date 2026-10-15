@@ -43,7 +43,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return Scaffold(
       // 页面底色与设计稿浅蓝背景一致
       backgroundColor: const Color(0xFFD6E8F7),
-      body: profileState.memberInfo.levelName == '未登录'
+      body: profileState.levelName == '未登录'
           ? const Center(child: AppLoading())
           : Stack(
               children: [

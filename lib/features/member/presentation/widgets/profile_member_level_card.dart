@@ -10,24 +10,18 @@ import '../providers/user_profile_provider.dart';
 ///
 /// 布局：等级名称 + 成长值进度（左）+ 等级徽章（右），
 /// 下方依次为权益提示、立即签到按钮与等级到期时间。
-/// 数据来源：[UserProfileState.memberInfo] / [UserProfileState.benefitsCount]
+/// 数据来源：[UserProfileState]（等级 / 成长值 / 到期时间来自 getranklist 真实接口）
 /// 点击卡片整体跳转至会员详情页（RouteNames.memberLevel）；
 /// 「立即签到」按钮独立跳转至会员签到页（RouteNames.memberSignIn），不触发卡片跳转。
 class ProfileMemberLevelCard extends ConsumerWidget {
   const ProfileMemberLevelCard({super.key});
 
-  /// 权益数量中文数字（1~10），超出范围回退为阿拉伯数字
-  static const List<String> _cnNumbers = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
-
-  static String _cnNum(int n) => n >= 0 && n <= 10 ? _cnNumbers[n] : '$n';
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(userProfileProvider);
-    final info = state.memberInfo;
 
     // 防止除零
-    final progress = info.nextLevelGrowthValue > 0 ? (info.growthValue / info.nextLevelGrowthValue).clamp(0.0, 1.0) : 0.0;
+    final progress = state.nextLevelGrowthValue > 0 ? (state.growthValue / state.nextLevelGrowthValue).clamp(0.0, 1.0) : 0.0;
     final expireDate = state.memberExpireDate;
 
     return GestureDetector(
@@ -54,7 +48,7 @@ class ProfileMemberLevelCard extends ConsumerWidget {
                     children: [
                       Flexible(
                         child: Text(
-                          info.levelName,
+                          state.levelName,
                           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF1B3C70), height: 1.1),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -62,7 +56,7 @@ class ProfileMemberLevelCard extends ConsumerWidget {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        '${info.growthValue}/${info.nextLevelGrowthValue}升级',
+                        '${state.growthValue}/${state.nextLevelGrowthValue}升级',
                         style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF33475B)),
                       ),
                     ],
@@ -89,7 +83,7 @@ class ProfileMemberLevelCard extends ConsumerWidget {
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(
-                          '可尊享${_cnNum(state.benefitsCount)}项会员权益',
+                          '尊享多项会员权益，立即解锁',
                           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF3A4A5A)),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

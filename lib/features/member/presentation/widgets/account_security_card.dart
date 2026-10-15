@@ -36,6 +36,7 @@ class AccountSecurityCard extends ConsumerWidget {
     final addressesAsync = ref.watch(memberAddressesProvider);
     final addresses = addressesAsync.hasValue ? addressesAsync.value! : const <MemberAddress>[];
     final address = addresses.isNotEmpty ? addresses.first : null;
+    final uidAsync = ref.watch(memberUidProvider);
     // 省市区与详细地址分两行展示（设计稿为手动换行）
     final addressText = address == null ? '' : '${address.province}${address.city}${address.district}\n${address.detail}';
 
@@ -47,7 +48,7 @@ class AccountSecurityCard extends ConsumerWidget {
         children: [
           _buildRow(
             label: 'UID',
-            value: Text(profileState.memberInfo.id, style: _valueStyle),
+            value: Text(uidAsync.hasValue ? uidAsync.value! : '', style: _valueStyle),
           ),
           _buildRow(
             label: '昵称',

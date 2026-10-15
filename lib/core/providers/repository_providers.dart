@@ -4,6 +4,8 @@ import '../../features/auth/data/datasources/auth_mock_datasource.dart';
 import '../../features/auth/data/datasources/auth_mixed_datasource.dart';
 import '../../features/auth/data/datasources/auth_remote_datasource.dart';
 import '../domain/repositories/auth_repository.dart';
+import '../../features/cart/data/datasources/cart_mock_datasource.dart';
+import '../../features/cart/domain/repositories/cart_repository.dart';
 import '../../features/member/data/datasources/member_mock_datasource.dart';
 import '../../features/member/data/datasources/member_sign_in_mock_datasource.dart';
 import '../../features/member/domain/repositories/member_repository.dart';
@@ -37,6 +39,12 @@ AuthRepository authRepository(Ref ref) {
 @riverpod
 ProductRepository productRepository(Ref ref) {
   return MockProductDataSource();
+}
+
+/// Cart Repository Provider
+@riverpod
+CartRepository cartRepository(Ref ref) {
+  return MockCartDataSource();
 }
 
 /// Order Repository Provider
@@ -90,6 +98,7 @@ NotificationRepository notificationRepository(Ref ref) {
 final allRepositoryProviders = [
   authRepositoryProvider,
   productRepositoryProvider,
+  cartRepositoryProvider,
   orderRepositoryProvider,
   memberRepositoryProvider,
   memberSignInRepositoryProvider,

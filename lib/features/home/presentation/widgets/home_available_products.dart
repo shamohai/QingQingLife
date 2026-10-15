@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../product/domain/repositories/product_repository.dart';
-import 'home_product_card.dart';
+import '../../../../core/utils/money.dart';
+import '../../../../core/widgets/app_image.dart';
 
-/// 可用商品横向展示（3列固定）+ 管家服务悬浮按钮
+/// 可用商品横向展示（4列固定）
+/// 设计稿：112x112 图片，"自营" 蓝色标签，名称，价格
 class HomeAvailableProducts extends StatelessWidget {
   final List<ProductCard> products;
   final VoidCallback? onManageServiceTap;
@@ -16,73 +16,97 @@ class HomeAvailableProducts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      child: Stack(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(AppRadius.lg)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 标题行
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
               children: [
-                Text('可用商品', style: AppTextStyles.headlineSmall),
-                const SizedBox(height: AppSpacing.md),
-                SizedBox(
-                  height: 168,
-                  child: products.isEmpty
-                      ? const Center(child: Text('暂无可用商品', style: AppTextStyles.bodySmall))
-                      : ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: products.length > 3 ? 3 : products.length,
-                          itemBuilder: (context, index) {
-                            final product = products[index];
-                            return Padding(
-                              padding: EdgeInsets.only(right: index < (products.length > 3 ? 3 : products.length) - 1 ? AppSpacing.md : 0),
-                              child: HomeProductCard(product: product, compact: true),
-                            );
-                          },
-                        ),
+                Container(
+                  width: 16,
+                  height: 16,
+                  decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
+                  child: const Icon(Icons.shopping_bag_outlined, size: 10, color: Colors.white),
                 ),
+                const SizedBox(width: AppSpacing.xs),
+                Text('可用商品', style: AppTextStyles.headlineSmall),
               ],
             ),
-          ),
-          if (onManageServiceTap != null)
-            Positioned(
-              right: -4,
-              bottom: -8,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  GestureDetector(
-                    onTap: onManageServiceTap,
-                    child: Container(
-                      width: 52,
-                      height: 52,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                        boxShadow: [BoxShadow(color: AppColors.scrim, blurRadius: 8, offset: Offset(0, 4))],
-                      ),
-                      child: const Icon(Icons.person, color: Colors.white, size: 28),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(AppRadius.round),
-                      boxShadow: [BoxShadow(color: AppColors.overlay, blurRadius: 4, offset: Offset(0, 2))],
-                    ),
-                    child: const Text('管家服务', style: TextStyle(fontSize: 10, color: AppColors.onSurface, fontWeight: FontWeight.w500)),
-                  ),
-                ],
-              ),
+            GestureDetector(
+              onTap: () {},
+              child: Text('查看更多>>>', style: AppTextStyles.labelSmall.copyWith(color: const Color(0xFF999999))),
             ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.md),
+        // 商品列表
+        SizedBox(
+          height: 180,
+          child: products.isEmpty
+              ? const Center(child: Text('暂无可用商品', style: AppTextStyles.bodySmall))
+              : ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: products.length > 4 ? 4 : products.length,
+                  itemBuilder: (context, index) {
+                    final product = products[index];
+                    return Padding(
+                      padding: EdgeInsets.only(right: index < (products.length > 4 ? 4 : products.length) - 1 ? AppSpacing.md : 0),
+                      child: _AvailableProductCard(product: product),
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AvailableProductCard extends StatelessWidget {
+  final ProductCard product;
+
+  const _AvailableProductCard({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 112, // 设计稿 112px 宽度
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 商品图片 112x112
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: AppNetworkImage(url: product.imageUrl, width: 112, height: 112, fit: BoxFit.cover, memCacheWidth: 112, memCacheHeight: 112),
+              ),
+              // "自营" 标签
+              Positioned(
+                top: 6,
+                left: 6,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0e55b4), // 蓝色背景
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text(
+                    '自营',
+                    style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // 商品名称
+          Text(product.name, style: AppTextStyles.bodySmall.copyWith(fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
+          const SizedBox(height: 4),
+          // 价格
+          Text(Money.fromCents(product.priceCents).format(), style: AppTextStyles.priceSmall.copyWith(fontSize: 14)),
         ],
       ),
     );

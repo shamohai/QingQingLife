@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../data/models/points_mall_home_data.dart';
 import '../providers/points_mall_paging_providers.dart';
 import 'points_hot_product_card.dart';
 
@@ -180,7 +182,15 @@ class HotProductsListView extends ConsumerWidget {
           itemCount: items.length,
           itemBuilder: (context, index) => Padding(
             padding: EdgeInsets.only(right: index == items.length - 1 ? 0 : 8),
-            child: PointsHotProductCard(product: items[index]),
+            child: PointsHotProductCard(
+              product: items[index],
+              onTap: () {
+                final product = items[index];
+                if (product.type == PointsProductType.service) {
+                  GoRouter.of(context).push('/points/service/${product.id}');
+                }
+              },
+            ),
           ),
         );
       },
