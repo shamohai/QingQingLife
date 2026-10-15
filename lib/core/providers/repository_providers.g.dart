@@ -126,8 +126,13 @@ final cartRepositoryProvider = CartRepositoryProvider._();
 /// Cart Repository Provider
 
 final class CartRepositoryProvider
-    extends $FunctionalProvider<CartRepository, CartRepository, CartRepository>
-    with $Provider<CartRepository> {
+    extends
+        $FunctionalProvider<
+          CartPageRepository,
+          CartPageRepository,
+          CartPageRepository
+        >
+    with $Provider<CartPageRepository> {
   /// Cart Repository Provider
   CartRepositoryProvider._()
     : super(
@@ -145,24 +150,25 @@ final class CartRepositoryProvider
 
   @$internal
   @override
-  $ProviderElement<CartRepository> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+  $ProviderElement<CartPageRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
 
   @override
-  CartRepository create(Ref ref) {
+  CartPageRepository create(Ref ref) {
     return cartRepository(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(CartRepository value) {
+  Override overrideWithValue(CartPageRepository value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<CartRepository>(value),
+      providerOverride: $SyncValueProvider<CartPageRepository>(value),
     );
   }
 }
 
-String _$cartRepositoryHash() => r'64b87c9133025bff8969db75b6d211d07fdd1d41';
+String _$cartRepositoryHash() => r'4f84a94e7963f4180c1bd7d32bcf9e84cb17a8eb';
 
 /// Order Repository Provider
 

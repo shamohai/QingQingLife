@@ -23,8 +23,6 @@ import '../../features/service/presentation/pages/service_records_page.dart';
 import '../../features/service/presentation/pages/service_project_detail_page.dart';
 import '../../features/service/presentation/pages/service_booking_form_page.dart';
 import '../../features/service/presentation/pages/service_template_detail_page.dart';
-import '../../features/service/presentation/pages/service_checkout_page.dart';
-import '../../features/service/presentation/providers/service_cart_provider.dart';
 import '../../features/product/presentation/pages/product_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
@@ -35,8 +33,10 @@ import '../../features/points_mall/presentation/pages/points_payment_success_pag
 import '../../features/points/presentation/pages/points_detail_page.dart';
 import '../../features/points/presentation/pages/points_rules_page.dart';
 import '../../features/order/presentation/pages/all_orders_page.dart';
+import '../../features/order/presentation/pages/confirm_order_page.dart' as mall_order;
 import '../../features/order/presentation/pages/invoice_center_page.dart';
 import '../../features/order/presentation/pages/invoice_detail_page.dart';
+import '../../features/order/presentation/pages/mall_payment_success_page.dart';
 import '../../features/order/presentation/pages/order_detail_page.dart';
 import '../../features/order/presentation/pages/mall_order_review_page.dart';
 import 'route_names.dart';
@@ -54,6 +54,10 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.phoneBind,
         pageBuilder: (c, s) => const MaterialPage(child: PhoneBindPage()),
+      ),
+      GoRoute(
+        path: RouteNames.productDetail,
+        pageBuilder: (c, s) => MaterialPage(child: ProductDetailPage(productId: s.pathParameters['id']!)),
       ),
       StatefulShellRoute.indexedStack(
         builder: (c, s, ns) => MainShell(navigationShell: ns),
@@ -99,6 +103,17 @@ final appRouter = Provider<GoRouter>((ref) {
                     pageBuilder: (c, s) => MaterialPage(child: ServiceRecordsPage(activeTab: s.uri.queryParameters['activeTab'] ?? 'ongoing')),
                   ),
                   GoRoute(
+                    path: 'project/:id',
+                    pageBuilder: (c, s) => MaterialPage(child: ServiceProjectDetailPage(projectId: s.pathParameters['id']!)),
+                  ),
+                  GoRoute(
+                    name: 'serviceBookingForm',
+                    path: RouteNames.serviceBookingForm,
+                    pageBuilder: (c, s) => MaterialPage(
+                      child: ServiceBookingFormPage(projectId: s.pathParameters['id']!, title: s.uri.queryParameters['title'] ?? '预约项目'),
+                    ),
+                  ),
+                  GoRoute(
                     path: 'template/:id',
                     pageBuilder: (c, s) => MaterialPage(child: ServiceTemplateDetailPage(templateId: int.tryParse(s.pathParameters['id']!) ?? 0)),
                   ),
@@ -115,17 +130,6 @@ final appRouter = Provider<GoRouter>((ref) {
             ],
           ),
         ],
-      ),
-      GoRoute(
-        path: RouteNames.serviceProjectDetail,
-        pageBuilder: (c, s) => MaterialPage(child: ServiceProjectDetailPage(projectId: s.pathParameters['id']!)),
-      ),
-      GoRoute(
-        name: 'serviceBookingForm',
-        path: RouteNames.serviceBookingForm,
-        pageBuilder: (c, s) => MaterialPage(
-          child: ServiceBookingFormPage(projectId: s.pathParameters['id']!, title: s.uri.queryParameters['title'] ?? '预约项目'),
-        ),
       ),
       GoRoute(
         path: RouteNames.memberLevel,
@@ -191,25 +195,24 @@ final appRouter = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.checkout,
-        pageBuilder: (c, s) {
-          final templateId = int.tryParse(s.uri.queryParameters['templateId'] ?? '') ?? 0;
-          final headImg = s.uri.queryParameters['headImg'] ?? '';
-          final cartId = int.tryParse(s.uri.queryParameters['cartId'] ?? '') ?? 0;
-          return MaterialPage(
-            child: ServiceCheckoutPage(
-              params: ServiceCartInitialParams(templateId: templateId, headImg: headImg, existingCartId: cartId),
-            ),
-          );
-        },
+        pageBuilder: (c, s) => const MaterialPage(child: CartPage()),
+      ),
+      GoRoute(
+        path: RouteNames.mallConfirmOrder,
+        pageBuilder: (c, s) => const MaterialPage(child: mall_order.ConfirmOrderPage()),
+      ),
+      GoRoute(
+        path: RouteNames.mallPaymentSuccess,
+        pageBuilder: (c, s) => MaterialPage(child: MallPaymentSuccessPage.fromExtra(s.extra)),
       ),
       GoRoute(
         path: RouteNames.serviceCart,
         pageBuilder: (c, s) {
           final templateId = int.tryParse(s.uri.queryParameters['templateId'] ?? '') ?? 0;
-          final headImg = s.uri.queryParameters['headImg'] ?? '';
           final cartId = int.tryParse(s.uri.queryParameters['cartId'] ?? '') ?? 0;
+          final headImg = s.uri.queryParameters['headImg'];
           return MaterialPage(
-            child: ServiceCartPage(templateId: templateId, headImg: headImg, cartId: cartId),
+            child: ServiceCartPage(templateId: templateId, cartId: cartId, headImg: headImg),
           );
         },
       ),
@@ -250,7 +253,6 @@ final appRouter = Provider<GoRouter>((ref) {
 /// 底部 Tab 主框架
 class MainShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
-
   const MainShell({super.key, required this.navigationShell});
   void _goBranch(int index) => navigationShell.goBranch(index, initialLocation: true);
   static const _tabAssets = [
@@ -263,7 +265,6 @@ class MainShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final idx = navigationShell.currentIndex;
-
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: Container(

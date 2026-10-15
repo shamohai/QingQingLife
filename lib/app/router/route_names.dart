@@ -18,6 +18,8 @@ abstract final class RouteNames {
 
   // 订单相关
   static const String orders = '/orders';
+  static const String mallConfirmOrder = '/orders/confirm';
+  static const String mallPaymentSuccess = '/orders/payment-success';
   static const String orderDetail = '/orders/:id';
   // 发票中心
   static const String invoiceCenter = '/orders/invoices';
@@ -65,6 +67,8 @@ abstract final class RouteNames {
   // 预约项目详情
   static const String serviceProjectDetail = '/service/project/:id';
 
+  // 预约项目填写信息
+  static const String serviceActivityBookingForm = '/service/activity/:id/book';
   // 预约项目填写信息
   static const String serviceBookingForm = '/service/project/:id/book';
 

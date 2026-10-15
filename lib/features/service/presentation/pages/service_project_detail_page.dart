@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../app/router/route_names.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../domain/models/service_project_detail_model.dart';
@@ -47,7 +49,8 @@ class ServiceProjectDetailPage extends ConsumerWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context, {String? title, bool isActivity = true}) {
+  PreferredSizeWidget _buildAppBar(BuildContext context, {String? title, bool isActivity = false}) {
+    final pageTitle = isActivity ? (title ?? '活动详情') : '预约项目详情';
     return AppBar(
       backgroundColor: AppColors.servicePageBackground,
       elevation: 0,
@@ -60,8 +63,22 @@ class ServiceProjectDetailPage extends ConsumerWidget {
             : const Icon(Icons.arrow_back, color: Colors.black),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      title: Text(title ?? (isActivity ? '活动详情' : '预约项目详情'), style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: Colors.black)),
+      title: Text(pageTitle, style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: Colors.black)),
       centerTitle: false,
+      actions: [
+        if (!isActivity)
+          Padding(
+            padding: const EdgeInsets.only(right: 14),
+            child: TextButton(
+              onPressed: () => context.push(RouteNames.customerService),
+              style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+              child: const Text(
+                '预约说明',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.serviceProjectBlue),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -78,7 +95,7 @@ class ServiceProjectDetailPage extends ConsumerWidget {
             width: double.infinity,
             child: Column(
               children: [
-                ProjectDetailHeroImage(heroAsset: product.heroAsset),
+                ProjectDetailHeroImage(heroAsset: product.heroAsset, horizontalPadding: 14, aspectRatio: 412 / 180),
                 Transform.translate(
                   offset: const Offset(0, -50),
                   child: ProjectDetailInfoCard(product: product),

@@ -4,11 +4,9 @@ import '../../features/auth/data/datasources/auth_mock_datasource.dart';
 import '../../features/auth/data/datasources/auth_mixed_datasource.dart';
 import '../../features/auth/data/datasources/auth_remote_datasource.dart';
 import '../domain/repositories/auth_repository.dart';
-import '../../features/cart/data/datasources/cart_mock_datasource.dart';
-import '../../features/cart/domain/repositories/cart_repository.dart';
-import '../../features/member/data/datasources/member_mixed_datasource.dart';
+import '../../features/cart/data/repositories/cart_page_mock_repository.dart';
+import '../../features/cart/domain/repositories/cart_page_repository.dart';
 import '../../features/member/data/datasources/member_mock_datasource.dart';
-import '../../features/member/data/datasources/member_remote_datasource.dart';
 import '../../features/member/data/datasources/member_sign_in_mock_datasource.dart';
 import '../../features/member/domain/repositories/member_repository.dart';
 import '../../features/member/domain/repositories/member_sign_in_repository.dart';
@@ -45,8 +43,8 @@ ProductRepository productRepository(Ref ref) {
 
 /// Cart Repository Provider
 @riverpod
-CartRepository cartRepository(Ref ref) {
-  return MockCartDataSource();
+CartPageRepository cartRepository(Ref ref) {
+  return const CartPageMockRepository();
 }
 
 /// Order Repository Provider
@@ -64,20 +62,11 @@ InvoiceRepository invoiceRepository(Ref ref) {
 }
 
 /// Member Repository Provider
-///
-/// ★ Mock / 真实接口切换点（会员模块）★
-///
-/// 现状：会员等级相关接口已就绪，通过 [MemberMixedDataSource] 走真实接口，
-/// 其余会员能力（会员信息 / 权益权限 / 优惠券 / 积分 / 地址…）仍走 Mock。
-///
-///   - 新增接口就绪 → 在 [MemberMixedDataSource] 中把对应方法改为 `remote.xxx()`；
-///   - 全部接口就绪 → 删除 [MemberMixedDataSource]，直接：
-///     `return ref.read(memberRemoteDataSourceProvider);`
-///   - 需要整体回退 Mock（如离线联调）→ 直接：
-///     `return MockMemberDataSource();`
 @riverpod
 MemberRepository memberRepository(Ref ref) {
-  return MemberMixedDataSource(remote: ref.read(memberRemoteDataSourceProvider), mock: MockMemberDataSource());
+  // TODO(Mock): 会员相关后端接口（含会员权益 POST /api/sys/v2/getmemberauthority）尚未实现，
+  // 当前统一走 Mock。后端就绪后改为返回 MemberRemoteDataSource。
+  return MockMemberDataSource();
 }
 
 /// Member Sign In Repository Provider
