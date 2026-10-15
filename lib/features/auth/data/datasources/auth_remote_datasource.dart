@@ -4,7 +4,8 @@ import '../../../../core/domain/repositories/auth_repository.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/providers.dart';
-import '../../../../core/storage/local_storage.dart';
+
+import '../../../../core/storage/secure_storage.dart';
 
 /// 真实 API 认证数据源
 ///
@@ -17,9 +18,9 @@ import '../../../../core/storage/local_storage.dart';
 ///   code == 295 → 用户未绑定手机号，需跳转绑定页
 class RemoteAuthDataSource implements AuthRepository {
   final ApiClient _apiClient;
-  final LocalStorage _localStorage;
+  final SecureStorage _storage = SecureStorage();
 
-  RemoteAuthDataSource({required this._apiClient, required this._localStorage});
+  RemoteAuthDataSource({required this._apiClient});
 
   @override
   Future<ApiResponse<AuthResult>> loginWithPhone({required String phone, required String code}) async {
@@ -67,11 +68,11 @@ class RemoteAuthDataSource implements AuthRepository {
 
   @override
   Future<bool> isLoggedIn() async {
-    final token = await _localStorage.getString('access_token');
+    final token = await _storage.readAccessToken();
     return token != null && token.isNotEmpty;
   }
 }
 
 final remoteAuthDataSourceProvider = Provider<RemoteAuthDataSource>((ref) {
-  return RemoteAuthDataSource(apiClient: ref.read(apiClientProvider), localStorage: ref.read(localStorageProvider));
+  return RemoteAuthDataSource(apiClient: ref.read(apiClientProvider));
 });

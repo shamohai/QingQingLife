@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -57,13 +58,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     ref.read(authProvider.notifier).wechatLogin();
   }
 
+  void _doWebTestLogin() {
+    ref.read(authProvider.notifier).webLogin();
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen<AuthStatus>(authProvider, (previous, next) {
       if (previous == AuthStatus.loading && next == AuthStatus.wechatAuthenticated) {
         if (mounted) context.push(RouteNames.phoneBind);
       } else if (previous == AuthStatus.loading && next == AuthStatus.authenticated) {
-        if (mounted) context.go(RouteNames.profile);
+        if (mounted) {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go(RouteNames.profile);
+          }
+        }
       } else if (next == AuthStatus.unauthenticated) {
         if (mounted) setState(() => _showLoading = false);
       }
@@ -262,6 +273,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ],
               ),
             ),
+            // Web 环境测试入口：仅 kIsWeb 可见，不使用设计稿色值，低视觉权重
+            if (kIsWeb) ...[
+              const SizedBox(height: 24),
+              TextButton(
+                onPressed: _doWebTestLogin,
+
+                child: const Text(
+                  'Web 测试登录',
+                  style: TextStyle(fontSize: 12, color: Color(0x990088FF), decoration: TextDecoration.underline),
+                ),
+              ),
+            ],
           ],
         );
       },
@@ -281,3 +304,4 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 }
+

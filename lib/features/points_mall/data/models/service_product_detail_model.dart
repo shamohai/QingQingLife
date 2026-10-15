@@ -296,7 +296,7 @@ class ServiceProductDetail {
     this.baiLiHuiType,
     this.fuluType,
     this.templateType,
-    this.auth = true,
+    this.auth = false,
     this.authTips,
     this.datatag,
     this.specs = const [],
@@ -319,7 +319,7 @@ class ServiceProductDetail {
     final serviceCoupon = serviceCouponMap != null ? ServiceCouponInfo.fromJson(serviceCouponMap) : null;
 
     return ServiceProductDetail(
-      id: json['pid'] != null ? (json['pid'] as num).toString() : '',
+      id: json['pid'] != null && json['pid'].toString().isNotEmpty ? json['pid'].toString() : 'service_001',
       heroImageUrl: heroImage.isEmpty ? null : heroImage,
       title: json['name'] as String? ?? '',
       tags: const [],
