@@ -19,10 +19,14 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
-    final token = await _storage.readAccessToken();
+    final token = await _storage.readAuthToken() ?? await _storage.readAccessToken();
     if (!options.extra.containsKey('authtoken') && token != null && token.isNotEmpty) {
       // 将 token 存入 extra，供 EncryptInterceptor 读取并写入 body
       options.extra['authtoken'] = token;
+    }
+    final deviceId = await _storage.readDeviceId();
+    if (!options.extra.containsKey('devid') && deviceId != null && deviceId.isNotEmpty) {
+      options.extra['devid'] = deviceId;
     }
     return handler.next(options);
   }

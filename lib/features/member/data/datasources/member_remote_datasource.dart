@@ -121,6 +121,69 @@ class MemberRemoteDataSource {
     );
   }
 
+  /// 获取当前用户的收货地址列表。
+  ///
+  /// 接口：POST /api/sys/getuseraddresslist
+  /// 请求体：{"addressid": 0}（0 表示返回全部地址）
+  /// 响应：{addresslist: [{id, consignee, provincename, cityname,
+  /// countyname, address, isdefult, phone, mobile, ...}], datatag}
+  Future<ApiResponse<List<MemberAddress>>> getAddresses() async {
+    return _apiClient.post<List<MemberAddress>>(
+      '/api/sys/getuseraddresslist',
+      data: const <String, dynamic>{'addressid': 0},
+      fromJson: (dynamic json) {
+        final map = json is Map<String, dynamic> ? json : <String, dynamic>{};
+        final rawList = map['addresslist'];
+        if (rawList is! List) return const <MemberAddress>[];
+        return rawList.whereType<Map>().map(MemberAddress.fromApiJson).toList(growable: false);
+      },
+    );
+  }
+
+  /// 添加或更新用户收货地址。
+  ///
+  /// 接口：POST /api/sys/setuseraddress
+  /// [address.areaId] 为空时，根据省、市、区名称调用区域查询接口获取末级区域 ID。
+  Future<ApiResponse<MemberAddress>> saveAddress(MemberAddress address) async {
+    final areaId = await _resolveAreaId(address);
+    if (areaId == null) {
+      return ApiResponse.error('无法获取所选地区信息，请重新选择所在地区');
+    }
+
+    final response = await _apiClient.post<MemberAddress>(
+      '/api/sys/setuseraddress',
+      data: <String, dynamic>{
+        'id': int.tryParse(address.id ?? '') ?? 0,
+        'areaid': areaId,
+        'consignee': address.name,
+        'mobile': address.phone,
+        'address': address.detail,
+        'isdefult': address.isDefault,
+        'isdelete': false,
+      },
+      fromJson: (dynamic json) {
+        final map = json is Map<String, dynamic> ? json : <String, dynamic>{};
+        final addressInfo = map['addressinfo'];
+        if (addressInfo is Map) {
+          return MemberAddress.fromApiJson(addressInfo);
+        }
+        final returnedId = map['addressid']?.toString();
+        return address.copyWith(id: returnedId ?? address.id, areaId: areaId);
+      },
+    );
+    return response;
+  }
+
+  Future<int?> _resolveAreaId(MemberAddress address) async {
+    if (address.areaId != null && address.areaId! > 0) return address.areaId;
+    final response = await _apiClient.post<_AreaInfo>(
+      '/api/common/getareainfobyname',
+      data: <String, dynamic>{'provincename': address.province, 'cityname': address.city, 'districtname': address.district},
+      fromJson: (dynamic json) => _AreaInfo.fromJson(json as Map<String, dynamic>),
+    );
+    return response.success ? response.data?.districtId : null;
+  }
+
   /// 获取会员权益权限
   ///
   /// 接口：POST /api/sys/v2/getmemberauthority
@@ -150,3 +213,15 @@ final memberRemoteDataSourceProvider = Provider<MemberRemoteDataSource>((ref) {
   final apiClient = ref.read(apiClientProvider);
   return MemberRemoteDataSource(apiClient);
 });
+
+class _AreaInfo {
+  final int districtId;
+
+  const _AreaInfo({required this.districtId});
+
+  factory _AreaInfo.fromJson(Map<String, dynamic> json) {
+    final value = json['districtid'];
+    final districtId = value is num ? value.toInt() : int.tryParse('$value') ?? 0;
+    return _AreaInfo(districtId: districtId);
+  }
+}

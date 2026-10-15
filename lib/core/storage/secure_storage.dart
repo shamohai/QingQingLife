@@ -31,6 +31,18 @@ class SecureStorage {
     await _storage.write(key: AppConstants.accessTokenKey, value: token);
   }
 
+  /// 读取认证请求使用的设备身份。
+  Future<String?> readDeviceId() => get(AppConstants.deviceIdKey);
+
+  /// 保存认证请求使用的设备身份。
+  Future<void> writeDeviceId(String deviceId) => put(AppConstants.deviceIdKey, deviceId);
+
+  /// 读取服务端用户身份 Token（authtoken）。
+  Future<String?> readAuthToken() => get(AppConstants.authTokenKey);
+
+  /// 保存服务端用户身份 Token（authtoken）。
+  Future<void> writeAuthToken(String token) => put(AppConstants.authTokenKey, token);
+
   /// 读取刷新令牌
   Future<String?> readRefreshToken() async {
     if (kIsWeb) return web.window.localStorage.getItem(AppConstants.refreshTokenKey);
@@ -73,12 +85,13 @@ class SecureStorage {
     if (kIsWeb) {
       web.window.localStorage.removeItem(AppConstants.accessTokenKey);
       web.window.localStorage.removeItem(AppConstants.refreshTokenKey);
+      web.window.localStorage.removeItem(AppConstants.deviceIdKey);
+      web.window.localStorage.removeItem(AppConstants.authTokenKey);
       return;
     }
     await _storage.delete(key: AppConstants.accessTokenKey);
     await _storage.delete(key: AppConstants.refreshTokenKey);
+    await _storage.delete(key: AppConstants.deviceIdKey);
+    await _storage.delete(key: AppConstants.authTokenKey);
   }
 }
-
-
-

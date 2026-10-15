@@ -322,6 +322,7 @@ enum StatementType {
 /// 会员收货地址
 class MemberAddress {
   final String? id;
+  final int? areaId;
   final String name;
   final String phone;
   final String province;
@@ -333,6 +334,7 @@ class MemberAddress {
 
   const MemberAddress({
     this.id,
+    this.areaId,
     required this.name,
     required this.phone,
     required this.province,
@@ -343,10 +345,42 @@ class MemberAddress {
     this.label,
   });
 
+  /// 将用户地址列表接口返回的 AddressInfo 映射为领域地址实体。
+  ///
+  /// 接口字段中默认地址字段拼写为 `isdefult`，同时兼容布尔值、数字和字符串。
+  factory MemberAddress.fromApiJson(Map<dynamic, dynamic> json) {
+    String stringValue(String key) => json[key]?.toString() ?? '';
+    final rawId = json['id'];
+    final rawDefault = json['isdefult'];
+    final isDefault = rawDefault is bool
+        ? rawDefault
+        : rawDefault is num
+        ? rawDefault != 0
+        : rawDefault?.toString().toLowerCase() == 'true' || rawDefault?.toString() == '1';
+    final phone = stringValue('phone').isNotEmpty ? stringValue('phone') : stringValue('mobile');
+    return MemberAddress(
+      id: rawId?.toString(),
+      areaId: _intOrNull(json['regionid']),
+      name: stringValue('consignee'),
+      phone: phone,
+      province: stringValue('provincename'),
+      city: stringValue('cityname'),
+      district: stringValue('countyname'),
+      detail: stringValue('address'),
+      isDefault: isDefault,
+    );
+  }
+
+  static int? _intOrNull(dynamic value) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '');
+  }
+
   String get fullAddress => '$province$city$district$detail';
 
   MemberAddress copyWith({
     String? id,
+    int? areaId,
     String? name,
     String? phone,
     String? province,
@@ -358,6 +392,7 @@ class MemberAddress {
   }) {
     return MemberAddress(
       id: id ?? this.id,
+      areaId: areaId ?? this.areaId,
       name: name ?? this.name,
       phone: phone ?? this.phone,
       province: province ?? this.province,

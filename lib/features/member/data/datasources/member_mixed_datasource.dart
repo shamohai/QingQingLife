@@ -10,11 +10,12 @@ import 'member_remote_datasource.dart';
 /// 后端能力尚未全部就绪，按方法拆分数据源：
 ///   - 会员等级列表（getRankList）：POST /api/sys/app/getranklist，已接真实接口。
 ///   - 等级权益明细（getRankDetail）：POST /api/sys/app/getrankdetail，已接真实接口。
-///   - 其余会员能力（会员信息 / 等级权益 / 权益权限 / 优惠券 / 积分 / 地址 / 客服）：
+///   - 用户地址列表（getAddresses）：POST /api/sys/getuseraddresslist，已接真实接口。
+///   - 地址删除、设为默认及其余会员能力（会员信息 / 等级权益 / 权益权限 / 优惠券 / 积分 / 客服）：
 ///     后端仍开发中，走 Mock。
 ///
 /// 切换方式见 `lib/core/providers/repository_providers.dart` 中的 `memberRepository`：
-///   - 当前：`MemberMixedDataSource(remote: ..., mock: ...)`（等级相关走真实接口，其余 Mock）
+///   - 当前：`MemberMixedDataSource(remote: ..., mock: ...)`（已完成接口走真实接口，其余 Mock）
 ///   - 全部接口就绪后：删除本类，直接 `return ref.read(memberRemoteDataSourceProvider);`
 ///   - 需要整体回退 Mock：直接 `return MockMemberDataSource();`
 class MemberMixedDataSource implements MemberRepository {
@@ -36,6 +37,13 @@ class MemberMixedDataSource implements MemberRepository {
   @override
   Future<ApiResponse<CompleteUserInfoResult>> completeUserInfo({required String username, required int gender, required DateTime birthday}) =>
       remote.completeUserInfo(username: username, gender: gender, birthday: birthday);
+
+  // ── 已对接真实接口：用户收货地址 ───────────────────────────
+  @override
+  Future<ApiResponse<List<MemberAddress>>> getAddresses() => remote.getAddresses();
+
+  @override
+  Future<ApiResponse<MemberAddress>> saveAddress(MemberAddress address) => remote.saveAddress(address);
 
   // ── 后端未就绪：以下会员能力仍走 Mock ──────────────────────
   @override
@@ -67,12 +75,6 @@ class MemberMixedDataSource implements MemberRepository {
   @override
   Future<ApiResponse<StatementResult>> getStatements({required int page, required int pageSize, StatementType? type}) =>
       mock.getStatements(page: page, pageSize: pageSize, type: type);
-
-  @override
-  Future<ApiResponse<List<MemberAddress>>> getAddresses() => mock.getAddresses();
-
-  @override
-  Future<ApiResponse<MemberAddress>> saveAddress(MemberAddress address) => mock.saveAddress(address);
 
   @override
   Future<ApiResponse<void>> deleteAddress(String addressId) => mock.deleteAddress(addressId);

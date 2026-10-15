@@ -18,7 +18,7 @@ import '../widgets/address_card.dart';
 /// 入口：「我的」页功能宫格「收货地址」。
 /// 结构（设计稿）：返回栏「收货地址」→ 地址卡片列表（默认地址为蓝色描边 + 勾选圆点）
 ///   → 底部湖泊背景图 → 底部固定「新增收货地址」按钮。
-/// 数据：memberAddressesProvider（当前为 Mock 数据源，接口就绪后替换）。
+/// 数据：memberAddressesProvider（调用用户地址列表真实接口）。
 /// 新增 / 编辑地址跳转 AddressFormPage（/address/add、/address/edit）。
 class AddressListPage extends ConsumerStatefulWidget {
   const AddressListPage({super.key});

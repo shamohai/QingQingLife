@@ -82,7 +82,11 @@ class _PersonalInfoFormCardState extends State<PersonalInfoFormCard> {
               cursorColor: _Palette.label,
               decoration: const InputDecoration(
                 isCollapsed: true,
+                filled: false,
+                fillColor: Colors.transparent,
                 border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
                 hintText: '请输入昵称',
                 hintStyle: TextStyle(fontSize: 13, color: Color(0xFF9AA9C0)),
               ),

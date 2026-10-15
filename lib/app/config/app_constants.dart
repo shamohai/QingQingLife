@@ -3,6 +3,8 @@ abstract final class AppConstants {
   // 本地存储 Key
   static const String accessTokenKey = 'access_token';
   static const String refreshTokenKey = 'refresh_token';
+  static const String deviceIdKey = 'auth_device_id';
+  static const String authTokenKey = 'auth_token';
   static const String userIdKey = 'user_id';
   static const String isLoggedInKey = 'is_logged_in';
   static const String themeModeKey = 'theme_mode';
