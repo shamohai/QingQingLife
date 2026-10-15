@@ -23,12 +23,9 @@ class ServicePage extends ConsumerWidget {
     final selectedTab = ref.watch(selectedTabProvider);
     final isHuodong = selectedTab == 'huodong';
 
-    void onBookTap(String id, {bool isGoujiu = false}) {
-      if (isGoujiu) {
-        context.push(RouteNames.serviceTemplateDetail.replaceFirst(':id', id));
-      } else {
-        context.push(RouteNames.serviceProjectDetail.replaceFirst(':id', id));
-      }
+    // 列表项点击 → 跳转到详情页 (serviceProjectDetail)
+    void onItemTap(String id) {
+      context.push(RouteNames.serviceProjectDetail.replaceFirst(':id', id));
     }
 
     return Scaffold(
@@ -44,10 +41,10 @@ class ServicePage extends ConsumerWidget {
                 // 可滚动内容区
                 Expanded(
                   child: isHuodong
-                      ? _buildHuodongBody(ref, onBookTap)
+                      ? _buildHuodongBody(ref, onItemTap)
                       : selectedTab == 'goujiu'
-                          ? _buildGoujiuBody(context, ref)
-                          : _buildOtherBody(ref, onBookTap),
+                      ? _buildGoujiuBody(context, ref)
+                      : _buildOtherBody(ref, onItemTap),
                 ),
               ],
             ),
@@ -59,8 +56,8 @@ class ServicePage extends ConsumerWidget {
     );
   }
 
-  /// 活动报名列表（带日期 + 人数限制的专用卡片）
-  Widget _buildHuodongBody(WidgetRef ref, void Function(String, {bool isGoujiu}) onBookTap) {
+  /// 活动报名列表（第三个 tab）：列表项点击跳转到详情页
+  Widget _buildHuodongBody(WidgetRef ref, void Function(String) onItemTap) {
     final cards = ref.watch(serviceCardDataProvider);
     return cards.isEmpty
         ? const SizedBox(height: 200, child: AppEmpty(message: '暂无活动'))
@@ -76,10 +73,7 @@ class ServicePage extends ConsumerWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(top: 14, bottom: 14),
-                        child: ServiceActivityCardItem(
-                          data: cards[0],
-                          onTap: () => onBookTap(cards[0].id),
-                        ),
+                        child: ServiceActivityCardItem(data: cards[0], onTap: () => onItemTap(cards[0].id)),
                       ),
                       for (int i = 1; i < cards.length; i++)
                         Column(
@@ -87,10 +81,7 @@ class ServicePage extends ConsumerWidget {
                             Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 0, endIndent: 0),
                             Padding(
                               padding: const EdgeInsets.only(top: 14, bottom: 14),
-                              child: ServiceActivityCardItem(
-                                data: cards[i],
-                                onTap: () => onBookTap(cards[i].id),
-                              ),
+                              child: ServiceActivityCardItem(data: cards[i], onTap: () => onItemTap(cards[i].id)),
                             ),
                           ],
                         ),
@@ -102,7 +93,8 @@ class ServicePage extends ConsumerWidget {
           );
   }
 
-  Widget _buildOtherBody(WidgetRef ref, void Function(String, {bool isGoujiu}) onBookTap) {
+  /// 服务预约列表（第一个 tab）：列表项点击跳转到详情页
+  Widget _buildOtherBody(WidgetRef ref, void Function(String) onItemTap) {
     final cards = ref.watch(serviceCardDataProvider);
     return cards.isEmpty
         ? const SizedBox(height: 200, child: AppEmpty(message: '暂无服务'))
@@ -113,20 +105,20 @@ class ServicePage extends ConsumerWidget {
                 width: double.infinity,
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 11),
                   child: Column(
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(top: 14, bottom: 14),
-                        child: ServiceListItem(data: cards[0], onBookTap: onBookTap),
+                        child: ServiceListItem(data: cards[0], onBookTap: onItemTap),
                       ),
                       for (int i = 1; i < cards.length; i++)
                         Column(
                           children: [
-                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 0, endIndent: 0),
+                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
                             Padding(
                               padding: const EdgeInsets.only(top: 14, bottom: 14),
-                              child: ServiceListItem(data: cards[i], onBookTap: onBookTap),
+                              child: ServiceListItem(data: cards[i], onBookTap: onItemTap),
                             ),
                           ],
                         ),

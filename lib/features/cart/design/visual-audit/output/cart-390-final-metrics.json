@@ -1,0 +1,22 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "metrics": {
+    "location": "http://127.0.0.1:8091/#/cart",
+    "innerWidth": 390,
+    "innerHeight": 844,
+    "devicePixelRatio": 1,
+    "documentClientWidth": 390,
+    "documentScrollWidth": 390,
+    "documentScrollHeight": 844,
+    "bodyClientWidth": 390,
+    "bodyScrollWidth": 390,
+    "bodyScrollHeight": 844
+  },
+  "screenshots": [
+    "cart-390-final-initial.png",
+    "cart-390-final-scrolled.png"
+  ]
+}

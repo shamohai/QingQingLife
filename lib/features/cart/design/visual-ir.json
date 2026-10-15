@@ -1,0 +1,88 @@
+{
+  "pageId": "cart",
+  "source": "Lanhu image 093b1383-e2f5-4f5a-ae03-37cba8e9ce4e",
+  "canonicalViewport": {
+    "width": 440,
+    "height": 1671,
+    "orientation": "portrait"
+  },
+  "scroll": {
+    "direction": "vertical",
+    "fixedTop": true,
+    "fixedBottom": true
+  },
+  "palette": {
+    "pageBackground": "#F3F5F7",
+    "surface": "#FFFFFF",
+    "primary": "#213775",
+    "primaryEnd": "#3152AF",
+    "price": "#FF2105",
+    "summary": "#FE273D",
+    "muted": "#8E8E93",
+    "memberGold": "#D7B480"
+  },
+  "sections": [
+    {
+      "id": "header",
+      "type": "fixed_header",
+      "approximateHeight": 94,
+      "background": "#FFFFFF",
+      "children": ["back", "title", "manage", "address"],
+      "confidence": "high"
+    },
+    {
+      "id": "cart_panel",
+      "type": "repeated_product_list",
+      "marginHorizontal": 14,
+      "marginTop": 12,
+      "radius": 14,
+      "itemCount": 4,
+      "itemImageSize": 112,
+      "itemGap": 20,
+      "confidence": "high"
+    },
+    {
+      "id": "recommendation_heading",
+      "type": "section_heading",
+      "approximateHeight": 58,
+      "children": ["divider", "heart", "label", "divider"],
+      "confidence": "high"
+    },
+    {
+      "id": "recommendations",
+      "type": "two_column_product_grid",
+      "marginHorizontal": 16,
+      "columnGap": 14,
+      "rowGap": 14,
+      "cardWidthAtCanonicalViewport": 200,
+      "imageAspectRatio": 1,
+      "confidence": "high"
+    },
+    {
+      "id": "settlement_bar",
+      "type": "fixed_purchase_bar",
+      "contentHeight": 80,
+      "safeAreaAware": true,
+      "children": ["select_all", "payable", "saving", "checkout"],
+      "confidence": "high"
+    }
+  ],
+  "interactions": [
+    "select item",
+    "select all",
+    "change quantity",
+    "switch management mode",
+    "delete selected items",
+    "clear all items",
+    "confirm destructive action",
+    "choose local address",
+    "add recommendation to cart",
+    "preview local checkout summary"
+  ],
+  "acceptedDeviations": [
+    "The simulated iOS status bar and home indicator are replaced by Flutter SafeArea.",
+    "The source total of CNY 3600 conflicts with four CNY 800 items. Payable and savings are calculated from selected quantities in integer cents.",
+    "Tiny 10px tags are rendered slightly larger for readability on narrow devices.",
+    "The supplied Lanhu product bitmaps are embedded inside the cart feature because CanvasKit cannot fetch the OSS URLs cross-origin."
+  ]
+}
