@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../features/auth/presentation/providers/auth_provider.dart';
-import '../../../../core/widgets/app_dialog.dart';
 import '../../data/models/service_product_detail_model.dart';
 import 'exchange_confirm_dialog.dart';
 import 'tips_dialog.dart';
