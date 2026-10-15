@@ -33,8 +33,10 @@ import '../../features/points_mall/presentation/pages/points_payment_success_pag
 import '../../features/points/presentation/pages/points_detail_page.dart';
 import '../../features/points/presentation/pages/points_rules_page.dart';
 import '../../features/order/presentation/pages/all_orders_page.dart';
+import '../../features/order/presentation/pages/confirm_order_page.dart' as mall_order;
 import '../../features/order/presentation/pages/invoice_center_page.dart';
 import '../../features/order/presentation/pages/invoice_detail_page.dart';
+import '../../features/order/presentation/pages/mall_payment_success_page.dart';
 import '../../features/order/presentation/pages/order_detail_page.dart';
 import '../../features/order/presentation/pages/mall_order_review_page.dart';
 import 'route_names.dart';
@@ -52,6 +54,10 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.phoneBind,
         pageBuilder: (c, s) => const MaterialPage(child: PhoneBindPage()),
+      ),
+      GoRoute(
+        path: RouteNames.productDetail,
+        pageBuilder: (c, s) => MaterialPage(child: ProductDetailPage(productId: s.pathParameters['id']!)),
       ),
       StatefulShellRoute.indexedStack(
         builder: (c, s, ns) => MainShell(navigationShell: ns),
@@ -98,27 +104,18 @@ final appRouter = Provider<GoRouter>((ref) {
                   ),
                   GoRoute(
                     path: 'project/:id',
-                    pageBuilder: (c, s) => MaterialPage(
-                      child: ServiceProjectDetailPage(projectId: s.pathParameters['id']!),
-                    ),
+                    pageBuilder: (c, s) => MaterialPage(child: ServiceProjectDetailPage(projectId: s.pathParameters['id']!)),
                   ),
                   GoRoute(
                     name: 'serviceBookingForm',
                     path: RouteNames.serviceBookingForm,
                     pageBuilder: (c, s) => MaterialPage(
-                      child: ServiceBookingFormPage(
-                        projectId: s.pathParameters['id']!,
-                        title: s.uri.queryParameters['title'] ?? '预约项目',
-                      ),
+                      child: ServiceBookingFormPage(projectId: s.pathParameters['id']!, title: s.uri.queryParameters['title'] ?? '预约项目'),
                     ),
                   ),
                   GoRoute(
                     path: 'template/:id',
-                    pageBuilder: (c, s) => MaterialPage(
-                      child: ServiceTemplateDetailPage(
-                        templateId: int.tryParse(s.pathParameters['id']!) ?? 0,
-                      ),
-                    ),
+                    pageBuilder: (c, s) => MaterialPage(child: ServiceTemplateDetailPage(templateId: int.tryParse(s.pathParameters['id']!) ?? 0)),
                   ),
                 ],
               ),
@@ -201,8 +198,23 @@ final appRouter = Provider<GoRouter>((ref) {
         pageBuilder: (c, s) => const MaterialPage(child: CartPage()),
       ),
       GoRoute(
+        path: RouteNames.mallConfirmOrder,
+        pageBuilder: (c, s) => const MaterialPage(child: mall_order.ConfirmOrderPage()),
+      ),
+      GoRoute(
+        path: RouteNames.mallPaymentSuccess,
+        pageBuilder: (c, s) => MaterialPage(child: MallPaymentSuccessPage.fromExtra(s.extra)),
+      ),
+      GoRoute(
         path: RouteNames.serviceCart,
-        pageBuilder: (c, s) => const MaterialPage(child: ServiceCartPage()),
+        pageBuilder: (c, s) {
+          final templateId = int.tryParse(s.uri.queryParameters['templateId'] ?? '') ?? 0;
+          final cartId = int.tryParse(s.uri.queryParameters['cartId'] ?? '') ?? 0;
+          final headImg = s.uri.queryParameters['headImg'];
+          return MaterialPage(
+            child: ServiceCartPage(templateId: templateId, cartId: cartId, headImg: headImg),
+          );
+        },
       ),
       GoRoute(
         path: RouteNames.pointsDetail,
@@ -314,11 +326,7 @@ class _TabItem extends StatelessWidget {
           const SizedBox(height: 3),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w400,
-              color: isSelected ? const Color(0xFF213775) : const Color(0xFF656565),
-            ),
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w400, color: isSelected ? const Color(0xFF213775) : const Color(0xFF656565)),
           ),
         ],
       ),

@@ -1260,7 +1260,7 @@ class _SummaryRow extends StatelessWidget {
               style: TextStyle(fontSize: 16, height: 1.5, fontWeight: labelWeight, color: Colors.black),
             ),
             const Spacer(),
-            Flexible(
+            Expanded(
               child: Text(
                 value,
                 maxLines: 1,

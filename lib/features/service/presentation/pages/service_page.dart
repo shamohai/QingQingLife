@@ -105,7 +105,7 @@ class ServicePage extends ConsumerWidget {
                 width: double.infinity,
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 11),
                   child: Column(
                     children: [
                       Padding(
@@ -115,7 +115,7 @@ class ServicePage extends ConsumerWidget {
                       for (int i = 1; i < cards.length; i++)
                         Column(
                           children: [
-                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 0, endIndent: 0),
+                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
                             Padding(
                               padding: const EdgeInsets.only(top: 14, bottom: 14),
                               child: ServiceListItem(data: cards[i], onBookTap: onItemTap),

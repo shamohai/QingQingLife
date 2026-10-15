@@ -8,6 +8,7 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../domain/models/service_card_data.dart';
 import '../widgets/booking_form_field.dart';
 
 /// 预约项目填写信息页面
@@ -35,6 +36,17 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
 
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
+
+  String get _heroAsset {
+    for (final cards in ServiceCardData.staticListByTab.values) {
+      for (final card in cards) {
+        if (card.id == widget.projectId && card.heroAsset != null) {
+          return card.heroAsset!;
+        }
+      }
+    }
+    return 'assets/images/service/service_project_hero.png';
+  }
 
   @override
   void initState() {
@@ -210,24 +222,27 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                     SizedBox(
                       width: double.infinity,
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, 0),
+                        padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
                         child: ClipRRect(
                           borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
-                          child: Image.asset('assets/images/service/service_project_hero.png', width: double.infinity, fit: BoxFit.cover),
+                          child: AspectRatio(
+                            aspectRatio: 412 / 180,
+                            child: Image.asset(_heroAsset, width: double.infinity, fit: BoxFit.cover),
+                          ),
                         ),
                       ),
                     ),
                     Transform.translate(
                       offset: const Offset(0, -50),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
                             boxShadow: const [BoxShadow(color: Color(0xFFE6E8E9), blurRadius: 7, offset: Offset(0, 2))],
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: AppSpacing.lg),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
@@ -236,7 +251,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                               BookingFormField(
                                 label: '联系人',
                                 imageAsset: 'assets/images/service/service_booking_name.png',
-                                valueWidget: _buildTextField(_nameCtrl, maxLength: 30, hintText: '请输入联系人'),
+                                valueWidget: _buildTextField(_nameCtrl, maxLength: 30, hintText: '请输入联系人姓名'),
                               ),
 
                               // Field 2: 联系电话
@@ -327,7 +342,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
         top: false,
         child: Container(
           color: Colors.white,
-          padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
+          padding: const EdgeInsets.fromLTRB(30, AppSpacing.md, 30, AppSpacing.lg),
           child: GestureDetector(
             onTap: _isSubmitting ? null : _handleSubmit,
             child: Container(

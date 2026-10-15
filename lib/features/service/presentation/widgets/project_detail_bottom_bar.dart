@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
-import '../../../../app/theme/app_spacing.dart';
 import '../../domain/models/service_project_detail_model.dart';
 
 /// 预约项目详情 — 底部固定操作栏
@@ -18,7 +17,7 @@ class ProjectDetailBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final btnWidth = screenWidth - AppSpacing.xxxl;
+    final btnWidth = screenWidth - 60;
 
     return Container(
       height: 80,

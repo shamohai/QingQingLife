@@ -42,7 +42,7 @@ class ServiceListItem extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: 20),
               // 中间文字区域：垂直居中
               Expanded(
                 child: Column(
@@ -65,7 +65,7 @@ class ServiceListItem extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: 22),
               // 右侧预约按钮：红色描边胶囊形，最小 78x31，垂直居中
               Align(
                 alignment: Alignment.center,
