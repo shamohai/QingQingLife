@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../member/domain/repositories/member_repository.dart';
+import '../../../member/presentation/providers/member_addresses_provider.dart';
 import '../providers/confirm_order_provider.dart';
+import 'mall_payment_success_page.dart';
 
 class ConfirmOrderPage extends ConsumerStatefulWidget {
   const ConfirmOrderPage({super.key});
@@ -14,8 +17,20 @@ class ConfirmOrderPage extends ConsumerStatefulWidget {
   ConsumerState<ConfirmOrderPage> createState() => _ConfirmOrderPageState();
 }
 
+typedef _InvoiceInfoDraft = ({
+  String? invoiceType,
+  String title,
+  String taxId,
+  String? registrationAddress,
+  String phone,
+  String bank,
+  String bankAccount,
+  bool isCompany,
+});
+
 class _ConfirmOrderPageState extends ConsumerState<ConfirmOrderPage> {
   late final TextEditingController _noteController;
+  _InvoiceInfoDraft? _invoiceInfoDraft;
 
   @override
   void initState() {
@@ -60,11 +75,7 @@ class _ConfirmOrderPageState extends ConsumerState<ConfirmOrderPage> {
                         onNoteChanged: (value) => ref.read(confirmOrderProvider.notifier).setNote(value),
                       ),
                       const SizedBox(height: 10),
-                      _AmountCard(
-                        state: state,
-                        onInvoiceChanged: (value) => ref.read(confirmOrderProvider.notifier).setNeedInvoice(value),
-                        onCouponTap: () => _showCouponSheet(context),
-                      ),
+                      _AmountCard(state: state, onInvoiceTap: () => _showInvoicePage(context), onCouponTap: () => _showCouponSheet(context)),
                       const SizedBox(height: 10),
                       _PaymentCard(selected: state.paymentMethod == '微信支付', onTap: () => ref.read(confirmOrderProvider.notifier).setPaymentMethod('微信支付')),
                     ],
@@ -83,90 +94,723 @@ class _ConfirmOrderPageState extends ConsumerState<ConfirmOrderPage> {
     final response = await ref.read(confirmOrderProvider.notifier).submit();
     if (!context.mounted) return;
     if (response.success && response.data != null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('订单提交成功')));
-      context.push('/orders/${response.data!.orderId}');
+      final state = ref.read(confirmOrderProvider);
+      context.push(
+        RouteNames.mallPaymentSuccess,
+        extra: MallPaymentSuccessData(
+          orderId: response.data!.orderId,
+          orderNo: response.data!.orderNo,
+          transactionNo: 'WX${DateTime.now().millisecondsSinceEpoch}',
+          amountCents: state.payableCents,
+          discountCents: state.couponDiscountCents,
+        ),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response.message)));
     }
   }
 
   Future<void> _showAddressSheet(BuildContext context) async {
-    const addresses = [
-      MemberAddress(id: 'addr_1', name: '吴彦祖', phone: '130 9876 9987', province: '甘肃省', city: '兰州市', district: '七里河区', detail: '兰州中心办公楼801室', isDefault: true),
-      MemberAddress(id: 'addr_2', name: '吴彦祖', phone: '130 9876 9987', province: '青海省', city: '西宁市', district: '城西区', detail: '文汇路街道青轻生活馆'),
-    ];
     await showModalBottomSheet<void>(
       context: context,
-      showDragHandle: true,
+      isScrollControlled: true,
+      showDragHandle: false,
+      barrierColor: const Color(0x4D000000),
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(18))),
-      builder: (sheetContext) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('选择收货地址', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-              const SizedBox(height: 12),
-              ...addresses.map(
-                (address) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text('${address.name}  ${address.phone}'),
-                  subtitle: Text(address.fullAddress),
-                  trailing: address.id == ref.read(confirmOrderProvider).address.id ? const Icon(Icons.check_circle, color: Color(0xFF213775)) : null,
-                  onTap: () {
-                    ref.read(confirmOrderProvider.notifier).setAddress(address);
-                    Navigator.pop(sheetContext);
-                  },
-                ),
-              ),
-            ],
+      builder: (sheetContext) {
+        final media = MediaQuery.of(sheetContext);
+        final height = (media.size.height - media.padding.top - 16).clamp(0.0, 648.0).toDouble();
+        return SizedBox(
+          height: height,
+          child: _AddressSheet(
+            selectedAddressId: ref.read(confirmOrderProvider).address.id,
+            bottomInset: media.padding.bottom,
+            onSelect: (address) {
+              ref.read(confirmOrderProvider.notifier).setAddress(address);
+              Navigator.of(sheetContext).pop();
+            },
+            onCreate: () async {
+              Navigator.of(sheetContext).pop();
+              await context.push(RouteNames.addressAdd);
+              if (mounted) ref.invalidate(memberAddressesProvider);
+            },
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   Future<void> _showCouponSheet(BuildContext context) async {
-    final selected = ref.read(confirmOrderProvider).couponName != null;
     await showModalBottomSheet<void>(
       context: context,
-      showDragHandle: true,
+      isScrollControlled: true,
+      showDragHandle: false,
+      barrierColor: const Color(0x4D000000),
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(18))),
-      builder: (sheetContext) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+      builder: (sheetContext) {
+        final media = MediaQuery.of(sheetContext);
+        final height = (media.size.height - media.padding.top).clamp(0.0, 675.0).toDouble();
+        return SizedBox(
+          height: height,
+          child: _CouponSheet(
+            bottomInset: media.padding.bottom,
+            onUse: () {
+              ref.read(confirmOrderProvider.notifier).selectCoupon(name: '新人券 ¥50.00', discountCents: 5000);
+              Navigator.of(sheetContext).pop();
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showInvoicePage(BuildContext context) async {
+    final saved = await Navigator.of(context)
+        .push<_InvoiceInfoDraft>(MaterialPageRoute<_InvoiceInfoDraft>(builder: (_) => _InvoiceInfoPage(initialValue: _invoiceInfoDraft)));
+    if (saved != null && mounted) {
+      _invoiceInfoDraft = saved;
+      ref.read(confirmOrderProvider.notifier).setNeedInvoice(true);
+    }
+  }
+}
+
+class _CouponSheet extends StatelessWidget {
+  const _CouponSheet({required this.bottomInset, required this.onUse});
+
+  final double bottomInset;
+  final VoidCallback onUse;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 17, 14, 0),
+          child: SizedBox(
+            height: 29,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                const Text('选择优惠券', style: TextStyle(fontSize: 20, height: 1.4, color: Colors.black)),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    tooltip: '关闭',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                    icon: Image.asset('assets/images/order/confirm-order-coupon-close.png', width: 24, height: 24),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          child: _CouponCard(available: true, onUse: onUse),
+        ),
+        const SizedBox(height: 12),
+        const Padding(padding: EdgeInsets.symmetric(horizontal: 15), child: _CouponCard(available: false)),
+        SizedBox(height: bottomInset),
+      ],
+    );
+  }
+}
+
+class _CouponCard extends StatelessWidget {
+  const _CouponCard({required this.available, this.onUse});
+
+  final bool available;
+  final VoidCallback? onUse;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = available ? const Color(0xFFFF2105) : const Color(0xFF8E8E93);
+    return SizedBox(
+      height: 110,
+      width: double.infinity,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(
+              available ? 'assets/images/order/confirm-order-coupon-available.png' : 'assets/images/order/confirm-order-coupon-unavailable.png',
+            ),
+            fit: BoxFit.fill,
+          ),
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 110,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      style: TextStyle(color: color, fontFamily: 'PingFang HK', fontWeight: FontWeight.w600),
+                      children: const [
+                        TextSpan(text: '¥', style: TextStyle(fontSize: 16, height: 1)),
+                        TextSpan(text: '50', style: TextStyle(fontSize: 32, height: 1)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text('新人优惠券', style: TextStyle(fontSize: 14, height: 1.4, color: color)),
+                ],
+              ),
+            ),
+            Container(width: 1, height: 65, color: available ? const Color(0xFFFF5D18) : color),
+            const SizedBox(width: 18),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '新人优惠券50元',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 16, height: 1.4, fontWeight: FontWeight.w500, color: color),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    '有效期:2026.6.7—2026.10.1',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, height: 1.4, color: color),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            SizedBox(
+              width: available ? 84 : 82,
+              height: 30,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: available ? null : const Color(0xFFC6C6C6),
+                  gradient: available
+                      ? const LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFFF5D18), Color(0xFFFF9147)])
+                      : null,
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: TextButton(
+                  onPressed: available ? onUse : null,
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero, disabledForegroundColor: Colors.white, shape: const StadiumBorder()),
+                  child: Text(available ? '使用' : '不可用', style: const TextStyle(fontSize: 16, height: 1.4, color: Colors.white)),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InvoiceInfoPage extends StatefulWidget {
+  const _InvoiceInfoPage({this.initialValue});
+
+  final _InvoiceInfoDraft? initialValue;
+
+  @override
+  State<_InvoiceInfoPage> createState() => _InvoiceInfoPageState();
+}
+
+class _InvoiceInfoPageState extends State<_InvoiceInfoPage> {
+  static const _invoiceTypes = ['增值税普通发票', '增值税专用发票'];
+  static const _registrationAddresses = ['甘肃省兰州市七里河区'];
+
+  late final TextEditingController _titleController;
+  late final TextEditingController _taxIdController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _bankController;
+  late final TextEditingController _bankAccountController;
+  String? _invoiceType;
+  String? _registrationAddress;
+  bool _isCompany = true;
+
+  @override
+  void initState() {
+    super.initState();
+    final initialValue = widget.initialValue;
+    _titleController = TextEditingController(text: initialValue?.title ?? '');
+    _taxIdController = TextEditingController(text: initialValue?.taxId ?? '');
+    _phoneController = TextEditingController(text: initialValue?.phone ?? '');
+    _bankController = TextEditingController(text: initialValue?.bank ?? '');
+    _bankAccountController = TextEditingController(text: initialValue?.bankAccount ?? '');
+    _invoiceType = initialValue?.invoiceType;
+    _registrationAddress = initialValue?.registrationAddress;
+    _isCompany = initialValue?.isCompany ?? true;
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _taxIdController.dispose();
+    _phoneController.dispose();
+    _bankController.dispose();
+    _bankAccountController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _chooseValue({required String title, required List<String> options, required ValueChanged<String> onSelected}) async {
+    final value = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(18))),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(18),
+              child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+            ),
+            for (final option in options) ListTile(title: Text(option), onTap: () => Navigator.of(context).pop(option)),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+    if (value != null) onSelected(value);
+  }
+
+  void _save() {
+    // 静态预览保存本地草稿，未填写完整也可以返回确认订单。
+    Navigator.of(context).pop<_InvoiceInfoDraft>((
+      invoiceType: _invoiceType,
+      title: _titleController.text.trim(),
+      taxId: _taxIdController.text.trim(),
+      registrationAddress: _registrationAddress,
+      phone: _phoneController.text.trim(),
+      bank: _bankController.text.trim(),
+      bankAccount: _bankAccountController.text.trim(),
+      isCompany: _isCompany,
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.servicePageBackground,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: 620),
+                  padding: const EdgeInsets.only(bottom: 36),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(14)),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 33,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 14),
+                              GestureDetector(
+                                onTap: () => Navigator.of(context).pop(),
+                                child: Image.asset('assets/images/order/confirm-order-back.png', width: 24, height: 24),
+                              ),
+                              const Text(
+                                '发票信息',
+                                style: TextStyle(fontSize: 18, height: 1.5, fontWeight: FontWeight.w500, color: Colors.black),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 26),
+                      _InvoiceSelectRow(
+                        label: '选择发票类型',
+                        value: _invoiceType,
+                        placeholder: '请选择发票类型',
+                        onTap: () => _chooseValue(title: '选择发票类型', options: _invoiceTypes, onSelected: (value) => setState(() => _invoiceType = value)),
+                      ),
+                      const SizedBox(height: 20),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 23),
+                        child: SizedBox(
+                          height: 24,
+                          child: Row(
+                            children: [
+                              const Expanded(
+                                child: Text('开票人类型', style: TextStyle(fontSize: 16, height: 1.5, color: Colors.black)),
+                              ),
+                              _InvoiceTypeChoice(label: '企业', selected: _isCompany, onTap: () => setState(() => _isCompany = true)),
+                              const SizedBox(width: 12),
+                              _InvoiceTypeChoice(label: '个人', selected: !_isCompany, onTap: () => setState(() => _isCompany = false)),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      _InvoiceInputRow(label: '发票抬头', placeholder: '请输入发票抬头', controller: _titleController),
+                      if (_isCompany) ...[
+                        const SizedBox(height: 20),
+                        _InvoiceInputRow(label: '纳税人识别号', placeholder: '请输入纳税人识别号', controller: _taxIdController),
+                        const SizedBox(height: 20),
+                        _InvoiceSelectRow(
+                          label: '注册地址',
+                          value: _registrationAddress,
+                          placeholder: '请选择注册地址',
+                          onTap: () => _chooseValue(
+                            title: '选择注册地址',
+                            options: _registrationAddresses,
+                            onSelected: (value) => setState(() => _registrationAddress = value),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        _InvoiceInputRow(label: '注册电话', placeholder: '请输入注册电话', controller: _phoneController, keyboardType: TextInputType.phone),
+                        const SizedBox(height: 20),
+                        _InvoiceInputRow(label: '开户银行', placeholder: '请输入开户银行', controller: _bankController),
+                        const SizedBox(height: 20),
+                        _InvoiceInputRow(label: '银行账户', placeholder: '请输入银行账户', controller: _bankAccountController, keyboardType: TextInputType.number),
+                      ],
+                      const SizedBox(height: 30),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 31),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 51,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                begin: Alignment.centerRight,
+                                end: Alignment.centerLeft,
+                                colors: [Color(0xFF3152AF), Color(0xFF213775)],
+                              ),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: TextButton(
+                              onPressed: _save,
+                              style: TextButton.styleFrom(padding: EdgeInsets.zero, shape: const StadiumBorder()),
+                              child: const Text(
+                                '确定保存',
+                                style: TextStyle(fontSize: 18, height: 1.5, fontWeight: FontWeight.w500, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InvoiceInputRow extends StatelessWidget {
+  const _InvoiceInputRow({required this.label, required this.placeholder, required this.controller, this.keyboardType});
+
+  final String label;
+  final String placeholder;
+  final TextEditingController controller;
+  final TextInputType? keyboardType;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 23),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final fieldWidth = (constraints.maxWidth - 116).clamp(0.0, 278.0).toDouble();
+          return Row(
             children: [
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text('选择优惠券', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+              SizedBox(
+                width: 96,
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black),
+                ),
               ),
-              const SizedBox(height: 10),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('新人券 ¥50.00'),
-                subtitle: const Text('全场商品可用'),
-                trailing: selected ? const Icon(Icons.check_circle, color: Color(0xFF213775)) : null,
-                onTap: () {
-                  ref.read(confirmOrderProvider.notifier).selectCoupon(name: '新人券 ¥50.00', discountCents: 5000);
-                  Navigator.pop(sheetContext);
-                },
-              ),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('不使用优惠券'),
-                trailing: !selected ? const Icon(Icons.check_circle, color: Color(0xFF213775)) : null,
-                onTap: () {
-                  ref.read(confirmOrderProvider.notifier).clearCoupon();
-                  Navigator.pop(sheetContext);
-                },
+              const SizedBox(width: 20),
+              SizedBox(
+                width: fieldWidth,
+                height: 40,
+                child: TextField(
+                  controller: controller,
+                  keyboardType: keyboardType,
+                  style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black),
+                  decoration: InputDecoration(
+                    hintText: placeholder,
+                    hintStyle: const TextStyle(fontSize: 16, height: 1.5, color: Color(0xFF8E8E93)),
+                    filled: true,
+                    fillColor: AppColors.servicePageBackground,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                ),
               ),
             ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _InvoiceSelectRow extends StatelessWidget {
+  const _InvoiceSelectRow({required this.label, required this.value, required this.placeholder, required this.onTap});
+
+  final String label;
+  final String? value;
+  final String placeholder;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 23),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final fieldWidth = (constraints.maxWidth - 116).clamp(0.0, 278.0).toDouble();
+          return Row(
+            children: [
+              SizedBox(
+                width: 96,
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black),
+                ),
+              ),
+              const SizedBox(width: 20),
+              SizedBox(
+                width: fieldWidth,
+                height: 40,
+                child: GestureDetector(
+                  onTap: onTap,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(color: AppColors.servicePageBackground, borderRadius: BorderRadius.circular(8)),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            value ?? placeholder,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 16, height: 1.5, color: value == null ? const Color(0xFF8E8E93) : Colors.black),
+                          ),
+                        ),
+                        const Icon(Icons.expand_more, size: 24, color: Color(0xFF8E8E93)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _InvoiceTypeChoice extends StatelessWidget {
+  const _InvoiceTypeChoice({required this.label, required this.selected, required this.onTap});
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        height: 44,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(selected ? Icons.check_circle : Icons.radio_button_unchecked, size: 18, color: selected ? const Color(0xFF168BFA) : const Color(0xFF8E8E93)),
+            const SizedBox(width: 8),
+            Text(label, style: TextStyle(fontSize: 16, height: 1.5, color: selected ? Colors.black : const Color(0xFF8E8E93))),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AddressSheet extends ConsumerWidget {
+  const _AddressSheet({required this.selectedAddressId, required this.bottomInset, required this.onSelect, required this.onCreate});
+
+  final String? selectedAddressId;
+  final double bottomInset;
+  final ValueChanged<MemberAddress> onSelect;
+  final VoidCallback onCreate;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final addresses = ref.watch(memberAddressesProvider);
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 16, 14, 0),
+          child: SizedBox(
+            height: 30,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                const Text('收货地址', style: TextStyle(fontSize: 20, height: 1.4, color: Colors.black)),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    tooltip: '关闭',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                    icon: const Icon(Icons.close, size: 28, color: Color(0xFF303030)),
+                  ),
+                ),
+              ],
+            ),
           ),
+        ),
+        const SizedBox(height: 20),
+        Expanded(
+          child: addresses.when(
+            data: (items) => items.isEmpty
+                ? const Center(child: Text('暂无收货地址', style: TextStyle(fontSize: 16)))
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      final address = items[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: _AddressChoice(address: address, selected: address.id == selectedAddressId, onTap: () => onSelect(address)),
+                      );
+                    },
+                  ),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (_, _) => Center(
+              child: TextButton(onPressed: () => ref.invalidate(memberAddressesProvider), child: const Text('地址加载失败，点击重试')),
+            ),
+          ),
+        ),
+        Container(
+          height: 80,
+          padding: const EdgeInsets.fromLTRB(30, 15, 30, 14),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            boxShadow: [BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, -2))],
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            height: 51,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [AppColors.serviceTabActive, AppColors.serviceCtaGradStart],
+                ),
+                borderRadius: BorderRadius.circular(100),
+              ),
+              child: TextButton(
+                onPressed: onCreate,
+                style: TextButton.styleFrom(padding: EdgeInsets.zero, shape: const StadiumBorder()),
+                child: const Text(
+                  '创建新地址',
+                  style: TextStyle(fontSize: 18, height: 1.5, fontWeight: FontWeight.w500, color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: bottomInset),
+      ],
+    );
+  }
+}
+
+class _AddressChoice extends StatelessWidget {
+  const _AddressChoice({required this.address, required this.selected, required this.onTap});
+
+  final MemberAddress address;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 98),
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: selected ? AppColors.serviceProjectBlue : Colors.transparent),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 2,
+                    children: [
+                      Text(
+                        address.name,
+                        style: TextStyle(fontSize: 18, height: 1.4, fontWeight: FontWeight.w500, color: selected ? AppColors.serviceTabActive : Colors.black),
+                      ),
+                      Text(
+                        address.phone.replaceAll(' ', ''),
+                        style: TextStyle(fontSize: 18, height: 1.4, fontWeight: FontWeight.w500, color: selected ? AppColors.serviceTabActive : Colors.black),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(address.fullAddress, style: const TextStyle(fontSize: 16, height: 1.4, color: Colors.black)),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: selected ? AppColors.serviceProjectBlue : Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(color: selected ? AppColors.serviceProjectBlue : const Color(0xFF8E8E93)),
+              ),
+              child: selected ? const Icon(Icons.check, size: 22, color: Colors.white) : null,
+            ),
+          ],
         ),
       ),
     );
@@ -368,10 +1012,10 @@ class _ProductCard extends StatelessWidget {
 }
 
 class _AmountCard extends StatelessWidget {
-  const _AmountCard({required this.state, required this.onInvoiceChanged, required this.onCouponTap});
+  const _AmountCard({required this.state, required this.onInvoiceTap, required this.onCouponTap});
 
   final ConfirmOrderState state;
-  final ValueChanged<bool> onInvoiceChanged;
+  final VoidCallback onInvoiceTap;
   final VoidCallback onCouponTap;
 
   @override
@@ -381,7 +1025,7 @@ class _AmountCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(11, 14, 11, 18),
       child: Column(
         children: [
-          _SummaryRow(label: '是否需要发票', value: state.needInvoice ? '已选择 >' : '去开票 >', onTap: () => onInvoiceChanged(!state.needInvoice)),
+          _SummaryRow(label: '是否需要发票', value: state.needInvoice ? '已保存 >' : '去开票 >', onTap: onInvoiceTap),
           const SizedBox(height: 10),
           _SummaryRow(label: '商品总价', value: _money(state.productTotalCents), valueColor: const Color(0xFFFF2105)),
           const SizedBox(height: 10),

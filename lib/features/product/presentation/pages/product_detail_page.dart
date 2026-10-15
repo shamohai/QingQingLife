@@ -20,64 +20,59 @@ class ProductDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final detail = ref.watch(productDetailProvider(productId));
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 440),
-        child: Scaffold(
-          backgroundColor: AppColors.servicePageBackground,
-          appBar: detail.asData?.value == null
-              ? AppBar(
-                  title: const Text('商品详情'),
-                  leading: BackButton(onPressed: () => _back(context)),
-                )
-              : null,
-          body: SafeArea(
-            bottom: false,
-            child: detail.when(
-              loading: () => const AppLoading(),
-              error: (error, stack) => AppError(onRetry: () => ref.invalidate(productDetailProvider(productId))),
-              data: (data) => data == null
-                  ? const AppEmpty(message: '暂无商品详情')
-                  : RefreshIndicator(
-                      onRefresh: () async {
-                        ref.invalidate(productDetailProvider(productId));
-                        await ref.read(productDetailProvider(productId).future);
-                      },
-                      child: CustomScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        slivers: [
-                          SliverToBoxAdapter(
-                            child: ProductHero(key: const ValueKey('product-hero'), images: data.product.images, onBack: () => _back(context)),
-                          ),
-                          SliverPadding(
-                            padding: const EdgeInsets.all(14),
-                            sliver: SliverList.list(
-                              children: [
-                                PriceBenefits(key: const ValueKey('product-price-benefits'), detail: data, onCoupon: () => _message(context, '优惠券领取')),
-                                const SizedBox(height: 10),
-                                ReviewsSection(key: const ValueKey('product-reviews'), detail: data, onViewAll: () => _message(context, '查看全部评价')),
-                                const SizedBox(height: 10),
-                                DetailSection(key: const ValueKey('product-description'), image: data.detailImage),
-                              ],
-                            ),
-                          ),
-                        ],
+    return Scaffold(
+      backgroundColor: AppColors.servicePageBackground,
+      appBar: detail.asData?.value == null
+          ? AppBar(
+              title: const Text('商品详情'),
+              leading: BackButton(onPressed: () => _back(context)),
+            )
+          : null,
+      body: SafeArea(
+        bottom: false,
+        child: detail.when(
+          loading: () => const AppLoading(),
+          error: (error, stack) => AppError(onRetry: () => ref.invalidate(productDetailProvider(productId))),
+          data: (data) => data == null
+              ? const AppEmpty(message: '暂无商品详情')
+              : RefreshIndicator(
+                  onRefresh: () async {
+                    ref.invalidate(productDetailProvider(productId));
+                    await ref.read(productDetailProvider(productId).future);
+                  },
+                  child: CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: ProductHero(key: const ValueKey('product-hero'), images: data.product.images, onBack: () => _back(context)),
                       ),
-                    ),
-            ),
-          ),
-          bottomNavigationBar: detail.asData?.value == null
-              ? null
-              : PurchaseBar(
-                  key: const ValueKey('product-purchase-bar'),
-                  onHome: () => context.go(RouteNames.home),
-                  onService: () => _message(context, '联系客服'),
-                  onCart: () => context.push(RouteNames.cart),
-                  onAdd: () => _message(context, '加入购物车'),
-                  onBuy: () => _message(context, '立即购买'),
+                      SliverPadding(
+                        padding: const EdgeInsets.all(14),
+                        sliver: SliverList.list(
+                          children: [
+                            PriceBenefits(key: const ValueKey('product-price-benefits'), detail: data, onCoupon: () => _message(context, '优惠券领取')),
+                            const SizedBox(height: 10),
+                            ReviewsSection(key: const ValueKey('product-reviews'), detail: data, onViewAll: () => _message(context, '查看全部评价')),
+                            const SizedBox(height: 10),
+                            DetailSection(key: const ValueKey('product-description'), image: data.detailImage),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
         ),
       ),
+      bottomNavigationBar: detail.asData?.value == null
+          ? null
+          : PurchaseBar(
+              key: const ValueKey('product-purchase-bar'),
+              onHome: () => context.go(RouteNames.home),
+              onService: () => _message(context, '联系客服'),
+              onCart: () => context.push(RouteNames.cart),
+              onAdd: () => context.push(RouteNames.cart),
+              onBuy: () => context.push(RouteNames.mallConfirmOrder),
+            ),
     );
   }
 

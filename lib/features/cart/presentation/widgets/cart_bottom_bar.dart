@@ -65,6 +65,7 @@ class CartBottomBar extends StatelessWidget {
     );
   }
 }
+
 class _ManagementActions extends StatelessWidget {
   const _ManagementActions({required this.deleteEnabled, required this.onClearAll, required this.onDelete, required this.buttonWidth});
 
@@ -140,22 +141,26 @@ class _SettlementAction extends StatelessWidget {
           button: true,
           enabled: enabled,
           label: '立即结算',
-          child: InkWell(
-            onTap: enabled ? onPressed : null,
+          child: Material(
+            type: MaterialType.transparency,
             borderRadius: BorderRadius.circular(100),
-            child: Ink(
-              width: buttonWidth,
-              height: 47,
-              decoration: BoxDecoration(
-                gradient: enabled
-                    ? const LinearGradient(colors: [CartDesignTokens.primary, CartDesignTokens.primaryEnd])
-                    : const LinearGradient(colors: [Color(0xFFB8BDC9), Color(0xFFA4AAB7)]),
-                borderRadius: BorderRadius.circular(100),
-              ),
-              child: const Center(
-                child: Text(
-                  '立即结算',
-                  style: TextStyle(color: Colors.white, fontSize: 18, height: 1, fontWeight: FontWeight.w500),
+            child: InkWell(
+              onTap: enabled ? onPressed : null,
+              borderRadius: BorderRadius.circular(100),
+              child: Ink(
+                width: buttonWidth,
+                height: 47,
+                decoration: BoxDecoration(
+                  gradient: enabled
+                      ? const LinearGradient(colors: [CartDesignTokens.primary, CartDesignTokens.primaryEnd])
+                      : const LinearGradient(colors: [Color(0xFFB8BDC9), Color(0xFFA4AAB7)]),
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: const Center(
+                  child: Text(
+                    '立即结算',
+                    style: TextStyle(color: Colors.white, fontSize: 18, height: 1, fontWeight: FontWeight.w500),
+                  ),
                 ),
               ),
             ),

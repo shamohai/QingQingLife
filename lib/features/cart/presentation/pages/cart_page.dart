@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../domain/models/cart_page_models.dart';
 import '../providers/cart_page_provider.dart';
 import '../widgets/cart_bottom_bar.dart';
@@ -230,7 +231,13 @@ class CartPage extends ConsumerWidget {
       showDragHandle: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(18))),
-      builder: (sheetContext) => _CheckoutSummarySheet(state: state),
+      builder: (sheetContext) => _CheckoutSummarySheet(
+        state: state,
+        onConfirm: () {
+          Navigator.pop(sheetContext);
+          context.push(RouteNames.mallConfirmOrder);
+        },
+      ),
     );
   }
 }
@@ -347,9 +354,10 @@ class _RecommendationHeading extends StatelessWidget {
 }
 
 class _CheckoutSummarySheet extends StatelessWidget {
-  const _CheckoutSummarySheet({required this.state});
+  const _CheckoutSummarySheet({required this.state, required this.onConfirm});
 
   final CartPageState state;
+  final VoidCallback onConfirm;
 
   @override
   Widget build(BuildContext context) {
@@ -378,7 +386,7 @@ class _CheckoutSummarySheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(100),
               ),
               child: TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: onConfirm,
                 child: const Text('确认', style: TextStyle(color: Colors.white, fontSize: 17)),
               ),
             ),

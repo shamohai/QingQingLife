@@ -38,6 +38,7 @@ import '../../features/order/presentation/pages/invoice_detail_page.dart';
 import '../../features/order/presentation/pages/order_detail_page.dart';
 import '../../features/order/presentation/pages/mall_order_review_page.dart';
 import '../../features/order/presentation/pages/confirm_order_page.dart' as order;
+import '../../features/order/presentation/pages/mall_payment_success_page.dart';
 import 'route_names.dart';
 
 final appRouter = Provider<GoRouter>((ref) {
@@ -209,6 +210,10 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.mallConfirmOrder,
         pageBuilder: (c, s) => const MaterialPage(child: order.ConfirmOrderPage()),
+      ),
+      GoRoute(
+        path: RouteNames.mallPaymentSuccess,
+        pageBuilder: (c, s) => MaterialPage(child: MallPaymentSuccessPage.fromExtra(s.extra)),
       ),
       GoRoute(
         path: RouteNames.invoiceCenter,
