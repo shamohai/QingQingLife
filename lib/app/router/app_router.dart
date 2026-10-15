@@ -22,6 +22,7 @@ import '../../features/service/presentation/pages/service_cart_page.dart';
 import '../../features/service/presentation/pages/service_records_page.dart';
 import '../../features/service/presentation/pages/service_project_detail_page.dart';
 import '../../features/service/presentation/pages/service_booking_form_page.dart';
+import '../../features/service/presentation/pages/service_activity_booking_form_page.dart';
 import '../../features/service/presentation/pages/service_template_detail_page.dart';
 import '../../features/service/presentation/pages/service_checkout_page.dart';
 import '../../features/service/presentation/providers/service_cart_provider.dart';
@@ -125,6 +126,17 @@ final appRouter = Provider<GoRouter>((ref) {
         path: RouteNames.serviceBookingForm,
         pageBuilder: (c, s) => MaterialPage(
           child: ServiceBookingFormPage(projectId: s.pathParameters['id']!, title: s.uri.queryParameters['title'] ?? '预约项目'),
+        ),
+      ),
+      GoRoute(
+        name: 'serviceActivityBookingForm',
+        path: RouteNames.serviceActivityBookingForm,
+        pageBuilder: (c, s) => MaterialPage(
+          child: ServiceActivityBookingFormPage(
+            activityId: s.pathParameters['id']!,
+            title: s.uri.queryParameters['title'] ?? '活动报名',
+            heroAsset: s.uri.queryParameters['heroAsset'] ?? '',
+          ),
         ),
       ),
       GoRoute(
@@ -332,3 +344,4 @@ class _TabItem extends StatelessWidget {
     );
   }
 }
+

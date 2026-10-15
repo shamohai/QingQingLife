@@ -66,6 +66,8 @@ abstract final class RouteNames {
   static const String serviceProjectDetail = '/service/project/:id';
 
   // 预约项目填写信息
+  static const String serviceActivityBookingForm = '/service/activity/:id/book';
+  // 预约项目填写信息
   static const String serviceBookingForm = '/service/project/:id/book';
 
   // 购酒享服务模板详情
