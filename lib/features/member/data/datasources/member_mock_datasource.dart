@@ -100,6 +100,16 @@ class MockMemberDataSource implements MemberRepository {
     return ApiResponse.success(GetRankDetailResp(monthlyproductlist: _mockMonthlyProducts, rankbaseinfo: rank, services: services));
   }
 
+  @override
+  Future<ApiResponse<ReceiveUserServiceResult>> receiveUserService({required int serviceId}) async {
+    return ApiResponse.error('权益领取接口未配置');
+  }
+
+  @override
+  Future<ApiResponse<CompleteUserInfoResult>> completeUserInfo({required String username, required int gender, required DateTime birthday}) async {
+    return ApiResponse.error('用户资料接口未配置');
+  }
+
   /// Mock 月度权益产品（对齐设计稿：399元券/大额神券/天佑德/视频会员等）
   static const List<ServiceProductItem> _mockMonthlyProducts = [
     ServiceProductItem(serviceid: 101, servicecode: 'MC1', productname: '399元券', servicedescr: '全场通用'),

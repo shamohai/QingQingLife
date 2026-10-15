@@ -38,14 +38,48 @@ class MemberLevelOption {
 
 /// 每月权益券（由 getrankdetail 的 monthlyproductlist 映射而来）
 class MemberMonthlyCoupon {
-  final String id;
-  final String title;
-  final String subtitle;
+  /// 对应 monthlyproductlist[].serviceid，用于领取接口 serviceid 参数。
+  final int serviceId;
+  final String serviceCode;
+  final String productName;
+  final String serviceDescr;
+  final bool isReceived;
+  final String? receivedDate;
+  final int productType;
+  final int userServiceId;
+  final int bailihuiType;
+  final int pid;
+  final String? productImg;
 
-  /// 是否已领取（monthlyproductlist[].isreceived）
-  final bool received;
+  const MemberMonthlyCoupon({
+    required this.serviceId,
+    this.serviceCode = '',
+    this.productName = '',
+    this.serviceDescr = '',
+    this.isReceived = false,
+    this.receivedDate,
+    this.productType = 0,
+    this.userServiceId = 0,
+    this.bailihuiType = 0,
+    this.pid = 0,
+    this.productImg,
+  });
 
-  const MemberMonthlyCoupon({required this.id, required this.title, required this.subtitle, this.received = false});
+  MemberMonthlyCoupon copyWith({bool? isReceived, int? userServiceId}) {
+    return MemberMonthlyCoupon(
+      serviceId: serviceId,
+      serviceCode: serviceCode,
+      productName: productName,
+      serviceDescr: serviceDescr,
+      isReceived: isReceived ?? this.isReceived,
+      receivedDate: receivedDate,
+      productType: productType,
+      userServiceId: userServiceId ?? this.userServiceId,
+      bailihuiType: bailihuiType,
+      pid: pid,
+      productImg: productImg,
+    );
+  }
 }
 
 /// 会员详情页状态
@@ -74,6 +108,9 @@ class MemberLevelState {
   /// 每月权益券列表
   final List<MemberMonthlyCoupon> monthlyCoupons;
 
+  /// 正在提交领取请求的权益 id，用于防止重复点击。
+  final Set<int> receivingCouponIds;
+
   const MemberLevelState({
     this.loading = false,
     this.errorMessage,
@@ -83,6 +120,7 @@ class MemberLevelState {
     this.detail,
     this.benefitAuths = const [],
     this.monthlyCoupons = const [],
+    this.receivingCouponIds = const {},
   });
 
   /// 当前选中的等级（等级列表尚未加载完成时返回占位项，避免越界）
@@ -177,6 +215,32 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
     await load();
   }
 
+  /// 领取一张月度权益，返回可直接展示给用户的结果文案。
+  Future<String?> receiveMonthlyCoupon(MemberMonthlyCoupon coupon) async {
+    debugPrint('[MemberLevel] receive monthly coupon: ${coupon.serviceId} (${coupon.productName})');
+    if (coupon.isReceived || state.receivingCouponIds.contains(coupon.serviceId)) return null;
+    if (coupon.serviceId <= 0) return '权益信息无效，请刷新后重试';
+
+    state = _copy(receivingCouponIds: {...state.receivingCouponIds, coupon.serviceId});
+    try {
+      final response = await ref.read(memberRepositoryProvider).receiveUserService(serviceId: coupon.serviceId);
+      if (!response.success || response.data == null) return _friendlyMessage(response.message, fallback: '领取失败，请稍后重试');
+
+      final result = response.data!;
+      final updatedCoupons = state.monthlyCoupons
+          .map((item) => item.serviceId == coupon.serviceId ? item.copyWith(isReceived: true, userServiceId: result.userServiceId) : item)
+          .toList();
+      state = _copy(monthlyCoupons: updatedCoupons);
+      return result.isDuplicate ? '该权益已领取' : '领取成功';
+    } catch (e) {
+      debugPrint('[MemberLevel] receive monthly coupon error: $e');
+      return '领取失败，请稍后重试';
+    } finally {
+      final receiving = {...state.receivingCouponIds}..remove(coupon.serviceId);
+      state = _copy(receivingCouponIds: receiving);
+    }
+  }
+
   // ── 映射：接口字段 → UI 模型 ───────────────────────────────
 
   /// RankBaseInfo → 等级页签选项
@@ -216,19 +280,41 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
   List<MemberMonthlyCoupon> _mapMonthlyCoupons(GetRankDetailResp detail) {
     if (detail.monthlyproductlist.isNotEmpty) {
       return detail.monthlyproductlist
-          .map((e) => MemberMonthlyCoupon(id: '${e.serviceid}', title: e.productname, subtitle: e.servicedescr, received: e.isreceived))
+          .map(
+            (e) => MemberMonthlyCoupon(
+              serviceId: e.serviceid,
+              serviceCode: e.servicecode,
+              productName: e.productname,
+              serviceDescr: e.servicedescr,
+              isReceived: e.isreceived,
+              receivedDate: e.receiveddate,
+              productType: e.producttype,
+              userServiceId: e.userserviceid,
+              bailihuiType: e.bailihuitype,
+              pid: e.pid,
+              productImg: e.productimg,
+            ),
+          )
           .toList();
     }
     return detail.services
         .where((e) => e.group == ServiceGroup.monthly)
-        .map((e) => MemberMonthlyCoupon(id: '${e.serviceid}', title: e.servicename, subtitle: e.description, received: e.hasowned))
+        .map(
+          (e) => MemberMonthlyCoupon(
+            serviceId: e.serviceid,
+            serviceCode: e.servicecode,
+            productName: e.servicename,
+            serviceDescr: e.description,
+            isReceived: e.hasowned,
+          ),
+        )
         .toList();
   }
 
   /// 后端 message 可能为空或为 `unknown error`，统一转成可展示的文案
-  static String _friendlyMessage(String? raw) {
+  static String _friendlyMessage(String? raw, {String fallback = '会员权益加载失败，请稍后重试'}) {
     final message = raw?.trim() ?? '';
-    if (message.isEmpty || message == 'unknown error') return '会员权益加载失败，请稍后重试';
+    if (message.isEmpty || message == 'unknown error') return fallback;
     return message;
   }
 
@@ -244,6 +330,7 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
     List<MemberAuthItem>? benefitAuths,
     bool clearBenefitAuths = false,
     List<MemberMonthlyCoupon>? monthlyCoupons,
+    Set<int>? receivingCouponIds,
   }) {
     return MemberLevelState(
       loading: loading ?? state.loading,
@@ -254,6 +341,7 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
       detail: clearDetail ? null : (detail ?? state.detail),
       benefitAuths: clearBenefitAuths ? const [] : (benefitAuths ?? state.benefitAuths),
       monthlyCoupons: monthlyCoupons ?? state.monthlyCoupons,
+      receivingCouponIds: receivingCouponIds ?? state.receivingCouponIds,
     );
   }
 }

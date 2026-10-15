@@ -21,6 +21,12 @@ abstract class MemberRepository {
   /// 返回该等级的月度权益产品与权益列表（普通权益 / 月度权益 / 生日赠礼）。
   Future<ApiResponse<GetRankDetailResp>> getRankDetail({required int level});
 
+  /// 领取用户月度权益或生日赠礼
+  Future<ApiResponse<ReceiveUserServiceResult>> receiveUserService({required int serviceId});
+
+  /// 补充/修改用户个人资料。
+  Future<ApiResponse<CompleteUserInfoResult>> completeUserInfo({required String username, required int gender, required DateTime birthday});
+
   /// 获取会员权益权限（真实接口：POST /api/sys/v2/getmemberauthority）
   Future<ApiResponse<MemberAuthorityModel>> getMemberAuthority({required int level});
 
@@ -56,6 +62,39 @@ abstract class MemberRepository {
 
   /// 获取客服信息
   Future<ApiResponse<CustomerServiceInfo>> getCustomerService();
+}
+
+/// 领取用户权益接口结果
+class ReceiveUserServiceResult {
+  /// 用户已领取的权益 id，不是 serviceId
+  final int userServiceId;
+
+  /// 是否为重复领取
+  final bool isDuplicate;
+
+  const ReceiveUserServiceResult({required this.userServiceId, required this.isDuplicate});
+
+  factory ReceiveUserServiceResult.fromJson(Map<String, dynamic> json) {
+    final userServiceId = json['userserviceid'];
+    final duplicate = json['isdup'];
+    return ReceiveUserServiceResult(
+      userServiceId: userServiceId is num ? userServiceId.toInt() : int.tryParse('$userServiceId') ?? 0,
+      isDuplicate: duplicate is bool ? duplicate : duplicate == 1 || duplicate == '1' || duplicate == 'true',
+    );
+  }
+}
+
+/// 用户信息补充接口响应。
+class CompleteUserInfoResult {
+  final int farmEnergyNum;
+  final String? dataTag;
+
+  const CompleteUserInfoResult({this.farmEnergyNum = 0, this.dataTag});
+
+  factory CompleteUserInfoResult.fromJson(Map<String, dynamic> json) {
+    final energy = json['farmenergynum'];
+    return CompleteUserInfoResult(farmEnergyNum: energy is num ? energy.toInt() : int.tryParse('$energy') ?? 0, dataTag: json['datatag'] as String?);
+  }
 }
 
 /// 会员信息

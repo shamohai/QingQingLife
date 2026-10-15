@@ -52,7 +52,7 @@ class EncryptInterceptor extends Interceptor {
       final os = _cachedOsNumber!;
       final phoneModel = _cachedPhoneModel!;
       final version = _cachedAppVersion!;
-      final deviceId = _cachedDeviceId!;
+      final deviceId = options.extra['devid'] as String? ?? _cachedDeviceId!;
       final channel = ApiSecurityConstants.defaultChannel;
 
       // 3. 构建明文请求体（JSON）

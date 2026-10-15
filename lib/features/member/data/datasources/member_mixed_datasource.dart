@@ -30,6 +30,13 @@ class MemberMixedDataSource implements MemberRepository {
   @override
   Future<ApiResponse<GetRankDetailResp>> getRankDetail({required int level}) => remote.getRankDetail(level: level);
 
+  @override
+  Future<ApiResponse<ReceiveUserServiceResult>> receiveUserService({required int serviceId}) => remote.receiveUserService(serviceId: serviceId);
+
+  @override
+  Future<ApiResponse<CompleteUserInfoResult>> completeUserInfo({required String username, required int gender, required DateTime birthday}) =>
+      remote.completeUserInfo(username: username, gender: gender, birthday: birthday);
+
   // ── 后端未就绪：以下会员能力仍走 Mock ──────────────────────
   @override
   Future<ApiResponse<MemberInfo>> getMemberInfo() => mock.getMemberInfo();

@@ -64,10 +64,6 @@ class AccountSecurityCard extends ConsumerWidget {
           ),
           _buildRow(label: '手机号', value: _buildPhoneValue(profileState.phoneMasked)),
           _buildRow(
-            label: '版本号',
-            value: const Text(_mockVersion, style: _valueStyle),
-          ),
-          _buildRow(
             height: 62,
             topPadding: 4,
             label: '我的地址',

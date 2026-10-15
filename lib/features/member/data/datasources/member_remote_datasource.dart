@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/providers.dart';
+import '../../domain/repositories/member_repository.dart';
 import '../models/member_authority_model.dart';
 import '../models/member_rank_models.dart';
 
@@ -83,6 +84,40 @@ class MemberRemoteDataSource {
       '/api/sys/app/getrankdetail',
       data: <String, dynamic>{'userrid': level},
       fromJson: (dynamic json) => GetRankDetailResp.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  /// 领取用户权益，包括月度权益和生日赠礼。
+  ///
+  /// 接口：POST /api/sys/app/receiveuserservice
+  /// 请求体：{"serviceid": <权益服务 id>}
+  Future<ApiResponse<ReceiveUserServiceResult>> receiveUserService({required int serviceId}) async {
+    return _apiClient.post<ReceiveUserServiceResult>(
+      '/api/sys/app/receiveuserservice',
+      data: <String, dynamic>{'serviceid': serviceId},
+      fromJson: (dynamic json) => ReceiveUserServiceResult.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  /// 补充/修改用户信息。
+  ///
+  /// 接口：POST /api/sys/v2/completeuserinfo
+  /// 未在编辑页维护的扩展资料按接口约定传 null。
+  Future<ApiResponse<CompleteUserInfoResult>> completeUserInfo({required String username, required int gender, required DateTime birthday}) async {
+    return _apiClient.post<CompleteUserInfoResult>(
+      '/api/sys/v2/completeuserinfo',
+      data: <String, dynamic>{
+        'birthday': birthday.toIso8601String(),
+        'drinkrate': null,
+        'buyintention': null,
+        'scene': null,
+        'gender': gender,
+        'username': username,
+        'realname': null,
+        'hobby': null,
+        'farmtask': false,
+      },
+      fromJson: (dynamic json) => CompleteUserInfoResult.fromJson(json as Map<String, dynamic>),
     );
   }
 

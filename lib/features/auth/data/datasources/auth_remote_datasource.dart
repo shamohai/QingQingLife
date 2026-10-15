@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/domain/repositories/auth_repository.dart';
@@ -58,7 +59,17 @@ class RemoteAuthDataSource implements AuthRepository {
 
   @override
   Future<ApiResponse<UserInfo>> getCurrentUser() async {
-    return _apiClient.get('/api/sys/user/info', fromJson: (dynamic json) => UserInfo.fromJson(json as Map<String, dynamic>));
+    return _apiClient.post(
+      '/api/sys/app/getmyprofile',
+      options: Options(
+        extra: const {
+          // 接口联调阶段按需求固定当前登录人的设备与 Token 信息。
+          'devid': '17835616055244338',
+          'authtoken': '1575474',
+        },
+      ),
+      fromJson: (dynamic json) => UserInfo.fromJson(json as Map<String, dynamic>),
+    );
   }
 
   @override
