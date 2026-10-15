@@ -25,25 +25,27 @@ class ConfirmOrderPage extends ConsumerWidget {
     final productAsync = ref.watch(serviceProductDetailProvider(productId));
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F7),
+      appBar: ConfirmOrderNavBar(onBack: () => Navigator.of(context).pop()),
       body: productAsync.when(
         loading: () => const Center(child: AppLoading()),
         error: (error, stack) => Center(
           child: AppError(message: '加载失败: $error', onRetry: () => ref.invalidate(serviceProductDetailProvider(productId))),
         ),
-        data: (product) => _buildContent(ref, product),
+        data: (product) => _buildContent(context, ref, product),
       ),
       bottomNavigationBar: _buildBottomBar(ref),
     );
   }
 
-  Widget _buildContent(WidgetRef ref, ServiceProductDetail product) {
-    //测试时先注释掉
-    final isGiftCard = product.productType == CreditProductType.giftCard;
-    //final isGiftCard = product.productType == CreditProductType.serviceCouponIntegral;
+  Widget _buildContent(BuildContext context, WidgetRef ref, ServiceProductDetail product) {
+    //测试时使用
+    //final isGiftCard = product.productType == CreditProductType.giftCard;
+    final isGiftCard = product.productType == CreditProductType.serviceCouponIntegral;
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
-        if (!isGiftCard) ...[const SliverToBoxAdapter(child: ConfirmOrderHeader()), const SliverToBoxAdapter(child: SizedBox(height: 8))],
+        if (!isGiftCard) const SliverToBoxAdapter(child: ConfirmOrderHeader()),
+        const SliverToBoxAdapter(child: SizedBox(height: 10)),
         SliverToBoxAdapter(
           child: Consumer(
             builder: (context, ref, _) {
@@ -83,7 +85,6 @@ class ConfirmOrderPage extends ConsumerWidget {
   void _handleSubmit(WidgetRef ref, ServiceProductDetail product) {
     final quantity = ref.read(confirmOrderProvider).quantity;
     final totalPoints = product.points * quantity;
-    // Mock orderId / orderNo（真实场景由 API 返回）
     const mockOrderId = 'DDBH4565465789087654678908765789';
     const mockOrderNo = 'DDBH45674567898908765789';
     GoRouter.of(ref.context).push(
