@@ -41,29 +41,68 @@ class ConfirmOrderPage extends ConsumerWidget {
     //测试时使用
     //final isGiftCard = product.productType == CreditProductType.giftCard;
     final isGiftCard = product.productType == CreditProductType.serviceCouponIntegral;
-    return CustomScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      slivers: [
-        if (!isGiftCard) const SliverToBoxAdapter(child: ConfirmOrderHeader()),
-        const SliverToBoxAdapter(child: SizedBox(height: 10)),
-        SliverToBoxAdapter(
-          child: Consumer(
-            builder: (context, ref, _) {
-              final notifier = ref.watch(confirmOrderProvider);
-              return ConfirmOrderProductCard(
-                product: product,
-                quantity: notifier.quantity,
-                onIncrement: () => ref.read(confirmOrderProvider.notifier).increment(),
-                onDecrement: () => ref.read(confirmOrderProvider.notifier).decrement(),
-                onQuantityChanged: (newQty) {
-                  ref.read(confirmOrderProvider.notifier).setQuantity(newQty);
-                },
-              );
-            },
+    return Stack(
+      children: [
+        // 页面背景：上半部 50% 纯色 #F3F5F7（无渐变），下半部 50% 背景图加图层
+        Positioned.fill(
+          child: Column(
+            children: [
+              // 上半部 50% 纯背景色 #F3F5F7，无渐变
+              Expanded(
+                flex: 50,
+                child: Container(
+                  color: const Color(0xFFF3F5F7),
+                ),
+              ),
+              // 下半部 50% 背景图加图层
+              Expanded(
+                flex: 50,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFFF3F5F7), Color(0xFFFFFFFF)],
+                    ),
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/order/order_bottom_bg.png'),
+                      fit: BoxFit.cover,
+                      alignment: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        if (isGiftCard) SliverToBoxAdapter(child: ConfirmOrderRedeemerForm(onSubmitted: () => _handleSubmit(ref, product))),
-        const SliverToBoxAdapter(child: SizedBox(height: 78)),
+        // 前景内容区
+        Positioned.fill(
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              if (!isGiftCard) const SliverToBoxAdapter(child: ConfirmOrderHeader()),
+              const SliverToBoxAdapter(child: SizedBox(height: 10)),
+              SliverToBoxAdapter(
+                child: Consumer(
+                  builder: (context, ref, _) {
+                    final notifier = ref.watch(confirmOrderProvider);
+                    return ConfirmOrderProductCard(
+                      product: product,
+                      quantity: notifier.quantity,
+                      onIncrement: () => ref.read(confirmOrderProvider.notifier).increment(),
+                      onDecrement: () => ref.read(confirmOrderProvider.notifier).decrement(),
+                      onQuantityChanged: (newQty) {
+                        ref.read(confirmOrderProvider.notifier).setQuantity(newQty);
+                      },
+                    );
+                  },
+                ),
+              ),
+              if (isGiftCard) SliverToBoxAdapter(child: ConfirmOrderRedeemerForm(onSubmitted: () => _handleSubmit(ref, product))),
+              const SliverToBoxAdapter(child: SizedBox(height: 78)),
+            ],
+          ),
+        ),
       ],
     );
   }

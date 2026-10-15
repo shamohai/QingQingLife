@@ -38,60 +38,31 @@ class PointsPaymentSuccessPage extends StatelessWidget {
           Expanded(
             child: Stack(
               children: [
-                // ── 区域 1：渐变 Header 背景 ──
-                Container(
-                  height: 330,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFFFC65E), Color(0xFFF3F5F7)]),
-                  ),
-                ),
-                // 内容滚动区域
-                SingleChildScrollView(
+                // ── 背景：上半部 50% 纯色 #F3F5F7，下半部 50% 背景图加图层 ──
+                Positioned.fill(
                   child: Column(
                     children: [
-                      const SizedBox(height: 34),
-                      // 成功图标，水平居中
-                      const Align(
-                        alignment: Alignment.center,
-                        child: Image(image: AssetImage('assets/images/points/icon-success.png'), width: 150, height: 150),
-                      ),
-                      const SizedBox(height: 1),
-                      // "兑换成功" 标签
-                      const Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          '兑换成功',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF000000), height: 1.0),
+                      // 上半部 50% 纯背景色 #F3F5F7，无渐变
+                      Expanded(
+                        flex: 50,
+                        child: Container(
+                          color: const Color(0xFFF3F5F7),
                         ),
                       ),
-                      const SizedBox(height: 40),
-                      // ── 区域 2：订单信息白色卡片 ──
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.lg),
+                      // 下半部 50% 背景图加图层
+                      Expanded(
+                        flex: 50,
                         child: Container(
-                          constraints: const BoxConstraints(maxWidth: 414),
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.sm)),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.lg),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                OrderInfoRow(label: '订单编号', value: orderNo),
-                                const SizedBox(height: AppSpacing.sm),
-                                OrderInfoRow(label: '交易单号', value: transactionNo),
-                                const SizedBox(height: AppSpacing.sm),
-                                OrderInfoRow(label: '交易状态', value: '兑换成功'),
-                                const SizedBox(height: AppSpacing.lg),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    PillButton(label: '返回首页', onTap: () => Navigator.of(context).pop()),
-                                    const SizedBox(width: AppSpacing.md),
-                                    PillButton(label: '订单明细', onTap: () => _onOrderDetail(context)),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                              ],
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Color(0xFFF3F5F7), Color(0xFFFFFFFF)],
+                            ),
+                            image: DecorationImage(
+                              image: AssetImage('assets/images/order/order_bottom_bg.png'),
+                              fit: BoxFit.cover,
+                              alignment: Alignment.bottomCenter,
                             ),
                           ),
                         ),
@@ -99,11 +70,67 @@ class PointsPaymentSuccessPage extends StatelessWidget {
                     ],
                   ),
                 ),
+                // 内容滚动区域
+                Positioned.fill(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 34),
+                        // 成功图标，水平居中
+                        const Align(
+                          alignment: Alignment.center,
+                          child: Image(image: AssetImage('assets/images/points/icon-success.png'), width: 150, height: 150),
+                        ),
+                        const SizedBox(height: 1),
+                        // "兑换成功" 标签
+                        const Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            '兑换成功',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF000000), height: 1.0),
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        // ── 区域 2：订单信息白色卡片 ──
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.lg),
+                          child: Container(
+                            constraints: const BoxConstraints(maxWidth: 414),
+                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.sm)),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.lg),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  OrderInfoRow(label: '订单编号', value: orderNo),
+                                  const SizedBox(height: AppSpacing.sm),
+                                  OrderInfoRow(label: '交易单号', value: transactionNo),
+                                  const SizedBox(height: AppSpacing.sm),
+                                  OrderInfoRow(label: '交易状态', value: '兑换成功'),
+                                  const SizedBox(height: AppSpacing.lg),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      PillButton(label: '返回首页', onTap: () => Navigator.of(context).pop()),
+                                      const SizedBox(width: AppSpacing.md),
+                                      PillButton(label: '订单明细', onTap: () => _onOrderDetail(context)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
           // ── 区域 3：底部安全区占位条 ──
-          const Image(image: AssetImage('assets/images/points/payment_success_bottom_bar.png'), width: double.infinity, height: 60, fit: BoxFit.cover),
+          //const Image(image: AssetImage('assets/images/points/payment_success_bottom_bar.png'), width: double.infinity, height: 60, fit: BoxFit.cover),
         ],
       ),
     );

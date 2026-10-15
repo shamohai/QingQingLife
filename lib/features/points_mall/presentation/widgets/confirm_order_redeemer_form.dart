@@ -49,8 +49,8 @@ class _ConfirmOrderRedeemerFormState extends State<ConfirmOrderRedeemerForm> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: AppSpacing.lg, right: AppSpacing.lg, top: AppSpacing.md),
-      padding: const EdgeInsets.only(left: AppSpacing.xxl, top: AppSpacing.lg, bottom: AppSpacing.xxxl),
+      margin: const EdgeInsets.only(left: 10, right: 10, top: AppSpacing.md),
+      padding: const EdgeInsets.only(left: AppSpacing.xxl, top: AppSpacing.lg, bottom: AppSpacing.xxl),
       decoration: BoxDecoration(
         color: Colors.white, // ← 外层白色保留
         borderRadius: BorderRadius.circular(10),
