@@ -39,14 +39,20 @@ class ServiceRemoteDataSource implements ServiceRepository {
 
   @override
   Future<ApiResponse<int>> createShareCart(int templateId) async {
-    return apiClient.post<int>(
+    final response = await apiClient.post<int>(
       '/api/groupMall/app/createsharecart',
       data: <String, dynamic>{'templateid': templateId},
       fromJson: (dynamic json) {
-        final map = json as Map<String, dynamic>;
-        return (map['sharecartid'] as num?)?.toInt() ?? 0;
+        if (json is num) return json.toInt();
+        if (json is Map) {
+          final shareCartId = json['sharecartid'] ?? json['shareCartId'];
+          if (shareCartId is num) return shareCartId.toInt();
+          if (shareCartId is String) return int.tryParse(shareCartId) ?? 0;
+        }
+        return 0;
       },
     );
+    return response;
   }
 
   @override

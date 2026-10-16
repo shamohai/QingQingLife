@@ -26,6 +26,7 @@ import '../../features/service/presentation/pages/service_template_detail_page.d
 import '../../features/product/presentation/pages/product_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
+import '../../features/login/presentation/pages/token_debug_page.dart';
 import '../../features/points_mall/presentation/pages/service_product_detail_page.dart';
 import '../../features/points_mall/presentation/pages/confirm_order_page.dart';
 import '../../features/points_mall/presentation/pages/all_products_page.dart';
@@ -50,6 +51,10 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.login,
         pageBuilder: (c, s) => const MaterialPage(child: LoginPage()),
+      ),
+      GoRoute(
+        path: RouteNames.tokenDebug,
+        pageBuilder: (c, s) => const MaterialPage(child: TokenDebugPage()),
       ),
       GoRoute(
         path: RouteNames.phoneBind,
