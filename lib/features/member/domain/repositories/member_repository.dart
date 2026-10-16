@@ -21,6 +21,12 @@ abstract class MemberRepository {
   /// 返回该等级的月度权益产品与权益列表（普通权益 / 月度权益 / 生日赠礼）。
   Future<ApiResponse<GetRankDetailResp>> getRankDetail({required int level});
 
+  /// 领取用户月度权益或生日赠礼
+  Future<ApiResponse<ReceiveUserServiceResult>> receiveUserService({required int serviceId});
+
+  /// 补充/修改用户个人资料。
+  Future<ApiResponse<CompleteUserInfoResult>> completeUserInfo({required String username, required int gender, required DateTime birthday});
+
   /// 获取会员权益权限（真实接口：POST /api/sys/v2/getmemberauthority）
   Future<ApiResponse<MemberAuthorityModel>> getMemberAuthority({required int level});
 
@@ -56,6 +62,39 @@ abstract class MemberRepository {
 
   /// 获取客服信息
   Future<ApiResponse<CustomerServiceInfo>> getCustomerService();
+}
+
+/// 领取用户权益接口结果
+class ReceiveUserServiceResult {
+  /// 用户已领取的权益 id，不是 serviceId
+  final int userServiceId;
+
+  /// 是否为重复领取
+  final bool isDuplicate;
+
+  const ReceiveUserServiceResult({required this.userServiceId, required this.isDuplicate});
+
+  factory ReceiveUserServiceResult.fromJson(Map<String, dynamic> json) {
+    final userServiceId = json['userserviceid'];
+    final duplicate = json['isdup'];
+    return ReceiveUserServiceResult(
+      userServiceId: userServiceId is num ? userServiceId.toInt() : int.tryParse('$userServiceId') ?? 0,
+      isDuplicate: duplicate is bool ? duplicate : duplicate == 1 || duplicate == '1' || duplicate == 'true',
+    );
+  }
+}
+
+/// 用户信息补充接口响应。
+class CompleteUserInfoResult {
+  final int farmEnergyNum;
+  final String? dataTag;
+
+  const CompleteUserInfoResult({this.farmEnergyNum = 0, this.dataTag});
+
+  factory CompleteUserInfoResult.fromJson(Map<String, dynamic> json) {
+    final energy = json['farmenergynum'];
+    return CompleteUserInfoResult(farmEnergyNum: energy is num ? energy.toInt() : int.tryParse('$energy') ?? 0, dataTag: json['datatag'] as String?);
+  }
 }
 
 /// 会员信息
@@ -283,6 +322,7 @@ enum StatementType {
 /// 会员收货地址
 class MemberAddress {
   final String? id;
+  final int? areaId;
   final String name;
   final String phone;
   final String province;
@@ -294,6 +334,7 @@ class MemberAddress {
 
   const MemberAddress({
     this.id,
+    this.areaId,
     required this.name,
     required this.phone,
     required this.province,
@@ -304,10 +345,42 @@ class MemberAddress {
     this.label,
   });
 
+  /// 将用户地址列表接口返回的 AddressInfo 映射为领域地址实体。
+  ///
+  /// 接口字段中默认地址字段拼写为 `isdefult`，同时兼容布尔值、数字和字符串。
+  factory MemberAddress.fromApiJson(Map<dynamic, dynamic> json) {
+    String stringValue(String key) => json[key]?.toString() ?? '';
+    final rawId = json['id'];
+    final rawDefault = json['isdefult'];
+    final isDefault = rawDefault is bool
+        ? rawDefault
+        : rawDefault is num
+        ? rawDefault != 0
+        : rawDefault?.toString().toLowerCase() == 'true' || rawDefault?.toString() == '1';
+    final phone = stringValue('phone').isNotEmpty ? stringValue('phone') : stringValue('mobile');
+    return MemberAddress(
+      id: rawId?.toString(),
+      areaId: _intOrNull(json['regionid']),
+      name: stringValue('consignee'),
+      phone: phone,
+      province: stringValue('provincename'),
+      city: stringValue('cityname'),
+      district: stringValue('countyname'),
+      detail: stringValue('address'),
+      isDefault: isDefault,
+    );
+  }
+
+  static int? _intOrNull(dynamic value) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '');
+  }
+
   String get fullAddress => '$province$city$district$detail';
 
   MemberAddress copyWith({
     String? id,
+    int? areaId,
     String? name,
     String? phone,
     String? province,
@@ -319,6 +392,7 @@ class MemberAddress {
   }) {
     return MemberAddress(
       id: id ?? this.id,
+      areaId: areaId ?? this.areaId,
       name: name ?? this.name,
       phone: phone ?? this.phone,
       province: province ?? this.province,

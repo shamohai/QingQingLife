@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_image.dart';
+import '../../../../core/providers/repository_providers.dart';
 import '../providers/user_profile_provider.dart';
 import '../widgets/personal_info_form_card.dart';
 
@@ -15,8 +16,7 @@ import '../widgets/personal_info_form_card.dart';
 ///   顶部 bg-top350 插画背景（底部渐隐衔接淡蓝底）
 ///   → 透明返回栏「个人信息」→ 大头像（相机徽章）
 ///   → 表单卡片（昵称 / 性别 / 生日 / 修改资料）
-/// 数据：昵称 / 头像取 userProfileProvider；头像更换与资料保存接口后端暂未提供，
-/// 相关交互标记 TODO，待接口就绪后接入。
+/// 数据：昵称 / 头像取 userProfileProvider；资料保存通过 CompleteUserInfo 接口提交。
 class PersonalInfoEditPage extends ConsumerStatefulWidget {
   const PersonalInfoEditPage({super.key});
 
@@ -145,7 +145,7 @@ class _PersonalInfoEditPageState extends ConsumerState<PersonalInfoEditPage> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(AppSpacing.md, 50.5, AppSpacing.md, 0),
-          child: PersonalInfoFormCard(initialNickname: state.nickname),
+          child: PersonalInfoFormCard(initialNickname: state.nickname, onSave: _savePersonalInfo),
         ),
         _buildAvatar(state),
       ],
@@ -201,5 +201,17 @@ class _PersonalInfoEditPageState extends ConsumerState<PersonalInfoEditPage> {
   void _onAvatarTap() {
     // TODO: 头像更换依赖图片上传接口，后端暂未提供，待接入后补充。
     debugPrint('[PersonalInfoEditPage] 头像/相机徽章点击');
+  }
+
+  Future<String?> _savePersonalInfo({required String nickname, required int gender, required DateTime birthday}) async {
+    final response = await ref.read(memberRepositoryProvider).completeUserInfo(username: nickname, gender: gender, birthday: birthday);
+    if (!response.success) {
+      final message = response.message.trim();
+      return message.isEmpty || message == 'unknown error' ? '资料保存失败，请稍后重试' : message;
+    }
+
+    await ref.read(userProfileProvider.notifier).load();
+    if (mounted) context.pop();
+    return null;
   }
 }

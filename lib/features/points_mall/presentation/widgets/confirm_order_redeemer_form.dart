@@ -49,10 +49,10 @@ class _ConfirmOrderRedeemerFormState extends State<ConfirmOrderRedeemerForm> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: AppSpacing.lg, right: AppSpacing.lg, top: AppSpacing.lg),
-      padding: const EdgeInsets.only(left: AppSpacing.xxl, top: AppSpacing.lg, bottom: AppSpacing.xxxl),
+      margin: const EdgeInsets.only(left: 10, right: 10, top: AppSpacing.md),
+      padding: const EdgeInsets.only(left: AppSpacing.xxl, top: AppSpacing.lg, bottom: AppSpacing.xxl),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white, // ← 外层白色保留
         borderRadius: BorderRadius.circular(10),
         boxShadow: [BoxShadow(color: const Color(0xE6EAE8E9), blurRadius: 7, offset: const Offset(0, 2))],
       ),
@@ -95,16 +95,21 @@ class _ConfirmOrderRedeemerFormState extends State<ConfirmOrderRedeemerForm> {
     return Container(
       width: double.infinity,
       height: 48,
+      margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(color: const Color(0xFFF3F5F7), borderRadius: BorderRadius.circular(8)),
+      // 去掉 Align，让 TextField 自己撑满高度再居中
       child: TextField(
         controller: controller,
         focusNode: focusNode,
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
+        textAlignVertical: TextAlignVertical.center,
         style: const TextStyle(fontSize: 16, color: Color(0xFF1F2024)),
         decoration: InputDecoration(
           isDense: true,
+          filled: true,
+          fillColor: Colors.transparent,
           contentPadding: EdgeInsets.zero,
           border: InputBorder.none,
           enabledBorder: InputBorder.none,

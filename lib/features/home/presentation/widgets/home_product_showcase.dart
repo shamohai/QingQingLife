@@ -22,7 +22,24 @@ class HomeProductShowcase extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('为您推荐', style: AppTextStyles.headlineSmall),
+          Row(
+            children: [
+              Image.asset(
+                'assets/images/home/kingkong_member.png',
+                width: 16,
+                height: 16,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 16,
+                  height: 16,
+                  decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
+                  child: const Icon(Icons.thumb_up, size: 10, color: Colors.white),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Text('为您推荐', style: AppTextStyles.headlineSmall),
+            ],
+          ),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
             height: 200,

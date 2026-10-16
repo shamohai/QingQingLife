@@ -27,11 +27,17 @@ class HomeActivitySection extends StatelessWidget {
           // 标题行
           Row(
             children: [
-              Container(
+              Image.asset(
+                'assets/images/home/kingkong_member.png',
                 width: 16,
                 height: 16,
-                decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
-                child: const Icon(Icons.language, size: 10, color: Colors.white),
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 16,
+                  height: 16,
+                  decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
+                  child: const Icon(Icons.language, size: 10, color: Colors.white),
+                ),
               ),
               const SizedBox(width: AppSpacing.xs),
               Text('线上活动', style: AppTextStyles.headlineSmall),

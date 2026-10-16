@@ -8,16 +8,16 @@ class MockProductDataSource implements ProductRepository {
   // 本地 assets 路径
   static const _bannerUrl = ['assets/images/home/banner_1.png', 'assets/images/home/banner_2.png', 'assets/images/home/banner_3.png'];
   static const _kingKongIcons = [
-    'assets/images/home/kingkong_self.png',
-    'assets/images/home/kingkong_region.png',
-    'assets/images/home/kingkong_drink.png',
-    'assets/images/home/kingkong_new_user.png',
-    'assets/images/home/kingkong_hot.png',
-    'assets/images/home/kingkong_activity.png',
-    'assets/images/home/kingkong_points.png',
-    'assets/images/home/kingkong_service.png',
-    'assets/images/home/kingkong_butler.png',
-    'assets/images/home/kingkong_member.png',
+    'assets/images/home/kingkong_0.png',
+    'assets/images/home/kingkong_1.png',
+    'assets/images/home/kingkong_2.png',
+    'assets/images/home/kingkong_3.png',
+    'assets/images/home/kingkong_4.png',
+    'assets/images/home/kingkong_5.png',
+    'assets/images/home/kingkong_6.png',
+    'assets/images/home/kingkong_7.png',
+    'assets/images/home/kingkong_8.png',
+    'assets/images/home/kingkong_9.png',
   ];
 
   @override

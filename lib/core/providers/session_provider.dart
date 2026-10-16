@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../storage/device_storage.dart';
 import '../storage/secure_storage.dart';
 
 enum SessionState { loading, authenticated, unauthenticated }
@@ -11,6 +13,9 @@ class SessionNotifier extends Notifier<SessionState> {
 
   Future<void> login(String accessToken, {String? refreshToken}) async {
     await _storage.writeAccessToken(accessToken);
+    await _storage.writeAuthToken(accessToken);
+    final deviceId = await _storage.readDeviceId() ?? await DeviceStorage.getDeviceId();
+    await _storage.writeDeviceId(deviceId);
     if (refreshToken != null) {
       await _storage.writeRefreshToken(refreshToken);
     }
@@ -35,7 +40,4 @@ class SessionNotifier extends Notifier<SessionState> {
   }
 }
 
-final sessionProvider = NotifierProvider<SessionNotifier, SessionState>(
-  SessionNotifier.new,
-  name: 'sessionProvider',
-);
+final sessionProvider = NotifierProvider<SessionNotifier, SessionState>(SessionNotifier.new, name: 'sessionProvider');

@@ -27,15 +27,21 @@ class HomeMonthlyBenefits extends StatelessWidget {
           // 标题行
           Row(
             children: [
-              Container(
+              Image.asset(
+                'assets/images/home/kingkong_member.png',
                 width: 16,
                 height: 16,
-                decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
-                child: const Icon(Icons.card_membership, size: 10, color: Colors.white),
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 16,
+                  height: 16,
+                  decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
+                  child: const Icon(Icons.card_membership, size: 10, color: Colors.white),
+                ),
               ),
               const SizedBox(width: AppSpacing.xs),
               Text('每月权益', style: AppTextStyles.headlineSmall),
-              const Spacer(),
+              const SizedBox(width: AppSpacing.xs),
               Expanded(
                 child: Text(
                   '(权益月月享，每月只可领取一个)',
@@ -57,7 +63,7 @@ class HomeMonthlyBenefits extends StatelessWidget {
                 final index = benefits.indexOf(benefit);
                 return Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(right: index < 4 ? AppSpacing.md : 0),
+                    padding: EdgeInsets.only(right: index < 4 ? 6 : 0),
                     child: _BenefitSlot(benefit: benefit, onTap: onClaimTap),
                   ),
                 );
@@ -83,10 +89,10 @@ class _BenefitSlot extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // 56x56 图片
+          // 52x52 图片
           Container(
-            width: 56, // 设计稿 56px
-            height: 56, // 设计稿 56px
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
               color: const Color(0xFFFFF0ED),
               borderRadius: BorderRadius.circular(12),
@@ -96,17 +102,20 @@ class _BenefitSlot extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               child: benefit.imageUrl != null && benefit.imageUrl!.isNotEmpty
                   ? AppNetworkImage(url: benefit.imageUrl!, fit: BoxFit.cover)
-                  : const Center(child: Icon(Icons.stars, size: 28, color: Color(0xFFE53935))),
+                  : const Center(child: Icon(Icons.stars, size: 26, color: Color(0xFFE53935))),
             ),
           ),
-          const SizedBox(height: 8),
-          // 橙色胶囊"领取"按钮
+          const SizedBox(height: 6),
+          // 红色胶囊"领取"按钮
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            decoration: BoxDecoration(color: const Color(0xFFE53935), borderRadius: BorderRadius.circular(20)),
-            child: const Text(
-              '领取',
-              style: TextStyle(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w500),
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 3),
+            decoration: BoxDecoration(color: const Color(0xFFE53935), borderRadius: BorderRadius.circular(12)),
+            child: const Center(
+              child: Text(
+                '领取',
+                style: TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.w500),
+              ),
             ),
           ),
         ],

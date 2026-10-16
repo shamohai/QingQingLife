@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_spacing.dart';
 import '../providers/member_level_provider.dart';
@@ -9,11 +10,11 @@ import '../providers/member_level_provider.dart';
 /// 下方为横向滚动的券面 + 橙色「领取」按钮。
 ///
 /// 数据：来自 getRankDetail（POST /api/sys/app/getrankdetail）的 monthlyproductlist，
-/// 券面标题/副标题绑定 productname / servicedescr，领取状态绑定 isreceived。
+/// 券面绑定 ServiceProductItem 的 productname / servicedescr，领取状态绑定 isreceived。
 ///
 /// TODO: 券面图（设计切图/后端 productimg）资源尚未提供，当前使用 Flutter 原生样式券面还原；
-/// 资源就绪后替换为 AppNetworkImage。领取接口（ReceiveUserService）后端未实现，暂记录日志。
-class MemberMonthlyBenefits extends StatelessWidget {
+/// 资源就绪后替换为 AppNetworkImage。领取通过 ReceiveUserService 完成。
+class MemberMonthlyBenefits extends ConsumerWidget {
   final List<MemberMonthlyCoupon> coupons;
 
   const MemberMonthlyBenefits({super.key, required this.coupons});
@@ -29,7 +30,8 @@ class MemberMonthlyBenefits extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final receivingCouponIds = ref.watch(memberLevelProvider.select((state) => state.receivingCouponIds));
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
@@ -67,7 +69,18 @@ class MemberMonthlyBenefits extends StatelessWidget {
               itemCount: coupons.length,
               separatorBuilder: (_, _) => const SizedBox(width: 10),
               itemBuilder: (context, index) {
-                return _CouponItem(coupon: coupons[index], gradient: _couponGradients[index % _couponGradients.length]);
+                return _CouponItem(
+                  coupon: coupons[index],
+                  gradient: _couponGradients[index % _couponGradients.length],
+                  receiving: receivingCouponIds.contains(coupons[index].serviceId),
+                  onReceive: () async {
+                    final message = await ref.read(memberLevelProvider.notifier).receiveMonthlyCoupon(coupons[index]);
+                    if (!context.mounted || message == null) return;
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(SnackBar(content: Text(message)));
+                  },
+                );
               },
             ),
           ),
@@ -81,8 +94,10 @@ class MemberMonthlyBenefits extends StatelessWidget {
 class _CouponItem extends StatelessWidget {
   final MemberMonthlyCoupon coupon;
   final List<Color> gradient;
+  final bool receiving;
+  final VoidCallback? onReceive;
 
-  const _CouponItem({required this.coupon, required this.gradient});
+  const _CouponItem({required this.coupon, required this.gradient, required this.receiving, required this.onReceive});
 
   @override
   Widget build(BuildContext context) {
@@ -102,14 +117,14 @@ class _CouponItem extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                coupon.title,
+                coupon.productName,
                 style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white, height: 1.2),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 2),
               Text(
-                coupon.subtitle,
+                coupon.serviceDescr,
                 style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w400, color: Color(0xE6FFFFFF)),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -122,20 +137,15 @@ class _CouponItem extends StatelessWidget {
         // ── 领取按钮（已领取时置灰并展示「已领取」）─────────────────
         GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: coupon.received
-              ? null
-              : () {
-                  // TODO: 每月权益领取接口（ReceiveUserService）后端未实现，待接入后补充
-                  debugPrint('[MemberMonthlyBenefits] 领取点击: ${coupon.title}');
-                },
+          onTap: coupon.isReceived || receiving ? null : onReceive,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
             decoration: BoxDecoration(
-              color: coupon.received ? const Color(0xFFC9CDD4) : const Color(0xFFFF8C1F),
+              color: coupon.isReceived || receiving ? const Color(0xFFC9CDD4) : const Color(0xFFFF8C1F),
               borderRadius: const BorderRadius.all(Radius.circular(999)),
             ),
             child: Text(
-              coupon.received ? '已领取' : '领取',
+              coupon.isReceived ? '已领取' : (receiving ? '领取中' : '领取'),
               style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white, height: 1.3),
             ),
           ),
