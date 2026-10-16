@@ -52,7 +52,7 @@ class CartPage extends ConsumerWidget {
                           isManaging: state.isManaging,
                           onToggle: controller.toggleItem,
                           onQuantityChanged: controller.updateQuantity,
-                          onSwipeDelete: (id) => _confirmSwipeDelete(context, ref, id),
+                          onSwipeDelete: (id) => _swipeDelete(ref, id),
                         ),
                 ),
                 const SliverToBoxAdapter(child: _RecommendationHeading()),
@@ -157,14 +157,9 @@ class CartPage extends ConsumerWidget {
     }
   }
 
-  Future<bool?> _confirmSwipeDelete(BuildContext context, WidgetRef ref, String id) async {
-    final confirmed = await _showDeleteConfirmation(context, '你确定要删除该商品吗？');
-
-    if (confirmed == true) {
-      ref.read(cartPageProvider.notifier).deleteItem(id);
-    }
-
-    return confirmed;
+  Future<bool> _swipeDelete(WidgetRef ref, String id) async {
+    ref.read(cartPageProvider.notifier).deleteItem(id);
+    return true;
   }
 
   Future<bool?> _showDeleteConfirmation(BuildContext context, String message) {
