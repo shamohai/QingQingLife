@@ -78,34 +78,22 @@ class MockProductDataSource implements ProductRepository {
         activityBlocks: [
           HomeActivityBlock(
             id: 'act1',
-            imageUrls: [
-              'assets/images/home/xianshang_0_0.png',
-              'assets/images/home/xianshang_0_1.png',
-              'assets/images/home/xianshang_0_2.png',
-            ],
+            imageUrls: ['assets/images/home/xianshang_0_0.png', 'assets/images/home/xianshang_0_1.png', 'assets/images/home/xianshang_0_2.png'],
             title: '宠粉会员日，好礼送不停',
             actionUrl: '/shop?type=self',
           ),
           HomeActivityBlock(
             id: 'act2',
-            imageUrls: [
-              'assets/images/home/xianshang_1_0.png',
-              'assets/images/home/xianshang_1_1.png',
-            ],
+            imageUrls: ['assets/images/home/xianshang_1_0.png', 'assets/images/home/xianshang_1_1.png'],
             title: '定格青稞光影\n共酿四方酒故事',
             actionUrl: '/points/mall',
           ),
-          HomeActivityBlock(
-            id: 'act3',
-            imageUrl: 'assets/images/home/xianshang_2.png',
-            title: '这里容纳所有爱好\n我们以酒会知音',
-            actionUrl: '/service',
-          ),
+          HomeActivityBlock(id: 'act3', imageUrl: 'assets/images/home/xianshang_2.png', title: '这里容纳所有爱好\n我们以酒会知音', actionUrl: '/service'),
         ],
         topicActivityBlocks: [
-          HomeTopicActivityBlock(id: 'ta1', imageUrl: 'assets/images/home/xianxia_0.png', title: '线下欢聚品鉴会', actionUrl: '/topic/xianxia1'),
-          HomeTopicActivityBlock(id: 'ta2', imageUrl: 'assets/images/home/xianxia_1.png', title: '青稞文化节开幕', actionUrl: '/topic/xianxia2'),
-          HomeTopicActivityBlock(id: 'ta3', imageUrl: 'assets/images/home/xianxia_2.png', title: '会员线下品鉴专场', actionUrl: '/topic/xianxia3'),
+          HomeTopicActivityBlock(id: 'ta1', imageUrl: 'assets/images/home/xianxia_0.png', title: '同心筑路，共赴新途主题研学！', actionUrl: '/topic/xianxia1'),
+          HomeTopicActivityBlock(id: 'ta2', imageUrl: 'assets/images/home/xianxia_1.png', title: '线下会员日，惊喜好礼享不停！', actionUrl: '/topic/xianxia2'),
+          HomeTopicActivityBlock(id: 'ta3', imageUrl: 'assets/images/home/xianxia_2.png', title: '天佑德读书日，欢聚线下共饮书香!', actionUrl: '/topic/xianxia3'),
         ],
         monthlyBenefits: [
           HomeMonthlyBenefit(id: '1', title: '生日积分翻倍', imageUrl: 'assets/images/home/quanyi_0.png'),

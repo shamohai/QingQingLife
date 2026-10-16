@@ -13,7 +13,7 @@ import '../widgets/home_monthly_benefits.dart';
 import '../widgets/home_hot_products.dart';
 import '../widgets/home_activity_section.dart';
 import '../widgets/home_topic_activity_section.dart';
-import '../widgets/home_product_showcase.dart';
+import '../widgets/home_bottom_recommend_section.dart';
 
 /// 首页静态数据 Provider（轮播、金刚区、新人礼、专题、每月权益、可用商品、活动模块）
 final homeStaticDataProvider = FutureProvider<HomeStaticData>((ref) async {
@@ -136,7 +136,7 @@ class HomePage extends ConsumerWidget {
               // 底部商品展示区 (推荐商品)
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                sliver: SliverToBoxAdapter(child: HomeProductShowcase(products: staticData.hotProducts)),
+                sliver: SliverToBoxAdapter(child: HomeBottomRecommendSection(products: staticData.hotProducts)),
               ),
 
               const SliverToBoxAdapter(child: SizedBox(height: 32)),

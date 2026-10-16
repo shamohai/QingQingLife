@@ -18,7 +18,7 @@ class HomeTopicActivitySection extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(14)), // 设计稿 14px 圆角
+        borderRadius: BorderRadius.all(Radius.circular(14)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,7 +34,10 @@ class HomeTopicActivitySection extends StatelessWidget {
                 errorBuilder: (context, error, stackTrace) => Container(
                   width: 16,
                   height: 16,
-                  decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFE53935),
+                    shape: BoxShape.circle,
+                  ),
                   child: const Icon(Icons.storefront, size: 10, color: Colors.white),
                 ),
               ),
@@ -44,7 +47,10 @@ class HomeTopicActivitySection extends StatelessWidget {
               Expanded(
                 child: Text(
                   '(线下欢聚启新章，面对面享好礼)',
-                  style: AppTextStyles.labelSmall.copyWith(color: const Color(0xFF999999), fontSize: 10),
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: const Color(0xFF999999),
+                    fontSize: 10,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -61,7 +67,7 @@ class HomeTopicActivitySection extends StatelessWidget {
 
   Widget _buildHorizontalList(BuildContext context, List<HomeTopicActivityBlock> blocks) {
     return SizedBox(
-      height: 215, // 卡片总高度
+      height: 280, // 188(图) + 文字区 + 按钮 + padding ≈ 280
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
@@ -84,63 +90,70 @@ class _TopicCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 215, // 卡片宽度
+      width: 137,
       decoration: BoxDecoration(
-        color: const Color(0xFFF9F9F9),
-        borderRadius: BorderRadius.circular(14), // 14px 圆角
-        border: Border.all(color: const Color(0xFFEEEEEE), width: 1),
+        color: Colors.white, // 和模块白色背景一致
+        borderRadius: BorderRadius.circular(4)
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        //mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // 第 1 行：图片
+          // 完整图片 137×188
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
             child: SizedBox(
               width: 137,
-              height: 120,
+              height: 188,
               child: (block.imageUrl != null && block.imageUrl!.isNotEmpty)
-                  ? AppNetworkImage(url: block.imageUrl!, fit: BoxFit.cover, width: 137, height: 120)
-                  : Container(color: AppColors.surfaceVariant, width: 137, height: 120),
+                  ? AppNetworkImage(
+                url: block.imageUrl!,
+                fit: BoxFit.cover,
+                width: 137,
+                height: 188,
+              )
+                  : Container(
+                width: 137,
+                height: 188,
+                color: AppColors.surfaceVariant,
+              ),
             ),
           ),
+
+          // 文字 + 按钮（在图片下方）
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.fromLTRB(6, 8, 6, 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
-                // 第 2 行：文字
                 Text(
                   block.title,
                   style: const TextStyle(
                     color: Color(0xFF333333),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
+                    height: 1.3,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),
-                // 第 3 行：立即参与 按钮 (居中)
                 Center(
                   child: Container(
-                    width: 60,
-                    height: 19,
+                    width: 68,
+                    height: 22,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border.all(color: const Color(0xFFFF2105), width: 1.0),
-                      borderRadius: BorderRadius.circular(67),
+                      border: Border.all(color: const Color(0xFFFF2105), width: 1),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Center(
-                      child: Text(
-                        '立即参与',
-                        style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFFFF2105),
-                        ),
+                    alignment: Alignment.center,
+                    child: const Text(
+                      '立即参与',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFFFF2105),
                       ),
                     ),
                   ),
