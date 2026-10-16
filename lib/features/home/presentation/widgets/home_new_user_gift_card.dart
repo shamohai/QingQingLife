@@ -23,11 +23,17 @@ class HomeNewUserGiftCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Container(
+                Image.asset(
+                  'assets/images/home/kingkong_member.png',
                   width: 16,
                   height: 16,
-                  decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
-                  child: const Icon(Icons.card_giftcard, size: 10, color: Colors.white),
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: 16,
+                    height: 16,
+                    decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
+                    child: const Icon(Icons.card_giftcard, size: 10, color: Colors.white),
+                  ),
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Text('新人礼', style: AppTextStyles.headlineSmall),
@@ -40,20 +46,24 @@ class HomeNewUserGiftCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.sm),
-        // 3张优惠券卡片
+        // 优惠券卡片横向可滑动列表 (卡片统一等宽 112px，左右可滑动)
         if (gifts.isEmpty)
           const Text('暂无新人礼', style: AppTextStyles.bodySmall)
         else
-          Row(
-            children: List.generate(gifts.length > 3 ? 3 : gifts.length, (index) {
-              final gift = gifts[index];
-              return Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(right: index < (gifts.length > 3 ? 3 : gifts.length) - 1 ? AppSpacing.sm : 0),
-                  child: _CouponTicketCard(gift: gift, index: index),
-                ),
-              );
-            }),
+          SizedBox(
+            height: 116,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              itemCount: gifts.length,
+              separatorBuilder: (context, index) => const SizedBox(width: AppSpacing.sm),
+              itemBuilder: (context, index) {
+                return SizedBox(
+                  width: 112, // 统一固定的卡片宽度，保证全部完全等宽
+                  child: _CouponTicketCard(gift: gifts[index], index: index),
+                );
+              },
+            ),
           ),
       ],
     );
@@ -68,11 +78,10 @@ class _CouponTicketCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 根据设计稿：第1张橙色填充按钮，第2张橙色描边按钮，第3张灰色描边按钮（已抢光）
     final isSoldOut = index == 2;
     final buttonText = isSoldOut ? '已抢光' : (index == 1 ? '去使用' : '立即领取');
 
-    // 解析金额和标签
+    // 解析金额与标签
     String amount = '20';
     String label = gift.desc ?? '新人优惠券';
     if (gift.title.contains('减')) {
@@ -83,90 +92,120 @@ class _CouponTicketCard extends StatelessWidget {
       if (amount.isEmpty) amount = '20';
     }
 
+    // 根据蓝湖 XML 规范配置 3 种按钮样式与边框圆角 (3dp)
+    BoxDecoration buttonDecoration;
+    Color buttonTextColor;
+
+    if (isSoldOut) {
+      // 已抢光样式: 1dp #66fb9126 边框, 3dp 圆角, #66fb9126 文字
+      buttonDecoration = BoxDecoration(
+        color: Colors.transparent,
+        border: Border.all(color: const Color(0x66FB9126), width: 1),
+        borderRadius: BorderRadius.circular(3),
+      );
+      buttonTextColor = const Color(0x66FB9126);
+    } else if (index == 1) {
+      // 去使用样式: 1dp #fffb9126 边框, 3dp 圆角, #fffb9126 文字
+      buttonDecoration = BoxDecoration(
+        color: Colors.white.withAlpha(200),
+        border: Border.all(color: const Color(0xFFFB9126), width: 1),
+        borderRadius: BorderRadius.circular(3),
+      );
+      buttonTextColor = const Color(0xFFFB9126);
+    } else {
+      // 立即领取样式: 实心 #fffb9126 填充, 3dp 圆角, #ffffff 文字
+      buttonDecoration = BoxDecoration(
+        color: const Color(0xFFFB9126),
+        borderRadius: BorderRadius.circular(3),
+      );
+      buttonTextColor = Colors.white;
+    }
+
     return Container(
       height: 116, // 设计稿 116px 高度
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: isSoldOut ? const Color(0xFFE0E0E0) : const Color(0xFFFFCDD2), width: 0.8),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // 背景图
-            Positioned.fill(
-              child: Image.asset(
-                'assets/images/home/topic1.jpg',
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ____) => Container(color: isSoldOut ? const Color(0xFFF0F0F0) : const Color(0xFFFFF0ED)),
+            // 背景图: kingkong_region.png
+            Image.asset(
+              'assets/images/home/kingkong_region.png',
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: const Color(0xFFFFF7F0),
               ),
             ),
-            // 渐变遮罩
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.transparent, Colors.black.withAlpha(30)]),
-                ),
-              ),
-            ),
-            // 内容
-            Positioned.fill(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 价格区域 - 顶部对齐
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: [
-                            Text(
-                              '¥',
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isSoldOut ? const Color(0xFF999999) : Colors.white),
+            // 卡片内部文字与按钮布局
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // 金额与描述
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          const Text(
+                            '¥',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF542A00), // #ff542a00 金额颜色
                             ),
-                            Text(
-                              amount,
-                              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: isSoldOut ? const Color(0xFF999999) : Colors.white),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          label,
-                          style: TextStyle(fontSize: 11, color: isSoldOut ? const Color(0xFF999999) : Colors.white.withAlpha(200)),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    // 底部按钮
-                    Container(
-                      width: double.infinity,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: isSoldOut ? Colors.transparent : (index == 0 ? const Color(0xFFE53935) : Colors.transparent),
-                        border: Border.all(color: isSoldOut ? const Color(0xFFCCCCCC) : (index == 0 ? Colors.transparent : const Color(0xFFE53935)), width: 1),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Center(
-                        child: Text(
-                          buttonText,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: isSoldOut ? const Color(0xFF999999) : (index == 0 ? Colors.white : const Color(0xFFE53935)),
                           ),
+                          Text(
+                            amount,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF542A00), // #ff542a00 金额颜色
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 1),
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Color(0xFFFB9126), // #fffb9126 描述颜色
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                  // 蓝湖样式分割线: 43dp 宽, 1dp 高, 颜色 #fff1beb2
+                  Container(
+                    width: 43,
+                    height: 1,
+                    color: const Color(0xFFF1BEB2),
+                  ),
+                  // 底部按钮
+                  Container(
+                    width: double.infinity,
+                    height: 22,
+                    decoration: buttonDecoration,
+                    child: Center(
+                      child: Text(
+                        buttonText,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: buttonTextColor,
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],

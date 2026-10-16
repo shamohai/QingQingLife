@@ -46,7 +46,7 @@ class HomeBottomNav extends StatelessWidget {
               isSelected ? selectedIcon : unselectedIcon,
               width: 24,
               height: 24,
-              errorBuilder: (_, __, ____) => Icon(_getDefaultIcon(index), size: 24, color: isSelected ? const Color(0xFF213775) : const Color(0xFF999999)),
+              errorBuilder: (context, error, stackTrace) => Icon(_getDefaultIcon(index), size: 24, color: isSelected ? const Color(0xFF213775) : const Color(0xFF999999)),
             ),
             const SizedBox(height: 4),
             Text(

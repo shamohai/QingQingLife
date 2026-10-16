@@ -53,7 +53,8 @@ class AuthNotifier extends Notifier<AuthStatus> {
   /// Web/测试环境专用：直接写入测试 token，跳过微信授权。
   /// 不触发任何网络请求，token 写入 sessionStorage，关闭浏览器后清除。
   Future<void> webLogin() async {
-    final token = _uuid.v4();
+    //final token = _uuid.v4();
+    const token = '134219';
     await _session.login(token);
   }
 
