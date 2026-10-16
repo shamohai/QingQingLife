@@ -26,7 +26,7 @@ class HomeKingKongGrid extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         crossAxisCount: 5,
-        childAspectRatio: 0.82,
+        childAspectRatio: 0.72,
         crossAxisSpacing: 12, // 设计稿 12px 水平间距
         mainAxisSpacing: 12,
         children: List.generate(items.length > 10 ? 10 : items.length, (i) => _KingKongItem(item: items[i])),
@@ -46,16 +46,16 @@ class _KingKongItem extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SizedBox(
-          width: 50, // 设计稿 50x50 适合 5 列响应式网格
-          height: 50,
+          width: 44, // 44x44 图标尺寸，为 5 列网格和文字保留充足空间
+          height: 44,
           child: item.iconUrl.isNotEmpty
-              ? AppNetworkImage(url: item.iconUrl, fit: BoxFit.contain, memCacheWidth: 100, memCacheHeight: 100)
+              ? AppNetworkImage(url: item.iconUrl, fit: BoxFit.contain, memCacheWidth: 88, memCacheHeight: 88)
               : Container(
                   decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(AppRadius.md)),
-                  child: const Center(child: Icon(Icons.category_outlined, size: 28, color: Colors.grey)),
+                  child: const Center(child: Icon(Icons.category_outlined, size: 24, color: Colors.grey)),
                 ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         Text(
           item.label,
           style: AppTextStyles.labelSmall.copyWith(

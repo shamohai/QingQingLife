@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../product/domain/repositories/product_repository.dart';
 import '../../../../core/utils/money.dart';
@@ -17,67 +15,90 @@ class HomeProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cardWidth = compact ? 112.0 : 160.0;
     final imageHeight = compact ? 112.0 : 120.0;
+
     return SizedBox(
       width: cardWidth,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
         children: [
-          // 商品图片
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(AppRadius.md),
-                child: AppNetworkImage(
-                  url: product.imageUrl,
-                  width: cardWidth,
-                  height: imageHeight,
-                  fit: BoxFit.cover,
-                  memCacheWidth: cardWidth.toInt(),
-                  memCacheHeight: imageHeight.toInt(),
-                ),
-              ),
-              Positioned(
-                top: 6,
-                left: 6,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: (product.tag == '自营' || product.tag == null) ? const Color(0xFF0E55B4) : AppColors.primary,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(product.tag ?? '自营', style: AppTextStyles.tagStyle),
-                ),
-              ),
-            ],
+          // 商品图片 112x112
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: AppNetworkImage(
+              url: product.imageUrl,
+              width: cardWidth,
+              height: imageHeight,
+              fit: BoxFit.cover,
+              memCacheWidth: cardWidth.toInt(),
+              memCacheHeight: imageHeight.toInt(),
+            ),
           ),
-          const SizedBox(height: 8),
-          // 商品名称
-          Text(product.name, style: AppTextStyles.bodySmall.copyWith(fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
-          const SizedBox(height: 4),
-          // 价格 + 原价
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(Money.fromCents(product.priceCents).format(), style: AppTextStyles.priceMedium.copyWith(fontSize: 14)),
-              if (product.originalPriceCents != null && product.originalPriceCents! > product.priceCents) ...[
-                const SizedBox(width: 4),
-                Text(
-                  Money.fromCents(product.originalPriceCents!).format(),
-                  style: AppTextStyles.labelSmall.copyWith(
-                    color: const Color(0xFF999999),
-                    decoration: TextDecoration.lineThrough,
-                    fontSize: 10,
+          const SizedBox(height: 6),
+          // 商品名称（“自营”标签在名称正前方，背景色为 #213775）
+          Text.rich(
+            TextSpan(
+              children: [
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.middle,
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF213775), // 首页藏青背景色 #213775
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                    child: Text(
+                      product.tag ?? '自营',
+                      style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w600, color: Colors.white),
+                    ),
                   ),
+                ),
+                TextSpan(
+                  text: product.name,
+                  style: AppTextStyles.bodySmall.copyWith(fontSize: 12),
                 ),
               ],
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+          // 售价、市场价 + 右侧居中红色购物车图标 (#ffff2105)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // 售价 + 市场价
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      Money.fromCents(product.priceCents).format(),
+                      style: AppTextStyles.priceSmall.copyWith(fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      product.originalPriceCents != null
+                          ? Money.fromCents(product.originalPriceCents!).format()
+                          : '¥940',
+                      style: const TextStyle(
+                        fontSize: 9,
+                        color: Color(0xFF8E8E93), // #ff8e8e93 市场价颜色
+                        decoration: TextDecoration.lineThrough,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // 右侧居中：红色购物车图标 (#ffff2105)，无背景
+              const Icon(
+                Icons.shopping_cart_outlined,
+                size: 18,
+                color: Color(0xFFFF2105), // #ffff2105 红色图标
+              ),
             ],
           ),
-          if (product.salesCount != null) ...[
-            const SizedBox(height: 2),
-            Text('${product.salesCount}人付款', style: AppTextStyles.labelSmall.copyWith(color: AppColors.onSurfaceVariant, fontSize: 10)),
-          ],
         ],
       ),
     );

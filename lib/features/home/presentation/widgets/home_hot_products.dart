@@ -45,23 +45,26 @@ class HomeHotProducts extends ConsumerWidget {
                   Text('热卖商品', style: AppTextStyles.headlineSmall),
                 ],
               ),
-              Consumer(
-                builder: (context, ref, _) {
-                  final pagingData = ref.watch(homeHotProductsProvider);
-                  if (!pagingData.hasMore && pagingData.items.isNotEmpty) {
-                    return Text('已加载全部', style: AppTextStyles.labelSmall.copyWith(color: const Color(0xFF999999)));
+              GestureDetector(
+                onTap: () {
+                  final pagingData = ref.read(homeHotProductsProvider);
+                  if (!pagingData.isLoading && pagingData.hasMore) {
+                    ref.read(homeHotProductsProvider.notifier).loadMore();
                   }
-                  return GestureDetector(
-                    onTap: pagingData.isLoading ? null : () => ref.read(homeHotProductsProvider.notifier).loadMore(),
-                    child: Text('查看全部>>>', style: AppTextStyles.labelSmall.copyWith(color: const Color(0xFF999999))),
-                  );
                 },
+                child: const Text(
+                  '查看全部>>>',
+                  style: TextStyle(
+                    color: Color(0xFF8E8E93), // #ff8e8e93 文字颜色
+                    fontSize: 9, // 9sp 文字大小
+                  ),
+                ),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
-            height: 200,
+            height: 192,
             child: PagingListView<ProductCard>(
               provider: homeHotProductsProvider,
               scrollDirection: Axis.horizontal,

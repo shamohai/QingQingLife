@@ -6,8 +6,7 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../product/domain/repositories/product_repository.dart';
 import '../../../../core/widgets/app_image.dart';
 
-/// 线下活动模块（对齐蓝湖设计稿）
-/// 设计稿：白色卡片，"线下活动" + 副标题，3张卡片横向（137x228），"立即参与" 红色描边按钮
+/// 线下活动模块（整体左右滑动，严格3行结构：第1行图片，第2行文字，第3行居中按钮）
 class HomeTopicActivitySection extends StatelessWidget {
   final List<HomeTopicActivityBlock> blocks;
   const HomeTopicActivitySection({super.key, required this.blocks});
@@ -53,35 +52,27 @@ class HomeTopicActivitySection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          // 3张卡片横向排列
-          _buildGrid(context, blocks),
+          // 整体左右滑动列表
+          _buildHorizontalList(context, blocks),
         ],
       ),
     );
   }
 
-  Widget _buildGrid(BuildContext context, List<HomeTopicActivityBlock> blocks) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: List.generate(3, (index) {
-        if (index >= blocks.length) {
-          return Expanded(
-            child: Container(
-              height: 228, // 设计稿 228px 高度
-              decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(14)),
-              child: const Center(
-                child: Text('暂无活动', style: TextStyle(color: Colors.grey)),
-              ),
-            ),
-          );
-        }
-        return Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(right: index < 2 ? AppSpacing.sm : 0),
+  Widget _buildHorizontalList(BuildContext context, List<HomeTopicActivityBlock> blocks) {
+    return SizedBox(
+      height: 215, // 卡片总高度
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        itemCount: blocks.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: EdgeInsets.only(right: index < blocks.length - 1 ? AppSpacing.sm : 0),
             child: _TopicCard(block: blocks[index]),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 }
@@ -92,56 +83,65 @@ class _TopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(14), // 设计稿 14px 圆角
-      child: Stack(
+    return Container(
+      width: 215, // 卡片宽度
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9F9F9),
+        borderRadius: BorderRadius.circular(14), // 14px 圆角
+        border: Border.all(color: const Color(0xFFEEEEEE), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        //mainAxisSize: MainAxisSize.min,
         children: [
-          // 背景图 137x228
-          SizedBox(
-            width: double.infinity,
-            height: 228, // 设计稿 228px 高度
-            child: (block.imageUrl != null && block.imageUrl!.isNotEmpty)
-                ? AppNetworkImage(url: block.imageUrl!, fit: BoxFit.cover, width: double.infinity, height: 228)
-                : Container(color: AppColors.surfaceVariant, width: double.infinity, height: 228),
-          ),
-          // 渐变遮罩
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.transparent, Colors.black.withAlpha(180)]),
-              ),
+          // 第 1 行：图片
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+            child: SizedBox(
+              width: 137,
+              height: 120,
+              child: (block.imageUrl != null && block.imageUrl!.isNotEmpty)
+                  ? AppNetworkImage(url: block.imageUrl!, fit: BoxFit.cover, width: 137, height: 120)
+                  : Container(color: AppColors.surfaceVariant, width: 137, height: 120),
             ),
           ),
-          // 底部内容
-          Positioned(
-            bottom: 14,
-            left: 12,
-            right: 12,
+          Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
+                // 第 2 行：文字
                 Text(
                   block.title,
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    color: Color(0xFF333333),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 10),
-                // "立即参与" 红色描边胶囊按钮
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    border: Border.all(color: const Color(0xFFE53935), width: 1.5),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      '立即参与',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFFE53935)),
+                const SizedBox(height: 8),
+                // 第 3 行：立即参与 按钮 (居中)
+                Center(
+                  child: Container(
+                    width: 60,
+                    height: 19,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: const Color(0xFFFF2105), width: 1.0),
+                      borderRadius: BorderRadius.circular(67),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        '立即参与',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFFFF2105),
+                        ),
+                      ),
                     ),
                   ),
                 ),
