@@ -1,6 +1,6 @@
 import 'service_card_data.dart';
 
-enum ServiceProjectDetailType { appointment, activity }
+enum ServiceProjectDetailType { appointment, friend, activity }
 
 /// 预约项目详情数据模型（本地 mock，待 API 对接后替换）
 class ServiceProjectDetail {
@@ -36,6 +36,7 @@ class ServiceProjectDetail {
   factory ServiceProjectDetail.mock(String projectId) {
     final source = _lookupMock(projectId);
     final isActivity = source?.tabKey == 'huodong';
+    final isFriend = source?.tabKey == 'zhiyouhui';
 
     return ServiceProjectDetail(
       id: projectId,
@@ -43,7 +44,11 @@ class ServiceProjectDetail {
       heroAsset: source?.heroAsset ?? 'assets/images/service/service_project_hero.png',
       description: source?.description ?? '',
       onBook: () {},
-      type: isActivity ? ServiceProjectDetailType.activity : ServiceProjectDetailType.appointment,
+      type: isActivity
+          ? ServiceProjectDetailType.activity
+          : isFriend
+          ? ServiceProjectDetailType.friend
+          : ServiceProjectDetailType.appointment,
       activityTime: source?.dateRange,
       registrationTime: source?.registrationRange,
       activityAddress: source?.activityAddress,

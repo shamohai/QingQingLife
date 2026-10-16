@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
+import '../pages/service_activity_booking_form_page.dart';
+import '../pages/service_friend_booking_form_page.dart';
 import '../../domain/models/service_project_detail_model.dart';
 
 /// 预约项目详情 — 底部固定操作栏
@@ -30,11 +32,29 @@ class ProjectDetailBottomBar extends StatelessWidget {
         bottom: true,
         child: Center(
           child: GestureDetector(
-            onTap: () => context.pushNamed(
-              product.type == ServiceProjectDetailType.activity ? 'serviceActivityBookingForm' : 'serviceBookingForm',
-              pathParameters: {'id': product.id.toString()},
-              queryParameters: {'title': product.title, 'heroAsset': product.heroAsset},
-            ),
+            onTap: () {
+              if (product.type == ServiceProjectDetailType.friend) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => ServiceFriendBookingFormPage(title: '挚友会报名', heroAsset: product.heroAsset),
+                  ),
+                );
+                return;
+              }
+              if (product.type == ServiceProjectDetailType.activity) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => ServiceActivityBookingFormPage(activityId: product.id, title: product.title, heroAsset: product.heroAsset),
+                  ),
+                );
+                return;
+              }
+              context.pushNamed(
+                'serviceBookingForm',
+                pathParameters: {'id': product.id.toString()},
+                queryParameters: {'title': product.title, 'heroAsset': product.heroAsset},
+              );
+            },
             child: Container(
               width: btnWidth,
               height: 51,

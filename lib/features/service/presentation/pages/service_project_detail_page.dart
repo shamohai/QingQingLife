@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_error.dart';
 import '../../domain/models/service_project_detail_model.dart';
 import '../providers/service_project_detail_provider.dart';
 import '../widgets/activity_detail_info_card.dart';
+import '../widgets/friend_detail_info_card.dart';
 import '../widgets/project_detail_bottom_bar.dart';
 import '../widgets/project_detail_hero_image.dart';
 import '../widgets/project_detail_info_card.dart';
@@ -32,7 +33,12 @@ class ServiceProjectDetailPage extends ConsumerWidget {
       appBar: projectAsync.when(
         loading: () => _buildAppBar(context),
         error: (_, _) => _buildAppBar(context),
-        data: (product) => _buildAppBar(context, title: product.title, isActivity: product.type == ServiceProjectDetailType.activity),
+        data: (product) => _buildAppBar(
+          context,
+          title: product.title,
+          isActivity: product.type == ServiceProjectDetailType.activity,
+          isFriend: product.type == ServiceProjectDetailType.friend,
+        ),
       ),
       body: projectAsync.when(
         loading: () => const Center(child: AppLoading()),
@@ -49,8 +55,8 @@ class ServiceProjectDetailPage extends ConsumerWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context, {String? title, bool isActivity = false}) {
-    final pageTitle = isActivity ? (title ?? '活动详情') : '预约项目详情';
+  PreferredSizeWidget _buildAppBar(BuildContext context, {String? title, bool isActivity = false, bool isFriend = false}) {
+    final pageTitle = isActivity ? '活动详情' : (isFriend ? '挚友报名会' : '预约项目详情');
     return AppBar(
       backgroundColor: AppColors.servicePageBackground,
       elevation: 0,
@@ -86,6 +92,9 @@ class ServiceProjectDetailPage extends ConsumerWidget {
     if (product.type == ServiceProjectDetailType.activity) {
       return _buildActivityBody(product);
     }
+    if (product.type == ServiceProjectDetailType.friend) {
+      return _buildFriendBody(product);
+    }
 
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -99,6 +108,28 @@ class ServiceProjectDetailPage extends ConsumerWidget {
                 Transform.translate(
                   offset: const Offset(0, -50),
                   child: ProjectDetailInfoCard(product: product),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFriendBody(ServiceProjectDetail product) {
+    return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
+        SliverToBoxAdapter(
+          child: SizedBox(
+            width: double.infinity,
+            child: Column(
+              children: [
+                ProjectDetailHeroImage(heroAsset: product.heroAsset, horizontalPadding: 14, aspectRatio: 412 / 180),
+                Transform.translate(
+                  offset: const Offset(0, -50),
+                  child: FriendDetailInfoCard(project: product),
                 ),
               ],
             ),

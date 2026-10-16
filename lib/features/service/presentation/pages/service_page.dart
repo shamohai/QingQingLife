@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../core/widgets/app_empty.dart';
+import '../../../../core/widgets/app_loading.dart';
 import '../providers/service_provider.dart';
 import '../widgets/service_tab_bar.dart';
 import '../widgets/service_list_item.dart';
@@ -68,7 +69,7 @@ class ServicePage extends ConsumerWidget {
                 width: double.infinity,
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 11),
                   child: Column(
                     children: [
                       Padding(
@@ -78,7 +79,7 @@ class ServicePage extends ConsumerWidget {
                       for (int i = 1; i < cards.length; i++)
                         Column(
                           children: [
-                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 0, endIndent: 0),
+                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
                             Padding(
                               padding: const EdgeInsets.only(top: 14, bottom: 14),
                               child: ServiceActivityCardItem(data: cards[i], onTap: () => onItemTap(cards[i].id)),
@@ -144,7 +145,7 @@ class ServicePage extends ConsumerWidget {
               width: double.infinity,
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 11),
                 child: Column(
                   children: [
                     Padding(
@@ -174,7 +175,7 @@ class ServicePage extends ConsumerWidget {
           ],
         );
       },
-      loading: () => const Center(child: SizedBox(height: 200, child: CircularProgressIndicator())),
+      loading: () => const AppLoading(),
       error: (_, _) => const Center(child: AppEmpty(message: '加载失败，请重试')),
     );
   }

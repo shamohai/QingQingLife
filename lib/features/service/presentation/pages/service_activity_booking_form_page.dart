@@ -186,7 +186,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
                   children: [
                     // Section 1: Banner（412:180 比例，两侧 14dp padding，圆角 md）
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, 0),
+                      padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
                       child: ClipRRect(
                         borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
                         child: AspectRatio(
@@ -199,14 +199,14 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
                     Transform.translate(
                       offset: const Offset(0, -50),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
                             boxShadow: const [BoxShadow(color: Color(0xFFE6E8E9), blurRadius: 7, offset: Offset(0, 2))],
                           ),
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: AppSpacing.lg),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
@@ -279,7 +279,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
         top: false,
         child: Container(
           color: Colors.white,
-          padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
+          padding: const EdgeInsets.fromLTRB(30, AppSpacing.md, 30, AppSpacing.lg),
           child: GestureDetector(
             onTap: _isSubmitting ? null : _handleSubmit,
             child: Container(

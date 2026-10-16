@@ -90,11 +90,7 @@ class ServiceCartPage extends ConsumerWidget {
     return SliverToBoxAdapter(
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final screenWidth = constraints.maxWidth;
-          const maxHeight = 230.0;
-          final aspectRatio = 554 / 1080;
-          final calculatedHeight = screenWidth * aspectRatio;
-          final bannerHeight = calculatedHeight > maxHeight ? maxHeight : calculatedHeight;
+          final bannerHeight = (constraints.maxWidth - 28) * (230 / 414);
           return Container(
             margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppRadius.md)),
@@ -122,7 +118,7 @@ class ServiceCartPage extends ConsumerWidget {
     );
   }
 
-  // ─── 配送地址栏 + 购物车商品列表 ────────────────────────────────
+  // ─── 配送地址栏 ────────────────────────────────────────────────
 
   Widget _buildAddressBar(BuildContext context, ServiceCartState state, WidgetRef ref, ServiceCartInitialParams params) {
     final notifier = ref.read(serviceCartProvider(params).notifier);
@@ -154,21 +150,24 @@ class ServiceCartPage extends ConsumerWidget {
             ),
             if (state.cartProducts.isEmpty)
               const Padding(
-                padding: EdgeInsets.symmetric(vertical: AppSpacing.xl),
+                padding: EdgeInsets.symmetric(vertical: 26),
                 child: AppEmpty(message: '暂无商品'),
               )
             else
               Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 3),
                 child: Column(
                   children: [
                     for (final item in state.cartProducts)
-                      _ServiceCartItemRow(
-                        product: item,
-                        selected: state.selectedMap[item.pid] ?? true,
-                        isUpdating: state.cartUpdateInProgress,
-                        onToggle: () => notifier.toggleSelect(item.pid),
-                        onQtyChanged: (qty) => notifier.addProductToCart(item.pid, qty),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: _ServiceCartItemRow(
+                          product: item,
+                          selected: state.selectedMap[item.pid] ?? true,
+                          isUpdating: state.cartUpdateInProgress,
+                          onToggle: () => notifier.toggleSelect(item.pid),
+                          onQtyChanged: (qty) => notifier.addProductToCart(item.pid, qty),
+                        ),
                       ),
                   ],
                 ),
@@ -184,17 +183,17 @@ class ServiceCartPage extends ConsumerWidget {
   Widget _buildContinueAddSection(BuildContext context, ServiceCartState state, WidgetRef ref, ServiceCartInitialParams params) {
     return SliverToBoxAdapter(
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppRadius.md), color: Colors.white),
+        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppRadius.sm), color: Colors.white),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Padding(
-              padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.md),
+              padding: EdgeInsets.fromLTRB(10, 11, 10, AppSpacing.md),
               child: Row(
                 children: [
                   SizedBox(
-                    width: 3,
+                    width: 2,
                     height: 16,
                     child: DecoratedBox(
                       decoration: BoxDecoration(color: AppColors.serviceProjectBlue, borderRadius: BorderRadius.all(Radius.circular(2))),
@@ -203,7 +202,7 @@ class ServiceCartPage extends ConsumerWidget {
                   SizedBox(width: AppSpacing.sm),
                   Text(
                     '继续加购',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
                   ),
                 ],
               ),
@@ -234,7 +233,7 @@ class ServiceCartPage extends ConsumerWidget {
     final canCheckout = state.canSubmit && state.cartProducts.isNotEmpty;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.md + 8),
+      padding: const EdgeInsets.fromLTRB(23, 8, 22, 16),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [const BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, -2))],
@@ -265,11 +264,14 @@ class ServiceCartPage extends ConsumerWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('合计', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black)),
+                          Text(
+                            '合计：',
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black),
+                          ),
                           const SizedBox(width: AppSpacing.xs),
                           Text(
                             state.selectedTotalFormatted,
-                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.error),
+                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500, color: Color(0xFFFE273D)),
                           ),
                         ],
                       ),
@@ -285,12 +287,12 @@ class ServiceCartPage extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: AppSpacing.lg),
+                const SizedBox(width: 20),
                 GestureDetector(
                   onTap: canCheckout ? () => context.push('/checkout') : null,
                   child: Container(
-                    width: 96,
-                    height: 44,
+                    width: 120,
+                    height: 47,
                     decoration: BoxDecoration(
                       color: canCheckout ? null : AppColors.outlineVariant,
                       borderRadius: BorderRadius.circular(AppRadius.round),
@@ -362,11 +364,21 @@ class _ServiceCartItemRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: EdgeInsets.zero,
       child: Row(
         children: [
-          Checkbox(value: selected, onChanged: (_) => onToggle(), activeColor: AppColors.serviceProjectBlue, shape: const CircleBorder()),
-          const SizedBox(width: AppSpacing.sm),
+          SizedBox(
+            width: 22,
+            child: Checkbox(
+              value: selected,
+              onChanged: (_) => onToggle(),
+              activeColor: AppColors.serviceProjectBlue,
+              shape: const CircleBorder(),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
+          const SizedBox(width: 14),
           // 商品图片
           ClipRRect(
             borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -380,7 +392,7 @@ class _ServiceCartItemRow extends StatelessWidget {
                   )
                 : Container(width: 80, height: 80, color: AppColors.surfaceVariant),
           ),
-          const SizedBox(width: AppSpacing.md),
+          const SizedBox(width: 10),
           // 商品名称 + 价格
           Expanded(
             child: Column(
@@ -388,14 +400,14 @@ class _ServiceCartItemRow extends StatelessWidget {
               children: [
                 Text(
                   product.productName,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: AppColors.onSurface),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black, height: 1.5),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: 3),
                 Text(
                   product.fullPrice.isNotEmpty ? product.fullPrice : _formatPrice(product.price),
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.error),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceButtonRed),
                 ),
               ],
             ),
@@ -431,19 +443,49 @@ class _QtyControl extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        GestureDetector(
-          onTap: onMinus,
-          child: Icon(Icons.remove_circle_outline, size: 20, color: onMinus == null ? AppColors.outlineVariant : AppColors.onSurface),
+        _QtyButton(icon: Icons.remove, onTap: onMinus, left: true),
+        Container(
+          width: 34,
+          height: 24,
+          alignment: Alignment.center,
+          decoration: const BoxDecoration(
+            border: Border.symmetric(horizontal: BorderSide(color: Color(0xFFE5E5E5))),
+          ),
+          child: Text(quantity.toString(), style: const TextStyle(fontSize: 16, color: Colors.black)),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-          child: Text(quantity.toString(), style: const TextStyle(fontSize: 14, color: AppColors.onSurface)),
-        ),
-        GestureDetector(
-          onTap: onPlus,
-          child: Icon(Icons.add_circle_outline, size: 20, color: onPlus == null ? AppColors.outlineVariant : AppColors.onSurface),
-        ),
+        _QtyButton(icon: Icons.add, onTap: onPlus, left: false),
       ],
+    );
+  }
+}
+
+class _QtyButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+  final bool left;
+
+  const _QtyButton({required this.icon, required this.onTap, required this.left});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: 30,
+        height: 24,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF6F7F8),
+          border: Border(
+            top: const BorderSide(color: Color(0xFFE5E5E5)),
+            bottom: const BorderSide(color: Color(0xFFE5E5E5)),
+            left: left ? const BorderSide(color: Color(0xFFE5E5E5)) : BorderSide.none,
+            right: left ? BorderSide.none : const BorderSide(color: Color(0xFFE5E5E5)),
+          ),
+          borderRadius: BorderRadius.horizontal(left: left ? const Radius.circular(7) : Radius.zero, right: left ? Radius.zero : const Radius.circular(7)),
+        ),
+        alignment: Alignment.center,
+        child: Icon(icon, size: 16, color: onTap == null ? AppColors.outlineVariant : Colors.black),
+      ),
     );
   }
 }
@@ -460,7 +502,7 @@ class _ContinueAddItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 2),
       child: Row(
         children: [
           // 图片
@@ -476,27 +518,27 @@ class _ContinueAddItem extends StatelessWidget {
                   )
                 : Container(width: 80, height: 80, color: AppColors.surfaceVariant),
           ),
-          const SizedBox(width: AppSpacing.md),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   product.productName,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: AppColors.onSurface),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black, height: 1.5),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: 3),
                 if (product.priceDesc.isNotEmpty)
                   Text(
                     product.priceDesc,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.error),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceButtonRed),
                   )
                 else
                   Text(
                     '¥${product.price.toStringAsFixed(2)}',
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.error),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceButtonRed),
                   ),
                 if (product.cartNum > 0)
                   Padding(
@@ -516,10 +558,10 @@ class _ContinueAddItem extends StatelessWidget {
               child: isUpdating
                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.outlineVariant))
                   : Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                      child: const Icon(Icons.add, size: 18, color: Colors.white),
+                      width: 36,
+                      height: 36,
+                      decoration: const BoxDecoration(color: AppColors.serviceButtonRed, shape: BoxShape.circle),
+                      child: const Icon(Icons.add, size: 28, color: Colors.white),
                     ),
             ),
           ),
