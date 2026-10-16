@@ -48,6 +48,7 @@ abstract final class RouteNames {
 
   // 登录
   static const String login = '/login';
+  static const String tokenDebug = '/login/token-debug';
   static const String phoneBind = '/phone-bind';
 
   // 服务预约子路由
