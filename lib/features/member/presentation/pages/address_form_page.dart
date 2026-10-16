@@ -16,7 +16,7 @@ import '../providers/member_addresses_provider.dart';
 /// 结构（设计稿 375×815）：返回栏「新增地址」→ 白色表单卡片（姓名 / 手机号码 /
 ///   所在地区 / 详细地址 / 设置为默认地址 / 确认提交）→ 底部湖泊背景图。
 /// 数据：
-/// - 提交调用 MemberRepository.saveAddress（当前 Mock 数据源仅内存保存，后端接口就绪后替换）；
+/// - 提交调用 MemberRepository.saveAddress（真实接口：POST /api/sys/setuseraddress）；
 /// - 省市区为本地 Mock 数据（后端暂无地区数据接口），见 _RegionPickerSheet。
 class AddressFormPage extends ConsumerStatefulWidget {
   /// 编辑模式带入的初始地址；为 null 时为新增模式
@@ -183,7 +183,11 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
                 cursorColor: _Palette.label,
                 decoration: const InputDecoration(
                   isCollapsed: true,
+                  filled: false,
+                  fillColor: Colors.transparent,
                   border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
                   hintText: '请输入姓名',
                   hintStyle: TextStyle(fontSize: 13.5, color: _Palette.hint),
                 ),
@@ -216,7 +220,11 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
                 cursorColor: _Palette.label,
                 decoration: const InputDecoration(
                   isCollapsed: true,
+                  filled: false,
+                  fillColor: Colors.transparent,
                   border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
                   hintText: '请输入手机号码',
                   hintStyle: TextStyle(fontSize: 13.5, color: _Palette.hint),
                 ),
@@ -276,7 +284,11 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
           cursorColor: _Palette.label,
           decoration: const InputDecoration(
             isCollapsed: true,
+            filled: false,
+            fillColor: Colors.transparent,
             border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
             hintText: '请输入详细地址 例如小区/单元/楼层等',
             hintStyle: TextStyle(fontSize: 13.5, color: _Palette.hint),
           ),

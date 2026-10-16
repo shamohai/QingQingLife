@@ -7,6 +7,8 @@ import '../domain/repositories/auth_repository.dart';
 import '../../features/cart/data/repositories/cart_page_mock_repository.dart';
 import '../../features/cart/domain/repositories/cart_page_repository.dart';
 import '../../features/member/data/datasources/member_mock_datasource.dart';
+import '../../features/member/data/datasources/member_mixed_datasource.dart';
+import '../../features/member/data/datasources/member_remote_datasource.dart';
 import '../../features/member/data/datasources/member_sign_in_mock_datasource.dart';
 import '../../features/member/domain/repositories/member_repository.dart';
 import '../../features/member/domain/repositories/member_sign_in_repository.dart';
@@ -64,9 +66,8 @@ InvoiceRepository invoiceRepository(Ref ref) {
 /// Member Repository Provider
 @riverpod
 MemberRepository memberRepository(Ref ref) {
-  // TODO(Mock): 会员相关后端接口（含会员权益 POST /api/sys/v2/getmemberauthority）尚未实现，
-  // 当前统一走 Mock。后端就绪后改为返回 MemberRemoteDataSource。
-  return MockMemberDataSource();
+  // 地址列表及已完成对接的会员接口走真实数据源，其余能力继续使用 Mock。
+  return MemberMixedDataSource(remote: ref.read(memberRemoteDataSourceProvider), mock: MockMemberDataSource());
 }
 
 /// Member Sign In Repository Provider

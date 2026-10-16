@@ -95,6 +95,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
       String phoneMasked = state.phoneMasked;
       int memberLevel = state.memberLevel;
       String levelName = state.levelName;
+      int points = state.points;
 
       final authResp = await ref.read(authProvider.notifier).getCurrentUser();
       if (authResp.success && authResp.data != null) {
@@ -103,6 +104,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         avatarUrl = u.avatarUrl ?? avatarUrl;
         phoneMasked = _maskPhone(u.phone);
         memberLevel = u.memberLevel;
+        points = u.points;
       }
       // 重新匹配到期时间与等级名（此时 memberLevel 已更新为真实值）
       if (ranks.isNotEmpty) {
@@ -115,7 +117,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         nickname: nickname,
         avatarUrl: avatarUrl,
         phoneMasked: phoneMasked,
-        points: 0,
+        points: points,
         couponCount: 0,
         ranks: ranks,
         memberLevel: memberLevel,

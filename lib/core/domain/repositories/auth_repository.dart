@@ -55,25 +55,73 @@ class AuthResult {
 
 /// 用户领域实体对象
 ///
-/// 对应 /api/sys/app/login 返回的扁平字段。
+/// 兼容登录接口返回的扁平字段，以及 getmyprofile 返回的
+/// baseprofile / rankinfo 嵌套字段。
 class UserInfo {
   final String id; // userrid
   final String nickname; // username
   final String? avatarUrl; // avatar（后端可能返回 [URL](URL) markdown 格式）
-  final int points; // paycredits
-  final int memberLevel; // rankcredits
+  final int points; // paycredit / paycredits
+  final int memberLevel; // rankinfo.userrid / rankcredits
   final String? phone; // mobile
+  final int expiringPoints;
+  final int growthValue;
+  final int nextLevelStart;
+  final int nextLevelEnd;
+  final String levelName;
+  final DateTime? levelExpireDate;
 
-  const UserInfo({required this.id, required this.nickname, this.avatarUrl, this.points = 0, this.memberLevel = 1, this.phone});
+  const UserInfo({
+    required this.id,
+    required this.nickname,
+    this.avatarUrl,
+    this.points = 0,
+    this.memberLevel = 1,
+    this.phone,
+    this.expiringPoints = 0,
+    this.growthValue = 0,
+    this.nextLevelStart = 0,
+    this.nextLevelEnd = 0,
+    this.levelName = '',
+    this.levelExpireDate,
+  });
 
-  factory UserInfo.fromJson(Map<String, dynamic> json) => UserInfo(
-        id: (json['userrid'] as int?)?.toString() ?? '',
-        nickname: (json['username'] as String?) ?? '',
-        avatarUrl: _cleanAvatarUrl(json['avatar'] as String?),
-        points: json['paycredits'] as int? ?? 0,
-        memberLevel: json['rankcredits'] as int? ?? 1,
-        phone: json['mobile'] as String?,
-      );
+  factory UserInfo.fromJson(Map<String, dynamic> json) {
+    final baseProfile = _map(json['baseprofile']);
+    final rankInfo = _map(json['rankinfo']);
+    final source = baseProfile.isNotEmpty || rankInfo.isNotEmpty ? baseProfile : json;
+    final rankSource = rankInfo.isNotEmpty ? rankInfo : json;
+
+    return UserInfo(
+      id: _string(source['userrid'] ?? json['userrid']),
+      nickname: _string(source['nickname'] ?? source['username']),
+      avatarUrl: _cleanAvatarUrl(source['avatar'] as String?),
+      points: _int(source['paycredit'] ?? source['paycredits']),
+      memberLevel: _int(rankSource['userrid'] ?? json['rankcredits'], fallback: 1),
+      phone: source['mobile'] as String?,
+      expiringPoints: _int(source['aboutexpirecredit']),
+      growthValue: _int(rankSource['currentrankstart']),
+      nextLevelStart: _int(rankSource['nextrankstart']),
+      nextLevelEnd: _int(rankSource['nextrankend']),
+      levelName: _string(rankSource['userridname'] ?? rankSource['nextrankname']),
+      levelExpireDate: _dateTime(rankSource['expiredate']),
+    );
+  }
+
+  static Map<String, dynamic> _map(dynamic value) => value is Map<String, dynamic> ? value : const <String, dynamic>{};
+
+  static String _string(dynamic value) => value?.toString() ?? '';
+
+  static int _int(dynamic value, {int fallback = 0}) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '') ?? fallback;
+  }
+
+  static DateTime? _dateTime(dynamic value) {
+    if (value is DateTime) return value;
+    if (value is String && value.isNotEmpty) return DateTime.tryParse(value);
+    return null;
+  }
 
   /// 清理 avatar 字段：后端可能返回 [https://...](https://...) 格式的 markdown 链接
   static String? _cleanAvatarUrl(String? url) {

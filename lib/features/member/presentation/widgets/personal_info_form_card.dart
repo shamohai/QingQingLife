@@ -6,14 +6,13 @@ import 'package:flutter/material.dart';
 ///
 /// 数据说明：
 /// - 昵称初始值由页面从 userProfileProvider 注入；
-/// - TODO(Mock): 性别、生日后端 MemberInfo 暂无对应字段，为本地状态；
-/// - TODO: 后端暂无更新用户资料接口（auth / member 数据源均未提供），
-///   保存逻辑待接口就绪后接入。
+/// - 性别、生日使用表单状态，并在提交时转换为接口要求的枚举和值。
 class PersonalInfoFormCard extends StatefulWidget {
   /// 昵称初始值（来源：userProfileProvider）
   final String initialNickname;
+  final Future<String?> Function({required String nickname, required int gender, required DateTime birthday})? onSave;
 
-  const PersonalInfoFormCard({super.key, required this.initialNickname});
+  const PersonalInfoFormCard({super.key, required this.initialNickname, this.onSave});
 
   @override
   State<PersonalInfoFormCard> createState() => _PersonalInfoFormCardState();
@@ -23,6 +22,7 @@ class _PersonalInfoFormCardState extends State<PersonalInfoFormCard> {
   // TODO(Mock): 性别 / 生日 —— 后端暂无对应字段，先以本地状态还原 UI
   String _gender = '男';
   DateTime _birthday = DateTime(2026, 10, 10);
+  bool _saving = false;
 
   late final TextEditingController _nicknameController;
 
@@ -82,7 +82,11 @@ class _PersonalInfoFormCardState extends State<PersonalInfoFormCard> {
               cursorColor: _Palette.label,
               decoration: const InputDecoration(
                 isCollapsed: true,
+                filled: false,
+                fillColor: Colors.transparent,
                 border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
                 hintText: '请输入昵称',
                 hintStyle: TextStyle(fontSize: 13, color: Color(0xFF9AA9C0)),
               ),
@@ -133,7 +137,7 @@ class _PersonalInfoFormCardState extends State<PersonalInfoFormCard> {
   Widget _buildSaveButton() {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: _onSave,
+      onTap: _saving ? null : _onSave,
       child: Container(
         height: 44,
         alignment: Alignment.center,
@@ -141,10 +145,12 @@ class _PersonalInfoFormCardState extends State<PersonalInfoFormCard> {
           gradient: const LinearGradient(colors: [_Palette.buttonStart, _Palette.buttonEnd]),
           borderRadius: BorderRadius.circular(22),
         ),
-        child: const Text(
-          '修改资料',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white, height: 1.2),
-        ),
+        child: _saving
+            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+            : const Text(
+                '修改资料',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white, height: 1.2),
+              ),
       ),
     );
   }
@@ -156,9 +162,27 @@ class _PersonalInfoFormCardState extends State<PersonalInfoFormCard> {
     }
   }
 
-  void _onSave() {
-    // TODO: 用户资料更新接口后端暂未提供（auth / member 数据源均无更新接口），待接口就绪后补充提交逻辑。
-    debugPrint('[PersonalInfoFormCard] 修改资料点击 nickname=${_nicknameController.text} gender=$_gender birthday=${_formatDate(_birthday)}');
+  Future<void> _onSave() async {
+    final nickname = _nicknameController.text.trim();
+    if (nickname.isEmpty) {
+      _showMessage('请输入昵称');
+      return;
+    }
+    final onSave = widget.onSave;
+    if (onSave == null) return;
+    setState(() => _saving = true);
+    try {
+      final message = await onSave(nickname: nickname, gender: _gender == '男' ? 1 : 2, birthday: _birthday);
+      if (mounted && message != null) _showMessage(message);
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   String _formatDate(DateTime date) {
