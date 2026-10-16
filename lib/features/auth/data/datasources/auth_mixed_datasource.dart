@@ -1,4 +1,4 @@
-import '../../../../core/domain/repositories/auth_repository.dart';
+﻿import '../../../../core/domain/repositories/auth_repository.dart';
 import '../../../../core/network/api_response.dart';
 import 'auth_mock_datasource.dart';
 import 'auth_remote_datasource.dart';
@@ -38,7 +38,10 @@ class AuthMixedDataSource implements AuthRepository {
   Future<ApiResponse<AuthResult>> loginWithPhone({required String phone, required String code}) => remote.loginWithPhone(phone: phone, code: code);
 
   @override
-  Future<void> logout() => remote.logout();
+  Future<ApiResponse<void>> logout() => remote.logout();
+
+  @override
+  Future<ApiResponse<void>> deleteAccount() => remote.deleteAccount();
 
   @override
   Future<ApiResponse<UserInfo>> getCurrentUser() => remote.getCurrentUser();

@@ -1,4 +1,4 @@
-import '../../network/api_response.dart';
+﻿import '../../network/api_response.dart';
 
 /// 认证业务仓库接口
 ///
@@ -21,7 +21,11 @@ abstract class AuthRepository {
   Future<ApiResponse<void>> sendSmsCode({required String phone});
 
   /// 退出当前会话，清理本地持久化的 Token 和用户信息
-  Future<void> logout();
+  /// 退出当前会话：调用服务端 /api/sys/logout，并清理本地持久化的 Token 和用户信息
+  Future<ApiResponse<void>> logout();
+
+  /// 注销当前账号：调用服务端 /api/sys/deluser，操作不可逆，成功后清理本地所有数据
+  Future<ApiResponse<void>> deleteAccount();
 
   /// 获取当前已登录用户的详细资料
   Future<ApiResponse<UserInfo>> getCurrentUser();

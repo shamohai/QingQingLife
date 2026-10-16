@@ -3,14 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../features/auth/presentation/providers/auth_provider.dart';
+
 /// 注销协议页（/member/account-deletion）
 ///
 /// 入口：账号安全页底部「注销账号」按钮。
 /// 结构（设计稿）：白色页面 + 深色返回栏「注销协议」→ 可滚动协议正文
 /// （标题 / 适用说明 / 特别重要提示 / 第一条 / 第二条）→ 勾选确认行
 /// → 底部固定操作栏（放弃注销(渐变实底) / 我已知晓，继续注销(描边)）。
-/// 「继续注销」需先勾选同意协议；后续注销流程依赖后端注销/核验接口（暂未提供），
-/// 点击暂为占位反馈（TODO）。
+/// 「继续注销」需先勾选同意协议，点击后调用 /api/sys/deluser 完成注销。
 /// 协议文案当前内置于页面（TODO(API): 若后续由后端下发协议文本，改为接口获取）。
 class AccountDeletionPage extends ConsumerStatefulWidget {
   const AccountDeletionPage({super.key});
@@ -25,6 +26,9 @@ class _AccountDeletionPageState extends ConsumerState<AccountDeletionPage> {
 
   /// 是否已勾选同意注销协议（未勾选时「继续注销」不可点）
   bool _agreed = false;
+
+  /// 是否正在提交注销请求
+  bool _loading = false;
 
   // ── 协议文案（对齐设计稿）───────────────────────────────────────────
   static const String _agreementTitle = '《青轻生活馆 APP 账号注销协议》';
@@ -45,6 +49,23 @@ class _AccountDeletionPageState extends ConsumerState<AccountDeletionPage> {
     '5. 已解绑第三方授权登录、绑定的银行卡、微信、支付宝、手机号之外的关键联账号；',
   ];
   static const String _confirmText = '我已仔细阅读、充分理解以上全部注销条款，清楚知晓注销不可逆、数据无法找回、虚拟权益自动放弃，自愿申请注销青轻生活馆账号。';
+
+  /// 调用 /api/sys/deluser 执行账号注销
+  Future<void> _deleteAccount() async {
+    if (_loading) return;
+    setState(() => _loading = true);
+
+    final response = await ref.read(authProvider.notifier).deleteAccount();
+
+    if (!mounted) return;
+    setState(() => _loading = false);
+
+    if (!response.success) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(response.message.isNotEmpty ? response.message : '注销失败，请稍后重试')));
+    }
+    // 成功时 authProvider 内部已调用 session.logout()，
+    // GoRouter 的 redirect 会自动将用户导回登录页，无需手动跳转。
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -196,7 +217,7 @@ class _AccountDeletionPageState extends ConsumerState<AccountDeletionPage> {
   Widget _buildCancelButton(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => context.pop(),
+      onTap: _loading ? null : () => context.pop(),
       child: Container(
         height: 44,
         alignment: Alignment.center,
@@ -212,17 +233,12 @@ class _AccountDeletionPageState extends ConsumerState<AccountDeletionPage> {
     );
   }
 
-  /// 「我已知晓，继续注销」→ 需先勾选协议；注销流程后端接口暂未提供（TODO）
+  /// 「我已知晓，继续注销」→ 需先勾选协议，点击后调用 /api/sys/deluser
   Widget _buildContinueButton() {
-    final enabled = _agreed;
+    final enabled = _agreed && !_loading;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: enabled
-          ? () {
-              // TODO(交互): 后续注销流程依赖后端注销/核验接口，后端暂未提供，待接入后补充。
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('注销流程功能开发中，敬请期待'), duration: Duration(seconds: 1)));
-            }
-          : null,
+      onTap: enabled ? _deleteAccount : null,
       child: Container(
         height: 44,
         alignment: Alignment.center,
@@ -231,10 +247,12 @@ class _AccountDeletionPageState extends ConsumerState<AccountDeletionPage> {
           border: Border.all(color: enabled ? const Color(0xFFA8B9DD) : const Color(0xFFE3E7EF)),
           color: enabled ? Colors.transparent : const Color(0xFFF5F6F8),
         ),
-        child: Text(
-          '我已知晓，继续注销',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: enabled ? const Color(0xFF2B4990) : const Color(0xFFB8BEC9), height: 1.2),
-        ),
+        child: _loading
+            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF2B4990)))
+            : Text(
+                '我已知晓，继续注销',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: enabled ? const Color(0xFF2B4990) : const Color(0xFFB8BEC9), height: 1.2),
+              ),
       ),
     );
   }

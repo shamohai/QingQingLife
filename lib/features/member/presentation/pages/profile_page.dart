@@ -32,7 +32,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(userProfileProvider.notifier).load();
+      // 登录后 AuthNotifier._onLoginSuccess() 已触发 load()，
+      // 仅在尚未加载（初始空态）时才补充一次拉取，避免重复请求。
+      final profile = ref.read(userProfileProvider);
+      if (profile.levelName == "未登录" && profile.nickname == "青轻用户_9527") {
+        ref.read(userProfileProvider.notifier).load();
+      }
     });
   }
 

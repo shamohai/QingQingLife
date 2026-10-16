@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show debugPrint;
+﻿import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -92,12 +92,24 @@ class MockAuthDataSource implements AuthRepository {
   }
 
   @override
-  Future<void> logout() async {
+  Future<ApiResponse<void>> deleteAccount() async {
+    // Mock：清除所有本地数据模拟注销成功
     await _storage.clearTokens();
     await _localStorage.remove('access_token');
     await _localStorage.remove('refresh_token');
     await _localStorage.remove('nickname');
     await _localStorage.remove('is_login');
+    return ApiResponse.success(null);
+  }
+
+  @override
+  Future<ApiResponse<void>> logout() async {
+    await _storage.clearTokens();
+    await _localStorage.remove('access_token');
+    await _localStorage.remove('refresh_token');
+    await _localStorage.remove('nickname');
+    await _localStorage.remove('is_login');
+    return ApiResponse.success(null);
   }
 
   @override

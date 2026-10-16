@@ -131,6 +131,11 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
     }
   }
 
+  /// 登出 / 注销时调用：重置为初始空状态，清除页面上的个人信息。
+  void clear() {
+    state = const UserProfileState(points: 0, couponCount: 0);
+  }
+
   /// 手机号脱敏：130****9527
   static String _maskPhone(String? phone) {
     if (phone == null || phone.length < 7) return phone ?? '';
