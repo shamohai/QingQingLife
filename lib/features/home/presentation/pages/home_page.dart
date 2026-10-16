@@ -94,7 +94,7 @@ class HomePage extends ConsumerWidget {
 
                   // Banner (14px 边距，14px 圆角，220px 高度)
                   SliverPadding(
-                    padding: const EdgeInsets.only(top: 8, bottom: 4),
+                    padding: const EdgeInsets.only(top: 2, bottom: 4),
                     sliver: SliverToBoxAdapter(child: home_widgets.HomeBanner(imageUrls: staticData.banners.map((b) => b.imageUrl).toList())),
                   ),
 
