@@ -80,12 +80,12 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 4),
               // 右侧边框外：通知小铃铛
               IconButton(
                 icon: const Icon(Icons.notifications_none_outlined, size: 24, color: Colors.white),
                 onPressed: onMessagesTap,
-                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                constraints: const BoxConstraints(minWidth: 30, minHeight: 36),
                 padding: EdgeInsets.zero,
               ),
             ],

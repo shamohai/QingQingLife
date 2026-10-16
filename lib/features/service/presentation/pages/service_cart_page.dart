@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_loading.dart';
 import '../../domain/models/share_cart_candidate_model.dart';
 import '../../domain/models/share_cart_product_model.dart';
 import '../providers/service_cart_provider.dart';
+import '../../../cart/presentation/widgets/cart_design_tokens.dart';
 
 /// 购酒享服务购物车页面
 ///
@@ -140,11 +141,6 @@ class ServiceCartPage extends ConsumerWidget {
                   const Text('天佑德营销中心', style: AppTextStyles.bodyMedium),
                   const SizedBox(width: AppSpacing.xs),
                   const Icon(Icons.expand_more, size: 20, color: AppColors.onSurfaceVariant),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () => _showManageDialog(context),
-                    child: Text('管理', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary)),
-                  ),
                 ],
               ),
             ),
@@ -161,12 +157,34 @@ class ServiceCartPage extends ConsumerWidget {
                     for (final item in state.cartProducts)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 14),
-                        child: _ServiceCartItemRow(
-                          product: item,
-                          selected: state.selectedMap[item.pid] ?? true,
-                          isUpdating: state.cartUpdateInProgress,
-                          onToggle: () => notifier.toggleSelect(item.pid),
-                          onQtyChanged: (qty) => notifier.addProductToCart(item.pid, qty),
+                        child: Dismissible(
+                          key: ValueKey('service-cart-${item.pid}'),
+                          direction: (state.selectedMap[item.pid] ?? true) ? DismissDirection.endToStart : DismissDirection.none,
+                          background: Container(
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.only(right: 22),
+                            decoration: BoxDecoration(color: CartDesignTokens.dangerSurface, borderRadius: BorderRadius.circular(CartDesignTokens.cardRadius)),
+                            child: const Icon(Icons.delete_outline_rounded, color: CartDesignTokens.danger, size: 28),
+                          ),
+                          confirmDismiss: (_) async {
+                            if (!(state.selectedMap[item.pid] ?? true)) return false;
+                            try {
+                              await notifier.addProductToCart(item.pid, 0);
+                              return true;
+                            } catch (_) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('删除商品失败，请稍后重试')));
+                              }
+                              return false;
+                            }
+                          },
+                          child: _ServiceCartItemRow(
+                            product: item,
+                            selected: state.selectedMap[item.pid] ?? true,
+                            isUpdating: state.cartUpdateInProgress,
+                            onToggle: () => notifier.toggleSelect(item.pid),
+                            onQtyChanged: (qty) => notifier.addProductToCart(item.pid, qty),
+                          ),
                         ),
                       ),
                   ],
@@ -327,26 +345,6 @@ class ServiceCartPage extends ConsumerWidget {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('购物车更新失败：')));
     }
-  }
-
-  void _showManageDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('删除商品'),
-        content: const Text('确定要清空购物车吗？'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('取消')),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              context.pop();
-            },
-            child: const Text('清空', style: TextStyle(color: AppColors.error)),
-          ),
-        ],
-      ),
-    );
   }
 }
 

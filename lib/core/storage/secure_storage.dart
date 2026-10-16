@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:web/web.dart' as web;
 
 import '../../app/config/app_constants.dart';
+
+// 关键条件导入（关键！）
+import 'secure_storage_stub.dart' if (dart.library.html) 'secure_storage_web.dart' as storage;
 
 /// 安全存储封装类
 ///
@@ -18,14 +20,14 @@ class SecureStorage {
 
   /// 读取访问令牌
   Future<String?> readAccessToken() async {
-    if (kIsWeb) return web.window.localStorage.getItem(AppConstants.accessTokenKey);
+    if (kIsWeb) return storage.getLocalStorageItem(AppConstants.accessTokenKey);
     return await _storage.read(key: AppConstants.accessTokenKey);
   }
 
   /// 写入访问令牌
   Future<void> writeAccessToken(String token) async {
     if (kIsWeb) {
-      web.window.localStorage.setItem(AppConstants.accessTokenKey, token);
+      storage.setLocalStorageItem(AppConstants.accessTokenKey, token);
       return;
     }
     await _storage.write(key: AppConstants.accessTokenKey, value: token);
@@ -45,14 +47,14 @@ class SecureStorage {
 
   /// 读取刷新令牌
   Future<String?> readRefreshToken() async {
-    if (kIsWeb) return web.window.localStorage.getItem(AppConstants.refreshTokenKey);
+    if (kIsWeb) return storage.getLocalStorageItem(AppConstants.refreshTokenKey);
     return await _storage.read(key: AppConstants.refreshTokenKey);
   }
 
   /// 写入刷新令牌
   Future<void> writeRefreshToken(String token) async {
     if (kIsWeb) {
-      web.window.localStorage.setItem(AppConstants.refreshTokenKey, token);
+      storage.setLocalStorageItem(AppConstants.refreshTokenKey, token);
       return;
     }
     await _storage.write(key: AppConstants.refreshTokenKey, value: token);
@@ -60,13 +62,13 @@ class SecureStorage {
 
   /// 通用字符串读写（用于非敏感临时数据，如 pendingWechatCode）
   Future<String?> get(String key) async {
-    if (kIsWeb) return web.window.localStorage.getItem(key);
+    if (kIsWeb) return storage.getLocalStorageItem(key);
     return await _storage.read(key: key);
   }
 
   Future<void> put(String key, String value) async {
     if (kIsWeb) {
-      web.window.localStorage.setItem(key, value);
+      storage.setLocalStorageItem(key, value);
       return;
     }
     await _storage.write(key: key, value: value);
@@ -74,7 +76,7 @@ class SecureStorage {
 
   Future<void> remove(String key) async {
     if (kIsWeb) {
-      web.window.localStorage.removeItem(key);
+      storage.removeLocalStorageItem(key);
       return;
     }
     await _storage.delete(key: key);
@@ -83,10 +85,10 @@ class SecureStorage {
   /// 清除所有令牌（登出时调用）
   Future<void> clearTokens() async {
     if (kIsWeb) {
-      web.window.localStorage.removeItem(AppConstants.accessTokenKey);
-      web.window.localStorage.removeItem(AppConstants.refreshTokenKey);
-      web.window.localStorage.removeItem(AppConstants.deviceIdKey);
-      web.window.localStorage.removeItem(AppConstants.authTokenKey);
+      storage.removeLocalStorageItem(AppConstants.accessTokenKey);
+      storage.removeLocalStorageItem(AppConstants.refreshTokenKey);
+      storage.removeLocalStorageItem(AppConstants.deviceIdKey);
+      storage.removeLocalStorageItem(AppConstants.authTokenKey);
       return;
     }
     await _storage.delete(key: AppConstants.accessTokenKey);

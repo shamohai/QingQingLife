@@ -20,11 +20,13 @@ class _HomeBannerState extends State<HomeBanner> {
   late PageController _controller;
   int _currentPage = 0;
   Timer? _timer;
+  bool _isInteracting = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = PageController(initialPage: 0);
+    final urls = widget.imageUrls;
+    _controller = PageController(initialPage: urls.length > 1 ? urls.length * 1000 : 0);
     _startAutoPlay();
   }
 
@@ -32,18 +34,26 @@ class _HomeBannerState extends State<HomeBanner> {
   void didUpdateWidget(HomeBanner oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.imageUrls != widget.imageUrls) {
+      final urls = widget.imageUrls;
+      _currentPage = 0;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _controller.hasClients) {
+          _controller.jumpToPage(urls.length > 1 ? urls.length * 1000 : 0);
+        }
+      });
       _startAutoPlay();
     }
   }
 
   void _startAutoPlay() {
     _timer?.cancel();
-    if (widget.imageUrls.length <= 1) return;
+    if (widget.imageUrls.length <= 1 || _isInteracting) return;
     _timer = Timer.periodic(widget.autoPlayInterval, (timer) {
-      if (_controller.hasClients && widget.imageUrls.isNotEmpty) {
-        final nextPage = (_currentPage + 1) % widget.imageUrls.length;
-        _controller.animateToPage(nextPage, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-      }
+      if (!mounted) return;
+      if (!_controller.hasClients || widget.imageUrls.isEmpty) return;
+      if (_controller.position.isScrollingNotifier.value) return;
+      final nextPage = (_controller.page ?? _controller.initialPage.toDouble()).round() + 1;
+      _controller.animateToPage(nextPage, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
     });
   }
 
@@ -83,14 +93,28 @@ class _HomeBannerState extends State<HomeBanner> {
           child: Stack(
             children: [
               // PageView 轮播图
-              PageView.builder(
-                controller: _controller,
-                onPageChanged: (i) {
-                  setState(() => _currentPage = i);
-                  _startAutoPlay(); // 手动滑动后重置定时器
+              Listener(
+                onPointerDown: (_) {
+                  _isInteracting = true;
+                  _timer?.cancel();
                 },
-                itemCount: urls.length,
-                itemBuilder: (context, index) => _buildImage(urls[index]),
+                onPointerUp: (_) {
+                  _isInteracting = false;
+                  _startAutoPlay();
+                },
+                onPointerCancel: (_) {
+                  _isInteracting = false;
+                  _startAutoPlay();
+                },
+                child: PageView.builder(
+                  controller: _controller,
+                  onPageChanged: (i) {
+                    if (urls.length < 2) return;
+                    setState(() => _currentPage = i % urls.length);
+                    _startAutoPlay(); // 手动滑动后重置定时器
+                  },
+                  itemBuilder: (context, index) => _buildImage(urls[index % urls.length]),
+                ),
               ),
 
               // 指示条：直接浮在 Banner 图片内，距离底部 20px 处，紧密无间隙
@@ -106,7 +130,9 @@ class _HomeBannerState extends State<HomeBanner> {
                       final bool isActive = _currentPage == index;
                       return GestureDetector(
                         onTap: () {
-                          _controller.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                          final currentCycle = (_controller.page ?? _controller.initialPage.toDouble()).round() ~/ urls.length;
+                          final targetPage = currentCycle * urls.length + index;
+                          _controller.animateToPage(targetPage, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
                         },
                         behavior: HitTestBehavior.opaque,
                         child: Padding(

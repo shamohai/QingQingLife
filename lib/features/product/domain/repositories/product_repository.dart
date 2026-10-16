@@ -96,12 +96,14 @@ class HomeMonthlyBenefit {
 class HomeActivityBlock {
   final String id;
   final String? imageUrl;
+  final List<String>? imageUrls;
   final String title;
   final String? actionUrl;
 
   const HomeActivityBlock({
     required this.id,
     this.imageUrl,
+    this.imageUrls,
     required this.title,
     this.actionUrl,
   });

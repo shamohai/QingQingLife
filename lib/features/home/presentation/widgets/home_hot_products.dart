@@ -16,7 +16,10 @@ class HomeHotProducts extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.symmetric(
+        vertical: 5, // 上下边距
+        horizontal: 12, // 左右边距
+      ),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(14)), // 设计稿 14px 圆角
@@ -31,12 +34,12 @@ class HomeHotProducts extends ConsumerWidget {
                 children: [
                   Image.asset(
                     'assets/images/home/kingkong_member.png',
-                    width: 16,
-                    height: 16,
+                    width: 24,
+                    height: 24,
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) => Container(
-                      width: 16,
-                      height: 16,
+                      width: 24,
+                      height: 24,
                       decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
                       child: const Icon(Icons.local_fire_department, size: 10, color: Colors.white),
                     ),
@@ -45,23 +48,26 @@ class HomeHotProducts extends ConsumerWidget {
                   Text('热卖商品', style: AppTextStyles.headlineSmall),
                 ],
               ),
-              Consumer(
-                builder: (context, ref, _) {
-                  final pagingData = ref.watch(homeHotProductsProvider);
-                  if (!pagingData.hasMore && pagingData.items.isNotEmpty) {
-                    return Text('已加载全部', style: AppTextStyles.labelSmall.copyWith(color: const Color(0xFF999999)));
+              GestureDetector(
+                onTap: () {
+                  final pagingData = ref.read(homeHotProductsProvider);
+                  if (!pagingData.isLoading && pagingData.hasMore) {
+                    ref.read(homeHotProductsProvider.notifier).loadMore();
                   }
-                  return GestureDetector(
-                    onTap: pagingData.isLoading ? null : () => ref.read(homeHotProductsProvider.notifier).loadMore(),
-                    child: Text('查看全部>>>', style: AppTextStyles.labelSmall.copyWith(color: const Color(0xFF999999))),
-                  );
                 },
+                child: const Text(
+                  '查看全部>>>',
+                  style: TextStyle(
+                    color: Color(0xFF8E8E93), // #ff8e8e93 文字颜色
+                    fontSize: 9, // 9sp 文字大小
+                  ),
+                ),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
-            height: 200,
+            height: 212,
             child: PagingListView<ProductCard>(
               provider: homeHotProductsProvider,
               scrollDirection: Axis.horizontal,
@@ -71,6 +77,7 @@ class HomeHotProducts extends ConsumerWidget {
               separatorBuilder: const SizedBox(width: AppSpacing.md),
               padding: EdgeInsets.zero,
               enablePullToRefresh: false,
+              noMoreWidget: const SizedBox.shrink(), // 不显示“没有更多数据了”
             ),
           ),
         ],
