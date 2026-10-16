@@ -103,6 +103,7 @@ class _ActivityCardState extends State<_ActivityCard> {
   late final PageController _pageController;
   int _currentIndex = 0;
   Timer? _timer;
+  bool _isInteracting = false;
 
   List<String> get _images {
     if (widget.block.imageUrls != null && widget.block.imageUrls!.isNotEmpty) {
@@ -117,18 +118,22 @@ class _ActivityCardState extends State<_ActivityCard> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
-    if (_images.length > 1) {
+    final images = _images;
+    _pageController = PageController(initialPage: images.length > 1 ? images.length * 1000 : 0);
+    if (images.length > 1) {
       _startAutoPlay();
     }
   }
 
   void _startAutoPlay() {
+    _timer?.cancel();
+    if (_images.length <= 1 || _isInteracting) return;
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (!mounted) return;
-      if (_images.isEmpty) return;
-      final nextIndex = (_currentIndex + 1) % _images.length;
-      _pageController.animateToPage(nextIndex, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+      if (!_pageController.hasClients || _images.isEmpty) return;
+      if (_pageController.position.isScrollingNotifier.value) return;
+      final nextPage = (_pageController.page ?? _pageController.initialPage.toDouble()).round() + 1;
+      _pageController.animateToPage(nextPage, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
     });
   }
 
@@ -158,17 +163,32 @@ class _ActivityCardState extends State<_ActivityCard> {
                   ? Container(color: AppColors.surfaceVariant, width: double.infinity, height: widget.height)
                   : images.length == 1
                   ? AppNetworkImage(url: images.first, fit: BoxFit.cover, width: double.infinity, height: widget.height)
-                  : PageView.builder(
-                      controller: _pageController,
-                      itemCount: images.length,
-                      onPageChanged: (index) {
-                        setState(() {
-                          _currentIndex = index;
-                        });
+                  : Listener(
+                      onPointerDown: (_) {
+                        _isInteracting = true;
+                        _timer?.cancel();
                       },
-                      itemBuilder: (context, index) {
-                        return AppNetworkImage(url: images[index], fit: BoxFit.cover, width: double.infinity, height: widget.height);
+                      onPointerUp: (_) {
+                        _isInteracting = false;
+                        _startAutoPlay();
                       },
+                      onPointerCancel: (_) {
+                        _isInteracting = false;
+                        _startAutoPlay();
+                      },
+                      child: PageView.builder(
+                        controller: _pageController,
+                        onPageChanged: (index) {
+                          if (images.length < 2) return;
+                          setState(() {
+                            _currentIndex = index % images.length;
+                          });
+                          _startAutoPlay();
+                        },
+                        itemBuilder: (context, index) {
+                          return AppNetworkImage(url: images[index % images.length], fit: BoxFit.cover, width: double.infinity, height: widget.height);
+                        },
+                      ),
                     ),
             ),
             // 渐变蒙层：从中间50%位置到图片底部
