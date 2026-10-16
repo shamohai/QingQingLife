@@ -362,7 +362,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                 ],
               ),
             ),
-            Positioned(right: AppSpacing.lg, bottom: 50, child: const PointsFloatingButtons()),
+            Positioned(right: AppSpacing.lg, bottom: 20, child: const PointsFloatingButtons()),
           ],
         ),
       ),

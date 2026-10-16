@@ -25,12 +25,12 @@ class HomeNewUserGiftCard extends StatelessWidget {
               children: [
                 Image.asset(
                   'assets/images/home/kingkong_member.png',
-                  width: 16,
-                  height: 16,
+                  width: 24,
+                  height: 24,
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) => Container(
-                    width: 16,
-                    height: 16,
+                    width: 24,
+                    height: 24,
                     decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
                     child: const Icon(Icons.card_giftcard, size: 10, color: Colors.white),
                   ),
@@ -56,10 +56,10 @@ class HomeNewUserGiftCard extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
               itemCount: gifts.length,
-              separatorBuilder: (context, index) => const SizedBox(width: AppSpacing.sm),
+              separatorBuilder: (context, index) => const SizedBox(width: AppSpacing.md),
               itemBuilder: (context, index) {
                 return SizedBox(
-                  width: 112, // 统一固定的卡片宽度，保证全部完全等宽
+                  width: 98, // 统一固定的卡片宽度，保证全部完全等宽
                   child: _CouponTicketCard(gift: gifts[index], index: index),
                 );
               },
@@ -107,35 +107,32 @@ class _CouponTicketCard extends StatelessWidget {
     } else if (index == 1) {
       // 去使用样式: 1dp #fffb9126 边框, 3dp 圆角, #fffb9126 文字
       buttonDecoration = BoxDecoration(
-        color: Colors.white.withAlpha(200),
+        color: Colors.transparent,
         border: Border.all(color: const Color(0xFFFB9126), width: 1),
         borderRadius: BorderRadius.circular(3),
       );
       buttonTextColor = const Color(0xFFFB9126);
     } else {
       // 立即领取样式: 实心 #fffb9126 填充, 3dp 圆角, #ffffff 文字
-      buttonDecoration = BoxDecoration(
-        color: const Color(0xFFFB9126),
-        borderRadius: BorderRadius.circular(3),
-      );
+      buttonDecoration = BoxDecoration(color: const Color(0xFFFB9126), borderRadius: BorderRadius.circular(3));
       buttonTextColor = Colors.white;
     }
 
-    return Container(
+    return SizedBox(
       height: 116, // 设计稿 116px 高度
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-      ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
         child: Stack(
           fit: StackFit.expand,
           children: [
             // 背景图: kingkong_region.png
             Image.asset(
               'assets/images/home/kingkong_region.png',
+              width: 98,
+              height: 116,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Container(
+                width: 98,
+                height: 116, // 错误占位图也最好加上同样的宽高
                 color: const Color(0xFFFFF7F0),
               ),
             ),
@@ -184,24 +181,16 @@ class _CouponTicketCard extends StatelessWidget {
                     ],
                   ),
                   // 蓝湖样式分割线: 43dp 宽, 1dp 高, 颜色 #fff1beb2
-                  Container(
-                    width: 43,
-                    height: 1,
-                    color: const Color(0xFFF1BEB2),
-                  ),
+                  Container(width: 60, height: 1, color: const Color(0xFFF1BEB2)),
                   // 底部按钮
                   Container(
-                    width: double.infinity,
+                    width: 80,
                     height: 22,
                     decoration: buttonDecoration,
                     child: Center(
                       child: Text(
                         buttonText,
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          color: buttonTextColor,
-                        ),
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: buttonTextColor),
                       ),
                     ),
                   ),

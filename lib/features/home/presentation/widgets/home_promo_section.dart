@@ -17,7 +17,7 @@ class HomePromoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(top: 10), // 与上方 banner 间距 10px
-      padding: const EdgeInsets.all(12), // 卡片内边距 12px
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 5), // 左右边距
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(14)), // 设计稿 14px 圆角

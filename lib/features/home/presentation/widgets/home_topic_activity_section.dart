@@ -15,11 +15,8 @@ class HomeTopicActivitySection extends StatelessWidget {
   Widget build(BuildContext context) {
     if (blocks.isEmpty) return const SizedBox.shrink();
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(14)),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(14))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -28,16 +25,13 @@ class HomeTopicActivitySection extends StatelessWidget {
             children: [
               Image.asset(
                 'assets/images/home/kingkong_member.png',
-                width: 16,
-                height: 16,
+                width: 24,
+                height: 24,
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) => Container(
-                  width: 16,
-                  height: 16,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFE53935),
-                    shape: BoxShape.circle,
-                  ),
+                  width: 24,
+                  height: 24,
+                  decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
                   child: const Icon(Icons.storefront, size: 10, color: Colors.white),
                 ),
               ),
@@ -47,10 +41,7 @@ class HomeTopicActivitySection extends StatelessWidget {
               Expanded(
                 child: Text(
                   '(线下欢聚启新章，面对面享好礼)',
-                  style: AppTextStyles.labelSmall.copyWith(
-                    color: const Color(0xFF999999),
-                    fontSize: 10,
-                  ),
+                  style: AppTextStyles.labelSmall.copyWith(color: const Color(0xFF999999), fontSize: 10),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -67,7 +58,7 @@ class HomeTopicActivitySection extends StatelessWidget {
 
   Widget _buildHorizontalList(BuildContext context, List<HomeTopicActivityBlock> blocks) {
     return SizedBox(
-      height: 280, // 188(图) + 文字区 + 按钮 + padding ≈ 280
+      height: 258, // 188(图) + 文字区 + 按钮 + padding ≈ 258
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
@@ -93,7 +84,7 @@ class _TopicCard extends StatelessWidget {
       width: 137,
       decoration: BoxDecoration(
         color: Colors.white, // 和模块白色背景一致
-        borderRadius: BorderRadius.circular(4)
+        borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -106,38 +97,24 @@ class _TopicCard extends StatelessWidget {
               width: 137,
               height: 188,
               child: (block.imageUrl != null && block.imageUrl!.isNotEmpty)
-                  ? AppNetworkImage(
-                url: block.imageUrl!,
-                fit: BoxFit.cover,
-                width: 137,
-                height: 188,
-              )
-                  : Container(
-                width: 137,
-                height: 188,
-                color: AppColors.surfaceVariant,
-              ),
+                  ? AppNetworkImage(url: block.imageUrl!, fit: BoxFit.cover, width: 137, height: 188)
+                  : Container(width: 137, height: 188, color: AppColors.surfaceVariant),
             ),
           ),
 
           // 文字 + 按钮（在图片下方）
           Padding(
-            padding: const EdgeInsets.fromLTRB(6, 8, 6, 10),
+            padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   block.title,
-                  style: const TextStyle(
-                    color: Color(0xFF333333),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    height: 1.3,
-                  ),
+                  style: const TextStyle(color: Color(0xFF333333), fontSize: 11, fontWeight: FontWeight.w600, height: 1.3),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Center(
                   child: Container(
                     width: 68,
@@ -150,11 +127,7 @@ class _TopicCard extends StatelessWidget {
                     alignment: Alignment.center,
                     child: const Text(
                       '立即参与',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFFFF2105),
-                      ),
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Color(0xFFFF2105)),
                     ),
                   ),
                 ),

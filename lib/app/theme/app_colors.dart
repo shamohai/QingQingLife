@@ -5,7 +5,7 @@ abstract final class AppColors {
   // ── 亮色（Light）────────────────────────────────────────────────────
 
   // 主色（蓝色系）
-  static const Color primary = Color(0xFF0e55b4);
+  static const Color primary = Color(0xFF213775);
   static const Color onPrimary = Color(0xFFFFFFFF);
   static const Color primaryContainer = Color(0xFFD8E2FF);
   static const Color onPrimaryContainer = Color(0xFF001939);

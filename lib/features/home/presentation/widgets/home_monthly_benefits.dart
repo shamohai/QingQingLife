@@ -29,12 +29,12 @@ class HomeMonthlyBenefits extends StatelessWidget {
             children: [
               Image.asset(
                 'assets/images/home/kingkong_member.png',
-                width: 16,
-                height: 16,
+                width: 24,
+                height: 24,
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) => Container(
-                  width: 16,
-                  height: 16,
+                  width: 24,
+                  height: 24,
                   decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
                   child: const Icon(Icons.card_membership, size: 10, color: Colors.white),
                 ),
@@ -69,11 +69,7 @@ class HomeMonthlyBenefits extends StatelessWidget {
                 itemCount: benefits.length,
                 separatorBuilder: (context, index) => const SizedBox(width: 12),
                 itemBuilder: (context, index) {
-                  return _BenefitSlot(
-                    benefit: benefits[index],
-                    index: index,
-                    onTap: onClaimTap,
-                  );
+                  return _BenefitSlot(benefit: benefits[index], index: index, onTap: onClaimTap);
                 },
               ),
             ),
@@ -94,9 +90,7 @@ class _BenefitSlot extends StatelessWidget {
   Widget build(BuildContext context) {
     // 对应 quanyi_0.png ~ quanyi_5.png 本地资源路径
     final assetPath = 'assets/images/home/quanyi_${index % 6}.png';
-    final imageUrl = (benefit.imageUrl != null && benefit.imageUrl!.isNotEmpty)
-        ? benefit.imageUrl!
-        : assetPath;
+    final imageUrl = (benefit.imageUrl != null && benefit.imageUrl!.isNotEmpty) ? benefit.imageUrl! : assetPath;
 
     return GestureDetector(
       onTap: () => onTap?.call(benefit),

@@ -27,12 +27,12 @@ class HomeAvailableProducts extends StatelessWidget {
               children: [
                 Image.asset(
                   'assets/images/home/kingkong_member.png',
-                  width: 16,
-                  height: 16,
+                  width: 24,
+                  height: 24,
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) => Container(
-                    width: 16,
-                    height: 16,
+                    width: 24,
+                    height: 24,
                     decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
                     child: const Icon(Icons.shopping_bag_outlined, size: 10, color: Colors.white),
                   ),
@@ -48,9 +48,9 @@ class HomeAvailableProducts extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.md),
-        // 商品列表 (支持横向滑动，每项 112px)
+        // 商品列表 (支持横向滑动，每项 112px，高度适配 3 行名称)
         SizedBox(
-          height: 192,
+          height: 206,
           child: products.isEmpty
               ? const Center(child: Text('暂无可用商品', style: AppTextStyles.bodySmall))
               : ListView.separated(
@@ -83,43 +83,36 @@ class _AvailableProductCard extends StatelessWidget {
           // 商品图片 112x112
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: AppNetworkImage(
-              url: product.imageUrl,
-              width: 112,
-              height: 112,
-              fit: BoxFit.cover,
-              memCacheWidth: 112,
-              memCacheHeight: 112,
-            ),
+            child: AppNetworkImage(url: product.imageUrl, width: 112, height: 112, fit: BoxFit.cover, memCacheWidth: 112, memCacheHeight: 112),
           ),
           const SizedBox(height: 6),
           // 商品名称（“自营”标签在名称正前方，背景色与首页背景 #213775 一致）
-          Text.rich(
-            TextSpan(
-              children: [
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 4),
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF213775), // 首页藏青背景色 #213775
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                    child: const Text(
-                      '自营',
-                      style: TextStyle(fontSize: 8, fontWeight: FontWeight.w600, color: Colors.white),
+          SizedBox(
+            height: 52, // 固定 3 行文字高度，确保 2 行或 3 行商品的底部价格在同一水平线上
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF213775), // 首页藏青背景色 #213775
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: const Text(
+                        '自营',
+                        style: TextStyle(fontSize: 8, fontWeight: FontWeight.w600, color: Colors.white),
+                      ),
                     ),
                   ),
-                ),
-                TextSpan(
-                  text: product.name,
-                  style: AppTextStyles.bodySmall.copyWith(fontSize: 12),
-                ),
-              ],
+                  TextSpan(text: product.name, style: AppTextStyles.bodySmall.copyWith(fontSize: 12)),
+                ],
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           // 售价、市场价 + 右侧居中红色购物车图标 (#ffff2105，不加背景)
@@ -133,14 +126,9 @@ class _AvailableProductCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Text(Money.fromCents(product.priceCents).format(), style: AppTextStyles.priceSmall.copyWith(fontSize: 13, fontWeight: FontWeight.bold)),
                     Text(
-                      Money.fromCents(product.priceCents).format(),
-                      style: AppTextStyles.priceSmall.copyWith(fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      product.originalPriceCents != null
-                          ? Money.fromCents(product.originalPriceCents!).format()
-                          : '¥940',
+                      product.originalPriceCents != null ? Money.fromCents(product.originalPriceCents!).format() : '¥940',
                       style: const TextStyle(
                         fontSize: 9,
                         color: Color(0xFF8E8E93), // #ff8e8e93 市场价颜色
@@ -153,7 +141,7 @@ class _AvailableProductCard extends StatelessWidget {
               // 右侧居中：红色购物车图标 (#ffff2105)，无背景
               const Icon(
                 Icons.shopping_cart_outlined,
-                size: 18,
+                size: 22,
                 color: Color(0xFFFF2105), // #ffff2105 红色图标
               ),
             ],

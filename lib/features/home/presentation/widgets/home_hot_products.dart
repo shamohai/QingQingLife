@@ -16,7 +16,10 @@ class HomeHotProducts extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.symmetric(
+        vertical: 5, // 上下边距
+        horizontal: 12, // 左右边距
+      ),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(14)), // 设计稿 14px 圆角
@@ -31,12 +34,12 @@ class HomeHotProducts extends ConsumerWidget {
                 children: [
                   Image.asset(
                     'assets/images/home/kingkong_member.png',
-                    width: 16,
-                    height: 16,
+                    width: 24,
+                    height: 24,
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) => Container(
-                      width: 16,
-                      height: 16,
+                      width: 24,
+                      height: 24,
                       decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
                       child: const Icon(Icons.local_fire_department, size: 10, color: Colors.white),
                     ),
@@ -64,7 +67,7 @@ class HomeHotProducts extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
-            height: 192,
+            height: 212,
             child: PagingListView<ProductCard>(
               provider: homeHotProductsProvider,
               scrollDirection: Axis.horizontal,
@@ -74,6 +77,7 @@ class HomeHotProducts extends ConsumerWidget {
               separatorBuilder: const SizedBox(width: AppSpacing.md),
               padding: EdgeInsets.zero,
               enablePullToRefresh: false,
+              noMoreWidget: const SizedBox.shrink(), // 不显示“没有更多数据了”
             ),
           ),
         ],

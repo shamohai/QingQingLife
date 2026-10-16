@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
@@ -17,7 +18,7 @@ class HomeActivitySection extends StatelessWidget {
   Widget build(BuildContext context) {
     if (blocks.isEmpty) return const SizedBox.shrink();
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(12),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(14)), // 设计稿 14px 圆角
@@ -30,12 +31,12 @@ class HomeActivitySection extends StatelessWidget {
             children: [
               Image.asset(
                 'assets/images/home/kingkong_member.png',
-                width: 16,
-                height: 16,
+                width: 24,
+                height: 24,
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) => Container(
-                  width: 16,
-                  height: 16,
+                  width: 24,
+                  height: 24,
                   decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
                   child: const Icon(Icons.language, size: 10, color: Colors.white),
                 ),
@@ -71,22 +72,16 @@ class HomeActivitySection extends StatelessWidget {
       children: [
         // 左侧大卡片 (高度 294)
         Expanded(
-          child: leftBlock != null
-              ? _ActivityCard(block: leftBlock, height: 294)
-              : Container(height: 294, color: Colors.grey[200]),
+          child: leftBlock != null ? _ActivityCard(block: leftBlock, height: 294) : Container(height: 294, color: Colors.grey[200]),
         ),
         const SizedBox(width: AppSpacing.sm),
         // 右侧上下两张卡片 (总高 294, 中间间距 10, 每张高 142)
         Expanded(
           child: Column(
             children: [
-              topRightBlock != null
-                  ? _ActivityCard(block: topRightBlock, height: 142)
-                  : Container(height: 142, color: Colors.grey[200]),
+              topRightBlock != null ? _ActivityCard(block: topRightBlock, height: 142) : Container(height: 142, color: Colors.grey[200]),
               const SizedBox(height: 10),
-              bottomRightBlock != null
-                  ? _ActivityCard(block: bottomRightBlock, height: 142)
-                  : Container(height: 142, color: Colors.grey[200]),
+              bottomRightBlock != null ? _ActivityCard(block: bottomRightBlock, height: 142) : Container(height: 142, color: Colors.grey[200]),
             ],
           ),
         ),
@@ -133,11 +128,7 @@ class _ActivityCardState extends State<_ActivityCard> {
       if (!mounted) return;
       if (_images.isEmpty) return;
       final nextIndex = (_currentIndex + 1) % _images.length;
-      _pageController.animateToPage(
-        nextIndex,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+      _pageController.animateToPage(nextIndex, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
     });
   }
 
@@ -166,24 +157,19 @@ class _ActivityCardState extends State<_ActivityCard> {
               child: images.isEmpty
                   ? Container(color: AppColors.surfaceVariant, width: double.infinity, height: widget.height)
                   : images.length == 1
-                      ? AppNetworkImage(url: images.first, fit: BoxFit.cover, width: double.infinity, height: widget.height)
-                      : PageView.builder(
-                          controller: _pageController,
-                          itemCount: images.length,
-                          onPageChanged: (index) {
-                            setState(() {
-                              _currentIndex = index;
-                            });
-                          },
-                          itemBuilder: (context, index) {
-                            return AppNetworkImage(
-                              url: images[index],
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: widget.height,
-                            );
-                          },
-                        ),
+                  ? AppNetworkImage(url: images.first, fit: BoxFit.cover, width: double.infinity, height: widget.height)
+                  : PageView.builder(
+                      controller: _pageController,
+                      itemCount: images.length,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                      },
+                      itemBuilder: (context, index) {
+                        return AppNetworkImage(url: images[index], fit: BoxFit.cover, width: double.infinity, height: widget.height);
+                      },
+                    ),
             ),
             // 渐变蒙层：从中间50%位置到图片底部
             Positioned.fill(
@@ -210,7 +196,7 @@ class _ActivityCardState extends State<_ActivityCard> {
                     return Container(
                       width: 8,
                       height: 4,
-                      margin: const EdgeInsets.only(left: 3),
+                      margin: const EdgeInsets.only(left: 2),
                       decoration: BoxDecoration(
                         color: isSelected ? const Color(0xFF0088FF) : Colors.white,
                         borderRadius: BorderRadius.zero, // 直角 (0dp 圆角)
@@ -226,16 +212,12 @@ class _ActivityCardState extends State<_ActivityCard> {
               right: isTall ? 14 : 8,
               child: isTall
                   ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           widget.block.title,
-                          style: const TextStyle(
-                            color: Color(0xFFFFFFFF),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: const TextStyle(color: Color(0xFFFFFFFF), fontSize: 11, fontWeight: FontWeight.w500),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -244,18 +226,11 @@ class _ActivityCardState extends State<_ActivityCard> {
                         Container(
                           width: 71,
                           height: 24,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(67),
-                          ),
+                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(67)),
                           child: const Center(
                             child: Text(
                               '立即参与',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF213775),
-                              ),
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF213775)),
                             ),
                           ),
                         ),
@@ -267,12 +242,7 @@ class _ActivityCardState extends State<_ActivityCard> {
                         Expanded(
                           child: Text(
                             widget.block.title,
-                            style: const TextStyle(
-                              color: Color(0xFFFFFFFF),
-                              fontSize: 9,
-                              fontWeight: FontWeight.w500,
-                              height: 1.2,
-                            ),
+                            style: const TextStyle(color: Color(0xFFFFFFFF), fontSize: 9, fontWeight: FontWeight.w500, height: 1.2),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -286,13 +256,7 @@ class _ActivityCardState extends State<_ActivityCard> {
                             color: Colors.white,
                             shape: BoxShape.circle, // 圆形按钮
                           ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.chevron_right,
-                              size: 10,
-                              color: Color(0xFF213775),
-                            ),
-                          ),
+                          child: const Center(child: Icon(Icons.chevron_right, size: 10, color: Color(0xFF213775))),
                         ),
                       ],
                     ),

@@ -35,32 +35,32 @@ class HomeProductCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           // 商品名称（“自营”标签在名称正前方，背景色为 #213775）
-          Text.rich(
-            TextSpan(
-              children: [
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 4),
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF213775), // 首页藏青背景色 #213775
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                    child: Text(
-                      product.tag ?? '自营',
-                      style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w600, color: Colors.white),
+          SizedBox(
+            height: 52, // 固定 3 行文字高度，确保 2 行或 3 行商品的底部价格在同一水平线上
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF213775), // 首页藏青背景色 #213775
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: Text(
+                        product.tag ?? '自营',
+                        style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w600, color: Colors.white),
+                      ),
                     ),
                   ),
-                ),
-                TextSpan(
-                  text: product.name,
-                  style: AppTextStyles.bodySmall.copyWith(fontSize: 12),
-                ),
-              ],
+                  TextSpan(text: product.name, style: AppTextStyles.bodySmall.copyWith(fontSize: 12)),
+                ],
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           // 售价、市场价 + 右侧居中红色购物车图标 (#ffff2105)
@@ -74,14 +74,9 @@ class HomeProductCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Text(Money.fromCents(product.priceCents).format(), style: AppTextStyles.priceSmall.copyWith(fontSize: 13, fontWeight: FontWeight.bold)),
                     Text(
-                      Money.fromCents(product.priceCents).format(),
-                      style: AppTextStyles.priceSmall.copyWith(fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      product.originalPriceCents != null
-                          ? Money.fromCents(product.originalPriceCents!).format()
-                          : '¥940',
+                      product.originalPriceCents != null ? Money.fromCents(product.originalPriceCents!).format() : '¥940',
                       style: const TextStyle(
                         fontSize: 9,
                         color: Color(0xFF8E8E93), // #ff8e8e93 市场价颜色
@@ -94,7 +89,7 @@ class HomeProductCard extends StatelessWidget {
               // 右侧居中：红色购物车图标 (#ffff2105)，无背景
               const Icon(
                 Icons.shopping_cart_outlined,
-                size: 18,
+                size: 22,
                 color: Color(0xFFFF2105), // #ffff2105 红色图标
               ),
             ],
