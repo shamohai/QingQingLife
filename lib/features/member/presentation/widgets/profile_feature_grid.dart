@@ -40,6 +40,7 @@ class ProfileFeatureGrid extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           GridView.count(
+            padding: EdgeInsets.zero,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             crossAxisCount: 4,

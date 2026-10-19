@@ -17,17 +17,16 @@ class HomeKingKongGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     if (items.isEmpty) return const SizedBox.shrink();
     return Container(
+      // 去掉 height，依靠内边距和网格内容自然撑高
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(14)), // 设计稿 14px 圆角
-      ),
+      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(14))),
       child: GridView.count(
+        padding: EdgeInsets.zero,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         crossAxisCount: 5,
-        childAspectRatio: 0.72,
-        crossAxisSpacing: 12, // 设计稿 12px 水平间距
+        childAspectRatio: 0.83, // <-- 调整为 0.83，正好贴合 64px 的内容高度
+        crossAxisSpacing: 12,
         mainAxisSpacing: 12,
         children: List.generate(items.length > 10 ? 10 : items.length, (i) => _KingKongItem(item: items[i])),
       ),
