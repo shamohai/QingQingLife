@@ -16,7 +16,7 @@ class HomePromoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 10), // 与上方 banner 间距 10px
+      margin: const EdgeInsets.only(top: 5), // 与上方 banner 间距 10px
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 5), // 左右边距
       decoration: const BoxDecoration(
         color: Colors.white,

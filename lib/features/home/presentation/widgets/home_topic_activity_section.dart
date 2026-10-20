@@ -58,7 +58,7 @@ class HomeTopicActivitySection extends StatelessWidget {
 
   Widget _buildHorizontalList(BuildContext context, List<HomeTopicActivityBlock> blocks) {
     return SizedBox(
-      height: 258, // 188(图) + 文字区 + 按钮 + padding ≈ 258
+      height: 232, // 162(图) + 文字区 + 按钮 + padding ≈ 232
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
@@ -80,8 +80,11 @@ class _TopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const cardWidth = 118.0;
+    const imageHeight = 162.0;
+
     return Container(
-      width: 137,
+      width: cardWidth,
       decoration: BoxDecoration(
         color: Colors.white, // 和模块白色背景一致
         borderRadius: BorderRadius.circular(4),
@@ -90,21 +93,28 @@ class _TopicCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 完整图片 137×188
+          // 完整图片 118×162
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
             child: SizedBox(
-              width: 137,
-              height: 188,
+              width: cardWidth,
+              height: imageHeight,
               child: (block.imageUrl != null && block.imageUrl!.isNotEmpty)
-                  ? AppNetworkImage(url: block.imageUrl!, fit: BoxFit.cover, width: 137, height: 188)
-                  : Container(width: 137, height: 188, color: AppColors.surfaceVariant),
+                  ? AppNetworkImage(
+                      url: block.imageUrl!,
+                      fit: BoxFit.cover,
+                      width: cardWidth,
+                      height: imageHeight,
+                      memCacheWidth: cardWidth.toInt(),
+                      memCacheHeight: imageHeight.toInt(),
+                    )
+                  : Container(width: cardWidth, height: imageHeight, color: AppColors.surfaceVariant),
             ),
           ),
 
           // 文字 + 按钮（在图片下方）
           Padding(
-            padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+            padding: const EdgeInsets.fromLTRB(4, 6, 4, 6),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
