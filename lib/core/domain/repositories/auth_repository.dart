@@ -74,6 +74,10 @@ class UserInfo {
   final int nextLevelEnd;
   final String levelName;
   final DateTime? levelExpireDate;
+  final int gender; // 0 未知 / 1 男 / 2 女
+  final String genderName; // gendername
+  final DateTime? birthday; // birthday
+  final String? address; // address（getmyprofile 顶层的地址文本）
 
   const UserInfo({
     required this.id,
@@ -88,6 +92,10 @@ class UserInfo {
     this.nextLevelEnd = 0,
     this.levelName = '',
     this.levelExpireDate,
+    this.gender = 0,
+    this.genderName = '',
+    this.birthday,
+    this.address,
   });
 
   factory UserInfo.fromJson(Map<String, dynamic> json) {
@@ -95,6 +103,8 @@ class UserInfo {
     final rankInfo = _map(json['rankinfo']);
     final source = baseProfile.isNotEmpty || rankInfo.isNotEmpty ? baseProfile : json;
     final rankSource = rankInfo.isNotEmpty ? rankInfo : json;
+    // address 位于 getmyprofile 响应顶层，baseprofile 内没有该字段
+    final address = _string(json['address'] ?? source['address']).trim();
 
     return UserInfo(
       id: _string(source['userrid'] ?? json['userrid']),
@@ -109,6 +119,10 @@ class UserInfo {
       nextLevelEnd: _int(rankSource['nextrankend']),
       levelName: _string(rankSource['userridname'] ?? rankSource['nextrankname']),
       levelExpireDate: _dateTime(rankSource['expiredate']),
+      gender: _int(source['gender']),
+      genderName: _string(source['gendername']),
+      birthday: _dateTime(source['birthday']),
+      address: address.isEmpty ? null : address,
     );
   }
 

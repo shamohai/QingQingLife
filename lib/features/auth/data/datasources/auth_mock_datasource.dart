@@ -15,7 +15,18 @@ class MockAuthDataSource implements AuthRepository {
   final _uuid = const Uuid();
 
   // 模拟用户数据
-  static const _mockUser = UserInfo(id: 'u001', nickname: '青轻用户_9527', avatarUrl: null, points: 3580, memberLevel: 2, phone: '138****1234');
+  static final _mockUser = UserInfo(
+    id: 'u001',
+    nickname: '青轻用户_9527',
+    avatarUrl: null,
+    points: 3580,
+    memberLevel: 2,
+    phone: '138****1234',
+    gender: 1,
+    genderName: '男',
+    birthday: DateTime(1997, 10, 1),
+    address: '甘肃省兰州市七里河区建兰路街道兰州中心办公楼801室',
+  );
 
   @override
   Future<ApiResponse<AuthResult>> loginWithPhone({required String phone, required String code}) async {

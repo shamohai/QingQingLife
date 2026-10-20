@@ -8,16 +8,10 @@ import '../providers/user_profile_provider.dart';
 /// 账号信息卡片（「账号安全」页）
 ///
 /// 展示：UID / 昵称 / 性别 / 出生日期 / 手机号 / 版本号 / 我的地址。
-/// 数据来源：UID、昵称、手机号取 userProfileProvider；地址取 memberAddressesProvider；
-/// 性别 / 出生日期 / 版本号后端暂未提供字段，使用 TODO(Mock) 占位值做 UI 还原。
+/// 数据来源：UID、昵称、手机号、性别、出生日期取 userProfileProvider（getmyprofile）；
+/// 地址优先取 getmyprofile 顶层 address，缺失时回退 memberAddressesProvider 的首条地址。
 class AccountSecurityCard extends ConsumerWidget {
   const AccountSecurityCard({super.key});
-
-  /// TODO(Mock): 性别 —— 后端 MemberInfo 暂无该字段，使用设计稿占位值。
-  static const String _mockGender = '男';
-
-  /// TODO(Mock): 出生日期 —— 后端 MemberInfo 暂无该字段，使用设计稿占位值。
-  static const String _mockBirthday = '1997-10-01';
 
   /// TODO(Mock): 版本号 —— 后端暂无该字段（是产品版本编号，非 App 版本号，故不用 PackageInfo），使用设计稿占位值。
   static const String _mockVersion = 'TYD202602';
@@ -37,8 +31,8 @@ class AccountSecurityCard extends ConsumerWidget {
     final addresses = addressesAsync.hasValue ? addressesAsync.value! : const <MemberAddress>[];
     final address = addresses.isNotEmpty ? addresses.first : null;
     final uidAsync = ref.watch(memberUidProvider);
-    // 省市区与详细地址分两行展示（设计稿为手动换行）
-    final addressText = address == null ? '' : '${address.province}${address.city}${address.district}\n${address.detail}';
+    // getmyprofile 的 address 是单行完整地址；收货地址列表则按「省市区 / 详细地址」分两行展示。
+    final addressText = profileState.address ?? (address == null ? '' : '${address.province}${address.city}${address.district}\n${address.detail}');
 
     return Container(
       width: double.infinity,
@@ -56,18 +50,18 @@ class AccountSecurityCard extends ConsumerWidget {
           ),
           _buildRow(
             label: '性别',
-            value: const Text(_mockGender, style: _valueStyle),
+            value: Text(profileState.genderText, style: _valueStyle),
           ),
           _buildRow(
             label: '出生日期',
-            value: const Text(_mockBirthday, style: _valueStyle),
+            value: Text(_formatBirthday(profileState.birthday), style: _valueStyle),
           ),
           _buildRow(label: '手机号', value: _buildPhoneValue(profileState.phoneMasked)),
           _buildRow(
             height: 62,
             topPadding: 4,
             label: '我的地址',
-            value: Text(addressText, textAlign: TextAlign.right, style: _valueStyle.copyWith(height: 1.43)),
+            value: Text(addressText, textAlign: TextAlign.right, maxLines: 2, overflow: TextOverflow.ellipsis, style: _valueStyle.copyWith(height: 1.43)),
           ),
         ],
       ),
@@ -86,7 +80,8 @@ class AccountSecurityCard extends ConsumerWidget {
           children: [
             Text(label, style: _labelStyle),
             const Spacer(),
-            value,
+            // 地址等长文本需要收缩换行，避免右侧内容超出卡片
+            Flexible(fit: FlexFit.loose, child: value),
           ],
         ),
       ),
@@ -109,5 +104,12 @@ class AccountSecurityCard extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// 生日展示：yyyy-MM-dd（接口 birthday 可能是日期时间串，统一截到日）
+  String _formatBirthday(DateTime? birthday) {
+    if (birthday == null) return '';
+    String two(int value) => value.toString().padLeft(2, '0');
+    return '${birthday.year}-${two(birthday.month)}-${two(birthday.day)}';
   }
 }

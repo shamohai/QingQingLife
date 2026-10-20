@@ -145,7 +145,7 @@ class _PersonalInfoEditPageState extends ConsumerState<PersonalInfoEditPage> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(AppSpacing.md, 50.5, AppSpacing.md, 0),
-          child: PersonalInfoFormCard(initialNickname: state.nickname, onSave: _savePersonalInfo),
+          child: PersonalInfoFormCard(initialNickname: state.nickname, initialGender: state.gender, initialBirthday: state.birthday, onSave: _savePersonalInfo),
         ),
         _buildAvatar(state),
       ],
