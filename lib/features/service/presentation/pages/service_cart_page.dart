@@ -21,7 +21,7 @@ import '../providers/service_cart_provider.dart';
 ///  - 并行拉取 getShareCartProductList + getCandidateProductList
 ///
 /// 状态管理：[serviceCartProvider]（AsyncNotifier，按参数 family 隔离）
-class ServiceCartPage extends ConsumerWidget {
+class ServiceCartPage extends ConsumerStatefulWidget {
   final int templateId;
   final String headImg;
   final int cartId;
@@ -29,8 +29,15 @@ class ServiceCartPage extends ConsumerWidget {
   const ServiceCartPage({super.key, required this.templateId, String? headImg, required this.cartId}) : headImg = headImg ?? '';
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final params = ServiceCartInitialParams(templateId: templateId, headImg: headImg, existingCartId: cartId);
+  ConsumerState<ServiceCartPage> createState() => _ServiceCartPageState();
+}
+
+class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
+  bool _isManaging = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final params = ServiceCartInitialParams(templateId: widget.templateId, headImg: widget.headImg, existingCartId: widget.cartId);
     final asyncState = ref.watch(serviceCartProvider(params));
 
     return Scaffold(
@@ -100,13 +107,13 @@ class ServiceCartPage extends ConsumerWidget {
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppRadius.md)),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(AppRadius.md),
-              child: headImg.isNotEmpty
+              child: widget.headImg.isNotEmpty
                   ? Image.network(
-                      headImg,
+                      widget.headImg,
                       width: double.infinity,
                       height: bannerHeight,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      errorBuilder: (_, _, _) => Container(
                         color: AppColors.surfaceVariant,
                         child: const Center(child: Text('活动介绍banner图', style: AppTextStyles.labelSmall)),
                       ),
@@ -146,8 +153,8 @@ class ServiceCartPage extends ConsumerWidget {
                   const Icon(Icons.expand_more, size: 20, color: AppColors.onSurfaceVariant),
                   const Spacer(),
                   GestureDetector(
-                    onTap: () => _showManageDialog(context),
-                    child: Text('管理', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary)),
+                    onTap: () => setState(() => _isManaging = !_isManaging),
+                    child: Text(_isManaging ? '完成' : '管理', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary)),
                   ),
                 ],
               ),
@@ -167,8 +174,10 @@ class ServiceCartPage extends ConsumerWidget {
                         product: item,
                         selected: state.selectedMap[item.pid] ?? true,
                         isUpdating: state.cartUpdateInProgress,
+                        isManaging: _isManaging,
                         onToggle: () => notifier.toggleSelect(item.pid),
                         onQtyChanged: (qty) => notifier.addProductToCart(item.pid, qty),
+                        onDelete: () => _runCartAction(context, () => notifier.addProductToCart(item.pid, 0)),
                       ),
                   ],
                 ),
@@ -265,7 +274,10 @@ class ServiceCartPage extends ConsumerWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('合计', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black)),
+                          Text(
+                            '合计',
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black),
+                          ),
                           const SizedBox(width: AppSpacing.xs),
                           Text(
                             state.selectedTotalFormatted,
@@ -323,28 +335,8 @@ class ServiceCartPage extends ConsumerWidget {
       await action();
     } catch (error) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('购物车更新失败：')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('购物车更新失败：$error')));
     }
-  }
-
-  void _showManageDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('删除商品'),
-        content: const Text('确定要清空购物车吗？'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('取消')),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              context.pop();
-            },
-            child: const Text('清空', style: TextStyle(color: AppColors.error)),
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -354,10 +346,20 @@ class _ServiceCartItemRow extends StatelessWidget {
   final ShareCartProduct product;
   final bool selected;
   final bool isUpdating;
+  final bool isManaging;
   final VoidCallback onToggle;
   final ValueChanged<int> onQtyChanged;
+  final VoidCallback onDelete;
 
-  const _ServiceCartItemRow({required this.product, required this.selected, required this.isUpdating, required this.onToggle, required this.onQtyChanged});
+  const _ServiceCartItemRow({
+    required this.product,
+    required this.selected,
+    required this.isUpdating,
+    required this.isManaging,
+    required this.onToggle,
+    required this.onQtyChanged,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -365,8 +367,16 @@ class _ServiceCartItemRow extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
         children: [
-          Checkbox(value: selected, onChanged: (_) => onToggle(), activeColor: AppColors.serviceProjectBlue, shape: const CircleBorder()),
-          const SizedBox(width: AppSpacing.sm),
+          if (isManaging)
+            IconButton(
+              tooltip: '删除商品',
+              onPressed: isUpdating ? null : onDelete,
+              icon: Image.asset('assets/images/service/service_cart_delete.png', width: 24, height: 24),
+            )
+          else ...[
+            Checkbox(value: selected, onChanged: (_) => onToggle(), activeColor: AppColors.serviceProjectBlue, shape: const CircleBorder()),
+            const SizedBox(width: AppSpacing.sm),
+          ],
           // 商品图片
           ClipRRect(
             borderRadius: BorderRadius.circular(AppRadius.sm),
