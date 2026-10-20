@@ -98,8 +98,6 @@ class _OrderShortcutItem extends StatelessWidget {
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          debugPrint('[ProfileOrderShortcuts] 跳转订单列表，status=${cfg.status.value}');
-          // TODO: OrdersPage 支持 status query parameter 待后续阶段补充
           context.push(Uri(path: RouteNames.orders, queryParameters: {'status': cfg.status.value}).toString());
         },
         behavior: HitTestBehavior.opaque,

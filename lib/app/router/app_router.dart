@@ -231,7 +231,7 @@ final appRouter = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.orders,
-        pageBuilder: (c, s) => const MaterialPage(child: AllOrdersPage()),
+        pageBuilder: (c, s) => MaterialPage(child: AllOrdersPage(initialStatus: s.uri.queryParameters['status'])),
       ),
       GoRoute(
         path: RouteNames.invoiceCenter,
