@@ -30,7 +30,6 @@ class AccountSecurityCard extends ConsumerWidget {
     final addressesAsync = ref.watch(memberAddressesProvider);
     final addresses = addressesAsync.hasValue ? addressesAsync.value! : const <MemberAddress>[];
     final address = addresses.isNotEmpty ? addresses.first : null;
-    final uidAsync = ref.watch(memberUidProvider);
     // getmyprofile 的 address 是单行完整地址；收货地址列表则按「省市区 / 详细地址」分两行展示。
     final addressText = profileState.address ?? (address == null ? '' : '${address.province}${address.city}${address.district}\n${address.detail}');
 
@@ -40,10 +39,6 @@ class AccountSecurityCard extends ConsumerWidget {
       decoration: BoxDecoration(color: _cardBg, borderRadius: BorderRadius.circular(10)),
       child: Column(
         children: [
-          _buildRow(
-            label: 'UID',
-            value: Text(uidAsync.hasValue ? uidAsync.value! : '', style: _valueStyle),
-          ),
           _buildRow(
             label: '昵称',
             value: Text(profileState.nickname, style: _valueStyle),
@@ -68,7 +63,12 @@ class AccountSecurityCard extends ConsumerWidget {
     );
   }
 
-  /// 单行信息（标签居左 / 内容居右）
+  /// 单行信息（标签居左 / 内容居右，各行内容右边缘严格对齐）
+  ///
+  /// 说明：内容列必须用 `Expanded + Align(centerRight)`，不能用
+  /// `Spacer + Flexible(loose)` —— 后者中 Spacer 与 Flexible 均分剩余空间，
+  /// 内容比分配空间窄时，多余空间会留在行尾（mainAxisAlignment.start 的 trailing），
+  /// 导致不同长度的内容右边缘参差不齐，看起来"没对齐"。
   ///
   /// [topPadding] 用于对齐设计稿：地址行内容在设计稿中略低于垂直居中位置（约 +2）。
   Widget _buildRow({required String label, required Widget value, double height = 46, double topPadding = 0}) {
@@ -79,9 +79,11 @@ class AccountSecurityCard extends ConsumerWidget {
         child: Row(
           children: [
             Text(label, style: _labelStyle),
-            const Spacer(),
-            // 地址等长文本需要收缩换行，避免右侧内容超出卡片
-            Flexible(fit: FlexFit.loose, child: value),
+            const SizedBox(width: 24),
+            // 内容占满标签右侧的剩余宽度并贴右；地址等长文本在此宽度内换行（超出省略）
+            Expanded(
+              child: Align(alignment: Alignment.centerRight, child: value),
+            ),
           ],
         ),
       ),
