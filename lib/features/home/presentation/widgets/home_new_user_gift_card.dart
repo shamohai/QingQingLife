@@ -5,7 +5,7 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../product/domain/repositories/product_repository.dart';
 
 /// 新人礼：优惠券卡片展示组件，对齐蓝湖设计稿
-/// 设计稿：3张卡片横排，每张 116px 高，背景图 + 价格 + 标签 + 按钮
+/// 设计稿：每行显示约 3.75 个卡片，卡片调整为 86px 宽、104px 高，保持文字大小不变
 class HomeNewUserGiftCard extends StatelessWidget {
   final List<HomeNewUserGift> gifts;
   final VoidCallback? onMoreTap;
@@ -46,20 +46,20 @@ class HomeNewUserGiftCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.sm),
-        // 优惠券卡片横向可滑动列表 (卡片统一等宽 112px，左右可滑动)
+        // 优惠券卡片横向可滑动列表 (卡片 86px 宽，每行屏显约 3.75 张)
         if (gifts.isEmpty)
           const Text('暂无新人礼', style: AppTextStyles.bodySmall)
         else
           SizedBox(
-            height: 116,
+            height: 104,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
               itemCount: gifts.length,
-              separatorBuilder: (context, index) => const SizedBox(width: AppSpacing.md),
+              separatorBuilder: (context, index) => const SizedBox(width: AppSpacing.sm),
               itemBuilder: (context, index) {
                 return SizedBox(
-                  width: 98, // 统一固定的卡片宽度，保证全部完全等宽
+                  width: 86, // 适合屏显 3.75 张的卡片宽度
                   child: _CouponTicketCard(gift: gifts[index], index: index),
                 );
               },
@@ -119,7 +119,7 @@ class _CouponTicketCard extends StatelessWidget {
     }
 
     return SizedBox(
-      height: 116, // 设计稿 116px 高度
+      height: 104,
       child: ClipRRect(
         child: Stack(
           fit: StackFit.expand,
@@ -127,18 +127,14 @@ class _CouponTicketCard extends StatelessWidget {
             // 背景图: kingkong_region.png
             Image.asset(
               'assets/images/home/kingkong_region.png',
-              width: 98,
-              height: 116,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                width: 98,
-                height: 116, // 错误占位图也最好加上同样的宽高
-                color: const Color(0xFFFFF7F0),
-              ),
+              width: 86,
+              height: 104,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) => Container(width: 86, height: 104, color: const Color(0xFFFFF7F0)),
             ),
             // 卡片内部文字与按钮布局
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+              padding: const EdgeInsets.fromLTRB(4, 6, 4, 8),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -152,40 +148,28 @@ class _CouponTicketCard extends StatelessWidget {
                         children: [
                           const Text(
                             '¥',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF542A00), // #ff542a00 金额颜色
-                            ),
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF542A00), height: 1.0),
                           ),
                           Text(
                             amount,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF542A00), // #ff542a00 金额颜色
-                            ),
+                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF542A00), height: 1.0),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 1),
                       Text(
                         label,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: Color(0xFFFB9126), // #fffb9126 描述颜色
-                        ),
+                        style: const TextStyle(fontSize: 10, color: Color(0xFFFB9126)),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
-                  // 蓝湖样式分割线: 43dp 宽, 1dp 高, 颜色 #fff1beb2
-                  Container(width: 60, height: 1, color: const Color(0xFFF1BEB2)),
+                  // 分割线: 54dp 宽, 1dp 高
+                  Container(width: 54, height: 1, color: const Color(0xFFF1BEB2)),
                   // 底部按钮
                   Container(
-                    width: 80,
-                    height: 22,
+                    width: 72,
+                    height: 20,
                     decoration: buttonDecoration,
                     child: Center(
                       child: Text(
