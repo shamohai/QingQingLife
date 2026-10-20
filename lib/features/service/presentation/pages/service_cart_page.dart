@@ -391,7 +391,7 @@ class _ServiceCartItemRow extends StatelessWidget {
                 : Container(width: 80, height: 80, color: AppColors.surfaceVariant),
           ),
           const SizedBox(width: AppSpacing.md),
-          // 商品名称 + 价格
+          // 商品名称单独占行，价格与数量控件并排显示。
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -402,19 +402,27 @@ class _ServiceCartItemRow extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  product.fullPrice.isNotEmpty ? product.fullPrice : _formatPrice(product.price),
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.error),
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        product.fullPrice.isNotEmpty ? product.fullPrice : _formatPrice(product.price),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.error),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                    _QtyControl(
+                      quantity: product.count,
+                      onMinus: !isUpdating && product.count > 0 ? () => onQtyChanged(product.count - 1) : null,
+                      onPlus: isUpdating ? null : () => onQtyChanged(product.count + 1),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ),
-          // 数量控制
-          _QtyControl(
-            quantity: product.count,
-            onMinus: !isUpdating && product.count > 0 ? () => onQtyChanged(product.count - 1) : null,
-            onPlus: isUpdating ? null : () => onQtyChanged(product.count + 1),
           ),
         ],
       ),
@@ -441,19 +449,49 @@ class _QtyControl extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        GestureDetector(
-          onTap: onMinus,
-          child: Icon(Icons.remove_circle_outline, size: 20, color: onMinus == null ? AppColors.outlineVariant : AppColors.onSurface),
+        _QuantityStepButton(icon: Icons.remove_rounded, onTap: onMinus),
+        Container(
+          width: 34,
+          height: 30,
+          alignment: Alignment.center,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border.symmetric(horizontal: BorderSide(color: AppColors.divider)),
+          ),
+          child: Text(
+            '$quantity',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 14, height: 1, fontWeight: FontWeight.w500, color: AppColors.onSurface),
+          ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-          child: Text(quantity.toString(), style: const TextStyle(fontSize: 14, color: AppColors.onSurface)),
-        ),
-        GestureDetector(
-          onTap: onPlus,
-          child: Icon(Icons.add_circle_outline, size: 20, color: onPlus == null ? AppColors.outlineVariant : AppColors.onSurface),
-        ),
+        _QuantityStepButton(icon: Icons.add_rounded, onTap: onPlus),
       ],
+    );
+  }
+}
+
+class _QuantityStepButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  const _QuantityStepButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.servicePageBackground,
+      borderRadius: BorderRadius.horizontal(
+        left: icon == Icons.remove_rounded ? const Radius.circular(AppRadius.xs) : Radius.zero,
+        right: icon == Icons.add_rounded ? const Radius.circular(AppRadius.xs) : Radius.zero,
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.horizontal(
+          left: icon == Icons.remove_rounded ? const Radius.circular(AppRadius.xs) : Radius.zero,
+          right: icon == Icons.add_rounded ? const Radius.circular(AppRadius.xs) : Radius.zero,
+        ),
+        child: SizedBox(width: 30, height: 30, child: Icon(icon, size: 18, color: onTap == null ? AppColors.outlineVariant : AppColors.onSurface)),
+      ),
     );
   }
 }
