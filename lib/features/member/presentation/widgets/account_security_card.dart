@@ -8,16 +8,10 @@ import '../providers/user_profile_provider.dart';
 /// 账号信息卡片（「账号安全」页）
 ///
 /// 展示：UID / 昵称 / 性别 / 出生日期 / 手机号 / 版本号 / 我的地址。
-/// 数据来源：UID、昵称、手机号取 userProfileProvider；地址取 memberAddressesProvider；
-/// 性别 / 出生日期 / 版本号后端暂未提供字段，使用 TODO(Mock) 占位值做 UI 还原。
+/// 数据来源：UID、昵称、手机号、性别、出生日期取 userProfileProvider（getmyprofile）；
+/// 地址优先取 getmyprofile 顶层 address，缺失时回退 memberAddressesProvider 的首条地址。
 class AccountSecurityCard extends ConsumerWidget {
   const AccountSecurityCard({super.key});
-
-  /// TODO(Mock): 性别 —— 后端 MemberInfo 暂无该字段，使用设计稿占位值。
-  static const String _mockGender = '男';
-
-  /// TODO(Mock): 出生日期 —— 后端 MemberInfo 暂无该字段，使用设计稿占位值。
-  static const String _mockBirthday = '1997-10-01';
 
   /// TODO(Mock): 版本号 —— 后端暂无该字段（是产品版本编号，非 App 版本号，故不用 PackageInfo），使用设计稿占位值。
   static const String _mockVersion = 'TYD202602';
@@ -36,9 +30,8 @@ class AccountSecurityCard extends ConsumerWidget {
     final addressesAsync = ref.watch(memberAddressesProvider);
     final addresses = addressesAsync.hasValue ? addressesAsync.value! : const <MemberAddress>[];
     final address = addresses.isNotEmpty ? addresses.first : null;
-    final uidAsync = ref.watch(memberUidProvider);
-    // 省市区与详细地址分两行展示（设计稿为手动换行）
-    final addressText = address == null ? '' : '${address.province}${address.city}${address.district}\n${address.detail}';
+    // getmyprofile 的 address 是单行完整地址；收货地址列表则按「省市区 / 详细地址」分两行展示。
+    final addressText = profileState.address ?? (address == null ? '' : '${address.province}${address.city}${address.district}\n${address.detail}');
 
     return Container(
       width: double.infinity,
@@ -47,34 +40,35 @@ class AccountSecurityCard extends ConsumerWidget {
       child: Column(
         children: [
           _buildRow(
-            label: 'UID',
-            value: Text(uidAsync.hasValue ? uidAsync.value! : '', style: _valueStyle),
-          ),
-          _buildRow(
             label: '昵称',
             value: Text(profileState.nickname, style: _valueStyle),
           ),
           _buildRow(
             label: '性别',
-            value: const Text(_mockGender, style: _valueStyle),
+            value: Text(profileState.genderText, style: _valueStyle),
           ),
           _buildRow(
             label: '出生日期',
-            value: const Text(_mockBirthday, style: _valueStyle),
+            value: Text(_formatBirthday(profileState.birthday), style: _valueStyle),
           ),
           _buildRow(label: '手机号', value: _buildPhoneValue(profileState.phoneMasked)),
           _buildRow(
             height: 62,
             topPadding: 4,
             label: '我的地址',
-            value: Text(addressText, textAlign: TextAlign.right, style: _valueStyle.copyWith(height: 1.43)),
+            value: Text(addressText, textAlign: TextAlign.right, maxLines: 2, overflow: TextOverflow.ellipsis, style: _valueStyle.copyWith(height: 1.43)),
           ),
         ],
       ),
     );
   }
 
-  /// 单行信息（标签居左 / 内容居右）
+  /// 单行信息（标签居左 / 内容居右，各行内容右边缘严格对齐）
+  ///
+  /// 说明：内容列必须用 `Expanded + Align(centerRight)`，不能用
+  /// `Spacer + Flexible(loose)` —— 后者中 Spacer 与 Flexible 均分剩余空间，
+  /// 内容比分配空间窄时，多余空间会留在行尾（mainAxisAlignment.start 的 trailing），
+  /// 导致不同长度的内容右边缘参差不齐，看起来"没对齐"。
   ///
   /// [topPadding] 用于对齐设计稿：地址行内容在设计稿中略低于垂直居中位置（约 +2）。
   Widget _buildRow({required String label, required Widget value, double height = 46, double topPadding = 0}) {
@@ -85,8 +79,11 @@ class AccountSecurityCard extends ConsumerWidget {
         child: Row(
           children: [
             Text(label, style: _labelStyle),
-            const Spacer(),
-            value,
+            const SizedBox(width: 24),
+            // 内容占满标签右侧的剩余宽度并贴右；地址等长文本在此宽度内换行（超出省略）
+            Expanded(
+              child: Align(alignment: Alignment.centerRight, child: value),
+            ),
           ],
         ),
       ),
@@ -109,5 +106,12 @@ class AccountSecurityCard extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  /// 生日展示：yyyy-MM-dd（接口 birthday 可能是日期时间串，统一截到日）
+  String _formatBirthday(DateTime? birthday) {
+    if (birthday == null) return '';
+    String two(int value) => value.toString().padLeft(2, '0');
+    return '${birthday.year}-${two(birthday.month)}-${two(birthday.day)}';
   }
 }

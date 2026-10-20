@@ -5,23 +5,30 @@ import 'package:flutter/material.dart';
 /// 结构（设计稿）：昵称输入框 / 性别单选 / 生日选择器 / 修改资料按钮。
 ///
 /// 数据说明：
-/// - 昵称初始值由页面从 userProfileProvider 注入；
-/// - 性别、生日使用表单状态，并在提交时转换为接口要求的枚举和值。
+/// - 昵称 / 性别 / 生日初始值由页面从 userProfileProvider（getmyprofile）注入；
+/// - 性别在提交时转换为接口要求的枚举（1 男 / 2 女）。
 class PersonalInfoFormCard extends StatefulWidget {
   /// 昵称初始值（来源：userProfileProvider）
   final String initialNickname;
+
+  /// 性别初始值（来源：getmyprofile baseprofile.gender；0 未知 / 1 男 / 2 女）
+  final int initialGender;
+
+  /// 生日初始值（来源：getmyprofile baseprofile.birthday，可能为空）
+  final DateTime? initialBirthday;
+
   final Future<String?> Function({required String nickname, required int gender, required DateTime birthday})? onSave;
 
-  const PersonalInfoFormCard({super.key, required this.initialNickname, this.onSave});
+  const PersonalInfoFormCard({super.key, required this.initialNickname, this.initialGender = 0, this.initialBirthday, this.onSave});
 
   @override
   State<PersonalInfoFormCard> createState() => _PersonalInfoFormCardState();
 }
 
 class _PersonalInfoFormCardState extends State<PersonalInfoFormCard> {
-  // TODO(Mock): 性别 / 生日 —— 后端暂无对应字段，先以本地状态还原 UI
-  String _gender = '男';
-  DateTime _birthday = DateTime(2026, 10, 10);
+  /// 0 未知 / 1 男 / 2 女
+  int _gender = 0;
+  DateTime? _birthday;
   bool _saving = false;
 
   late final TextEditingController _nicknameController;
@@ -30,6 +37,23 @@ class _PersonalInfoFormCardState extends State<PersonalInfoFormCard> {
   void initState() {
     super.initState();
     _nicknameController = TextEditingController(text: widget.initialNickname);
+    _gender = widget.initialGender;
+    _birthday = widget.initialBirthday;
+  }
+
+  @override
+  void didUpdateWidget(covariant PersonalInfoFormCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 资料异步加载完成后同步表单；用户已手动修改过的字段不覆盖。
+    if (oldWidget.initialGender != widget.initialGender && _gender == oldWidget.initialGender) {
+      _gender = widget.initialGender;
+    }
+    if (oldWidget.initialBirthday != widget.initialBirthday && _birthday == oldWidget.initialBirthday) {
+      _birthday = widget.initialBirthday;
+    }
+    if (oldWidget.initialNickname != widget.initialNickname && _nicknameController.text == oldWidget.initialNickname) {
+      _nicknameController.text = widget.initialNickname;
+    }
   }
 
   @override
@@ -102,9 +126,9 @@ class _PersonalInfoFormCardState extends State<PersonalInfoFormCard> {
   Widget _buildGenderRow() {
     return Row(
       children: [
-        _GenderOption(label: '男', selected: _gender == '男', onTap: () => setState(() => _gender = '男')),
+        _GenderOption(label: '男', selected: _gender == 1, onTap: () => setState(() => _gender = 1)),
         const SizedBox(width: 45),
-        _GenderOption(label: '女', selected: _gender == '女', onTap: () => setState(() => _gender = '女')),
+        _GenderOption(label: '女', selected: _gender == 2, onTap: () => setState(() => _gender = 2)),
       ],
     );
   }
@@ -123,7 +147,10 @@ class _PersonalInfoFormCardState extends State<PersonalInfoFormCard> {
             const Icon(Icons.calendar_today_outlined, size: 16, color: _Palette.icon),
             const SizedBox(width: 9),
             Expanded(
-              child: Text(_formatDate(_birthday), style: const TextStyle(fontSize: 13, color: _Palette.dateText, height: 1.2)),
+              child: Text(
+                _birthday == null ? '请选择生日' : _formatDate(_birthday!),
+                style: TextStyle(fontSize: 13, color: _birthday == null ? _Palette.placeholder : _Palette.dateText, height: 1.2),
+              ),
             ),
             const Icon(Icons.expand_more, size: 20, color: _Palette.chevron),
             const SizedBox(width: 35),
@@ -156,7 +183,7 @@ class _PersonalInfoFormCardState extends State<PersonalInfoFormCard> {
   }
 
   Future<void> _pickBirthday() async {
-    final picked = await showDatePicker(context: context, initialDate: _birthday, firstDate: DateTime(1900), lastDate: DateTime(2100));
+    final picked = await showDatePicker(context: context, initialDate: _birthday ?? DateTime(2000, 1, 1), firstDate: DateTime(1900), lastDate: DateTime.now());
     if (picked != null && mounted) {
       setState(() => _birthday = picked);
     }
@@ -168,11 +195,20 @@ class _PersonalInfoFormCardState extends State<PersonalInfoFormCard> {
       _showMessage('请输入昵称');
       return;
     }
+    if (_gender == 0) {
+      _showMessage('请选择性别');
+      return;
+    }
+    final birthday = _birthday;
+    if (birthday == null) {
+      _showMessage('请选择生日');
+      return;
+    }
     final onSave = widget.onSave;
     if (onSave == null) return;
     setState(() => _saving = true);
     try {
-      final message = await onSave(nickname: nickname, gender: _gender == '男' ? 1 : 2, birthday: _birthday);
+      final message = await onSave(nickname: nickname, gender: _gender, birthday: birthday);
       if (mounted && message != null) _showMessage(message);
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -247,6 +283,7 @@ abstract final class _Palette {
   static const Color label = Color(0xFF27458D);
   static const Color inputText = Color(0xFF1B273C);
   static const Color dateText = Color(0xFF222E42);
+  static const Color placeholder = Color(0xFF9AA9C0);
   static const Color icon = Color(0xFF22418A);
   static const Color radioOn = Color(0xFF0686FF);
   static const Color radioOff = Color(0xFF9BA7BE);

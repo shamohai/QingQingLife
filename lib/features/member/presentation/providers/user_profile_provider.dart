@@ -16,6 +16,18 @@ class UserProfileState {
   final int? expiringPoints;
   final DateTime? expiringDate;
 
+  /// 性别：0 未知 / 1 男 / 2 女（getmyprofile baseprofile.gender）
+  final int gender;
+
+  /// 性别展示名（getmyprofile baseprofile.gendername，为空时按 gender 兜底）
+  final String genderName;
+
+  /// 生日（getmyprofile baseprofile.birthday）
+  final DateTime? birthday;
+
+  /// 地址文本（getmyprofile 顶层 address）
+  final String? address;
+
   /// 会员等级列表（getranklist）
   final List<RankBaseInfo> ranks;
 
@@ -56,6 +68,10 @@ class UserProfileState {
     required this.couponCount,
     this.expiringPoints,
     this.expiringDate,
+    this.gender = 0,
+    this.genderName = '',
+    this.birthday,
+    this.address,
     this.ranks = const [],
     this.memberLevel = 0,
     this.levelName = '未登录',
@@ -63,6 +79,18 @@ class UserProfileState {
     this.memberExpireDate,
     this.tianyoudeValue = 0,
   });
+
+  /// 性别展示文本：1 / 2 直接映射男 / 女，其余取接口 gendername（如「未知」）
+  String get genderText {
+    switch (gender) {
+      case 1:
+        return '男';
+      case 2:
+        return '女';
+      default:
+        return genderName;
+    }
+  }
 }
 
 final userProfileProvider = NotifierProvider<UserProfileNotifier, UserProfileState>(() => UserProfileNotifier());
@@ -96,6 +124,10 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
       int memberLevel = state.memberLevel;
       String levelName = state.levelName;
       int points = state.points;
+      int gender = state.gender;
+      String genderName = state.genderName;
+      DateTime? birthday = state.birthday;
+      String? address = state.address;
 
       final authResp = await ref.read(authProvider.notifier).getCurrentUser();
       if (authResp.success && authResp.data != null) {
@@ -105,6 +137,10 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         phoneMasked = _maskPhone(u.phone);
         memberLevel = u.memberLevel;
         points = u.points;
+        gender = u.gender;
+        genderName = u.genderName;
+        birthday = u.birthday;
+        address = u.address ?? address;
       }
       // 重新匹配到期时间与等级名（此时 memberLevel 已更新为真实值）
       if (ranks.isNotEmpty) {
@@ -119,6 +155,10 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         phoneMasked: phoneMasked,
         points: points,
         couponCount: 0,
+        gender: gender,
+        genderName: genderName,
+        birthday: birthday,
+        address: address,
         ranks: ranks,
         memberLevel: memberLevel,
         levelName: levelName,
