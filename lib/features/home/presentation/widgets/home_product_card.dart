@@ -13,8 +13,8 @@ class HomeProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardWidth = compact ? 112.0 : 160.0;
-    final imageHeight = compact ? 112.0 : 120.0;
+    final cardWidth = compact ? 95.0 : 160.0;
+    final imageHeight = compact ? 95.0 : 120.0;
 
     return SizedBox(
       width: cardWidth,
@@ -89,7 +89,7 @@ class HomeProductCard extends StatelessWidget {
               // 右侧居中：红色购物车图标 (#ffff2105)，无背景
               const Icon(
                 Icons.shopping_cart_outlined,
-                size: 22,
+                size: 20,
                 color: Color(0xFFFF2105), // #ffff2105 红色图标
               ),
             ],

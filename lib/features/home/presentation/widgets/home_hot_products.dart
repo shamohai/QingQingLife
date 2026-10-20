@@ -67,14 +67,14 @@ class HomeHotProducts extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
-            height: 212,
+            height: 190,
             child: PagingListView<ProductCard>(
               provider: homeHotProductsProvider,
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, product, index) => HomeProductCard(product: product, compact: true),
               shrinkWrap: true,
               physics: const BouncingScrollPhysics(),
-              separatorBuilder: const SizedBox(width: AppSpacing.md),
+              separatorBuilder: const SizedBox(width: AppSpacing.sm),
               padding: EdgeInsets.zero,
               enablePullToRefresh: false,
               noMoreWidget: const SizedBox.shrink(), // 不显示“没有更多数据了”
