@@ -39,10 +39,10 @@ class HomeNewUserGiftCard extends StatelessWidget {
                 Text('新人礼', style: AppTextStyles.headlineSmall),
               ],
             ),
-            GestureDetector(
-              onTap: onMoreTap,
-              child: Text('查看更多>>>', style: AppTextStyles.labelSmall.copyWith(color: const Color(0xFF999999))),
-            ),
+            // GestureDetector(
+            //   onTap: onMoreTap,
+            //   child: Text('查看更多>>>', style: AppTextStyles.labelSmall.copyWith(color: const Color(0xFF999999))),
+            // ),
           ],
         ),
         const SizedBox(height: AppSpacing.sm),

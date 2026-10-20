@@ -89,8 +89,8 @@ class HomePage extends ConsumerWidget {
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
                 slivers: [
-                  // 顶部栏：Logo + 搜索框 + 消息
-                  const SliverToBoxAdapter(child: HomeAppBar()),
+                  // // 顶部栏：Logo + 搜索框 + 消息
+                  // const SliverToBoxAdapter(child: HomeAppBar()),
 
                   // Banner (14px 边距，14px 圆角，220px 高度)
                   SliverPadding(
