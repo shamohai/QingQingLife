@@ -12,7 +12,6 @@ import '../../../../core/widgets/app_loading.dart';
 import '../../domain/models/share_cart_candidate_model.dart';
 import '../../domain/models/share_cart_product_model.dart';
 import '../providers/service_cart_provider.dart';
-import '../../../cart/presentation/widgets/cart_design_tokens.dart';
 
 /// 购酒享服务购物车页面
 ///
@@ -91,7 +90,11 @@ class ServiceCartPage extends ConsumerWidget {
     return SliverToBoxAdapter(
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final bannerHeight = (constraints.maxWidth - 28) * (230 / 414);
+          final screenWidth = constraints.maxWidth;
+          const maxHeight = 230.0;
+          final aspectRatio = 554 / 1080;
+          final calculatedHeight = screenWidth * aspectRatio;
+          final bannerHeight = calculatedHeight > maxHeight ? maxHeight : calculatedHeight;
           return Container(
             margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppRadius.md)),
@@ -119,7 +122,7 @@ class ServiceCartPage extends ConsumerWidget {
     );
   }
 
-  // ─── 配送地址栏 ────────────────────────────────────────────────
+  // ─── 配送地址栏 + 购物车商品列表 ────────────────────────────────
 
   Widget _buildAddressBar(BuildContext context, ServiceCartState state, WidgetRef ref, ServiceCartInitialParams params) {
     final notifier = ref.read(serviceCartProvider(params).notifier);
@@ -141,51 +144,31 @@ class ServiceCartPage extends ConsumerWidget {
                   const Text('天佑德营销中心', style: AppTextStyles.bodyMedium),
                   const SizedBox(width: AppSpacing.xs),
                   const Icon(Icons.expand_more, size: 20, color: AppColors.onSurfaceVariant),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => _showManageDialog(context),
+                    child: Text('管理', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary)),
+                  ),
                 ],
               ),
             ),
             if (state.cartProducts.isEmpty)
               const Padding(
-                padding: EdgeInsets.symmetric(vertical: 26),
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.xl),
                 child: AppEmpty(message: '暂无商品'),
               )
             else
               Padding(
-                padding: const EdgeInsets.fromLTRB(10, 0, 10, 3),
+                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                 child: Column(
                   children: [
                     for (final item in state.cartProducts)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 14),
-                        child: Dismissible(
-                          key: ValueKey('service-cart-${item.pid}'),
-                          direction: (state.selectedMap[item.pid] ?? true) ? DismissDirection.endToStart : DismissDirection.none,
-                          background: Container(
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.only(right: 22),
-                            decoration: BoxDecoration(color: CartDesignTokens.dangerSurface, borderRadius: BorderRadius.circular(CartDesignTokens.cardRadius)),
-                            child: const Icon(Icons.delete_outline_rounded, color: CartDesignTokens.danger, size: 28),
-                          ),
-                          confirmDismiss: (_) async {
-                            if (!(state.selectedMap[item.pid] ?? true)) return false;
-                            try {
-                              await notifier.addProductToCart(item.pid, 0);
-                              return true;
-                            } catch (_) {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('删除商品失败，请稍后重试')));
-                              }
-                              return false;
-                            }
-                          },
-                          child: _ServiceCartItemRow(
-                            product: item,
-                            selected: state.selectedMap[item.pid] ?? true,
-                            isUpdating: state.cartUpdateInProgress,
-                            onToggle: () => notifier.toggleSelect(item.pid),
-                            onQtyChanged: (qty) => notifier.addProductToCart(item.pid, qty),
-                          ),
-                        ),
+                      _ServiceCartItemRow(
+                        product: item,
+                        selected: state.selectedMap[item.pid] ?? true,
+                        isUpdating: state.cartUpdateInProgress,
+                        onToggle: () => notifier.toggleSelect(item.pid),
+                        onQtyChanged: (qty) => notifier.addProductToCart(item.pid, qty),
                       ),
                   ],
                 ),
@@ -201,17 +184,17 @@ class ServiceCartPage extends ConsumerWidget {
   Widget _buildContinueAddSection(BuildContext context, ServiceCartState state, WidgetRef ref, ServiceCartInitialParams params) {
     return SliverToBoxAdapter(
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppRadius.sm), color: Colors.white),
+        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppRadius.md), color: Colors.white),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Padding(
-              padding: EdgeInsets.fromLTRB(10, 11, 10, AppSpacing.md),
+              padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.md),
               child: Row(
                 children: [
                   SizedBox(
-                    width: 2,
+                    width: 3,
                     height: 16,
                     child: DecoratedBox(
                       decoration: BoxDecoration(color: AppColors.serviceProjectBlue, borderRadius: BorderRadius.all(Radius.circular(2))),
@@ -220,7 +203,7 @@ class ServiceCartPage extends ConsumerWidget {
                   SizedBox(width: AppSpacing.sm),
                   Text(
                     '继续加购',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurface),
                   ),
                 ],
               ),
@@ -251,7 +234,7 @@ class ServiceCartPage extends ConsumerWidget {
     final canCheckout = state.canSubmit && state.cartProducts.isNotEmpty;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(23, 8, 22, 16),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.md + 8),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [const BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, -2))],
@@ -282,14 +265,11 @@ class ServiceCartPage extends ConsumerWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            '合计：',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black),
-                          ),
+                          Text('合计', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black)),
                           const SizedBox(width: AppSpacing.xs),
                           Text(
                             state.selectedTotalFormatted,
-                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500, color: Color(0xFFFE273D)),
+                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.error),
                           ),
                         ],
                       ),
@@ -305,12 +285,12 @@ class ServiceCartPage extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: AppSpacing.lg),
                 GestureDetector(
                   onTap: canCheckout ? () => context.push('/checkout') : null,
                   child: Container(
-                    width: 120,
-                    height: 47,
+                    width: 96,
+                    height: 44,
                     decoration: BoxDecoration(
                       color: canCheckout ? null : AppColors.outlineVariant,
                       borderRadius: BorderRadius.circular(AppRadius.round),
@@ -346,6 +326,26 @@ class ServiceCartPage extends ConsumerWidget {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('购物车更新失败：')));
     }
   }
+
+  void _showManageDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('删除商品'),
+        content: const Text('确定要清空购物车吗？'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('取消')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              context.pop();
+            },
+            child: const Text('清空', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 // ─── 购物车商品行（使用 ShareCartProduct） ─────────────────────────
@@ -362,21 +362,11 @@ class _ServiceCartItemRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.zero,
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
         children: [
-          SizedBox(
-            width: 22,
-            child: Checkbox(
-              value: selected,
-              onChanged: (_) => onToggle(),
-              activeColor: AppColors.serviceProjectBlue,
-              shape: const CircleBorder(),
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity.compact,
-            ),
-          ),
-          const SizedBox(width: 14),
+          Checkbox(value: selected, onChanged: (_) => onToggle(), activeColor: AppColors.serviceProjectBlue, shape: const CircleBorder()),
+          const SizedBox(width: AppSpacing.sm),
           // 商品图片
           ClipRRect(
             borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -390,7 +380,7 @@ class _ServiceCartItemRow extends StatelessWidget {
                   )
                 : Container(width: 80, height: 80, color: AppColors.surfaceVariant),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: AppSpacing.md),
           // 商品名称 + 价格
           Expanded(
             child: Column(
@@ -398,14 +388,14 @@ class _ServiceCartItemRow extends StatelessWidget {
               children: [
                 Text(
                   product.productName,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black, height: 1.5),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.onSurface),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 3),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
                   product.fullPrice.isNotEmpty ? product.fullPrice : _formatPrice(product.price),
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceButtonRed),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.error),
                 ),
               ],
             ),
@@ -441,49 +431,19 @@ class _QtyControl extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _QtyButton(icon: Icons.remove, onTap: onMinus, left: true),
-        Container(
-          width: 34,
-          height: 24,
-          alignment: Alignment.center,
-          decoration: const BoxDecoration(
-            border: Border.symmetric(horizontal: BorderSide(color: Color(0xFFE5E5E5))),
-          ),
-          child: Text(quantity.toString(), style: const TextStyle(fontSize: 16, color: Colors.black)),
+        GestureDetector(
+          onTap: onMinus,
+          child: Icon(Icons.remove_circle_outline, size: 20, color: onMinus == null ? AppColors.outlineVariant : AppColors.onSurface),
         ),
-        _QtyButton(icon: Icons.add, onTap: onPlus, left: false),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          child: Text(quantity.toString(), style: const TextStyle(fontSize: 14, color: AppColors.onSurface)),
+        ),
+        GestureDetector(
+          onTap: onPlus,
+          child: Icon(Icons.add_circle_outline, size: 20, color: onPlus == null ? AppColors.outlineVariant : AppColors.onSurface),
+        ),
       ],
-    );
-  }
-}
-
-class _QtyButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback? onTap;
-  final bool left;
-
-  const _QtyButton({required this.icon, required this.onTap, required this.left});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        width: 30,
-        height: 24,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF6F7F8),
-          border: Border(
-            top: const BorderSide(color: Color(0xFFE5E5E5)),
-            bottom: const BorderSide(color: Color(0xFFE5E5E5)),
-            left: left ? const BorderSide(color: Color(0xFFE5E5E5)) : BorderSide.none,
-            right: left ? BorderSide.none : const BorderSide(color: Color(0xFFE5E5E5)),
-          ),
-          borderRadius: BorderRadius.horizontal(left: left ? const Radius.circular(7) : Radius.zero, right: left ? Radius.zero : const Radius.circular(7)),
-        ),
-        alignment: Alignment.center,
-        child: Icon(icon, size: 16, color: onTap == null ? AppColors.outlineVariant : Colors.black),
-      ),
     );
   }
 }
@@ -500,7 +460,7 @@ class _ContinueAddItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(10, 10, 10, 2),
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Row(
         children: [
           // 图片
@@ -516,27 +476,27 @@ class _ContinueAddItem extends StatelessWidget {
                   )
                 : Container(width: 80, height: 80, color: AppColors.surfaceVariant),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   product.productName,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black, height: 1.5),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.onSurface),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 3),
+                const SizedBox(height: AppSpacing.xs),
                 if (product.priceDesc.isNotEmpty)
                   Text(
                     product.priceDesc,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceButtonRed),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.error),
                   )
                 else
                   Text(
                     '¥${product.price.toStringAsFixed(2)}',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceButtonRed),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.error),
                   ),
                 if (product.cartNum > 0)
                   Padding(
@@ -556,10 +516,10 @@ class _ContinueAddItem extends StatelessWidget {
               child: isUpdating
                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.outlineVariant))
                   : Container(
-                      width: 36,
-                      height: 36,
-                      decoration: const BoxDecoration(color: AppColors.serviceButtonRed, shape: BoxShape.circle),
-                      child: const Icon(Icons.add, size: 28, color: Colors.white),
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                      child: const Icon(Icons.add, size: 18, color: Colors.white),
                     ),
             ),
           ),
