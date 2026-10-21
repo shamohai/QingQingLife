@@ -148,22 +148,30 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
               child: Row(
                 children: [
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => _showAddressSheet(context, state, ref, params),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('配送至: ', style: AppTextStyles.bodyMedium),
-                        Icon(Icons.location_on, size: 18, color: AppColors.onSurface),
-                        SizedBox(width: AppSpacing.xs),
-                        Text('天佑德营销中心', style: AppTextStyles.bodyMedium),
-                        SizedBox(width: AppSpacing.xs),
-                        Icon(Icons.expand_more, size: 20, color: AppColors.onSurfaceVariant),
-                      ],
+                  Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => _showAddressSheet(context, state, ref, params),
+                      child: Row(
+                        children: [
+                          const Text('配送至: ', style: AppTextStyles.bodyMedium),
+                          const Icon(Icons.location_on, size: 18, color: AppColors.onSurface),
+                          const SizedBox(width: AppSpacing.xs),
+                          Expanded(
+                            child: Text(
+                              _selectedAddress?.fullAddress ?? '请选择收货地址',
+                              style: AppTextStyles.bodyMedium,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.xs),
+                          const Icon(Icons.expand_more, size: 20, color: AppColors.onSurfaceVariant),
+                        ],
+                      ),
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: AppSpacing.sm),
                   GestureDetector(
                     onTap: () => setState(() => _isManaging = !_isManaging),
                     child: Text(_isManaging ? '完成' : '管理', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary)),
@@ -207,7 +215,10 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => ServiceCartAddressSheet(
         selectedAddress: _selectedAddress,
-        onSelectAddress: (addr) => setState(() => _selectedAddress = addr),
+        onSelectAddress: (addr) {
+          setState(() => _selectedAddress = addr);
+          Navigator.pop(ctx);
+        },
         onCreateNewAddress: () {
           Navigator.pop(ctx);
           context.push('/address/add');
