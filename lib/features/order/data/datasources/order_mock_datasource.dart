@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/repositories/order_repository.dart';
-import '../../presentation/providers/order_detail_provider.dart';
 import '../../../../core/network/api_response.dart';
 
 /// Mock 订单数据源 - 开发/测试环境使用
@@ -37,7 +36,7 @@ class MockOrderDataSource implements OrderRepository {
 
   @override
   Future<ApiResponse<OrderDetail>> getOrderDetail(String orderId) async {
-    return ApiResponse.success(getMockOrderDetail(orderId));
+    return ApiResponse.error('订单详情请使用远程数据源');
   }
 
   @override

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/providers.dart';
+import '../../domain/repositories/order_repository.dart';
+import '../models/order_detail_response.dart';
 import '../models/order_list_response.dart';
 
 class OrderRemoteDataSource {
@@ -22,6 +24,14 @@ class OrderRemoteDataSource {
         'pagesize': pageSize,
       },
       fromJson: (dynamic json) => OrderListResponse.fromJson(Map<String, dynamic>.from(json as Map)),
+    );
+  }
+
+  Future<ApiResponse<OrderDetail>> getOrderDetail(String orderId) {
+    return _apiClient.post<OrderDetail>(
+      '/api/order/v2/getorderdetail',
+      data: <String, dynamic>{'oid': int.tryParse(orderId) ?? 0},
+      fromJson: (dynamic json) => OrderDetailResponse.fromJson(Map<String, dynamic>.from(json as Map)).toDomain(),
     );
   }
 }
