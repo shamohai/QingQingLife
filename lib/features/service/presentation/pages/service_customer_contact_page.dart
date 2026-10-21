@@ -1,0 +1,299 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_radius.dart';
+import '../../../../core/widgets/app_image.dart';
+
+/// 购酒享服务「付款提示 / 联系客服」页面
+///
+/// 路由: /customer-service?id=上一页点击id&title=encodeURIComponent(title)
+///
+/// 蓝湖设计稿：服务中心-购酒享服务-确认订单（付款提示）
+/// 结构（MCP Visual IR，440 基准 1:1）：
+///   - NavRow：返回 24x24 + 动态标题 18px Medium（缺省"联系客服"）
+///   - QrCodeCard：白卡 r10，二维码 210x210 + 说明 16px
+///   - PhoneCard：白卡 r10，"客服电话"(16 黑) + 时间(14 灰)；号码(16 蓝) + 30px 蓝圆 call 钮
+///   - RulesCard：白卡 r10，蓝色品牌标语 16 + "活动规则" 16 + 规则正文 14/1.5
+/// 卡间距 10、左右边距 14；整页背景 #F3F5F7；卡片无阴影无描边。
+///
+/// 数据：一期 static mock（[ServiceCustomerInfo.mock]），字段与
+/// [ShareCartTemplateDetail] 客服字段（serviceQrImg/contacttPhone/contactRemark）
+/// 对齐，二期可直连真实 API，不虚构接口。
+class ServiceCustomerContactPage extends StatelessWidget {
+  /// 上一页点击的 id（透传，一期不做数据查询）
+  final String? id;
+
+  /// 页面标题，缺省"联系客服"（与蓝湖设计稿一致）
+  final String? title;
+
+  const ServiceCustomerContactPage({super.key, this.id, this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    final info = ServiceCustomerInfo.mock;
+    return Scaffold(
+      backgroundColor: AppColors.servicePageBackground,
+      body: SafeArea(
+        bottom: false,
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              sliver: SliverToBoxAdapter(
+                child: _NavRow(title: title, onBack: () => context.pop()),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              sliver: SliverToBoxAdapter(
+                child: Padding(padding: const EdgeInsets.only(top: 10), child: _QrCodeCard(info)),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              sliver: SliverToBoxAdapter(
+                child: Padding(padding: const EdgeInsets.only(top: 10), child: _PhoneCard(info)),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              sliver: SliverToBoxAdapter(
+                child: Padding(padding: const EdgeInsets.only(top: 10), child: _RulesCard(info)),
+              ),
+            ),
+            // 底部收尾留白（设计 home indicator 区不实现，由系统安全区渲染）
+            const SliverToBoxAdapter(child: SizedBox(height: 60)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 顶部导航行：返回切图 24x24 + 标题 18px Medium
+///
+/// 设计 box_4：96x27，左 14，上 6 下 10；返回热区取 44pt 保证可点。
+class _NavRow extends StatelessWidget {
+  final String? title;
+  final VoidCallback onBack;
+
+  const _NavRow({required this.title, required this.onBack});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 6, 0, 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          GestureDetector(
+            onTap: onBack,
+            behavior: HitTestBehavior.opaque,
+            child: SizedBox(
+              width: 44,
+              height: 44,
+              // 返回箭头切图与 activity_detail_back.png 同源（MD5 一致），复用现有资源
+              child: Image.asset('assets/images/service/activity_detail_back.png', width: 24, height: 24),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              title?.isNotEmpty == true ? title! : '联系客服',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black, height: 1.33),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 在线客服二维码卡片：白底 r10，二维码 210x210 居中 + 说明文字
+///
+/// 设计 box_5：414x313，padding 上29 下28 左右10；内容上下两端对齐。
+class _QrCodeCard extends StatelessWidget {
+  final ServiceCustomerInfo info;
+  const _QrCodeCard(this.info);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
+      padding: const EdgeInsets.only(left: 10, right: 10, top: 29, bottom: 28),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // 二维码：一期用切图占位，URL 非网络地址时同样走 AppNetworkImage 本地路径分支
+          AppNetworkImage(url: info.qrCodeUrl, width: 210, height: 210, fit: BoxFit.contain),
+          const SizedBox(height: 12),
+          Text(
+            info.qrCaption,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black, height: 1.4),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 客服电话卡片：白底 r10，标题行两端对齐 + 电话行（蓝色号码 + 30px 蓝圆 call 钮）
+///
+/// 设计 box_6：414x88，padding 上8 下14 左右10，行距 14。
+class _PhoneCard extends StatelessWidget {
+  final ServiceCustomerInfo info;
+  const _PhoneCard(this.info);
+
+  Future<void> _callPhone() async {
+    final uri = Uri(scheme: 'tel', path: info.phoneNumber);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
+      padding: const EdgeInsets.only(left: 10, right: 10, top: 8, bottom: 14),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                info.phoneLabel,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black, height: 1.4),
+              ),
+              // 设计 meta 灰 #8E8E8F，Theme 无对应 Token，页面局部常量
+              Text(
+                info.phoneSubtitle,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E8F), height: 1.4),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: _callPhone,
+                behavior: HitTestBehavior.opaque,
+                child: Text(
+                  info.phoneNumber,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceTabActive, height: 1.4),
+                ),
+              ),
+              GestureDetector(
+                onTap: _callPhone,
+                behavior: HitTestBehavior.opaque,
+                child: SizedBox(
+                  width: 30,
+                  height: 30,
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    decoration: const BoxDecoration(color: AppColors.serviceProjectBlue, shape: BoxShape.circle),
+                    child: const Icon(Icons.call, size: 18, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 活动规则卡片：白底 r10，蓝色品牌标语 + "活动规则" 标题 + 规则正文段落
+///
+/// 设计 text-wrapper_9：414x356，padding 上8 下24 左右10；标题上边距 8，正文上边距 10。
+class _RulesCard extends StatelessWidget {
+  final ServiceCustomerInfo info;
+  const _RulesCard(this.info);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
+      padding: const EdgeInsets.only(left: 10, right: 10, top: 8, bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            info.brandLine,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceTabActive, height: 1.4),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '活动规则',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black, height: 1.4),
+          ),
+          const SizedBox(height: 10),
+          for (final rule in info.rules)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                rule,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black, height: 1.5),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 联系客服页 Mock 数据
+///
+/// 文案 1:1 取自蓝湖设计稿「服务中心-购酒享服务-确认订单（付款提示）」。
+/// 字段命名对齐 [ShareCartTemplateDetail] 客服字段（serviceQrImg/contacttPhone/contactRemark），
+/// 二期接入真实 API 时整体替换 [mock]，不虚构新接口。
+class ServiceCustomerInfo {
+  final String qrCodeUrl;
+  final String qrCaption;
+  final String phoneLabel;
+  final String phoneSubtitle;
+  final String phoneNumber;
+  final String brandLine;
+  final List<String> rules;
+
+  const ServiceCustomerInfo({
+    required this.qrCodeUrl,
+    required this.qrCaption,
+    required this.phoneLabel,
+    required this.phoneSubtitle,
+    required this.phoneNumber,
+    required this.brandLine,
+    required this.rules,
+  });
+
+  static const ServiceCustomerInfo mock = ServiceCustomerInfo(
+    qrCodeUrl: 'assets/images/service/service_customer_qrcode.png',
+    qrCaption: '长按识别二维码，联系在线客服',
+    phoneLabel: '客服电话',
+    phoneSubtitle: '(周一至周五9:00~17:00)',
+    phoneNumber: '15298767678',
+    brandLine: '时光知味，礼赠挚友·扫码择礼，千里寄情',
+    rules: [
+      '1、扫码进入页面，从四款礼品中择一选购。',
+      '2、如实填写本人姓名、收货地址及联系电话并提交。',
+      '3、本活动礼品免费，无需支付任何费用，订单生效后\n按先后顺序安排寄送，具体时效以物流信息为准。',
+      '4、订单提交成功后，所选商品及收货信息原则上不予\n变更。',
+      '时光知味，岁月留香。天佑德青裸酒衷心感谢您的信赖与支持，愿这份心意之礼，伴您品味生活的每一刻芬\n芳。',
+    ],
+  );
+}

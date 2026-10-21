@@ -62,6 +62,8 @@ abstract final class RouteNames {
   // 消息通知
   static const String notifications = '/notifications';
 
+  // 购酒享服务付款提示（联系客服）页
+
   // 客服
   static const String customerService = '/customer-service';
 

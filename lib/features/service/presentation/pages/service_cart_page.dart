@@ -314,7 +314,7 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
                       activeColor: AppColors.serviceProjectBlue,
                       shape: const CircleBorder(),
                     ),
-                    //const Text('全选', style: AppTextStyles.bodyMedium),
+                    const Text('全选', style: AppTextStyles.bodyMedium),
                   ],
                 ),
                 Expanded(

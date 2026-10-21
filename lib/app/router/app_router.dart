@@ -23,6 +23,7 @@ import '../../features/service/presentation/pages/service_records_page.dart';
 import '../../features/service/presentation/pages/service_project_detail_page.dart';
 import '../../features/service/presentation/pages/service_booking_form_page.dart';
 import '../../features/service/presentation/pages/service_template_detail_page.dart';
+import '../../features/service/presentation/pages/service_customer_contact_page.dart';
 import '../../features/product/presentation/pages/product_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
@@ -177,6 +178,14 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.notifications,
         pageBuilder: (c, s) => const MaterialPage(child: NotificationListPage()),
+      ),
+      GoRoute(
+        path: RouteNames.customerService,
+        pageBuilder: (c, s) {
+          return MaterialPage(
+            child: ServiceCustomerContactPage(id: s.uri.queryParameters['id'], title: s.uri.queryParameters['title']),
+          );
+        },
       ),
       GoRoute(
         path: RouteNames.serviceProductDetail,
