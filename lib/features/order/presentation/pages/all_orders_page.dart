@@ -1,80 +1,140 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_empty.dart';
+import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../providers/all_orders_provider.dart';
-import '../../domain/repositories/order_repository.dart';
 import '../widgets/order_card.dart';
 
 /// 全部订单页面（商城订单 + 积分订单 + 服务订单混合展示）
 class AllOrdersPage extends ConsumerStatefulWidget {
-  const AllOrdersPage({super.key});
+  final String? initialStatus;
+  const AllOrdersPage({super.key, this.initialStatus});
 
   @override
   ConsumerState<AllOrdersPage> createState() => _AllOrdersPageState();
 }
 
 class _AllOrdersPageState extends ConsumerState<AllOrdersPage> {
+  final _searchController = TextEditingController();
+  final _scrollController = ScrollController();
+
+  int get _initialTab => switch (widget.initialStatus) {
+    'pending_payment' => 1,
+    'pending_shipment' => 2,
+    'shipped' => 3,
+    'refunding' => 4,
+    _ => 0,
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_loadNearBottom);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.read(allOrdersProvider.notifier).initialize(tabIndex: _initialTab);
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant AllOrdersPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialStatus != widget.initialStatus) {
+      _searchController.clear();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) ref.read(allOrdersProvider.notifier).initialize(tabIndex: _initialTab);
+      });
+    }
+  }
+
+  void _loadNearBottom() {
+    final state = ref.read(allOrdersProvider);
+    if (_scrollController.position.extentAfter < 240 && state.error == null) {
+      ref.read(allOrdersProvider.notifier).loadMore();
+    }
+  }
+
+  void _search() {
+    FocusScope.of(context).unfocus();
+    if (_scrollController.hasClients) _scrollController.jumpTo(0);
+    ref.read(allOrdersProvider.notifier).search(_searchController.text);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(allOrdersProvider);
     final notifier = ref.read(allOrdersProvider.notifier);
 
-    if (state.orders.isEmpty && !state.isLoading) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => notifier.loadOrders());
-    }
-
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F7),
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // 白色头部区域（包含顶部导航栏与二级 Tab 导航栏）
-            const SliverToBoxAdapter(child: _HeaderSection()),
-            // 订单列表（灰色背景滚动区域）
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xxl),
-              sliver: state.isLoading && state.orders.isEmpty
-                  ? const SliverToBoxAdapter(child: Center(child: AppLoading()))
-                  : state.orders.isEmpty
-                  ? const SliverToBoxAdapter(child: AppEmpty(message: '暂无订单'))
-                  : _buildOrdersSliver(state, notifier),
-            ),
-          ],
+        child: RefreshIndicator(
+          onRefresh: notifier.loadOrders,
+          child: CustomScrollView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              // 白色头部区域（包含顶部导航栏与二级 Tab 导航栏）
+              SliverToBoxAdapter(
+                child: _HeaderSection(controller: _searchController, onSearch: _search),
+              ),
+              if (state.isLoading && state.orders.isNotEmpty) const SliverToBoxAdapter(child: LinearProgressIndicator()),
+              // 订单列表（灰色背景滚动区域）
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(14, AppSpacing.md, 14, AppSpacing.xxl),
+                sliver: state.isLoading && state.orders.isEmpty
+                    ? const SliverToBoxAdapter(child: Center(child: AppLoading()))
+                    : state.orders.isEmpty && state.error != null
+                    ? SliverToBoxAdapter(
+                        child: AppError(message: state.error!, onRetry: notifier.loadOrders),
+                      )
+                    : state.orders.isEmpty
+                    ? const SliverToBoxAdapter(child: AppEmpty(message: '暂无订单'))
+                    : SliverList.builder(
+                        itemCount: state.orders.length,
+                        itemBuilder: (context, index) => OrderCard(item: state.orders[index]),
+                      ),
+              ),
+              if (state.orders.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
+                    child: state.error != null
+                        ? AppError(message: state.error!, onRetry: state.failedToLoadMore ? notifier.loadMore : notifier.loadOrders)
+                        : state.isLoadingMore
+                        ? const Center(child: AppLoading())
+                        : Center(
+                            child: state.hasMore
+                                ? TextButton(onPressed: notifier.loadMore, child: const Text('加载更多'))
+                                : const Text('没有更多订单了', style: TextStyle(color: AppColors.onSurfaceVariant)),
+                          ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _buildOrdersSliver(AllOrdersState state, AllOrdersNotifier notifier) {
-    final activeIndex = state.activeTabIndex;
-    List<OrderCardItem> filtered;
-    if (activeIndex == 0) {
-      filtered = state.orders;
-    } else {
-      final statusMap = <int, OrderStatus>{
-        1: OrderStatus.pendingPayment,
-        2: OrderStatus.pendingShipment,
-        3: OrderStatus.shipped,
-        4: OrderStatus.completed,
-        5: OrderStatus.refunding,
-      };
-      final targetStatus = statusMap[activeIndex];
-      filtered = targetStatus != null ? state.orders.where((o) => o.status == targetStatus).toList() : state.orders;
-    }
-    return SliverList(
-      delegate: SliverChildBuilderDelegate((context, index) => OrderCard(item: filtered[index]), childCount: filtered.length),
     );
   }
 }
 
 // ── 白色头部容器 ──────────────────────────────────────────────────
 class _HeaderSection extends StatelessWidget {
-  const _HeaderSection();
+  final TextEditingController controller;
+  final VoidCallback onSearch;
+  const _HeaderSection({required this.controller, required this.onSearch});
 
   @override
   Widget build(BuildContext context) {
@@ -88,72 +148,112 @@ class _HeaderSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
-        children: const [_TopNavBar(), SizedBox(height: 12), _TabRow()],
+        children: [
+          _TopNavBar(controller: controller, onSearch: onSearch),
+          const SizedBox(height: 12),
+          const _TabRow(),
+        ],
       ),
     );
   }
 }
 
-// ── 顶部导航栏（后退 + 全部订单 + 搜索框 + 外侧搜索按钮 同一行） ──────
+// ── 顶部导航栏（后退 + 全部订单 + 搜索框 + 筛选） ────────────────
 class _TopNavBar extends StatelessWidget {
-  const _TopNavBar();
+  final TextEditingController controller;
+  final VoidCallback onSearch;
+  const _TopNavBar({required this.controller, required this.onSearch});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 20),
-            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 22),
+            onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            constraints: const BoxConstraints(minWidth: 24, minHeight: 40),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
           const Text(
             '全部订单',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.onSurface),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 16),
           Expanded(
             child: Container(
-              height: 36,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              height: 40,
+              padding: const EdgeInsets.only(left: 12),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(999),
                 border: Border.all(color: const Color(0xFF213775), width: 1),
               ),
-              child: Row(
-                children: const [
-                  Icon(Icons.search, size: 18, color: Color(0xFF213775)),
-                  SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      '商品名称/订单编号',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 12, color: Color(0xFF949599)),
+              child: ValueListenableBuilder<TextEditingValue>(
+                valueListenable: controller,
+                builder: (context, value, child) => Row(
+                  children: [
+                    const Icon(Icons.search, size: 16, color: Color(0xFF213775)),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: TextField(
+                        controller: controller,
+                        textInputAction: TextInputAction.search,
+                        onSubmitted: (_) => onSearch(),
+                        style: const TextStyle(fontSize: 14, color: AppColors.onSurface),
+                        decoration: const InputDecoration(
+                          hintText: '商品名称/订单编号',
+                          hintStyle: TextStyle(fontSize: 14, color: Color(0xFF949599)),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                          filled: false,
+                          fillColor: Colors.transparent,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                    if (value.text.isNotEmpty)
+                      IconButton(
+                        tooltip: '清空搜索',
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(minWidth: 28, minHeight: 40),
+                        iconSize: 16,
+                        icon: const Icon(Icons.close, color: Color(0xFF949599)),
+                        onPressed: () {
+                          controller.clear();
+                          onSearch();
+                        },
+                      ),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: onSearch,
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Center(
+                          child: Text(
+                            '搜索',
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF213775)),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
           const SizedBox(width: 8),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              // 点击搜索处理
-            },
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-              child: Text(
-                '搜索',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF213775)),
-              ),
-            ),
+          IconButton(
+            tooltip: '筛选订单',
+            onPressed: () {},
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 28, minHeight: 40),
+            icon: Image.asset('assets/images/order/icon_filter.png', width: 28, height: 22),
           ),
         ],
       ),
@@ -162,25 +262,58 @@ class _TopNavBar extends StatelessWidget {
 }
 
 // ── Tab 行（二级导航栏，支持滑动，带选中变色加粗与指示横线） ───────────────
-class _TabRow extends ConsumerWidget {
+class _TabRow extends ConsumerStatefulWidget {
   const _TabRow();
 
-  static const List<String> _tabs = ['全部订单', '待付款', '待发货', '待收货/待核销', '评价', '售后/退款'];
+  static const _tabs = AllOrdersNotifier.tabLabels;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_TabRow> createState() => _TabRowState();
+}
+
+class _TabRowState extends ConsumerState<_TabRow> {
+  final _scrollController = ScrollController();
+  final _tabKeys = List<GlobalKey>.generate(_TabRow._tabs.length, (_) => GlobalKey());
+  int? _lastVisibleTab;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _ensureActiveTabVisible(int active) {
+    if (_lastVisibleTab == active) return;
+    _lastVisibleTab = active;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final context = _tabKeys[active].currentContext;
+      if (context != null) {
+        Scrollable.ensureVisible(context, duration: const Duration(milliseconds: 220), curve: Curves.easeOutCubic, alignment: 0.5);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final active = ref.watch(allOrdersProvider).activeTabIndex;
     final notifier = ref.read(allOrdersProvider.notifier);
+    _ensureActiveTabVisible(active);
 
     return SingleChildScrollView(
+      controller: _scrollController,
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      physics: const BouncingScrollPhysics(),
       child: Row(
-        children: List.generate(_tabs.length, (index) {
+        children: List.generate(_TabRow._tabs.length, (index) {
           final isSelected = active == index;
           return Padding(
-            padding: EdgeInsets.only(right: index == _tabs.length - 1 ? 0 : 24.0),
-            child: _TabLabel(text: _tabs[index], isActive: isSelected, onTap: () => notifier.selectTab(index)),
+            padding: EdgeInsets.only(right: index == _TabRow._tabs.length - 1 ? 0 : 32.0),
+            child: Container(
+              key: _tabKeys[index],
+              child: _TabLabel(text: _TabRow._tabs[index], isActive: isSelected, onTap: () => notifier.selectTab(index)),
+            ),
           );
         }),
       ),
@@ -218,8 +351,8 @@ class _TabLabel extends StatelessWidget {
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOutCubic,
-            height: 3,
-            width: isActive ? 28 : 0,
+            height: 4,
+            width: isActive ? 30 : 0,
             decoration: BoxDecoration(color: isActive ? const Color(0xFF213775) : Colors.transparent, borderRadius: BorderRadius.circular(2)),
           ),
         ],

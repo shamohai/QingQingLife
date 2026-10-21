@@ -41,7 +41,13 @@ devtools_options.yaml
 /integration_test/
 /linux/
 /openspec/
-/test/
+/test/*
+!/test/features/
+/test/features/*
+!/test/features/order/
+/test/features/order/*
+!/test/features/order/order_list_test.dart
+!/test/features/order/order_list_model_test.dart
 /scripts/
 /windows/
 /extracted/

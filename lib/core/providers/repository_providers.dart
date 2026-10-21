@@ -16,6 +16,8 @@ import '../../features/notification/data/datasources/notification_mock_datasourc
 import '../../features/notification/domain/repositories/notification_repository.dart';
 import '../../features/order/data/datasources/invoice_mock_datasource.dart';
 import '../../features/order/data/datasources/order_mock_datasource.dart';
+import '../../features/order/data/datasources/order_remote_datasource.dart';
+import '../../features/order/data/repositories/order_repository_impl.dart';
 import '../../features/order/domain/repositories/invoice_repository.dart';
 import '../../features/order/domain/repositories/order_repository.dart';
 import '../../features/points/data/datasources/points_mock_datasource.dart';
@@ -52,7 +54,7 @@ CartPageRepository cartRepository(Ref ref) {
 /// Order Repository Provider
 @riverpod
 OrderRepository orderRepository(Ref ref) {
-  return MockOrderDataSource();
+  return OrderRepositoryImpl(remote: ref.read(orderRemoteDataSourceProvider), legacy: MockOrderDataSource());
 }
 
 /// Invoice Repository Provider

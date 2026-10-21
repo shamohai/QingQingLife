@@ -1,5 +1,6 @@
 import '../../../../core/network/api_response.dart';
 import '../enums/order_type.dart';
+import '../entities/order_list_order.dart';
 
 /// 订单仓库接口
 abstract class OrderRepository {
@@ -14,7 +15,7 @@ abstract class OrderRepository {
   });
 
   /// 获取订单列表（分页）
-  Future<ApiResponse<OrderListResult>> getOrderList({required int page, required int pageSize, OrderStatus? status});
+  Future<ApiResponse<OrderListResult>> getOrderList({required int page, required int pageSize, int orderState = 0, String keyword = ''});
 
   /// 获取订单详情
   Future<ApiResponse<OrderDetail>> getOrderDetail(String orderId);
@@ -60,19 +61,13 @@ class OrderCreateResult {
 
 /// 订单列表分页结果
 class OrderListResult {
-  final List<OrderSummary> orders;
+  final List<OrderListOrder> orders;
   final int total;
   final int page;
   final int pageSize;
   final bool hasMore;
 
-  const OrderListResult({
-    required this.orders,
-    required this.total,
-    required this.page,
-    required this.pageSize,
-    required this.hasMore,
-  });
+  const OrderListResult({required this.orders, required this.total, required this.page, required this.pageSize, required this.hasMore});
 }
 
 /// 订单摘要（列表展示）
