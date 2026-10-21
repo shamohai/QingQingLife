@@ -16,8 +16,9 @@ import '../providers/member_level_provider.dart';
 /// 资源就绪后替换为 AppNetworkImage。领取通过 ReceiveUserService 完成。
 class MemberMonthlyBenefits extends ConsumerWidget {
   final List<MemberMonthlyCoupon> coupons;
+  final Future<void> Function(MemberMonthlyCoupon coupon) onCouponTap;
 
-  const MemberMonthlyBenefits({super.key, required this.coupons});
+  const MemberMonthlyBenefits({super.key, required this.coupons, required this.onCouponTap});
 
   /// 券面示例配色（对齐设计稿券面色调：红/橙/蓝/绿品牌色）
   static const List<List<Color>> _couponGradients = [
@@ -31,7 +32,7 @@ class MemberMonthlyBenefits extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final receivingCouponIds = ref.watch(memberLevelProvider.select((state) => state.receivingCouponIds));
+    final receivingServiceIds = ref.watch(memberLevelProvider.select((state) => state.receivingServiceIds));
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
@@ -72,14 +73,8 @@ class MemberMonthlyBenefits extends ConsumerWidget {
                 return _CouponItem(
                   coupon: coupons[index],
                   gradient: _couponGradients[index % _couponGradients.length],
-                  receiving: receivingCouponIds.contains(coupons[index].serviceId),
-                  onReceive: () async {
-                    final message = await ref.read(memberLevelProvider.notifier).receiveMonthlyCoupon(coupons[index]);
-                    if (!context.mounted || message == null) return;
-                    ScaffoldMessenger.of(context)
-                      ..hideCurrentSnackBar()
-                      ..showSnackBar(SnackBar(content: Text(message)));
-                  },
+                  receiving: receivingServiceIds.contains(coupons[index].serviceId),
+                  onReceive: () => onCouponTap(coupons[index]),
                 );
               },
             ),
@@ -134,18 +129,22 @@ class _CouponItem extends StatelessWidget {
         ),
         const SizedBox(height: 6),
 
-        // ── 领取按钮（已领取时置灰并展示「已领取」）─────────────────
+        // ── 领取 / 去使用按钮 ─────────────────────────────────────
         GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: coupon.isReceived || receiving ? null : onReceive,
+          onTap: receiving ? null : onReceive,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
             decoration: BoxDecoration(
-              color: coupon.isReceived || receiving ? const Color(0xFFC9CDD4) : const Color(0xFFFF8C1F),
+              color: receiving
+                  ? const Color(0xFFC9CDD4)
+                  : coupon.isReceived
+                  ? const Color(0xFF4D8DFF)
+                  : const Color(0xFFFF8C1F),
               borderRadius: const BorderRadius.all(Radius.circular(999)),
             ),
             child: Text(
-              coupon.isReceived ? '已领取' : (receiving ? '领取中' : '领取'),
+              receiving ? '处理中' : (coupon.isReceived ? '去使用' : '领取'),
               style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white, height: 1.3),
             ),
           ),

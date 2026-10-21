@@ -7,6 +7,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../data/models/member_rank_models.dart';
 import '../providers/member_level_provider.dart';
 import '../widgets/member_benefit_grid.dart';
 import '../widgets/member_level_tabs.dart';
@@ -77,7 +78,7 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
                           ),
                           Padding(
                             padding: const EdgeInsets.fromLTRB(AppSpacing.md, 12, AppSpacing.md, 0),
-                            child: MemberMonthlyBenefits(coupons: state.monthlyCoupons),
+                            child: MemberMonthlyBenefits(coupons: state.monthlyCoupons, onCouponTap: (coupon) => _handleMonthlyCouponTap(context, coupon)),
                           ),
                         ] else
                           // 等级列表加载中/失败时的占位，避免等级卡片取空列表越界
@@ -150,8 +151,12 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
         child: AppEmpty(message: '暂无会员权益', icon: Icons.diamond_outlined),
       );
     } else {
-      final sortedAuths = [...auths]..sort((a, b) => a.sort.compareTo(b.sort));
-      content = MemberBenefitGrid(auths: sortedAuths);
+      final sortedAuths = [...auths]..sort((a, b) => a.auth.sort.compareTo(b.auth.sort));
+      content = MemberBenefitGrid(
+        benefits: sortedAuths,
+        receivingServiceIds: state.receivingServiceIds,
+        onBenefitTap: (item) => _handleBenefitTap(context, item),
+      );
     }
 
     return Column(
@@ -167,5 +172,48 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
         content,
       ],
     );
+  }
+
+  Future<void> _handleBenefitTap(BuildContext context, MemberBenefitItem item) async {
+    final result = await ref.read(memberLevelProvider.notifier).useBenefit(item);
+    _handleBenefitResult(context, result);
+  }
+
+  Future<void> _handleMonthlyCouponTap(BuildContext context, MemberMonthlyCoupon coupon) async {
+    final result = await ref.read(memberLevelProvider.notifier).useMonthlyCoupon(coupon);
+    _handleBenefitResult(context, result);
+  }
+
+  void _handleBenefitResult(BuildContext context, MemberBenefitUseResult result) {
+    if (!context.mounted || result.busy) return;
+
+    if (!result.success || result.access == null) {
+      _showMessage(context, result.message ?? '权益处理失败，请稍后重试');
+      return;
+    }
+
+    final message = result.message;
+    if (message != null) {
+      _showMessage(context, message);
+    }
+    _openBenefitAccess(context, result.access!);
+  }
+
+  /// 具体页面地址和参数尚未确认，四个 instancetype 分支集中在此处，便于后续替换。
+  void _openBenefitAccess(BuildContext context, MemberBenefitAccess access) {
+    final label = switch (access.instanceType) {
+      ServiceInstanceType.serviceCoupon => '服务券',
+      ServiceInstanceType.products => '产品订单',
+      ServiceInstanceType.cashCouponShare => '红包分享',
+      ServiceInstanceType.shareCart => '权益商城',
+      _ => '该权益',
+    };
+    _showMessage(context, '$label入口地址及参数待确认');
+  }
+
+  void _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 }
