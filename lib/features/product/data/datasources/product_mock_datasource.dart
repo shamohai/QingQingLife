@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../domain/repositories/product_repository.dart';
 import '../../../../core/network/api_response.dart';
+
+import '../../../home/data/models/carousel_model.dart';
 
 /// Mock 商品数据源 - 基于蓝湖设计稿 v1.0
 class MockProductDataSource implements ProductRepository {
@@ -211,6 +212,11 @@ class MockProductDataSource implements ProductRepository {
   @override
   Future<ApiResponse<ProductListResult>> searchProducts({required String keyword, required int page, required int pageSize}) async {
     return getProductList(page: page, pageSize: pageSize, keyword: keyword);
+  }
+
+  @override
+  Future<ApiResponse<List<CarouselBanner>>> getCarouselList({required CarouselType type}) async {
+    return ApiResponse.success(<CarouselBanner>[]);
   }
 }
 

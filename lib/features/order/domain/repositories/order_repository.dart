@@ -104,10 +104,15 @@ class OrderDetail {
   final String id;
   final String orderNo;
   final OrderStatus status;
+  final int? backendStateCode;
   final String statusText;
+  final int? backendTypeCode;
+  final String? orderTypeLabel;
+  final bool isCreditOrder;
   final List<OrderItem> items;
   final OrderAddress address;
   final int productTotalCents;
+  final String? orderAmountDescription;
   final int shippingFeeCents;
   final int discountCents;
   final int pointsDeductedCents;
@@ -125,15 +130,31 @@ class OrderDetail {
   final int? pointsCost;
   final DateTime? exchangeTime;
   final String? pickupCode;
+  final String? payAmountDescription;
+  final String? payTypeName;
+  final String? paySerialNumber;
+  final String? userRemark;
+  final bool canCancel;
+  final bool canCancelAfterSale;
+  final bool canComment;
+  final bool canReceive;
+  final bool canAfterSale;
+  final bool waitPay;
+  final bool waitEndPay;
 
   const OrderDetail({
     required this.id,
     required this.orderNo,
     required this.status,
+    this.backendStateCode,
     required this.statusText,
+    this.backendTypeCode,
+    this.orderTypeLabel,
+    this.isCreditOrder = false,
     required this.items,
     required this.address,
     required this.productTotalCents,
+    this.orderAmountDescription,
     required this.shippingFeeCents,
     required this.discountCents,
     required this.pointsDeductedCents,
@@ -151,6 +172,17 @@ class OrderDetail {
     this.pointsCost,
     this.exchangeTime,
     this.pickupCode,
+    this.payAmountDescription,
+    this.payTypeName,
+    this.paySerialNumber,
+    this.userRemark,
+    this.canCancel = false,
+    this.canCancelAfterSale = false,
+    this.canComment = false,
+    this.canReceive = false,
+    this.canAfterSale = false,
+    this.waitPay = false,
+    this.waitEndPay = false,
   });
 }
 
@@ -161,11 +193,15 @@ class OrderItem {
   final String skuId;
   final String productName;
   final String skuName;
+  final String? priceDescription;
+  final List<OrderListParameter> parameters;
   final String imageUrl;
   final int priceCents;
   final int quantity;
   final int totalCents;
   final String? tag;
+  final String? payAmountDescription;
+  final bool isGift;
 
   const OrderItem({
     required this.id,
@@ -173,11 +209,15 @@ class OrderItem {
     required this.skuId,
     required this.productName,
     required this.skuName,
+    this.priceDescription,
+    this.parameters = const [],
     required this.imageUrl,
     required this.priceCents,
     required this.quantity,
     required this.totalCents,
     this.tag,
+    this.payAmountDescription,
+    this.isGift = false,
   });
 }
 

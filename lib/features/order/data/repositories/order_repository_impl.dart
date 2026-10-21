@@ -2,7 +2,7 @@ import '../../../../core/network/api_response.dart';
 import '../../domain/repositories/order_repository.dart';
 import '../datasources/order_remote_datasource.dart';
 
-/// 列表走真实接口；尚未提供接口文档的订单能力继续使用既有实现。
+/// 订单列表和订单详情走真实接口；尚未提供接口文档的操作能力继续使用既有实现。
 class OrderRepositoryImpl implements OrderRepository {
   final OrderRemoteDataSource remote;
   final OrderRepository legacy;
@@ -38,7 +38,7 @@ class OrderRepositoryImpl implements OrderRepository {
   );
 
   @override
-  Future<ApiResponse<OrderDetail>> getOrderDetail(String orderId) => legacy.getOrderDetail(orderId);
+  Future<ApiResponse<OrderDetail>> getOrderDetail(String orderId) => remote.getOrderDetail(orderId);
 
   @override
   Future<ApiResponse<void>> cancelOrder(String orderId, String reason) => legacy.cancelOrder(orderId, reason);

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../domain/entities/order_list_order.dart';
+import 'order_amount_text.dart';
 
 class OrderCard extends StatelessWidget {
   final OrderListOrder item;
@@ -18,7 +20,14 @@ class OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _showPending(context, '订单详情'),
+      onTap: () {
+        final orderId = item.id;
+        if (orderId == null || orderId.isEmpty) {
+          _showPending(context, '订单详情');
+          return;
+        }
+        context.push('/orders/$orderId');
+      },
       behavior: HitTestBehavior.opaque,
       child: Container(
         margin: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -102,15 +111,6 @@ class OrderCard extends StatelessWidget {
               ),
               const SizedBox(height: 5),
               _buildSpecTags(product),
-              if (product.priceDescription?.trim().isNotEmpty == true) ...[
-                const SizedBox(height: 5),
-                Text(
-                  product.priceDescription!,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97), height: 1.4),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
             ],
           ),
         ),
@@ -226,33 +226,7 @@ class OrderCard extends StatelessWidget {
   }
 
   Widget _amountDescriptionText(String value, {required double mainFontSize}) {
-    final match = RegExp(r'^([^\d]*)(\d+)(\.\d+)?(.*)$').firstMatch(value.trim());
-    if (match == null) {
-      return Text(
-        value,
-        style: TextStyle(fontSize: mainFontSize, fontWeight: FontWeight.w600, color: AppColors.onSurface),
-      );
-    }
-
-    final prefix = match.group(1) ?? '';
-    final integer = match.group(2) ?? '';
-    final decimal = match.group(3) ?? '';
-    final suffix = match.group(4) ?? '';
-    const smallStyle = TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.onSurface);
-    return RichText(
-      text: TextSpan(
-        style: const TextStyle(color: AppColors.onSurface),
-        children: [
-          if (prefix.isNotEmpty) TextSpan(text: prefix, style: smallStyle),
-          TextSpan(
-            text: integer,
-            style: TextStyle(fontSize: mainFontSize, fontWeight: FontWeight.w600),
-          ),
-          if (decimal.isNotEmpty) TextSpan(text: decimal, style: smallStyle),
-          if (suffix.isNotEmpty) TextSpan(text: suffix, style: smallStyle),
-        ],
-      ),
-    );
+    return OrderAmountText(value: value, mainFontSize: mainFontSize);
   }
 
   Widget _buildTotalPrice() {
