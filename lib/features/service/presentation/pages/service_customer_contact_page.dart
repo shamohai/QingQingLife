@@ -42,7 +42,7 @@ class ServiceCustomerContactPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (templateId == null) {
-      return _buildPage(context, ServiceCustomerInfo.mock);
+      return _buildMissingTemplatePage(context);
     }
 
     final detailAsync = ref.watch(shareCartTemplateDetailProvider(templateId!));
@@ -78,6 +78,23 @@ class ServiceCustomerContactPage extends ConsumerWidget {
         ),
       ),
       data: (detail) => _buildPage(context, ServiceCustomerInfo.fromTemplate(detail)),
+    );
+  }
+
+  Widget _buildMissingTemplatePage(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.servicePageBackground,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: _NavRow(title: title, onBack: () => context.pop()),
+            ),
+            const Expanded(child: AppEmpty(message: '缺少模板信息')),
+          ],
+        ),
+      ),
     );
   }
 
@@ -327,9 +344,6 @@ class _RulesCard extends StatelessWidget {
   }
 }
 
-/// 无模板 ID 的通用客服入口使用的兼容数据。
-///
-/// 文案 1:1 取自蓝湖设计稿「服务中心-购酒享服务-确认订单（付款提示）」。
 class ServiceCustomerInfo {
   final String qrCodeUrl;
   final String qrCaption;
@@ -363,20 +377,4 @@ class ServiceCustomerInfo {
       descriptionHtml: detail.descriptionHtml,
     );
   }
-
-  static const ServiceCustomerInfo mock = ServiceCustomerInfo(
-    qrCodeUrl: 'assets/images/service/service_customer_qrcode.png',
-    qrCaption: '长按识别二维码，联系在线客服',
-    phoneLabel: '客服电话',
-    phoneSubtitle: '(周一至周五9:00~17:00)',
-    phoneNumber: '15298767678',
-    brandLine: '时光知味，礼赠挚友·扫码择礼，千里寄情',
-    rules: [
-      '1、扫码进入页面，从四款礼品中择一选购。',
-      '2、如实填写本人姓名、收货地址及联系电话并提交。',
-      '3、本活动礼品免费，无需支付任何费用，订单生效后\n按先后顺序安排寄送，具体时效以物流信息为准。',
-      '4、订单提交成功后，所选商品及收货信息原则上不予\n变更。',
-      '时光知味，岁月留香。天佑德青裸酒衷心感谢您的信赖与支持，愿这份心意之礼，伴您品味生活的每一刻芬\n芳。',
-    ],
-  );
 }

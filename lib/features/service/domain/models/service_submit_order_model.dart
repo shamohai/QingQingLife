@@ -17,18 +17,14 @@ class ServiceSubmitOrderResult {
   final int result;
   final String descr;
 
-  const ServiceSubmitOrderResult({
-    required this.guidetext,
-    required this.orderId,
-    required this.result,
-    required this.descr,
-  });
+  const ServiceSubmitOrderResult({required this.guidetext, required this.orderId, required this.result, required this.descr});
 
   factory ServiceSubmitOrderResult.fromJson(Map<String, dynamic> json) {
     return ServiceSubmitOrderResult(
       guidetext: json['guidetext'] as String? ?? '',
       orderId: (json['orderid'] as num?)?.toInt() ?? 0,
-      result: (json['result'] as num?)?.toInt() ?? -1,
+      // 扁平响应会在 ApiResponse 中剥离顶层 result；能进入此解析器代表外层状态已成功。
+      result: (json['result'] as num?)?.toInt() ?? 0,
       descr: json['descr'] as String? ?? '',
     );
   }
