@@ -174,11 +174,13 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
-                  GestureDetector(
-                    onTap: () => setState(() => _isManaging = !_isManaging),
-                    child: Text(_isManaging ? '完成' : '管理', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary)),
-                  ),
+                  if (state.cartProducts.isNotEmpty) ...[
+                    const SizedBox(width: AppSpacing.sm),
+                    GestureDetector(
+                      onTap: () => setState(() => _isManaging = !_isManaging),
+                      child: Text(_isManaging ? '完成' : '管理', style: AppTextStyles.labelMedium.copyWith(color: AppColors.primary)),
+                    ),
+                  ],
                 ],
               ),
             ),
