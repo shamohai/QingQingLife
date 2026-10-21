@@ -1,7 +1,11 @@
 import '../../../../core/network/api_response.dart';
+import '../../../home/data/models/carousel_model.dart';
 
 /// 商品仓库接口
 abstract class ProductRepository {
+  /// 获取首页轮播图列表
+  Future<ApiResponse<List<CarouselBanner>>> getCarouselList({required CarouselType type});
+
   /// 获取首页商品数据（轮播、金刚区、热卖等）
   Future<ApiResponse<HomeProductData>> getHomeProductData();
 

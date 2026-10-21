@@ -22,7 +22,7 @@ import '../../features/order/domain/repositories/invoice_repository.dart';
 import '../../features/order/domain/repositories/order_repository.dart';
 import '../../features/points/data/datasources/points_mock_datasource.dart';
 import '../../features/points/domain/repositories/points_repository.dart';
-import '../../features/product/data/datasources/product_mock_datasource.dart';
+import '../../features/product/data/datasources/product_mixed_datasource.dart';
 import '../../features/product/domain/repositories/product_repository.dart';
 import '../../../../core/network/providers.dart' show apiClientProvider;
 
@@ -42,7 +42,7 @@ AuthRepository authRepository(Ref ref) {
 /// Product Repository Provider
 @riverpod
 ProductRepository productRepository(Ref ref) {
-  return MockProductDataSource();
+  return ProductMixedDataSource(apiClient: ref.read(apiClientProvider));
 }
 
 /// Cart Repository Provider

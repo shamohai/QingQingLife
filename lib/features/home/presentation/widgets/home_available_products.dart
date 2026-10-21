@@ -40,10 +40,10 @@ class HomeAvailableProducts extends StatelessWidget {
                 Text('可用商品', style: AppTextStyles.headlineSmall),
               ],
             ),
-            GestureDetector(
-              onTap: () {},
-              child: Text('查看更多>>>', style: AppTextStyles.labelSmall.copyWith(color: const Color(0xFF999999))),
-            ),
+            // GestureDetector(
+            //   onTap: () {},
+            //   child: Text('查看更多>>>', style: AppTextStyles.labelSmall.copyWith(color: const Color(0xFF999999))),
+            // ),
           ],
         ),
         const SizedBox(height: AppSpacing.md),

@@ -1,16 +1,22 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../core/widgets/app_image.dart';
+import '../../data/models/carousel_model.dart';
 
 /// 首页轮播 Banner（支持自动定时滑动，兼容网络图/本地资源图，自定义指示条样式）
+///
+/// 点击轮播图时根据 JumpType 执行对应导航行为。
 /// 设计稿：414x220，圆角 14px，带指示点与自动播放
 class HomeBanner extends StatefulWidget {
-  final List<String> imageUrls;
+  final List<CarouselBanner> banners;
   final Duration autoPlayInterval;
 
-  const HomeBanner({super.key, required this.imageUrls, this.autoPlayInterval = const Duration(seconds: 3)});
+  const HomeBanner({super.key, required this.banners, this.autoPlayInterval = const Duration(seconds: 3)});
 
   @override
   State<HomeBanner> createState() => _HomeBannerState();
@@ -22,23 +28,25 @@ class _HomeBannerState extends State<HomeBanner> {
   Timer? _timer;
   bool _isInteracting = false;
 
+  List<CarouselBanner> get _banners => widget.banners;
+
   @override
   void initState() {
     super.initState();
-    final urls = widget.imageUrls;
-    _controller = PageController(initialPage: urls.length > 1 ? urls.length * 1000 : 0);
+    final count = _banners.length;
+    _controller = PageController(initialPage: count > 1 ? count * 1000 : 0);
     _startAutoPlay();
   }
 
   @override
   void didUpdateWidget(HomeBanner oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.imageUrls != widget.imageUrls) {
-      final urls = widget.imageUrls;
+    if (oldWidget.banners != widget.banners) {
+      final count = _banners.length;
       _currentPage = 0;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && _controller.hasClients) {
-          _controller.jumpToPage(urls.length > 1 ? urls.length * 1000 : 0);
+          _controller.jumpToPage(count > 1 ? count * 1000 : 0);
         }
       });
       _startAutoPlay();
@@ -47,10 +55,10 @@ class _HomeBannerState extends State<HomeBanner> {
 
   void _startAutoPlay() {
     _timer?.cancel();
-    if (widget.imageUrls.length <= 1 || _isInteracting) return;
+    if (_banners.length <= 1 || _isInteracting) return;
     _timer = Timer.periodic(widget.autoPlayInterval, (timer) {
       if (!mounted) return;
-      if (!_controller.hasClients || widget.imageUrls.isEmpty) return;
+      if (!_controller.hasClients || _banners.isEmpty) return;
       if (_controller.position.isScrollingNotifier.value) return;
       final nextPage = (_controller.page ?? _controller.initialPage.toDouble()).round() + 1;
       _controller.animateToPage(nextPage, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
@@ -64,11 +72,48 @@ class _HomeBannerState extends State<HomeBanner> {
     super.dispose();
   }
 
-  Widget _buildImage(String url) {
+  void _handleTap(int index) {
+    if (index < 0 || index >= _banners.length) return;
+    final banner = _banners[index];
+    switch (banner.jumpType) {
+      case JumpType.productDetail:
+        if (banner.postData.isNotEmpty) {
+          context.push(RouteNames.productDetail.replaceFirst(':id', banner.postData));
+        }
+        break;
+      case JumpType.creditMall:
+        context.push(RouteNames.pointsMall);
+        break;
+      case JumpType.cart:
+        context.push(RouteNames.cart);
+        break;
+      case JumpType.orderList:
+        context.push(RouteNames.orders);
+        break;
+      case JumpType.webView:
+      case JumpType.productList:
+      case JumpType.minProgram:
+      case JumpType.programPage:
+      case JumpType.zjProgramPage:
+        if (banner.viewUrl.isNotEmpty) {
+          final uri = Uri.tryParse(banner.viewUrl);
+          if (uri != null) launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+        break;
+      case JumpType.none:
+      default:
+        break;
+    }
+  }
+
+  Widget _buildImage(CarouselBanner banner) {
+    final url = banner.imageUrl;
     if (url.startsWith('assets/')) {
       return Image.asset(
         url,
         fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
         errorBuilder: (context, error, stackTrace) => Container(
           color: Colors.grey[200],
           child: const Center(child: Icon(Icons.image_not_supported, color: Colors.grey)),
@@ -80,19 +125,19 @@ class _HomeBannerState extends State<HomeBanner> {
 
   @override
   Widget build(BuildContext context) {
-    final urls = widget.imageUrls;
-    if (urls.isEmpty) return const SizedBox.shrink();
+    final banners = _banners;
+    if (banners.isEmpty) return const SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14), // 设计稿 14px 边距
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(14), // 设计稿 14px 圆角
+        borderRadius: BorderRadius.circular(14),
         child: SizedBox(
-          height: 220, // 设计稿 220px 高度
+          height: 220,
           width: double.infinity,
           child: Stack(
             children: [
-              // PageView 轮播图
+              // PageView 轮播图（带点击手势）
               Listener(
                 onPointerDown: (_) {
                   _isInteracting = true;
@@ -109,46 +154,45 @@ class _HomeBannerState extends State<HomeBanner> {
                 child: PageView.builder(
                   controller: _controller,
                   onPageChanged: (i) {
-                    if (urls.length < 2) return;
-                    setState(() => _currentPage = i % urls.length);
-                    _startAutoPlay(); // 手动滑动后重置定时器
+                    if (banners.length < 2) return;
+                    setState(() => _currentPage = i % banners.length);
+                    _startAutoPlay();
                   },
-                  itemBuilder: (context, index) => _buildImage(urls[index % urls.length]),
+                  itemBuilder: (context, index) {
+                    final banner = banners[index % banners.length];
+                    return GestureDetector(
+                      onTap: () => _handleTap(index % banners.length),
+                      child: _buildImage(banner),
+                    );
+                  },
                 ),
               ),
 
-              // 指示条：直接浮在 Banner 图片内，距离底部 20px 处，紧密无间隙
-              Positioned(
-                bottom: 16, // 距离 Banner 图片底部 20px
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: List.generate(urls.length, (index) {
-                      final bool isActive = _currentPage == index;
-                      return GestureDetector(
-                        onTap: () {
-                          final currentCycle = (_controller.page ?? _controller.initialPage.toDouble()).round() ~/ urls.length;
-                          final targetPage = currentCycle * urls.length + index;
-                          _controller.animateToPage(targetPage, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 6), // 无水平间隙，保留垂直触控热区
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: 30,
-                            height: 3,
-                            decoration: BoxDecoration(color: isActive ? const Color(0xFF0088FF) : Colors.white.withAlpha(200), borderRadius: BorderRadius.zero),
+              // 指示条
+              if (banners.length > 1)
+                Positioned(
+                  bottom: 16,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: List.generate(banners.length, (index) {
+                        final bool isActive = _currentPage == index;
+                        return Container(
+                          width: 30,
+                          height: 3,
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          decoration: BoxDecoration(
+                            color: isActive ? const Color(0xFF0088FF) : Colors.white.withAlpha(200),
+                            borderRadius: BorderRadius.zero,
                           ),
-                        ),
-                      );
-                    }),
+                        );
+                      }),
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
