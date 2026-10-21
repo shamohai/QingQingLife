@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_spacing.dart';
-import '../../data/models/member_authority_model.dart';
+import '../providers/member_level_provider.dart';
 
 /// 会员详情页 - 会员权益宫格（米橙色圆角卡片，3 列）
 ///
@@ -10,9 +10,11 @@ import '../../data/models/member_authority_model.dart';
 ///
 /// TODO: 宫格图标当前使用 Material 图标近似还原，设计切图就绪后替换为真实图标资源。
 class MemberBenefitGrid extends StatelessWidget {
-  final List<MemberAuthItem> auths;
+  final List<MemberBenefitItem> benefits;
+  final Set<int> receivingServiceIds;
+  final ValueChanged<MemberBenefitItem> onBenefitTap;
 
-  const MemberBenefitGrid({super.key, required this.auths});
+  const MemberBenefitGrid({super.key, required this.benefits, required this.receivingServiceIds, required this.onBenefitTap});
 
   static const Color _iconBg = Color(0xFF8A5A3C);
   static const Color _titleColor = Color(0xFF5C3A21);
@@ -56,7 +58,7 @@ class MemberBenefitGrid extends StatelessWidget {
               children: [
                 const TextSpan(text: '会员享'),
                 TextSpan(
-                  text: '${auths.length}+',
+                  text: '${benefits.length}+',
                   style: const TextStyle(fontSize: 20, color: Color(0xFFFF6A1F)),
                 ),
                 const TextSpan(text: '项权益，立享尊贵'),
@@ -80,19 +82,22 @@ class MemberBenefitGrid extends StatelessWidget {
 
   List<Widget> _buildRows() {
     final rows = <Widget>[];
-    for (var i = 0; i < auths.length; i += 3) {
-      final chunk = auths.sublist(i, (i + 3).clamp(0, auths.length));
+    for (var i = 0; i < benefits.length; i += 3) {
+      final chunk = benefits.sublist(i, (i + 3).clamp(0, benefits.length));
       rows.add(
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            for (final item in chunk) Expanded(child: _BenefitCell(item: item)),
+            for (final item in chunk)
+              Expanded(
+                child: _BenefitCell(item: item, receiving: receivingServiceIds.contains(item.service.serviceid), onTap: () => onBenefitTap(item)),
+              ),
             // 末行补齐占位，保持左对齐
             for (var j = chunk.length; j < 3; j++) const Expanded(child: SizedBox()),
           ],
         ),
       );
-      if (i + 3 < auths.length) {
+      if (i + 3 < benefits.length) {
         rows.add(const SizedBox(height: 16));
       }
     }
@@ -102,41 +107,54 @@ class MemberBenefitGrid extends StatelessWidget {
 
 /// 单个权益：棕色圆形图标 + 权益名 + 括号说明
 class _BenefitCell extends StatelessWidget {
-  final MemberAuthItem item;
+  final MemberBenefitItem item;
+  final bool receiving;
+  final VoidCallback onTap;
 
-  const _BenefitCell({required this.item});
+  const _BenefitCell({required this.item, required this.receiving, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 46,
-          height: 46,
-          decoration: const BoxDecoration(color: MemberBenefitGrid._iconBg, shape: BoxShape.circle),
-          alignment: Alignment.center,
-          child: Icon(MemberBenefitGrid._benefitIcons[item.authname] ?? Icons.diamond_outlined, color: Colors.white, size: 22),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          item.authname,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: MemberBenefitGrid._titleColor, height: 1.2),
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        if (item.introduce.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: Text(
-              '（${item.introduce}）',
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400, color: MemberBenefitGrid._subColor, height: 1.3),
+    final auth = item.auth;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: receiving ? null : onTap,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 160),
+        opacity: receiving ? 0.55 : 1,
+        child: Column(
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              decoration: const BoxDecoration(color: MemberBenefitGrid._iconBg, shape: BoxShape.circle),
+              alignment: Alignment.center,
+              child: receiving
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : Icon(MemberBenefitGrid._benefitIcons[auth.authname] ?? Icons.diamond_outlined, color: Colors.white, size: 22),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              auth.authname,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: MemberBenefitGrid._titleColor, height: 1.2),
               textAlign: TextAlign.center,
-              maxLines: 2,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-          ),
-      ],
+            if (auth.introduce.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  '（${auth.introduce}）',
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400, color: MemberBenefitGrid._subColor, height: 1.3),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

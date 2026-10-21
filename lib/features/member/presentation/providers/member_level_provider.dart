@@ -82,6 +82,40 @@ class MemberMonthlyCoupon {
   }
 }
 
+/// 会员权益宫格项：保留接口原始服务信息，供领取后按 instancetype 分流。
+class MemberBenefitItem {
+  final MemberAuthItem auth;
+  final SysServiceItem service;
+
+  const MemberBenefitItem({required this.auth, required this.service});
+}
+
+/// 已完成用户权益领取、可进入具体业务页的权益信息。
+class MemberBenefitAccess {
+  final String instanceType;
+  final int serviceId;
+  final int userServiceId;
+  final ServiceBindInfo? bindInfo;
+
+  const MemberBenefitAccess({required this.instanceType, required this.serviceId, required this.userServiceId, this.bindInfo});
+}
+
+/// 点击权益后的处理结果。
+class MemberBenefitUseResult {
+  final bool success;
+  final bool busy;
+  final String? message;
+  final MemberBenefitAccess? access;
+
+  const MemberBenefitUseResult._({required this.success, this.busy = false, this.message, this.access});
+
+  const MemberBenefitUseResult.success(MemberBenefitAccess access, {String? message}) : this._(success: true, message: message, access: access);
+
+  const MemberBenefitUseResult.failure(String message) : this._(success: false, message: message);
+
+  const MemberBenefitUseResult.busy() : this._(success: false, busy: true);
+}
+
 /// 会员详情页状态
 class MemberLevelState {
   /// 是否加载中
@@ -103,13 +137,13 @@ class MemberLevelState {
   final GetRankDetailResp? detail;
 
   /// 权益宫格数据（getrankdetail.services 过滤月度权益后映射）
-  final List<MemberAuthItem> benefitAuths;
+  final List<MemberBenefitItem> benefitAuths;
 
   /// 每月权益券列表
   final List<MemberMonthlyCoupon> monthlyCoupons;
 
   /// 正在提交领取请求的权益 id，用于防止重复点击。
-  final Set<int> receivingCouponIds;
+  final Set<int> receivingServiceIds;
 
   const MemberLevelState({
     this.loading = false,
@@ -120,7 +154,7 @@ class MemberLevelState {
     this.detail,
     this.benefitAuths = const [],
     this.monthlyCoupons = const [],
-    this.receivingCouponIds = const {},
+    this.receivingServiceIds = const {},
   });
 
   /// 当前选中的等级（等级列表尚未加载完成时返回占位项，避免越界）
@@ -215,30 +249,94 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
     await load();
   }
 
-  /// 领取一张月度权益，返回可直接展示给用户的结果文案。
-  Future<String?> receiveMonthlyCoupon(MemberMonthlyCoupon coupon) async {
-    debugPrint('[MemberLevel] receive monthly coupon: ${coupon.serviceId} (${coupon.productName})');
-    if (coupon.isReceived || state.receivingCouponIds.contains(coupon.serviceId)) return null;
-    if (coupon.serviceId <= 0) return '权益信息无效，请刷新后重试';
+  /// 进入月度权益前先确保拿到 userserviceid，再返回对应 instancetype 的分流信息。
+  Future<MemberBenefitUseResult> useMonthlyCoupon(MemberMonthlyCoupon coupon) async {
+    debugPrint('[MemberLevel] use monthly coupon: ${coupon.serviceId} (${coupon.productName})');
+    final monthlyService = _findMonthlyService();
+    final serviceId = coupon.serviceId > 0 ? coupon.serviceId : (state.detail?.monthlyserviceid ?? monthlyService?.serviceid ?? 0);
+    if (serviceId <= 0) return const MemberBenefitUseResult.failure('权益信息无效，请刷新后重试');
+    if (state.receivingServiceIds.contains(serviceId)) return const MemberBenefitUseResult.busy();
 
-    state = _copy(receivingCouponIds: {...state.receivingCouponIds, coupon.serviceId});
-    try {
-      final response = await ref.read(memberRepositoryProvider).receiveUserService(serviceId: coupon.serviceId);
-      if (!response.success || response.data == null) return _friendlyMessage(response.message, fallback: '领取失败，请稍后重试');
+    var userServiceId = coupon.userServiceId > 0 ? coupon.userServiceId : (state.detail?.monthlyuserserviceid ?? monthlyService?.userserviceid ?? 0);
+    String? message;
 
-      final result = response.data!;
-      final updatedCoupons = state.monthlyCoupons
-          .map((item) => item.serviceId == coupon.serviceId ? item.copyWith(isReceived: true, userServiceId: result.userServiceId) : item)
-          .toList();
-      state = _copy(monthlyCoupons: updatedCoupons);
-      return result.isDuplicate ? '该权益已领取' : '领取成功';
-    } catch (e) {
-      debugPrint('[MemberLevel] receive monthly coupon error: $e');
-      return '领取失败，请稍后重试';
-    } finally {
-      final receiving = {...state.receivingCouponIds}..remove(coupon.serviceId);
-      state = _copy(receivingCouponIds: receiving);
+    if (userServiceId <= 0) {
+      state = _copy(receivingServiceIds: {...state.receivingServiceIds, serviceId});
+      try {
+        final response = await ref.read(memberRepositoryProvider).receiveUserService(serviceId: serviceId);
+        if (!response.success || response.data == null) {
+          return MemberBenefitUseResult.failure(_friendlyMessage(response.message, fallback: '领取失败，请稍后重试'));
+        }
+
+        final result = response.data!;
+        if (result.userServiceId <= 0) {
+          return const MemberBenefitUseResult.failure('领取成功但未返回用户权益信息，请刷新后重试');
+        }
+
+        userServiceId = result.userServiceId;
+        message = result.isDuplicate ? '该权益已领取' : '领取成功';
+        _markMonthlyCouponReceived(serviceId, userServiceId);
+      } catch (e) {
+        debugPrint('[MemberLevel] receive monthly coupon error: $e');
+        return const MemberBenefitUseResult.failure('领取失败，请稍后重试');
+      } finally {
+        final receiving = {...state.receivingServiceIds}..remove(serviceId);
+        state = _copy(receivingServiceIds: receiving);
+      }
     }
+
+    return MemberBenefitUseResult.success(
+      _buildBenefitAccess(serviceId: serviceId, userServiceId: userServiceId, service: monthlyService),
+      message: message,
+    );
+  }
+
+  /// 进入权益前先确保拿到 userserviceid，再返回对应 instancetype 的分流信息。
+  ///
+  /// 接口文档：POST /api/sys/app/receiveuserservice
+  /// 请求：{ serviceid }
+  /// 响应：{ userserviceid, isdup, datatag }
+  Future<MemberBenefitUseResult> useBenefit(MemberBenefitItem item) async {
+    final service = item.service;
+    if (service.serviceid <= 0) {
+      return const MemberBenefitUseResult.failure('权益信息无效，请刷新后重试');
+    }
+    if (state.receivingServiceIds.contains(service.serviceid)) {
+      return const MemberBenefitUseResult.busy();
+    }
+
+    var userServiceId = service.userserviceid ?? 0;
+    String? message;
+
+    if (userServiceId <= 0) {
+      state = _copy(receivingServiceIds: {...state.receivingServiceIds, service.serviceid});
+      try {
+        final response = await ref.read(memberRepositoryProvider).receiveUserService(serviceId: service.serviceid);
+        if (!response.success || response.data == null) {
+          return MemberBenefitUseResult.failure(_friendlyMessage(response.message, fallback: '领取失败，请稍后重试'));
+        }
+
+        final result = response.data!;
+        if (result.userServiceId <= 0) {
+          return const MemberBenefitUseResult.failure('领取成功但未返回用户权益信息，请刷新后重试');
+        }
+
+        userServiceId = result.userServiceId;
+        message = result.isDuplicate ? '该权益已领取' : '领取成功';
+        _markBenefitReceived(service.serviceid, userServiceId);
+      } catch (e) {
+        debugPrint('[MemberLevel] receive benefit error: $e');
+        return const MemberBenefitUseResult.failure('领取失败，请稍后重试');
+      } finally {
+        final receiving = {...state.receivingServiceIds}..remove(service.serviceid);
+        state = _copy(receivingServiceIds: receiving);
+      }
+    }
+
+    return MemberBenefitUseResult.success(
+      _buildBenefitAccess(serviceId: service.serviceid, userServiceId: userServiceId, service: service),
+      message: message,
+    );
   }
 
   // ── 映射：接口字段 → UI 模型 ───────────────────────────────
@@ -255,41 +353,85 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
   }
 
   /// getrankdetail.services → 权益宫格（排除月度权益，其余按接口顺序）
-  List<MemberAuthItem> _mapBenefitAuths(GetRankDetailResp detail) {
-    final items = <MemberAuthItem>[];
+  List<MemberBenefitItem> _mapBenefitAuths(GetRankDetailResp detail) {
+    final items = <MemberBenefitItem>[];
     for (final service in detail.services) {
       if (service.group == ServiceGroup.monthly) continue;
       items.add(
-        MemberAuthItem(
-          auth: service.serviceid,
-          authname: service.servicename,
-          introduce: service.description,
-          isown: service.hasowned,
-          isuse: false,
-          tipsmsg: '',
-          showimg: service.icon,
-          newwelfare: false,
-          sort: items.length + 1,
+        MemberBenefitItem(
+          auth: MemberAuthItem(
+            auth: service.serviceid,
+            authname: service.servicename,
+            introduce: service.description,
+            isown: service.hasowned,
+            isuse: false,
+            tipsmsg: '',
+            showimg: service.icon,
+            newwelfare: false,
+            sort: items.length + 1,
+          ),
+          service: service,
         ),
       );
     }
     return items;
   }
 
+  void _markBenefitReceived(int serviceId, int userServiceId) {
+    final detail = state.detail;
+    if (detail == null) return;
+
+    final updatedServices = detail.services
+        .map((service) => service.serviceid == serviceId ? service.copyWith(userserviceid: userServiceId, hasowned: true) : service)
+        .toList();
+    final updatedDetail = detail.copyWith(services: updatedServices);
+    state = _copy(detail: updatedDetail, benefitAuths: _mapBenefitAuths(updatedDetail));
+  }
+
+  void _markMonthlyCouponReceived(int serviceId, int userServiceId) {
+    final detail = state.detail;
+    if (detail == null) return;
+
+    final updatedServices = detail.services
+        .map((service) => service.group == ServiceGroup.monthly ? service.copyWith(userserviceid: userServiceId, hasowned: true) : service)
+        .toList();
+    final updatedDetail = detail.copyWith(monthlyuserserviceid: userServiceId, services: updatedServices);
+    final updatedCoupons = state.monthlyCoupons
+        .map((item) => item.serviceId == serviceId ? item.copyWith(isReceived: true, userServiceId: userServiceId) : item)
+        .toList();
+    state = _copy(detail: updatedDetail, monthlyCoupons: updatedCoupons);
+  }
+
+  SysServiceItem? _findMonthlyService() {
+    for (final service in state.detail?.services ?? const <SysServiceItem>[]) {
+      if (service.group == ServiceGroup.monthly) return service;
+    }
+    return null;
+  }
+
+  MemberBenefitAccess _buildBenefitAccess({required int serviceId, required int userServiceId, required SysServiceItem? service}) {
+    return MemberBenefitAccess(instanceType: service?.instancetype ?? '', serviceId: serviceId, userServiceId: userServiceId, bindInfo: service?.bindinfo);
+  }
+
   /// getrankdetail → 每月权益券（优先 monthlyproductlist，回退 group=MONTHLY 的 services）
   List<MemberMonthlyCoupon> _mapMonthlyCoupons(GetRankDetailResp detail) {
+    final monthlyService = _monthlyServiceOf(detail);
+    final monthlyServiceId = detail.monthlyserviceid ?? monthlyService?.serviceid ?? 0;
+    final monthlyUserServiceId = detail.monthlyuserserviceid ?? monthlyService?.userserviceid;
+    final monthlyReceived = (monthlyUserServiceId ?? 0) > 0;
+
     if (detail.monthlyproductlist.isNotEmpty) {
       return detail.monthlyproductlist
           .map(
             (e) => MemberMonthlyCoupon(
-              serviceId: e.serviceid,
+              serviceId: monthlyServiceId,
               serviceCode: e.servicecode,
               productName: e.productname,
               serviceDescr: e.servicedescr,
-              isReceived: e.isreceived,
+              isReceived: monthlyReceived || e.isreceived,
               receivedDate: e.receiveddate,
               productType: e.producttype,
-              userServiceId: e.userserviceid,
+              userServiceId: monthlyUserServiceId ?? 0,
               bailihuiType: e.bailihuitype,
               pid: e.pid,
               productImg: e.productimg,
@@ -305,10 +447,18 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
             serviceCode: e.servicecode,
             productName: e.servicename,
             serviceDescr: e.description,
-            isReceived: e.hasowned,
+            isReceived: monthlyReceived || e.hasowned,
+            userServiceId: monthlyUserServiceId ?? e.userserviceid ?? 0,
           ),
         )
         .toList();
+  }
+
+  SysServiceItem? _monthlyServiceOf(GetRankDetailResp detail) {
+    for (final service in detail.services) {
+      if (service.group == ServiceGroup.monthly) return service;
+    }
+    return null;
   }
 
   /// 后端 message 可能为空或为 `unknown error`，统一转成可展示的文案
@@ -327,10 +477,10 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
     int? selectedLevelIndex,
     GetRankDetailResp? detail,
     bool clearDetail = false,
-    List<MemberAuthItem>? benefitAuths,
+    List<MemberBenefitItem>? benefitAuths,
     bool clearBenefitAuths = false,
     List<MemberMonthlyCoupon>? monthlyCoupons,
-    Set<int>? receivingCouponIds,
+    Set<int>? receivingServiceIds,
   }) {
     return MemberLevelState(
       loading: loading ?? state.loading,
@@ -341,7 +491,7 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
       detail: clearDetail ? null : (detail ?? state.detail),
       benefitAuths: clearBenefitAuths ? const [] : (benefitAuths ?? state.benefitAuths),
       monthlyCoupons: monthlyCoupons ?? state.monthlyCoupons,
-      receivingCouponIds: receivingCouponIds ?? state.receivingCouponIds,
+      receivingServiceIds: receivingServiceIds ?? state.receivingServiceIds,
     );
   }
 }

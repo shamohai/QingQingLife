@@ -290,6 +290,9 @@ class SysServiceItem {
   /// 服务名称
   final String servicename;
 
+  /// 用户已领取的权益 id；未领取时为 null。
+  final int? userserviceid;
+
   /// 权益实现类型，见 [ServiceInstanceType]
   final String instancetype;
 
@@ -309,6 +312,7 @@ class SysServiceItem {
     required this.serviceid,
     this.servicecode = '',
     this.servicename = '',
+    this.userserviceid,
     this.instancetype = '',
     this.group = '',
     this.icon,
@@ -332,11 +336,26 @@ class SysServiceItem {
       serviceid: _asInt(json['serviceid']),
       servicecode: (json['servicecode'] as String?) ?? '',
       servicename: (json['servicename'] as String?) ?? '',
+      userserviceid: json['userserviceid'] == null ? null : _asInt(json['userserviceid']),
       instancetype: (json['instancetype'] as String?) ?? '',
       group: (json['group'] as String?) ?? '',
       icon: json['icon'] as String?,
       hasowned: _asBool(json['hasowned']),
       bindinfo: json['bindinfo'] == null ? null : ServiceBindInfo.fromJson(json['bindinfo'] as Map<String, dynamic>),
+    );
+  }
+
+  SysServiceItem copyWith({int? userserviceid, bool? hasowned, ServiceBindInfo? bindinfo}) {
+    return SysServiceItem(
+      serviceid: serviceid,
+      servicecode: servicecode,
+      servicename: servicename,
+      userserviceid: userserviceid ?? this.userserviceid,
+      instancetype: instancetype,
+      group: group,
+      icon: icon,
+      hasowned: hasowned ?? this.hasowned,
+      bindinfo: bindinfo ?? this.bindinfo,
     );
   }
 }
@@ -345,6 +364,12 @@ class SysServiceItem {
 ///
 /// 接口：POST /api/sys/app/getrankdetail
 class GetRankDetailResp {
+  /// 月度权益 id；没有月度权益时为 null
+  final int? monthlyserviceid;
+
+  /// 用户已领取的月度权益 id；未领取时为 null
+  final int? monthlyuserserviceid;
+
   /// 月度权益产品（与 services.bindinfo.bindproductlist 相同）
   final List<ServiceProductItem> monthlyproductlist;
 
@@ -357,15 +382,35 @@ class GetRankDetailResp {
   /// 数据版本
   final String? datatag;
 
-  const GetRankDetailResp({this.monthlyproductlist = const [], this.rankbaseinfo, this.services = const [], this.datatag});
+  const GetRankDetailResp({
+    this.monthlyserviceid,
+    this.monthlyuserserviceid,
+    this.monthlyproductlist = const [],
+    this.rankbaseinfo,
+    this.services = const [],
+    this.datatag,
+  });
 
   factory GetRankDetailResp.fromJson(Map<String, dynamic> json) {
     return GetRankDetailResp(
+      monthlyserviceid: json['monthlyserviceid'] == null ? null : _asInt(json['monthlyserviceid']),
+      monthlyuserserviceid: json['monthlyuserserviceid'] == null ? null : _asInt(json['monthlyuserserviceid']),
       monthlyproductlist:
           (json['monthlyproductlist'] as List<dynamic>?)?.map((e) => ServiceProductItem.fromJson(e as Map<String, dynamic>)).toList() ?? const [],
       rankbaseinfo: json['rankbaseinfo'] == null ? null : RankBaseInfo.fromJson(json['rankbaseinfo'] as Map<String, dynamic>),
       services: (json['services'] as List<dynamic>?)?.map((e) => SysServiceItem.fromJson(e as Map<String, dynamic>)).toList() ?? const [],
       datatag: json['datatag'] as String?,
+    );
+  }
+
+  GetRankDetailResp copyWith({int? monthlyuserserviceid, List<SysServiceItem>? services}) {
+    return GetRankDetailResp(
+      monthlyserviceid: monthlyserviceid,
+      monthlyuserserviceid: monthlyuserserviceid ?? this.monthlyuserserviceid,
+      monthlyproductlist: monthlyproductlist,
+      rankbaseinfo: rankbaseinfo,
+      services: services ?? this.services,
+      datatag: datatag,
     );
   }
 }
