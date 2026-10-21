@@ -183,7 +183,11 @@ final appRouter = Provider<GoRouter>((ref) {
         path: RouteNames.customerService,
         pageBuilder: (c, s) {
           return MaterialPage(
-            child: ServiceCustomerContactPage(id: s.uri.queryParameters['id'], title: s.uri.queryParameters['title']),
+            child: ServiceCustomerContactPage(
+              id: s.uri.queryParameters['id'],
+              title: s.uri.queryParameters['title'],
+              templateId: int.tryParse(s.uri.queryParameters['templateId'] ?? ''),
+            ),
           );
         },
       ),

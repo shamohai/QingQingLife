@@ -1,4 +1,4 @@
-﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/money.dart';
 import '../../domain/models/share_cart_candidate_model.dart';
@@ -236,9 +236,7 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
         break;
       }
     }
-    final newCount = existingProduct == null
-        ? 1
-        : (existingProduct.count + 1).toInt();
+    final newCount = existingProduct == null ? 1 : (existingProduct.count + 1).toInt();
     await addProductToCart(candidate.productId, newCount);
   }
 
@@ -279,7 +277,7 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
     }
   }
 
-  /// 提交权益团购订单。addressId 临时写死为 mock 值，待地址选择功能上线后由页面传入。
+  /// 使用当前购物车和页面传入的收货地址提交权益团购订单。
   Future<ServiceSubmitOrderResult> submitOrder(int addressId) async {
     final current = state.value;
     if (current == null || current.shareCartId == 0 || current.cartUpdateInProgress) {

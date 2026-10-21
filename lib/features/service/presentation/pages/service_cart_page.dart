@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -37,6 +38,7 @@ class ServiceCartPage extends ConsumerStatefulWidget {
 
 class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
   bool _isManaging = false;
+  bool _isSubmittingOrder = false;
   MemberAddress? _selectedAddress;
 
   @override
@@ -291,7 +293,9 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
 
   Widget _buildBottomBar(BuildContext context, ServiceCartState state, WidgetRef ref, ServiceCartInitialParams params) {
     final notifier = ref.read(serviceCartProvider(params).notifier);
-    final canCheckout = state.canSubmit && state.cartProducts.isNotEmpty;
+    final addresses = ref.watch(memberAddressesProvider).value ?? const <MemberAddress>[];
+    final selectedAddress = _selectedAddress ?? _defaultAddress(addresses);
+    final canCheckout = state.canSubmit && state.cartProducts.isNotEmpty && !state.cartUpdateInProgress && !_isSubmittingOrder;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.md + 8),
@@ -350,7 +354,7 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
                 ),
                 const SizedBox(width: AppSpacing.lg),
                 GestureDetector(
-                  onTap: canCheckout ? () => context.push('/checkout') : null,
+                  onTap: canCheckout ? () => _submitOrder(context, ref, params, selectedAddress) : null,
                   child: Container(
                     width: 96,
                     height: 44,
@@ -379,6 +383,38 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _submitOrder(BuildContext context, WidgetRef ref, ServiceCartInitialParams params, MemberAddress? address) async {
+    if (_isSubmittingOrder) return;
+    final addressId = int.tryParse(address?.id ?? '');
+    if (addressId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(address == null ? '请选择收货地址' : '收货地址信息无效，请重新选择')));
+      return;
+    }
+
+    setState(() => _isSubmittingOrder = true);
+    try {
+      final result = await ref.read(serviceCartProvider(params).notifier).submitOrder(addressId);
+      if (!context.mounted) return;
+      if (result.result != 0) {
+        final message = result.descr.isNotEmpty
+            ? result.descr
+            : result.guidetext.isNotEmpty
+            ? result.guidetext
+            : '订单提交失败，请稍后重试';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+        return;
+      }
+
+      final uri = Uri(path: RouteNames.customerService, queryParameters: {'templateId': widget.templateId.toString()});
+      await context.push(uri.toString());
+    } catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('订单提交失败：$error')));
+    } finally {
+      if (mounted) setState(() => _isSubmittingOrder = false);
+    }
   }
 
   Future<void> _runCartAction(BuildContext context, Future<void> Function() action) async {

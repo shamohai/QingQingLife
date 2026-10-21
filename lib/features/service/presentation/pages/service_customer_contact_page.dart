@@ -1,14 +1,22 @@
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../app/config/app_config.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
+import '../../../../core/widgets/app_empty.dart';
+import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_image.dart';
+import '../../../../core/widgets/app_loading.dart';
+import '../../domain/models/share_cart_template_detail_model.dart';
+import '../providers/share_cart_template_detail_provider.dart';
 
 /// 购酒享服务「付款提示 / 联系客服」页面
 ///
-/// 路由: /customer-service?id=上一页点击id&title=encodeURIComponent(title)
+/// 路由: /customer-service?templateId=模板ID（可选）&title=页面标题
 ///
 /// 蓝湖设计稿：服务中心-购酒享服务-确认订单（付款提示）
 /// 结构（MCP Visual IR，440 基准 1:1）：
@@ -18,21 +26,70 @@ import '../../../../core/widgets/app_image.dart';
 ///   - RulesCard：白卡 r10，蓝色品牌标语 16 + "活动规则" 16 + 规则正文 14/1.5
 /// 卡间距 10、左右边距 14；整页背景 #F3F5F7；卡片无阴影无描边。
 ///
-/// 数据：一期 static mock（[ServiceCustomerInfo.mock]），字段与
-/// [ShareCartTemplateDetail] 客服字段（serviceQrImg/contacttPhone/contactRemark）
-/// 对齐，二期可直连真实 API，不虚构接口。
-class ServiceCustomerContactPage extends StatelessWidget {
+/// 未传模板 ID 时保留其他客服入口原有的静态展示；购酒享服务结算流程使用真实模板数据。
+class ServiceCustomerContactPage extends ConsumerWidget {
   /// 上一页点击的 id（透传，一期不做数据查询）
   final String? id;
 
   /// 页面标题，缺省"联系客服"（与蓝湖设计稿一致）
   final String? title;
 
-  const ServiceCustomerContactPage({super.key, this.id, this.title});
+  /// 购酒享服务模板 ID；存在时加载该模板的客服信息和详情 HTML。
+  final int? templateId;
+
+  const ServiceCustomerContactPage({super.key, this.id, this.title, this.templateId});
 
   @override
-  Widget build(BuildContext context) {
-    final info = ServiceCustomerInfo.mock;
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (templateId == null) {
+      return _buildPage(context, ServiceCustomerInfo.mock);
+    }
+
+    final detailAsync = ref.watch(shareCartTemplateDetailProvider(templateId!));
+    return detailAsync.when(
+      loading: () => Scaffold(
+        backgroundColor: AppColors.servicePageBackground,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: _NavRow(title: title, onBack: () => context.pop()),
+              ),
+              const Expanded(child: Center(child: AppLoading())),
+            ],
+          ),
+        ),
+      ),
+      error: (_, _) => Scaffold(
+        backgroundColor: AppColors.servicePageBackground,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: _NavRow(title: title, onBack: () => context.pop()),
+              ),
+              Expanded(
+                child: AppError(message: '加载失败，请稍后重试', onRetry: () => ref.invalidate(shareCartTemplateDetailProvider(templateId!))),
+              ),
+            ],
+          ),
+        ),
+      ),
+      data: (detail) => _buildPage(context, ServiceCustomerInfo.fromTemplate(detail)),
+    );
+  }
+
+  Widget _buildPage(BuildContext context, ServiceCustomerInfo info) {
+    final hasContent =
+        info.qrCodeUrl.isNotEmpty ||
+        info.phoneNumber.isNotEmpty ||
+        info.phoneLabel.isNotEmpty ||
+        info.phoneSubtitle.isNotEmpty ||
+        info.descriptionHtml.isNotEmpty ||
+        info.rules.isNotEmpty;
+
     return Scaffold(
       backgroundColor: AppColors.servicePageBackground,
       body: SafeArea(
@@ -46,24 +103,28 @@ class ServiceCustomerContactPage extends StatelessWidget {
                 child: _NavRow(title: title, onBack: () => context.pop()),
               ),
             ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              sliver: SliverToBoxAdapter(
-                child: Padding(padding: const EdgeInsets.only(top: 10), child: _QrCodeCard(info)),
+            if (!hasContent) const SliverFillRemaining(hasScrollBody: false, child: AppEmpty(message: '暂无客服信息')),
+            if (info.qrCodeUrl.isNotEmpty)
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                sliver: SliverToBoxAdapter(
+                  child: Padding(padding: const EdgeInsets.only(top: 10), child: _QrCodeCard(info)),
+                ),
               ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              sliver: SliverToBoxAdapter(
-                child: Padding(padding: const EdgeInsets.only(top: 10), child: _PhoneCard(info)),
+            if (info.phoneNumber.isNotEmpty || info.phoneLabel.isNotEmpty || info.phoneSubtitle.isNotEmpty)
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                sliver: SliverToBoxAdapter(
+                  child: Padding(padding: const EdgeInsets.only(top: 10), child: _PhoneCard(info)),
+                ),
               ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              sliver: SliverToBoxAdapter(
-                child: Padding(padding: const EdgeInsets.only(top: 10), child: _RulesCard(info)),
+            if (info.descriptionHtml.isNotEmpty || info.rules.isNotEmpty)
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                sliver: SliverToBoxAdapter(
+                  child: Padding(padding: const EdgeInsets.only(top: 10), child: _RulesCard(info)),
+                ),
               ),
-            ),
             // 底部收尾留白（设计 home indicator 区不实现，由系统安全区渲染）
             const SliverToBoxAdapter(child: SizedBox(height: 60)),
           ],
@@ -170,46 +231,50 @@ class _PhoneCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                info.phoneLabel,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black, height: 1.4),
-              ),
-              // 设计 meta 灰 #8E8E8F，Theme 无对应 Token，页面局部常量
-              Text(
-                info.phoneSubtitle,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E8F), height: 1.4),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              GestureDetector(
-                onTap: _callPhone,
-                behavior: HitTestBehavior.opaque,
+              Expanded(
                 child: Text(
-                  info.phoneNumber,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceTabActive, height: 1.4),
+                  info.phoneLabel.isEmpty ? '客服电话' : info.phoneLabel,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black, height: 1.4),
                 ),
               ),
-              GestureDetector(
-                onTap: _callPhone,
-                behavior: HitTestBehavior.opaque,
-                child: SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: Container(
-                    width: 30,
-                    height: 30,
-                    decoration: const BoxDecoration(color: AppColors.serviceProjectBlue, shape: BoxShape.circle),
-                    child: const Icon(Icons.call, size: 18, color: Colors.white),
+              if (info.phoneSubtitle.isNotEmpty)
+                Text(
+                  info.phoneSubtitle,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E8F), height: 1.4),
+                ),
+            ],
+          ),
+          if (info.phoneNumber.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: _callPhone,
+                  behavior: HitTestBehavior.opaque,
+                  child: Text(
+                    info.phoneNumber,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceTabActive, height: 1.4),
                   ),
                 ),
-              ),
-            ],
-          ),
+                GestureDetector(
+                  onTap: _callPhone,
+                  behavior: HitTestBehavior.opaque,
+                  child: SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: const BoxDecoration(color: AppColors.serviceProjectBlue, shape: BoxShape.circle),
+                      child: const Icon(Icons.call, size: 18, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -233,35 +298,38 @@ class _RulesCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            info.brandLine,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceTabActive, height: 1.4),
-          ),
-          const SizedBox(height: 8),
+          if (info.brandLine.isNotEmpty) ...[
+            Text(
+              info.brandLine,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceTabActive, height: 1.4),
+            ),
+            const SizedBox(height: 8),
+          ],
           Text(
             '活动规则',
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black, height: 1.4),
           ),
           const SizedBox(height: 10),
-          for (final rule in info.rules)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text(
-                rule,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black, height: 1.5),
+          if (info.descriptionHtml.isNotEmpty)
+            HtmlWidget(info.descriptionHtml, baseUrl: Uri.parse(AppConfig.baseUrl))
+          else
+            for (final rule in info.rules)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  rule,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black, height: 1.5),
+                ),
               ),
-            ),
         ],
       ),
     );
   }
 }
 
-/// 联系客服页 Mock 数据
+/// 无模板 ID 的通用客服入口使用的兼容数据。
 ///
 /// 文案 1:1 取自蓝湖设计稿「服务中心-购酒享服务-确认订单（付款提示）」。
-/// 字段命名对齐 [ShareCartTemplateDetail] 客服字段（serviceQrImg/contacttPhone/contactRemark），
-/// 二期接入真实 API 时整体替换 [mock]，不虚构新接口。
 class ServiceCustomerInfo {
   final String qrCodeUrl;
   final String qrCaption;
@@ -270,6 +338,7 @@ class ServiceCustomerInfo {
   final String phoneNumber;
   final String brandLine;
   final List<String> rules;
+  final String descriptionHtml;
 
   const ServiceCustomerInfo({
     required this.qrCodeUrl,
@@ -279,7 +348,21 @@ class ServiceCustomerInfo {
     required this.phoneNumber,
     required this.brandLine,
     required this.rules,
+    this.descriptionHtml = '',
   });
+
+  factory ServiceCustomerInfo.fromTemplate(ShareCartTemplateDetail detail) {
+    return ServiceCustomerInfo(
+      qrCodeUrl: detail.serviceQrImg,
+      qrCaption: '长按识别二维码，联系在线客服',
+      phoneLabel: detail.contactRemark,
+      phoneSubtitle: '',
+      phoneNumber: detail.contacttPhone,
+      brandLine: '',
+      rules: const [],
+      descriptionHtml: detail.descriptionHtml,
+    );
+  }
 
   static const ServiceCustomerInfo mock = ServiceCustomerInfo(
     qrCodeUrl: 'assets/images/service/service_customer_qrcode.png',
