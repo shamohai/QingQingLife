@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../features/member/domain/repositories/member_repository.dart';
+import '../../../../features/member/presentation/providers/member_addresses_provider.dart';
 import '../../domain/models/share_cart_candidate_model.dart';
 import '../../domain/models/share_cart_product_model.dart';
 import '../providers/service_cart_provider.dart';
@@ -136,6 +137,8 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
 
   Widget _buildAddressBar(BuildContext context, ServiceCartState state, WidgetRef ref, ServiceCartInitialParams params) {
     final notifier = ref.read(serviceCartProvider(params).notifier);
+    final addresses = ref.watch(memberAddressesProvider).value ?? const <MemberAddress>[];
+    final selectedAddress = _selectedAddress ?? _defaultAddress(addresses);
 
     return SliverToBoxAdapter(
       child: Container(
@@ -151,7 +154,7 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
                   Expanded(
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
-                      onTap: () => _showAddressSheet(context, state, ref, params),
+                      onTap: () => _showAddressSheet(context, state, ref, params, selectedAddress),
                       child: Row(
                         children: [
                           const Text('配送至: ', style: AppTextStyles.bodyMedium),
@@ -159,7 +162,7 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
                           const SizedBox(width: AppSpacing.xs),
                           Expanded(
                             child: Text(
-                              _selectedAddress?.fullAddress ?? '请选择收货地址',
+                              selectedAddress?.fullAddress ?? '请选择收货地址',
                               style: AppTextStyles.bodyMedium,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -208,13 +211,20 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
     );
   }
 
-  void _showAddressSheet(BuildContext context, ServiceCartState state, WidgetRef ref, ServiceCartInitialParams params) {
+  MemberAddress? _defaultAddress(List<MemberAddress> addresses) {
+    for (final address in addresses) {
+      if (address.isDefault) return address;
+    }
+    return null;
+  }
+
+  void _showAddressSheet(BuildContext context, ServiceCartState state, WidgetRef ref, ServiceCartInitialParams params, MemberAddress? selectedAddress) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => ServiceCartAddressSheet(
-        selectedAddress: _selectedAddress,
+        selectedAddress: selectedAddress,
         onSelectAddress: (addr) {
           setState(() => _selectedAddress = addr);
           Navigator.pop(ctx);
