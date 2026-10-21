@@ -9,9 +9,11 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../features/member/domain/repositories/member_repository.dart';
 import '../../domain/models/share_cart_candidate_model.dart';
 import '../../domain/models/share_cart_product_model.dart';
 import '../providers/service_cart_provider.dart';
+import '../widgets/service_cart_address_sheet.dart';
 
 /// 购酒享服务购物车页面
 ///
@@ -34,6 +36,7 @@ class ServiceCartPage extends ConsumerStatefulWidget {
 
 class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
   bool _isManaging = false;
+  MemberAddress? _selectedAddress;
 
   @override
   Widget build(BuildContext context) {
@@ -145,12 +148,21 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
               child: Row(
                 children: [
-                  const Text('配送至: ', style: AppTextStyles.bodyMedium),
-                  const Icon(Icons.location_on, size: 18, color: AppColors.onSurface),
-                  const SizedBox(width: AppSpacing.xs),
-                  const Text('天佑德营销中心', style: AppTextStyles.bodyMedium),
-                  const SizedBox(width: AppSpacing.xs),
-                  const Icon(Icons.expand_more, size: 20, color: AppColors.onSurfaceVariant),
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => _showAddressSheet(context, state, ref, params),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('配送至: ', style: AppTextStyles.bodyMedium),
+                        Icon(Icons.location_on, size: 18, color: AppColors.onSurface),
+                        SizedBox(width: AppSpacing.xs),
+                        Text('天佑德营销中心', style: AppTextStyles.bodyMedium),
+                        SizedBox(width: AppSpacing.xs),
+                        Icon(Icons.expand_more, size: 20, color: AppColors.onSurfaceVariant),
+                      ],
+                    ),
+                  ),
                   const Spacer(),
                   GestureDetector(
                     onTap: () => setState(() => _isManaging = !_isManaging),
@@ -184,6 +196,22 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showAddressSheet(BuildContext context, ServiceCartState state, WidgetRef ref, ServiceCartInitialParams params) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => ServiceCartAddressSheet(
+        selectedAddress: _selectedAddress,
+        onSelectAddress: (addr) => setState(() => _selectedAddress = addr),
+        onCreateNewAddress: () {
+          Navigator.pop(ctx);
+          context.push('/address/add');
+        },
       ),
     );
   }
