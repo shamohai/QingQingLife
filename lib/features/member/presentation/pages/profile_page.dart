@@ -10,7 +10,7 @@ import '../widgets/profile_butler_banner.dart';
 import '../widgets/profile_feature_grid.dart';
 import '../widgets/profile_footer.dart';
 import '../widgets/profile_header_section.dart';
-import '../widgets/profile_member_level_card.dart';
+import '../widgets/member_summary_card.dart';
 import '../widgets/profile_order_shortcuts.dart';
 import '../widgets/profile_stats_card.dart';
 
@@ -74,7 +74,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               const ProfileHeaderSection(),
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                                child: const ProfileMemberLevelCard(),
+                                child: MemberSummaryCard(onTap: () => context.push(RouteNames.memberLevel)),
                               ),
                               const SizedBox(height: AppSpacing.md),
                             ],
