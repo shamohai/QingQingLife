@@ -118,11 +118,17 @@ class _TopicCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  block.title,
-                  style: const TextStyle(color: Color(0xFF333333), fontSize: 11, fontWeight: FontWeight.w600, height: 1.3),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                SizedBox(
+                  height: 29,
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      block.title,
+                      style: const TextStyle(color: Color(0xFF333333), fontSize: 11, fontWeight: FontWeight.w600, height: 1.3),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Center(

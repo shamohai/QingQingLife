@@ -10,7 +10,6 @@ import '../../../../core/widgets/app_error.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../widgets/home_banner.dart' as home_widgets;
 import '../widgets/home_kingkong_grid.dart';
-import '../widgets/home_promo_section.dart';
 import '../widgets/home_monthly_benefits.dart';
 import '../widgets/home_hot_products.dart';
 import '../widgets/home_activity_section.dart';
@@ -117,13 +116,13 @@ class HomePage extends ConsumerWidget {
                       ),
                     ),
 
-                    // White Card 1: 新人礼 + 可用商品
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                      sliver: SliverToBoxAdapter(
-                        child: HomePromoSection(gifts: staticData.newUserGifts, products: staticData.hotProducts),
-                      ),
-                    ),
+                    // // White Card 1: 新人礼 + 可用商品 ,暂时注释掉
+                    // SliverPadding(
+                    //   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                    //   sliver: SliverToBoxAdapter(
+                    //     child: HomePromoSection(gifts: staticData.newUserGifts, products: staticData.hotProducts),
+                    //   ),
+                    // ),
 
                     // White Card 2: 金刚区 (10项 2x5 网格)
                     SliverPadding(
@@ -149,11 +148,12 @@ class HomePage extends ConsumerWidget {
                       sliver: SliverToBoxAdapter(child: HomeActivitySection(blocks: staticData.activityBlocks)),
                     ),
 
-                    // White Card 6: 线下活动 (3图并排)
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                      sliver: SliverToBoxAdapter(child: HomeTopicActivitySection(blocks: staticData.topicActivityBlocks)),
-                    ),
+                    // White Card 6: 线下活动 (3图并排) - 仅在有数据时渲染
+                    if (staticData.topicActivityBlocks.isNotEmpty)
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                        sliver: SliverToBoxAdapter(child: HomeTopicActivitySection(blocks: staticData.topicActivityBlocks)),
+                      ),
 
                     // 底部商品展示区 (推荐青稞粒商品列表，支持滚动加载)
                     const SliverPadding(

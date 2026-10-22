@@ -31,10 +31,19 @@ class ProductMixedDataSource implements ProductRepository {
     return _remote.getCarouselList(type: type);
   }
 
-  // ── 以下方法暂时走 Mock，待对应接口就绪后替换为 Remote ─────────────────────
-
+  /// 首页 4 个模块接口（金刚区、每月权益、线上活动、线下活动）切换为 Remote 接口
   @override
-  Future<ApiResponse<HomeProductData>> getHomeProductData() => _mock.getHomeProductData();
+  Future<ApiResponse<HomeProductData>> getHomeProductData() async {
+    try {
+      final remoteRes = await _remote.getHomeProductData();
+      if (remoteRes.success && remoteRes.data != null) {
+        return remoteRes;
+      }
+    } catch (_) {
+      // 远程接口异常时保底降级为 Mock
+    }
+    return _mock.getHomeProductData();
+  }
 
   @override
   Future<ApiResponse<ProductDetail>> getProductDetail(String productId) => _mock.getProductDetail(productId);
