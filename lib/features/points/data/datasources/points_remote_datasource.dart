@@ -51,6 +51,8 @@ class PointsRemoteDataSource implements PointsRepository {
     int? maxIntegral,
     bool? exchangeable,
     int? categoryId,
+    int? sort,
+    bool? asc,
   }) async {
     final body = <String, dynamic>{
       'pageindex': page,
@@ -60,6 +62,8 @@ class PointsRemoteDataSource implements PointsRepository {
       'categoryid': categoryId ?? 0,
     };
     if (exchangeable != null) body['exchangeable'] = exchangeable;
+    if (sort != null) body['sort'] = sort;
+    if (asc != null) body['asc'] = asc;
     return _apiClient.post<CreditProductListData>(
       '/api/product/getcreditproductlist',
       data: body,

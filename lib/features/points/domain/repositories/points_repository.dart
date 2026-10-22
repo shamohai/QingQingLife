@@ -57,6 +57,8 @@ abstract class PointsRepository {
     int? maxIntegral,
     bool? exchangeable,
     int? categoryId,
+    int? sort,
+    bool? asc,
   });
 }
 

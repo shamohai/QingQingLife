@@ -17,6 +17,7 @@ import '../widgets/home_activity_section.dart';
 import '../widgets/home_topic_activity_section.dart';
 import '../widgets/home_bottom_recommend_section.dart';
 import '../../data/providers/home_carousel_provider.dart';
+import '../providers/home_paging_providers.dart';
 
 /// 首页静态数据 Provider（金刚区、新人礼、专题、每月权益、可用商品、活动模块）
 /// 轮播图由独立的 homeCarouselProvider 提供
@@ -85,72 +86,84 @@ class HomePage extends ConsumerWidget {
                 ref.invalidate(homeCarouselProvider);
                 await ref.read(homeStaticDataProvider.future);
                 await ref.read(homeCarouselProvider.future);
+                await ref.read(homeRecommendCreditProductsProvider.notifier).refresh();
               },
               color: const Color(0xFF213775),
-              child: CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-                slivers: [
-                  // 顶部栏：Logo + 搜索框 + 消息
-                  // const SliverToBoxAdapter(child: HomeAppBar()),
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification is ScrollUpdateNotification) {
+                    final metrics = notification.metrics;
+                    if (metrics.pixels >= metrics.maxScrollExtent - 200) {
+                      ref.read(homeRecommendCreditProductsProvider.notifier).loadMore();
+                    }
+                  }
+                  return false;
+                },
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                  slivers: [
+                    // 顶部栏：Logo + 搜索框 + 消息
+                    // const SliverToBoxAdapter(child: HomeAppBar()),
 
-                  // Banner（轮播图，真实 API 数据）
-                  SliverPadding(
-                    padding: const EdgeInsets.only(top: 2, bottom: 4),
-                    sliver: SliverToBoxAdapter(
-                      child: carouselAsync.when(
-                        data: (banners) => home_widgets.HomeBanner(banners: banners),
-                        loading: () => const SizedBox(height: 220),
-                        error: (_, _) => const SizedBox(height: 220),
+                    // Banner（轮播图，真实 API 数据）
+                    SliverPadding(
+                      padding: const EdgeInsets.only(top: 2, bottom: 4),
+                      sliver: SliverToBoxAdapter(
+                        child: carouselAsync.when(
+                          data: (banners) => home_widgets.HomeBanner(banners: banners),
+                          loading: () => const SizedBox(height: 220),
+                          error: (_, _) => const SizedBox(height: 220),
+                        ),
                       ),
                     ),
-                  ),
 
-                  // White Card 1: 新人礼 + 可用商品
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                    sliver: SliverToBoxAdapter(
-                      child: HomePromoSection(gifts: staticData.newUserGifts, products: staticData.hotProducts),
+                    // White Card 1: 新人礼 + 可用商品
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                      sliver: SliverToBoxAdapter(
+                        child: HomePromoSection(gifts: staticData.newUserGifts, products: staticData.hotProducts),
+                      ),
                     ),
-                  ),
 
-                  // White Card 2: 金刚区 (10项 2x5 网格)
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                    sliver: SliverToBoxAdapter(child: HomeKingKongGrid(items: staticData.kingKongItems)),
-                  ),
+                    // White Card 2: 金刚区 (10项 2x5 网格)
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                      sliver: SliverToBoxAdapter(child: HomeKingKongGrid(items: staticData.kingKongItems)),
+                    ),
 
-                  // White Card 3: 每月权益
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                    sliver: SliverToBoxAdapter(child: HomeMonthlyBenefits(benefits: staticData.monthlyBenefits)),
-                  ),
+                    // White Card 3: 每月权益
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                      sliver: SliverToBoxAdapter(child: HomeMonthlyBenefits(benefits: staticData.monthlyBenefits)),
+                    ),
 
-                  // White Card 4: 热卖商品
-                  const SliverPadding(
-                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                    sliver: SliverToBoxAdapter(child: HomeHotProducts()),
-                  ),
+                    // White Card 4: 热卖商品
+                    const SliverPadding(
+                      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                      sliver: SliverToBoxAdapter(child: HomeHotProducts()),
+                    ),
 
-                  // White Card 5: 线上活动 (2大图并排)
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                    sliver: SliverToBoxAdapter(child: HomeActivitySection(blocks: staticData.activityBlocks)),
-                  ),
+                    // White Card 5: 线上活动 (2大图并排)
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                      sliver: SliverToBoxAdapter(child: HomeActivitySection(blocks: staticData.activityBlocks)),
+                    ),
 
-                  // White Card 6: 线下活动 (3图并排)
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                    sliver: SliverToBoxAdapter(child: HomeTopicActivitySection(blocks: staticData.topicActivityBlocks)),
-                  ),
+                    // White Card 6: 线下活动 (3图并排)
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                      sliver: SliverToBoxAdapter(child: HomeTopicActivitySection(blocks: staticData.topicActivityBlocks)),
+                    ),
 
-                  // 底部商品展示区 (推荐商品)
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                    sliver: SliverToBoxAdapter(child: HomeBottomRecommendSection(products: staticData.hotProducts)),
-                  ),
+                    // 底部商品展示区 (推荐青稞粒商品列表，支持滚动加载)
+                    const SliverPadding(
+                      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                      sliver: SliverToBoxAdapter(child: HomeBottomRecommendSection()),
+                    ),
 
-                  const SliverToBoxAdapter(child: SizedBox(height: 15)),
-                ],
+                    const SliverToBoxAdapter(child: SizedBox(height: 15)),
+                  ],
+                ),
               ),
             ),
           ),
