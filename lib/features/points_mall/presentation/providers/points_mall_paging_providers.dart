@@ -39,7 +39,7 @@ final pointsMallProductListProvider = NotifierProvider.autoDispose<PointsMallPro
 final pointsMallHotProductsProvider = FutureProvider<List<PointsProduct>>((ref) async {
   final repository = ref.read(pointsRepositoryProvider);
   try {
-    final response = await repository.getCreditMallHotProducts();
+    final response = await repository.getRecommendProductList(positionCode: 'APP_CREDITMALL');
     if (response.success && response.data != null && response.data!.isNotEmpty) {
       return response.data!.map((item) {
         return PointsProduct(

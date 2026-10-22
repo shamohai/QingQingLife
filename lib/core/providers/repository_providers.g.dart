@@ -375,16 +375,16 @@ String _$memberSignInRepositoryHash() =>
 
 /// Points Repository Provider
 ///
-/// 全量使用 Mock 数据源，其中 getCreditMallHotProducts 会自动注入 apiClient
-/// 以调用真实推荐位接口（positioncode=CREDITMALL）。
+/// 全量使用 Mock 数据源，其中 getRecommendProductList 会自动注入 apiClient
+/// 以调用真实推荐位接口（positioncode 由调用方指定）。
 
 @ProviderFor(pointsRepository)
 final pointsRepositoryProvider = PointsRepositoryProvider._();
 
 /// Points Repository Provider
 ///
-/// 全量使用 Mock 数据源，其中 getCreditMallHotProducts 会自动注入 apiClient
-/// 以调用真实推荐位接口（positioncode=CREDITMALL）。
+/// 全量使用 Mock 数据源，其中 getRecommendProductList 会自动注入 apiClient
+/// 以调用真实推荐位接口（positioncode 由调用方指定）。
 
 final class PointsRepositoryProvider
     extends
@@ -396,8 +396,8 @@ final class PointsRepositoryProvider
     with $Provider<PointsRepository> {
   /// Points Repository Provider
   ///
-  /// 全量使用 Mock 数据源，其中 getCreditMallHotProducts 会自动注入 apiClient
-  /// 以调用真实推荐位接口（positioncode=CREDITMALL）。
+  /// 全量使用 Mock 数据源，其中 getRecommendProductList 会自动注入 apiClient
+  /// 以调用真实推荐位接口（positioncode 由调用方指定）。
   PointsRepositoryProvider._()
     : super(
         from: null,
@@ -485,3 +485,4 @@ final class NotificationRepositoryProvider
 
 String _$notificationRepositoryHash() =>
     r'0ea9f8b5fc10ccffe645cb3857eb4cdac3c4d4b0';
+

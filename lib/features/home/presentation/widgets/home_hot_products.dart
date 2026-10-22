@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
-import '../../../product/domain/repositories/product_repository.dart';
+import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
 import '../../../../core/presentation/paging/paging_list_view.dart';
 import '../providers/home_paging_providers.dart';
-import 'home_product_card.dart';
+import 'home_credit_product_card.dart';
 
 /// 热卖商品横向滚动列表（白色卡片容器）
 /// 设计稿：白色卡片，"热卖商品" 标题 + "查看全部"，横向滚动 112x112 图片
@@ -48,30 +48,30 @@ class HomeHotProducts extends ConsumerWidget {
                   Text('热卖商品', style: AppTextStyles.headlineSmall),
                 ],
               ),
-              GestureDetector(
-                onTap: () {
-                  final pagingData = ref.read(homeHotProductsProvider);
-                  if (!pagingData.isLoading && pagingData.hasMore) {
-                    ref.read(homeHotProductsProvider.notifier).loadMore();
-                  }
-                },
-                child: const Text(
-                  '查看全部>>>',
-                  style: TextStyle(
-                    color: Color(0xFF8E8E93), // #ff8e8e93 文字颜色
-                    fontSize: 9, // 9sp 文字大小
-                  ),
-                ),
-              ),
+              // GestureDetector(
+              //   onTap: () {
+              //     final pagingData = ref.read(homeHotProductsProvider);
+              //     if (!pagingData.isLoading && pagingData.hasMore) {
+              //       ref.read(homeHotProductsProvider.notifier).loadMore();
+              //     }
+              //   },
+              //   child: const Text(
+              //     '查看全部>>>',
+              //     style: TextStyle(
+              //       color: Color(0xFF8E8E93), // #ff8e8e93 文字颜色
+              //       fontSize: 9, // 9sp 文字大小
+              //     ),
+              //   ),
+              // ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
             height: 190,
-            child: PagingListView<ProductCard>(
+            child: PagingListView<CreditMallProduct>(
               provider: homeHotProductsProvider,
               scrollDirection: Axis.horizontal,
-              itemBuilder: (context, product, index) => HomeProductCard(product: product, compact: true),
+              itemBuilder: (context, product, index) => HomeCreditProductCard(product: product),
               shrinkWrap: true,
               physics: const BouncingScrollPhysics(),
               separatorBuilder: const SizedBox(width: AppSpacing.sm),

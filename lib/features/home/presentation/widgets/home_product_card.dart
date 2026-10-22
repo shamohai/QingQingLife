@@ -76,7 +76,7 @@ class HomeProductCard extends StatelessWidget {
                   children: [
                     Text(Money.fromCents(product.priceCents).format(), style: AppTextStyles.priceSmall.copyWith(fontSize: 13, fontWeight: FontWeight.bold)),
                     Text(
-                      product.originalPriceCents != null ? Money.fromCents(product.originalPriceCents!).format() : '¥940',
+                      product.originalPriceCents != null ? Money.fromCents(product.originalPriceCents!).format() : '¥0',
                       style: const TextStyle(
                         fontSize: 9,
                         color: Color(0xFF8E8E93), // #ff8e8e93 市场价颜色

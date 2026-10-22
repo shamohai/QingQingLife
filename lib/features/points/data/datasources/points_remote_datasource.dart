@@ -19,12 +19,12 @@ class PointsRemoteDataSource implements PointsRepository {
 
   PointsRemoteDataSource({required this._apiClient});
 
-  // ── 积分商城热门兑换商品（推荐位：CREDITMALL）───────────────────────────
+  // ── 推荐商品列表（推荐位接口）───────────────────────────────────────────
   @override
-  Future<ApiResponse<List<CreditMallProduct>>> getCreditMallHotProducts() async {
+  Future<ApiResponse<List<CreditMallProduct>>> getRecommendProductList({required String positionCode}) async {
     final response = await _apiClient.post<List<CreditMallProduct>>(
       '/api/product/getrecommendproductlist',
-      data: <String, dynamic>{'positioncode': 'APP_CREDITMALL', 'topn': 20},
+      data: <String, dynamic>{'positioncode': positionCode, 'topn': 20},
       fromJson: (dynamic json) {
         final map = json as Map<String, dynamic>;
         final productsJson = map['products'] as List<dynamic>? ?? [];

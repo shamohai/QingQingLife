@@ -40,8 +40,9 @@ abstract class PointsRepository {
   /// 获取积分规则
   Future<ApiResponse<String>> getPointsRule();
 
-  /// 获取积分商城热门兑换商品列表（来自推荐位接口，positioncode=CREDITMALL）
-  Future<ApiResponse<List<CreditMallProduct>>> getCreditMallHotProducts();
+  /// 获取推荐商品列表（推荐位接口，positioncode 区分不同位置）
+  /// 接口：POST /api/product/getrecommendproductlist
+  Future<ApiResponse<List<CreditMallProduct>>> getRecommendProductList({required String positionCode});
 
   /// 获取积分商城商品分类列表
   /// 接口：POST /api/product/app/getcreditproductcategory

@@ -441,16 +441,16 @@ class MockPointsDataSource implements PointsRepository {
     },
   ];
 
-  /// 获取积分商城热门兑换商品列表（来自推荐位接口 positioncode=CREDITMALL）
+  /// 获取推荐商品列表（推荐位接口）
   ///
   /// 通过 ApiClient 直接调用真实 API；未传入时返回空列表。
   @override
-  Future<ApiResponse<List<CreditMallProduct>>> getCreditMallHotProducts() async {
+  Future<ApiResponse<List<CreditMallProduct>>> getRecommendProductList({required String positionCode}) async {
     final client = apiClient;
     if (client == null) return ApiResponse.success([]);
     final response = await client.post<List<CreditMallProduct>>(
       '/api/product/getrecommendproductlist',
-      data: {'positioncode': 'APP_CREDITMALL', 'topn': 20},
+      data: {'positioncode': positionCode, 'topn': 20},
       fromJson: (dynamic json) {
         final map = json as Map<String, dynamic>;
         final productsJson = map['products'] as List<dynamic>? ?? [];
@@ -549,5 +549,5 @@ class MockPointsDataSource implements PointsRepository {
 
 /// Mock Repository Provider - 开发环境使用
 ///
-/// 注入 apiClientProvider 使 getCreditMallHotProducts 可调用真实 API。
+/// 注入 apiClientProvider 使 getRecommendProductList 可调用真实 API。
 final mockPointsRepositoryProvider = Provider<PointsRepository>((ref) => MockPointsDataSource(apiClient: ref.read(apiClientProvider)));

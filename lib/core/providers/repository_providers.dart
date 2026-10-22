@@ -82,8 +82,8 @@ MemberSignInRepository memberSignInRepository(Ref ref) {
 
 /// Points Repository Provider
 ///
-/// 全量使用 Mock 数据源，其中 getCreditMallHotProducts 会自动注入 apiClient
-/// 以调用真实推荐位接口（positioncode=CREDITMALL）。
+/// 全量使用 Mock 数据源，其中 getRecommendProductList 会自动注入 apiClient
+/// 以调用真实推荐位接口（positioncode 由调用方指定）。
 @riverpod
 PointsRepository pointsRepository(Ref ref) {
   return MockPointsDataSource(apiClient: ref.read(apiClientProvider));

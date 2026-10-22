@@ -55,8 +55,8 @@ class CreditMallProduct {
   final String productName;
   final String? productSn;
   final String imgUrl;
-  final int price;
-  final int marketPrice;
+  final double price;
+  final double marketPrice;
   final int creditPrice;
   final int prepaidPrice;
   final String? saleUnit;
@@ -92,8 +92,8 @@ class CreditMallProduct {
       productName: json['productname'] as String? ?? '',
       productSn: json['productsn'] as String?,
       imgUrl: json['imgurl'] as String? ?? '',
-      price: (json['price'] as num?)?.toInt() ?? 0,
-      marketPrice: (json['marketprice'] as num?)?.toInt() ?? 0,
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      marketPrice: (json['marketprice'] as num?)?.toDouble() ?? 0.0,
       creditPrice: (json['creditprice'] as num?)?.toInt() ?? 0,
       prepaidPrice: (json['prepaidprice'] as num?)?.toInt() ?? 0,
       saleUnit: json['saleunit'] as String?,
