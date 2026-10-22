@@ -18,7 +18,7 @@ class ReservationServiceListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final subtitle = item.subtitle.isNotEmpty ? item.subtitle : '即将开放预约';
+    final subtitle = item.subtitle.isNotEmpty ? item.subtitle : '';
     return Row(
       children: [
         // 左侧图片：100x100，圆角 10，cover 裁剪
