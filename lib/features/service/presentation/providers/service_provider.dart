@@ -4,6 +4,7 @@ import '../../domain/models/service_card_data.dart';
 import '../../domain/models/service_record_item.dart';
 import '../../data/datasources/service_remote_datasource.dart';
 import '../../domain/models/share_cart_template_model.dart';
+import '../../domain/models/reservation_service_item.dart';
 
 /// 按当前选中 Tab 过滤的服务列表卡片数据 Provider（静态 mock，待正式 API 对接后替换）
 final serviceCardDataProvider = Provider<List<ServiceCardData>>((ref) {
@@ -19,8 +20,7 @@ final serviceRecordDataProvider = Provider<List<ServiceRecordItem>>((ref) {
 /// 购酒享服务模板列表 Provider（加载真实 API 数据）
 ///
 /// [ServiceRemoteDataSource]（需注入 apiClientProvider）。
-final shareCartTemplateProvider =
-    AsyncNotifierProvider<ShareCartTemplateNotifier, List<ShareCartTemplate>>(() => ShareCartTemplateNotifier());
+final shareCartTemplateProvider = AsyncNotifierProvider<ShareCartTemplateNotifier, List<ShareCartTemplate>>(() => ShareCartTemplateNotifier());
 
 class ShareCartTemplateNotifier extends AsyncNotifier<List<ShareCartTemplate>> {
   @override
@@ -42,3 +42,10 @@ class ServiceTabNotifier extends Notifier<String> {
 
   void update(String tab) => state = tab;
 }
+
+/// 服务预约列表 Provider（加载真实 API 数据）
+final reservationServiceListProvider = FutureProvider<List<ReservationServiceItem>>((ref) async {
+  final dataSource = ref.read(serviceRemoteDataSourceProvider);
+  final response = await dataSource.getReservationServiceList();
+  return response.requireData;
+});

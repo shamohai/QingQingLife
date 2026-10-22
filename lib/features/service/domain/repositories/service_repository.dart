@@ -1,4 +1,5 @@
 ﻿import '../../../../core/network/api_response.dart';
+import '../models/reservation_service_item.dart';
 import '../models/share_cart_template_model.dart';
 import '../models/share_cart_template_detail_model.dart';
 import '../models/share_cart_product_model.dart';
@@ -7,6 +8,9 @@ import '../models/service_submit_order_model.dart';
 
 /// 服务中心仓库接口
 abstract class ServiceRepository {
+  /// 获取服务预约列表
+  Future<ApiResponse<List<ReservationServiceItem>>> getReservationServiceList();
+
   /// 获取购酒享服务模板列表
   Future<ApiResponse<List<ShareCartTemplate>>> getShareCartTemplateList();
 

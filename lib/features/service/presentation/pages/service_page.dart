@@ -9,6 +9,7 @@ import '../../../../core/widgets/app_loading.dart';
 import '../providers/service_provider.dart';
 import '../widgets/service_tab_bar.dart';
 import '../widgets/service_list_item.dart';
+import '../widgets/reservation_service_list_item.dart';
 import '../widgets/service_activity_card_item.dart';
 import '../widgets/service_floating_buttons.dart';
 import '../widgets/share_cart_template_item.dart';
@@ -97,39 +98,47 @@ class ServicePage extends ConsumerWidget {
 
   /// 服务预约列表（第一个 tab）：列表项点击跳转到详情页
   Widget _buildFuwuBody(WidgetRef ref, void Function(String) onItemTap) {
-    final cards = ref.watch(serviceCardDataProvider);
-    return cards.isEmpty
-        ? const SizedBox(height: 200, child: AppEmpty(message: '暂无服务'))
-        : ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            children: [
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 11),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 14, bottom: 14),
-                        child: ServiceListItem(data: cards[0], onBookTap: onItemTap),
+    final asyncList = ref.watch(reservationServiceListProvider);
+
+    return asyncList.when(
+      data: (services) {
+        if (services.isEmpty) {
+          return const SizedBox(height: 200, child: AppEmpty(message: '暂无服务'));
+        }
+        return ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          children: [
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 11),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 14, bottom: 14),
+                      child: ReservationServiceListItem(item: services[0], onBookTap: () => onItemTap(services[0].serviceId.toString())),
+                    ),
+                    for (int i = 1; i < services.length; i++)
+                      Column(
+                        children: [
+                          Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 14, bottom: 14),
+                            child: ReservationServiceListItem(item: services[i], onBookTap: () => onItemTap(services[i].serviceId.toString())),
+                          ),
+                        ],
                       ),
-                      for (int i = 1; i < cards.length; i++)
-                        Column(
-                          children: [
-                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 14, bottom: 14),
-                              child: ServiceListItem(data: cards[i], onBookTap: onItemTap),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
-            ],
-          );
+            ),
+          ],
+        );
+      },
+      loading: () => const AppLoading(),
+      error: (_, _) => const SizedBox(height: 200, child: AppEmpty(message: '加载失败，请重试')),
+    );
   }
 
   /// 挚友报名会列表（第二个 tab）：列表项点击跳转到详情页
