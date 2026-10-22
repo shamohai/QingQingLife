@@ -41,11 +41,12 @@ class ServicePage extends ConsumerWidget {
                 ServiceTabBar(selectedTab: selectedTab, onTabChanged: (tab) => ref.read(selectedTabProvider.notifier).update(tab)),
                 // 可滚动内容区
                 Expanded(
-                  child: isHuodong
-                      ? _buildHuodongBody(ref, onItemTap)
-                      : selectedTab == 'goujiu'
-                      ? _buildGoujiuBody(context, ref)
-                      : _buildOtherBody(ref, onItemTap),
+                  child: switch (selectedTab) {
+                    'huodong' => _buildHuodongBody(ref, onItemTap),
+                    'goujiu' => _buildGoujiuBody(context, ref),
+                    'zhiyouhui' => _buildZhiyouhuiBody(ref, onItemTap),
+                    _ => _buildFuwuBody(ref, onItemTap),
+                  },
                 ),
               ],
             ),
@@ -95,10 +96,48 @@ class ServicePage extends ConsumerWidget {
   }
 
   /// 服务预约列表（第一个 tab）：列表项点击跳转到详情页
-  Widget _buildOtherBody(WidgetRef ref, void Function(String) onItemTap) {
+  Widget _buildFuwuBody(WidgetRef ref, void Function(String) onItemTap) {
     final cards = ref.watch(serviceCardDataProvider);
     return cards.isEmpty
         ? const SizedBox(height: 200, child: AppEmpty(message: '暂无服务'))
+        : ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            children: [
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 11),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 14, bottom: 14),
+                        child: ServiceListItem(data: cards[0], onBookTap: onItemTap),
+                      ),
+                      for (int i = 1; i < cards.length; i++)
+                        Column(
+                          children: [
+                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 14, bottom: 14),
+                              child: ServiceListItem(data: cards[i], onBookTap: onItemTap),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+  }
+
+  /// 挚友报名会列表（第二个 tab）：列表项点击跳转到详情页
+  /// 样式与服务预约一致，分离便于后续独立扩展
+  Widget _buildZhiyouhuiBody(WidgetRef ref, void Function(String) onItemTap) {
+    final cards = ref.watch(serviceCardDataProvider);
+    return cards.isEmpty
+        ? const SizedBox(height: 200, child: AppEmpty(message: '暂无挚友报名会'))
         : ListView(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             children: [
