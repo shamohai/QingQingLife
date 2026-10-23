@@ -1,5 +1,8 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/coupon_group_model.dart';
+import '../models/service_coupon_model.dart';
 import '../../domain/repositories/member_repository.dart';
 import '../../../../core/network/api_response.dart';
 import '../models/member_authority_model.dart';
@@ -171,6 +174,66 @@ class MockMemberDataSource implements MemberRepository {
         hasMore: false,
       ),
     );
+  }
+
+  @override
+  Future<ApiResponse<CouponGroupListResult>> getCouponGroupList({required CouponGroupStatus status}) async {
+    final coupon = CouponGroupInfo(
+      couponName: '30元无门槛优惠券',
+      couponTypeId: 1,
+      storeId: 0,
+      storeName: '青轻生活',
+      money: Decimal.parse('30.00'),
+      limitLowAmount: Decimal.zero,
+      startTime: DateTime(2026, 10, 10),
+      endTime: DateTime(2027, 10, 10),
+      status: status,
+      available: status == CouponGroupStatus.valid,
+      zjCoupon: true,
+      count: status == CouponGroupStatus.valid ? 10 : 0,
+      canTransfer: status == CouponGroupStatus.valid,
+    );
+    final coupons = status == CouponGroupStatus.transferring ? const <CouponGroupInfo>[] : [coupon];
+    return ApiResponse.success(CouponGroupListResult(coupons: coupons, totalCount: coupons.length));
+  }
+
+  @override
+  Future<ApiResponse<ServiceCouponListResult>> getServiceCouponList({required ServiceCouponStatus status, bool selfSetOnly = false}) async {
+    final coupon = ServiceCouponInfo(
+      couponName: '金牌服务券',
+      couponSn: 'SVC20261010001',
+      money: Decimal.parse('30.00'),
+      num: status == ServiceCouponStatus.valid ? 10 : 0,
+      endTime: DateTime(2027, 10, 10),
+      status: status,
+      canDeliver: true,
+      canTransfer: status == ServiceCouponStatus.valid,
+      userSettlement: true,
+    );
+    final coupons = status == ServiceCouponStatus.transferring ? const <ServiceCouponInfo>[] : [coupon];
+    return ApiResponse.success(ServiceCouponListResult(coupons: coupons));
+  }
+
+  @override
+  Future<ApiResponse<ServiceCouponInfoResult>> refreshServiceCouponInfoV2({required int couponTypeId, required int count, String? preferCouponSn}) async {
+    return ApiResponse.success(
+      ServiceCouponInfoResult(
+        coupon: ServiceCouponInfo(
+          couponName: '金牌服务券',
+          couponSn: preferCouponSn ?? 'SVC20261010001',
+          couponTypeId: couponTypeId,
+          money: Decimal.parse('30.00'),
+          num: count,
+          endTime: DateTime(2027, 10, 10),
+          statusText: '0',
+        ),
+      ),
+    );
+  }
+
+  @override
+  Future<ApiResponse<void>> giveServiceCoupon({required int serviceCouponId, required int count}) async {
+    return ApiResponse.success(null);
   }
 
   @override

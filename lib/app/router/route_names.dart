@@ -36,6 +36,9 @@ abstract final class RouteNames {
   static const String accountDeletion = '/member/personal-info/account-deletion';
   static const String aboutUs = '/member/about-us';
   static const String coupons = '/coupons';
+  static const String couponList = '/coupons/list';
+  static const String serviceCouponList = '/coupons/service';
+  static const String serviceCouponUse = '/coupons/service/use';
   static const String pointsPage = '/points';
   static const String pointsMall = '/points/mall';
 

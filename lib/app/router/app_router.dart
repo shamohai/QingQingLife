@@ -15,6 +15,11 @@ import '../../features/member/presentation/pages/about_us_page.dart';
 import '../../features/member/presentation/pages/account_deletion_page.dart';
 import '../../features/member/presentation/pages/address_list_page.dart';
 import '../../features/member/presentation/pages/address_form_page.dart';
+import '../../features/member/presentation/pages/my_coupons_page.dart';
+import '../../features/member/presentation/pages/coupon_list_page.dart';
+import '../../features/member/presentation/pages/service_coupon_list_page.dart';
+import '../../features/member/presentation/pages/service_coupon_use_page.dart';
+import '../../features/member/data/models/service_coupon_model.dart';
 import '../../features/member/domain/repositories/member_repository.dart';
 import '../../features/notification/presentation/pages/notification_list_page.dart';
 import '../../features/service/presentation/pages/service_page.dart';
@@ -160,6 +165,22 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.aboutUs,
         pageBuilder: (c, s) => const MaterialPage(child: AboutUsPage()),
+      ),
+      GoRoute(
+        path: RouteNames.coupons,
+        pageBuilder: (c, s) => const MaterialPage(child: MyCouponsPage()),
+      ),
+      GoRoute(
+        path: RouteNames.couponList,
+        pageBuilder: (c, s) => const MaterialPage(child: CouponListPage()),
+      ),
+      GoRoute(
+        path: RouteNames.serviceCouponList,
+        pageBuilder: (c, s) => const MaterialPage(child: ServiceCouponListPage()),
+      ),
+      GoRoute(
+        path: RouteNames.serviceCouponUse,
+        pageBuilder: (c, s) => MaterialPage(child: ServiceCouponUsePage(coupon: s.extra as ServiceCouponInfo)),
       ),
       GoRoute(
         path: RouteNames.address,

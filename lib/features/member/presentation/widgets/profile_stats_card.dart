@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../providers/user_profile_provider.dart';
 
@@ -29,7 +31,7 @@ class ProfileStatsCard extends ConsumerWidget {
             children: [
               _StatItem(number: '${state.points}', label: '积分'),
               const _StatDivider(),
-              _StatItem(number: '${state.couponCount}', label: '卡券'),
+              _StatItem(number: '${state.couponCount}', label: '卡券', onTap: () => context.push(RouteNames.coupons)),
               const _StatDivider(),
               _StatItem(number: '${state.tianyoudeValue}', label: '天佑德值', showInfoIcon: true),
             ],
@@ -75,33 +77,38 @@ class _StatItem extends StatelessWidget {
   final String number;
   final String label;
   final bool showInfoIcon;
+  final VoidCallback? onTap;
 
-  const _StatItem({required this.number, required this.label, this.showInfoIcon = false});
+  const _StatItem({required this.number, required this.label, this.showInfoIcon = false, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Column(
-        children: [
-          Text(
-            number,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF1A1D1C), height: 1.15),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Color(0xFF666666)),
-              ),
-              if (showInfoIcon) ...[const SizedBox(width: 2), const Icon(Icons.info_outline, size: 13, color: Color(0xFF999999))],
-            ],
-          ),
-        ],
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Column(
+          children: [
+            Text(
+              number,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF1A1D1C), height: 1.15),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Color(0xFF666666)),
+                ),
+                if (showInfoIcon) ...[const SizedBox(width: 2), const Icon(Icons.info_outline, size: 13, color: Color(0xFF999999))],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
