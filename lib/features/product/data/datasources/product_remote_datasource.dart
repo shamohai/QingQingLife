@@ -10,6 +10,7 @@ import '../../../../core/network/api_response.dart';
 import '../../../../core/network/providers.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../../../home/data/models/carousel_model.dart';
+import '../../../home/data/models/home_info_model.dart';
 
 /// 商品远程数据源
 class ProductRemoteDataSource implements ProductRepository {
@@ -32,11 +33,30 @@ class ProductRemoteDataSource implements ProductRepository {
     return ApiResponse.success(response.data!.banners);
   }
 
-  // ── 以下方法占位，待对应接口就绪后实现 ─────────────────────────────────────
+  // ── 首页 4 个模块接口 (POST /api/common/gethomeinfo) ───────────────────────
 
   @override
   Future<ApiResponse<HomeProductData>> getHomeProductData() async {
-    throw UnimplementedError('getHomeProductData not implemented in ProductRemoteDataSource');
+    final response = await _apiClient.post<HomeInfoModel>(
+      '/api/common/gethomeinfo',
+      fromJson: (dynamic json) => HomeInfoModel.fromJson(json as Map<String, dynamic>),
+    );
+    if (!response.success || response.data == null) {
+      return ApiResponse.error(response.message, code: response.code);
+    }
+    final info = response.data!;
+    final homeData = HomeProductData(
+      banners: const [],
+      kingKongItems: info.toKingKongItems(),
+      newUserGifts: const [],
+      hotProducts: const [],
+      hotSearchKeywords: const [],
+      topicActivities: const {},
+      monthlyBenefits: info.toMonthlyBenefits(),
+      activityBlocks: info.toActivityBlocks(),
+      topicActivityBlocks: info.toTopicActivityBlocks(),
+    );
+    return ApiResponse.success(homeData);
   }
 
   @override

@@ -484,6 +484,8 @@ class MockPointsDataSource implements PointsRepository {
     int? maxIntegral,
     bool? exchangeable,
     int? categoryId,
+    int? sort,
+    bool? asc,
   }) async {
     final client = apiClient;
     if (client != null) {
@@ -496,6 +498,8 @@ class MockPointsDataSource implements PointsRepository {
           'categoryid': categoryId ?? 0,
         };
         if (exchangeable != null) body['exchangeable'] = exchangeable;
+        if (sort != null) body['sort'] = sort;
+        if (asc != null) body['asc'] = asc;
         final response = await client.post<CreditProductListData>(
           '/api/product/getcreditproductlist',
           data: body,

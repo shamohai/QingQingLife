@@ -6,12 +6,23 @@ import '../../../product/domain/repositories/product_repository.dart';
 import '../../../../core/widgets/app_image.dart';
 
 /// 每月权益展示卡片（支持横向滑动，对齐蓝湖设计规范）
-/// 标题行副标题紧跟在标题后，权益图片 quanyi_0 ~ quanyi_5，37x17 #fffb9126 胶囊"领取"按钮
 class HomeMonthlyBenefits extends StatelessWidget {
   final List<HomeMonthlyBenefit> benefits;
+  final Set<String> claimingIds;
+  final int activeUserServiceId; // 当前当月激活的 userServiceId（>0 表示已领取）
+  final bool isReceived; // 是否已最终兑换实物
+  final ValueChanged<HomeMonthlyBenefit>? onImageTap;
   final ValueChanged<HomeMonthlyBenefit>? onClaimTap;
 
-  const HomeMonthlyBenefits({super.key, required this.benefits, this.onClaimTap});
+  const HomeMonthlyBenefits({
+    super.key,
+    required this.benefits,
+    this.claimingIds = const {},
+    this.activeUserServiceId = 0,
+    this.isReceived = false,
+    this.onImageTap,
+    this.onClaimTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +80,21 @@ class HomeMonthlyBenefits extends StatelessWidget {
                 itemCount: benefits.length,
                 separatorBuilder: (context, index) => const SizedBox(width: 12),
                 itemBuilder: (context, index) {
-                  return _BenefitSlot(benefit: benefits[index], index: index, onTap: onClaimTap);
+                  final benefit = benefits[index];
+                  // 判断每个 item 的有效 userServiceId 和 isReceived 状态
+                  final effectiveUserServiceId = activeUserServiceId > 0 ? activeUserServiceId : benefit.userServiceId;
+                  final effectiveIsReceived = isReceived || benefit.isReceived;
+                  final isClaiming = claimingIds.contains(benefit.id);
+
+                  return _BenefitSlot(
+                    benefit: benefit,
+                    index: index,
+                    userServiceId: effectiveUserServiceId,
+                    isReceived: effectiveIsReceived,
+                    isClaiming: isClaiming,
+                    onImageTap: onImageTap,
+                    onClaimTap: onClaimTap,
+                  );
                 },
               ),
             ),
@@ -82,27 +107,65 @@ class HomeMonthlyBenefits extends StatelessWidget {
 class _BenefitSlot extends StatelessWidget {
   final HomeMonthlyBenefit benefit;
   final int index;
-  final ValueChanged<HomeMonthlyBenefit>? onTap;
+  final int userServiceId;
+  final bool isReceived;
+  final bool isClaiming;
+  final ValueChanged<HomeMonthlyBenefit>? onImageTap;
+  final ValueChanged<HomeMonthlyBenefit>? onClaimTap;
 
-  const _BenefitSlot({required this.benefit, required this.index, this.onTap});
+  const _BenefitSlot({
+    required this.benefit,
+    required this.index,
+    required this.userServiceId,
+    required this.isReceived,
+    required this.isClaiming,
+    this.onImageTap,
+    this.onClaimTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // 对应 quanyi_0.png ~ quanyi_5.png 本地资源路径
     final assetPath = 'assets/images/home/quanyi_${index % 6}.png';
     final imageUrl = (benefit.imageUrl != null && benefit.imageUrl!.isNotEmpty) ? benefit.imageUrl! : assetPath;
 
-    return GestureDetector(
-      onTap: () => onTap?.call(benefit),
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        width: 52, // 固定的权益槽宽度
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // 52x52 权益图片
-            SizedBox(
+    // 状态 1: userServiceId <= 0 (当月未领取) -> 按钮"领取"
+    // 状态 2: userServiceId > 0 且 !isReceived (当月已领取未兑换) -> 按钮"去兑换"
+    // 状态 3: userServiceId > 0 且 isReceived (当月已兑换) -> 按钮"已兑换"（不可点击）
+    final isClaimed = userServiceId > 0;
+
+    final String buttonText;
+    final Color buttonBgColor;
+    final bool buttonDisabled;
+
+    if (isClaiming) {
+      buttonText = '处理中';
+      buttonBgColor = const Color(0xFFC9CDD4);
+      buttonDisabled = true;
+    } else if (isClaimed && isReceived) {
+      buttonText = '已兑换';
+      buttonBgColor = const Color(0xFFC9CDD4);
+      buttonDisabled = true;
+    } else if (isClaimed && !isReceived) {
+      buttonText = '去兑换';
+      buttonBgColor = const Color(0xFFFB9126);
+      buttonDisabled = false;
+    } else {
+      buttonText = '领取';
+      buttonBgColor = const Color(0xFFFB9126);
+      buttonDisabled = false;
+    }
+
+    return SizedBox(
+      width: 52,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // 52x52 权益图片
+          GestureDetector(
+            onTap: () => onImageTap?.call(benefit),
+            behavior: HitTestBehavior.opaque,
+            child: SizedBox(
               width: 52,
               height: 52,
               child: ClipRRect(
@@ -125,28 +188,32 @@ class _BenefitSlot extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 6),
-            // 橙色胶囊 "领取" 按钮 (37dp x 17dp, #fffb9126 背景, 9sp 白色字)
-            Container(
+          ),
+          const SizedBox(height: 6),
+          // 胶囊按钮
+          GestureDetector(
+            onTap: buttonDisabled ? null : () => onClaimTap?.call(benefit),
+            behavior: HitTestBehavior.opaque,
+            child: Container(
               width: 37,
               height: 17,
               decoration: BoxDecoration(
-                color: const Color(0xFFFB9126), // #fffb9126 橙色填充
-                borderRadius: BorderRadius.circular(10), // 胶囊圆角
+                color: buttonBgColor,
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  '领取',
-                  style: TextStyle(
-                    fontSize: 9, // 9sp 文字
-                    color: Colors.white, // #ffffffff 白色
+                  buttonText,
+                  style: const TextStyle(
+                    fontSize: 8,
+                    color: Colors.white,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

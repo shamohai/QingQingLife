@@ -16,7 +16,8 @@ String? normalizeImageUrl(String raw) {
   var value = raw.trim();
   if (value.isEmpty) return null;
 
-  value = value.replaceAll('&amp;', '&').replaceAll('\\', '/');
+  // 清理转义符、Lanhu 导出切图中的星号 (*) 及内部空格
+  value = value.replaceAll('&amp;', '&').replaceAll('\\', '/').replaceAll('*', '').replaceAll(' ', '');
   if (value.length >= 2 && ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'")))) {
     value = value.substring(1, value.length - 1).trim();
   }
