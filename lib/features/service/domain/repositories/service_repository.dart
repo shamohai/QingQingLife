@@ -1,5 +1,6 @@
-﻿import '../../../../core/network/api_response.dart';
+import '../../../../core/network/api_response.dart';
 import '../models/reservation_service_item.dart';
+import '../models/reservation_service_detail_model.dart';
 import '../models/share_cart_template_model.dart';
 import '../models/share_cart_template_detail_model.dart';
 import '../models/share_cart_product_model.dart';
@@ -10,6 +11,11 @@ import '../models/service_submit_order_model.dart';
 abstract class ServiceRepository {
   /// 获取服务预约列表
   Future<ApiResponse<List<ReservationServiceItem>>> getReservationServiceList();
+
+  /// 获取预约服务详情（服务中心 - 服务预约 tab 详情页）
+  /// 请求：{serviceid: serviceId}，authtoken 由拦截器自动注入
+  /// 响应：detail / myreservationinfo / calendar
+  Future<ApiResponse<ReservationServiceDetail>> getReservationServiceDetail(int serviceId);
 
   /// 获取购酒享服务模板列表
   Future<ApiResponse<List<ShareCartTemplate>>> getShareCartTemplateList();

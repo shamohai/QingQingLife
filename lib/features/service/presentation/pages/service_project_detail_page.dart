@@ -14,6 +14,7 @@ import '../widgets/friend_detail_info_card.dart';
 import '../widgets/project_detail_bottom_bar.dart';
 import '../widgets/project_detail_hero_image.dart';
 import '../widgets/project_detail_info_card.dart';
+import '../widgets/project_detail_subtle_info_card.dart';
 
 /// 预约项目详情页面
 ///
@@ -96,6 +97,7 @@ class ServiceProjectDetailPage extends ConsumerWidget {
       return _buildFriendBody(product);
     }
 
+    // 预约项目（服务预约 tab）：hero + info card + subtle info card（副标题/预约须知）
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
@@ -109,6 +111,7 @@ class ServiceProjectDetailPage extends ConsumerWidget {
                   offset: const Offset(0, -50),
                   child: ProjectDetailInfoCard(product: product),
                 ),
+                ProjectDetailSubtleInfoCard(product: product),
               ],
             ),
           ),

@@ -10,6 +10,7 @@ import '../../domain/models/share_cart_product_model.dart';
 import '../../domain/models/share_cart_candidate_model.dart';
 import '../../domain/models/service_submit_order_model.dart';
 import '../../domain/models/reservation_service_item.dart';
+import '../../domain/models/reservation_service_detail_model.dart';
 
 /// 服务中心远程数据源
 class ServiceRemoteDataSource implements ServiceRepository {
@@ -29,6 +30,16 @@ class ServiceRemoteDataSource implements ServiceRepository {
       },
     );
   }
+
+  @override
+  Future<ApiResponse<ReservationServiceDetail>> getReservationServiceDetail(int serviceId) async {
+    return apiClient.post<ReservationServiceDetail>(
+      '/api/sys/app/getreservationservicedetail',
+      data: <String, dynamic>{'serviceid': serviceId},
+      fromJson: (dynamic json) => ReservationServiceDetail.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
 
   Future<ApiResponse<List<ShareCartTemplate>>> getShareCartTemplateList() async {
     return apiClient.post<List<ShareCartTemplate>>(
