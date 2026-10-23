@@ -67,8 +67,14 @@ abstract final class RouteNames {
   // 客服
   static const String customerService = '/customer-service';
 
-  // 预约项目详情
-  static const String serviceProjectDetail = '/service/project/:id';
+  // 预约服务详情（服务预约 tab - 真实 API）
+  static const String reservationServiceDetail = '/service/reservation/:id';
+
+  // 挚友报名会详情（挚友会 tab - Mock）
+  static const String friendDetail = '/service/friend/:id';
+
+  // 活动详情（活动 tab - Mock）
+  static const String activityDetail = '/service/activity/:id';
 
   // 预约项目填写信息
   static const String serviceActivityBookingForm = '/service/activity/:id/book';

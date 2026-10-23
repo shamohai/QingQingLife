@@ -20,7 +20,9 @@ import '../../features/notification/presentation/pages/notification_list_page.da
 import '../../features/service/presentation/pages/service_page.dart';
 import '../../features/service/presentation/pages/service_cart_page.dart';
 import '../../features/service/presentation/pages/service_records_page.dart';
-import '../../features/service/presentation/pages/service_project_detail_page.dart';
+import '../../features/service/presentation/pages/reservation_service_detail_page.dart';
+import '../../features/service/presentation/pages/friend_detail_page.dart';
+import '../../features/service/presentation/pages/activity_detail_page.dart';
 import '../../features/service/presentation/pages/service_booking_form_page.dart';
 import '../../features/service/presentation/pages/service_template_detail_page.dart';
 import '../../features/service/presentation/pages/service_customer_contact_page.dart';
@@ -109,8 +111,16 @@ final appRouter = Provider<GoRouter>((ref) {
                     pageBuilder: (c, s) => MaterialPage(child: ServiceRecordsPage(activeTab: s.uri.queryParameters['activeTab'] ?? 'ongoing')),
                   ),
                   GoRoute(
-                    path: 'project/:id',
-                    pageBuilder: (c, s) => MaterialPage(child: ServiceProjectDetailPage(projectId: s.pathParameters['id']!)),
+                    path: 'reservation/:id',
+                    pageBuilder: (c, s) => MaterialPage(child: ReservationServiceDetailPage(serviceId: s.pathParameters['id']!)),
+                  ),
+                  GoRoute(
+                    path: 'friend/:id',
+                    pageBuilder: (c, s) => MaterialPage(child: FriendDetailPage(projectId: s.pathParameters['id']!)),
+                  ),
+                  GoRoute(
+                    path: 'activity/:id',
+                    pageBuilder: (c, s) => MaterialPage(child: ActivityDetailPage(projectId: s.pathParameters['id']!)),
                   ),
                   GoRoute(
                     name: 'serviceBookingForm',

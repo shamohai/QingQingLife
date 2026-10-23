@@ -25,9 +25,22 @@ class ServicePage extends ConsumerWidget {
     final selectedTab = ref.watch(selectedTabProvider);
     final isHuodong = selectedTab == 'huodong';
 
-    // 列表项点击 → 跳转到详情页 (serviceProjectDetail)
+    // 列表项点击 → 根据当前 Tab 跳转到对应详情页
     void onItemTap(String id) {
-      context.push(RouteNames.serviceProjectDetail.replaceFirst(':id', id));
+      final selectedTab = ref.read(selectedTabProvider);
+      switch (selectedTab) {
+        case 'fuwu':
+          context.push(RouteNames.reservationServiceDetail.replaceFirst(':id', id));
+          break;
+        case 'zhiyouhui':
+          context.push(RouteNames.friendDetail.replaceFirst(':id', id));
+          break;
+        case 'huodong':
+          context.push(RouteNames.activityDetail.replaceFirst(':id', id));
+          break;
+        default:
+          context.push(RouteNames.reservationServiceDetail.replaceFirst(':id', id));
+      }
     }
 
     return Scaffold(
