@@ -121,7 +121,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
         if (timeSlot != null && _availableTimeSlotObjects.isNotEmpty) {
           try {
             final matched = _availableTimeSlotObjects.firstWhere(
-              (s) => s['display'] == timeSlot || s['fullstarttiime'] == timeSlot,
+              (s) => s['timedescr'] == timeSlot || s['fullstarttiime'] == timeSlot,
               orElse: () => <String, dynamic>{},
             );
             if (matched.isNotEmpty) {
@@ -155,9 +155,10 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                     final start = slot['starttime'] as String? ?? '';
                     final end = slot['endtime'] as String? ?? '';
                     final fullStart = slot['fullstarttiime'] as String? ?? '';
+                    final timedescr = slot['timedescr'] as String? ?? '';
                     if (start.isNotEmpty && end.isNotEmpty) {
                       slotObjects.add({
-                        'display': '$start-$end',
+                        'timedescr': timedescr,
                         'starttime': start,
                         'endtime': end,
                         'fullstarttiime': fullStart,
@@ -178,7 +179,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
               final daySlots = slotsMap[dateKey] as List<dynamic>? ?? [];
               for (final slot in daySlots) {
                 if (slot is String) {
-                  slotObjects.add({'display': slot});
+                  slotObjects.add({'timedescr': slot});
                 }
               }
               break;
@@ -191,7 +192,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
             _availableTimeSlotObjects = slotObjects;
             // 如果当前选中的时段不在新列表中，清空选择
             if (_selectedTimeSlotObj != null) {
-              final stillExists = slotObjects.any((s) => s['display'] == _selectedTimeSlotObj!['display']);
+              final stillExists = slotObjects.any((s) => s['timedescr'] == _selectedTimeSlotObj!['timedescr']);
               if (!stillExists) {
                 _selectedTimeSlotObj = null;
               }
@@ -542,7 +543,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                                 imageAsset: 'assets/images/service/service_booking_time.png',
                                 valueWidget: _selectedTimeSlotObj == null
                                     ? _buildValueText('请选择预约时段')
-                                    : _buildValueText(_selectedTimeSlotObj!['display'] as String, Colors.black),
+                                    : _buildValueText(_selectedTimeSlotObj!['timedescr'] as String, Colors.black),
                                 showChevron: !_isAlreadyReserved,
                                 onTap: _isAlreadyReserved ? null : _openTimeSlotPicker,
                               ),
@@ -678,8 +679,8 @@ class _TimeSlotPickerSheet extends StatelessWidget {
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (_, index) {
                 final slot = slots[index];
-                final display = slot['display'] as String? ?? '';
-                final isSelected = current != null && current!['display'] == display;
+                final timedescr = slot['timedescr'] as String? ?? '';
+                final isSelected = current != null && current!['timedescr'] == timedescr;
                 return GestureDetector(
                   onTap: () => Navigator.of(context).pop(slot),
                   child: Container(
@@ -691,7 +692,7 @@ class _TimeSlotPickerSheet extends StatelessWidget {
                       border: Border.all(color: isSelected ? AppColors.serviceTabActive : const Color(0xFFE0E0E0)),
                     ),
                     child: Text(
-                      display,
+                      timedescr,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
