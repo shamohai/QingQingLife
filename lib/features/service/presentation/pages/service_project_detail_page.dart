@@ -7,6 +7,7 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_error.dart';
+import '../../../../app/theme/app_spacing.dart';
 import '../../domain/models/service_project_detail_model.dart';
 import '../../domain/models/reservation_service_detail_model.dart';
 import '../providers/service_project_detail_provider.dart';
@@ -107,7 +108,7 @@ class ServiceProjectDetailPage extends ConsumerWidget {
             width: double.infinity,
             child: Column(
               children: [
-                ProjectDetailHeroImage(heroAsset: spd.heroAsset, horizontalPadding: 14, aspectRatio: 412 / 180),
+                ProjectDetailHeroImage(heroAsset: spd.heroAsset, horizontalPadding: AppSpacing.lg, aspectRatio: 412 / 180),
                 Transform.translate(
                   offset: const Offset(0, -50),
                   child: ProjectDetailInfoCard(product: spd),
@@ -131,7 +132,7 @@ class ServiceProjectDetailPage extends ConsumerWidget {
             width: double.infinity,
             child: Column(
               children: [
-                ProjectDetailHeroImage(heroAsset: detail.headImgUrl, horizontalPadding: 14, aspectRatio: 412 / 180),
+                ProjectDetailHeroImage(heroAsset: detail.headImgUrl, horizontalPadding: AppSpacing.lg, aspectRatio: 412 / 180),
                 Transform.translate(
                   offset: const Offset(0, -50),
                   child: ReservationServiceDetailInfoCard(detail: detail),
@@ -154,7 +155,7 @@ class ServiceProjectDetailPage extends ConsumerWidget {
             width: double.infinity,
             child: Column(
               children: [
-                ProjectDetailHeroImage(heroAsset: product.heroAsset, horizontalPadding: 14, aspectRatio: 412 / 180),
+                ProjectDetailHeroImage(heroAsset: product.heroAsset, horizontalPadding: AppSpacing.lg, aspectRatio: 412 / 180),
                 Transform.translate(
                   offset: const Offset(0, -50),
                   child: FriendDetailInfoCard(project: product),
