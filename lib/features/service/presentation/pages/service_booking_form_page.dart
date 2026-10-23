@@ -37,12 +37,13 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
   bool _isAlreadyReserved = false;
 
   DateTime? _selectedDate;
-  String? _selectedTimeSlot;
+  // 选中的时段对象（包含 starttime, endtime, fullstarttiime）
+    Map<String, dynamic>? _selectedTimeSlotObj;
 
-  // 从 calendar 解析出的可选日期列表
-  List<DateTime> _availableDates = [];
-  // 当前选中日期对应的时段列表
-  List<String> _availableTimeSlots = [];
+    // 从 calendar 解析出的可选日期列表
+    List<DateTime> _availableDates = [];
+    // 当前选中日期对应的时段列表（完整对象）
+    List<Map<String, dynamic>> _availableTimeSlotObjects = [];
 
   @override
   void initState() {
@@ -57,34 +58,29 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
     _checkAndPopulateReservation();
   }
 
-  /// 解析 calendar 数据，提取可选日期
-  void _parseCalendar() {
-    final calendar = widget.detail.calendar;
-    if (calendar == null) return;
+  /// 解析 calendar 数据，提取可选日期和时段
+    /// calendar 结构：List<{date: String, timeslots: List<{starttime, endtime, fullstarttiime}>>}
+    void _parseCalendar() {
+      final calendar = widget.detail.calendar;
+      if (calendar == null) return;
 
-    try {
-      // 假设 calendar 是 Map<String, dynamic> 或 List
-      if (calendar is Map) {
-        final dates = calendar['dates'] as List<dynamic>? ?? [];
-        for (final dateStr in dates) {
-          if (dateStr is String) {
-            final parsed = DateTime.tryParse(dateStr);
-            if (parsed != null) _availableDates.add(parsed);
+      try {
+        if (calendar is List) {
+          for (final item in calendar) {
+            if (item is Map) {
+              final dateStr = item['date'] as String?;
+              if (dateStr != null) {
+                final parsed = DateTime.tryParse(dateStr);
+                if (parsed != null) _availableDates.add(parsed);
+              }
+            }
           }
         }
-      } else if (calendar is List) {
-        for (final dateStr in calendar) {
-          if (dateStr is String) {
-            final parsed = DateTime.tryParse(dateStr);
-            if (parsed != null) _availableDates.add(parsed);
-          }
-        }
+        _availableDates.sort((a, b) => a.compareTo(b));
+      } catch (_) {
+        // 解析失败时忽略，使用默认日期选择器
       }
-      _availableDates.sort((a, b) => a.compareTo(b));
-    } catch (_) {
-      // 解析失败时忽略，使用默认日期选择器
     }
-  }
 
   /// 检查是否已报名，如果已报名则填充表单并禁用
   void _checkAndPopulateReservation() {
@@ -104,8 +100,17 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
         _updateTimeSlotsForDate(_selectedDate!);
       }
       final timeSlot = myInfo['timeSlot'] as String?;
-      if (timeSlot != null) {
-        _selectedTimeSlot = timeSlot;
+        if (timeSlot != null && _availableTimeSlotObjects.isNotEmpty) {
+          // 尝试匹配已保存的时段
+          try {
+            final matched = _availableTimeSlotObjects.firstWhere(
+              (s) => s['display'] == timeSlot || s['fullstarttiime'] == timeSlot,
+              orElse: () => <String, dynamic>{},
+            );
+            if (matched.isNotEmpty) {
+              _selectedTimeSlotObj = matched;
+            }
+          } catch (_) {}
       }
     }
   }
@@ -113,28 +118,85 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
   /// 根据选中的日期更新可用时段列表
   void _updateTimeSlotsForDate(DateTime date) {
     final calendar = widget.detail.calendar;
-    if (calendar == null) return;
-
-    try {
-      final dateKey = DateFormat('yyyy-MM-dd').format(date);
-      List<String> slots = [];
-
-      if (calendar is Map) {
-        final slotsMap = calendar['slots'] as Map<String, dynamic>? ?? {};
-        slots = (slotsMap[dateKey] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+      if (calendar == null) {
+        debugPrint('Calendar is null');
+        return;
       }
 
-      if (mounted) {
-        setState(() {
-          _availableTimeSlots = slots;
-          // 如果当前选中的时段不在新列表中，清空选择
-          if (_selectedTimeSlot != null && !slots.contains(_selectedTimeSlot)) {
-            _selectedTimeSlot = null;
+      debugPrint('Calendar data: $calendar');
+      debugPrint('Calendar type: ${calendar.runtimeType}');
+
+      try {
+        final dateKey = DateFormat('yyyy-MM-dd').format(date);
+        debugPrint('Looking for dateKey: $dateKey');
+        List<Map<String, dynamic>> slotObjects = [];
+
+        if (calendar is List) {
+          debugPrint('Calendar is List with ${calendar.length} items');
+          for (final item in calendar) {
+            debugPrint('Item: $item, type: ${item.runtimeType}');
+            if (item is Map) {
+              final itemDate = item['date'] as String?;
+              debugPrint('Item date: $itemDate');
+              if (itemDate == dateKey) {
+                debugPrint('Date matched!');
+                final timeslots = item['timeslots'] as List<dynamic>? ?? [];
+                debugPrint('Timeslots: $timeslots');
+                for (final slot in timeslots) {
+                  if (slot is Map) {
+                    final start = slot['starttime'] as String? ?? '';
+                    final end = slot['endtime'] as String? ?? '';
+                    final fullStart = slot['fullstarttiime'] as String? ?? '';
+                    debugPrint('Slot: start=$start, end=$end, fullStart=$fullStart');
+                    if (start.isNotEmpty && end.isNotEmpty) {
+                      slotObjects.add({
+                        'display': '$start-$end',
+                        'starttime': start,
+                        'endtime': end,
+                        'fullstarttiime': fullStart,
+                      });
+                    }
+                  }
+                }
+                break; // 找到匹配日期后停止
+              }
+            }
           }
-        });
+        } else if (calendar is Map) {
+          debugPrint('Calendar is Map');
+          // 兼容 Map 格式
+          final dates = calendar['dates'] as List<dynamic>? ?? [];
+          for (final dateStr in dates) {
+            if (dateStr == dateKey) {
+              final slotsMap = calendar['slots'] as Map<String, dynamic>? ?? {};
+              final daySlots = slotsMap[dateKey] as List<dynamic>? ?? [];
+              for (final slot in daySlots) {
+                if (slot is String) {
+                  slotObjects.add({'display': slot});
+                }
+              }
+              break;
+            }
+          }
+        }
+
+        debugPrint('Final slotObjects: $slotObjects');
+        if (mounted) {
+          setState(() {
+            _availableTimeSlotObjects = slotObjects;
+            // 如果当前选中的时段不在新列表中，清空选择
+            if (_selectedTimeSlotObj != null) {
+              final stillExists = slotObjects.any((s) => s['display'] == _selectedTimeSlotObj!['display']);
+              if (!stillExists) {
+                _selectedTimeSlotObj = null;
+              }
+            }
+          });
+        }
+      } catch (e, st) {
+        debugPrint('Error parsing calendar: $e\n$st');
       }
-    } catch (_) {}
-  }
+    }
 
   @override
   void dispose() {
@@ -211,7 +273,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
     if (picked != null && mounted) {
       setState(() {
         _selectedDate = picked;
-        _selectedTimeSlot = null; // 切换日期时清空时段选择
+            _selectedTimeSlotObj = null; // 切换日期时清空时段选择
       });
       _updateTimeSlotsForDate(picked);
     }
@@ -223,18 +285,18 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
       _showError('请先选择预约日期');
       return;
     }
-    if (_availableTimeSlots.isEmpty) {
+      if (_availableTimeSlotObjects.isEmpty) {
       _showError('该日期暂无可用时段');
       return;
     }
 
-    final picked = await showModalBottomSheet<String>(
+      final picked = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
-      builder: (ctx) => _TimeSlotPickerSheet(slots: _availableTimeSlots, current: _selectedTimeSlot),
+        builder: (ctx) => _TimeSlotPickerSheet(slots: _availableTimeSlotObjects, current: _selectedTimeSlotObj),
     );
 
     if (picked != null && mounted) {
-      setState(() => _selectedTimeSlot = picked);
+        setState(() => _selectedTimeSlotObj = picked);
     }
   }
 
@@ -265,26 +327,25 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
       _showError('请选择预约日期');
       return;
     }
-    if (_selectedTimeSlot == null) {
+        if (_selectedTimeSlotObj == null) {
       _showError('请选择预约时段');
       return;
     }
 
     if (!mounted) return;
-    setState(() => _isSubmitting = true);
+        setState(() => _isSubmitting = true);
 
-    // reservationdatetime: 日期 + 时段拼接，格式 yyyy-MM-dd HH:mm
-    final dateOnly = DateFormat('yyyy-MM-dd').format(_selectedDate!);
-    final timeSlot = _selectedTimeSlot ?? '';
-    final reservationDateTime = timeSlot.isNotEmpty ? '$dateOnly $timeSlot' : dateOnly;
+        // reservationdatetime: 使用 fullstarttiime
+        final fullStartTime = _selectedTimeSlotObj?['fullstarttiime'] as String? ?? '';
+        final reservationDateTime = fullStartTime.isNotEmpty ? fullStartTime : DateFormat('yyyy-MM-dd').format(_selectedDate!);
 
-    try {
-      final dataSource = ref.read(serviceRemoteDataSourceProvider);
-      final response = await dataSource.submitReservation(
-        serviceId: widget.detail.serviceId,
-        contactName: _nameCtrl.text.trim(),
-        contactPhoneNumber: _phoneCtrl.text.trim(),
-        reservationDateTime: reservationDateTime,
+        try {
+          final dataSource = ref.read(serviceRemoteDataSourceProvider);
+          final response = await dataSource.submitReservation(
+            serviceId: widget.detail.serviceId,
+            contactName: _nameCtrl.text.trim(),
+            contactPhoneNumber: _phoneCtrl.text.trim(),
+            reservationDateTime: reservationDateTime,
         idNo: _idCtrl.text.trim(),
         userCount: int.parse(_partyCtrl.text.trim()),
         remark: _notesCtrl.text.trim(),
@@ -473,7 +534,9 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                               BookingFormField(
                                 label: '预约时段',
                                 imageAsset: 'assets/images/service/service_booking_time.png',
-                                valueWidget: _selectedTimeSlot == null ? _buildValueText('请选择预约时段') : _buildValueText(_selectedTimeSlot!, Colors.black),
+                                valueWidget: _selectedTimeSlotObj == null
+                                    ? _buildValueText('请选择预约时段')
+                                    : _buildValueText(_selectedTimeSlotObj!['display'] as String, Colors.black),
                                 showChevron: !_isAlreadyReserved,
                                 onTap: _isAlreadyReserved ? null : _openTimeSlotPicker,
                               ),
@@ -570,8 +633,8 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
 
 /// 时段选择底部弹窗
 class _TimeSlotPickerSheet extends StatelessWidget {
-  final List<String> slots;
-  final String? current;
+  final List<Map<String, dynamic>> slots;
+  final Map<String, dynamic>? current;
 
   const _TimeSlotPickerSheet({required this.slots, this.current});
 
@@ -605,7 +668,8 @@ class _TimeSlotPickerSheet extends StatelessWidget {
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (_, index) {
                 final slot = slots[index];
-                final isSelected = slot == current;
+                final display = slot['display'] as String? ?? '';
+                final isSelected = current != null && current!['display'] == display;
                 return GestureDetector(
                   onTap: () => Navigator.of(context).pop(slot),
                   child: Container(
@@ -617,7 +681,7 @@ class _TimeSlotPickerSheet extends StatelessWidget {
                       border: Border.all(color: isSelected ? AppColors.serviceTabActive : const Color(0xFFE0E0E0)),
                     ),
                     child: Text(
-                      slot,
+                      display,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,

@@ -51,7 +51,8 @@ class ReservationServiceDetail {
   factory ReservationServiceDetail.fromJson(Map<String, dynamic> json) {
     final detail = json['detail'] as Map<String, dynamic>? ?? const <String, dynamic>{};
     final myReservationInfo = json['myreservationinfo'] as Map<String, dynamic>?;
-    final calendar = json['calendar'];
+    // calendar 在 detail 对象中
+    final calendar = detail['calendar'];
 
     return ReservationServiceDetail(
       serviceId: (detail['serviceid'] as num?)?.toInt() ?? 0,
