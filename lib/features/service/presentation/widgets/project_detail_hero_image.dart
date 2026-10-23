@@ -9,6 +9,7 @@ import '../../../../core/widgets/app_image.dart';
 /// 支持本地 asset 和网络 URL 两种来源：
 /// - 以 http 开头的 [heroAsset] 视为网络图片，使用 AppNetworkImage
 /// - 否则视为本地 asset，使用 Image.asset
+/// - 空字符串时显示占位图
 ///
 /// 尺寸固定 height=242（marginTop 13 + 图片 180 + 底部 padding 49），
 /// 图片宽全屏减去左右各 14dp，高 180dp，cover 填充。
@@ -26,7 +27,10 @@ class ProjectDetailHeroImage extends StatelessWidget {
     final double? effectiveAspectRatio = aspectRatio;
     Widget imageWidget;
 
-    if (_isNetworkUrl) {
+    if (heroAsset.isEmpty) {
+        // 空 URL 时使用默认占位图
+        imageWidget = Image.asset('assets/images/service/service_project_hero.png', width: double.infinity, fit: BoxFit.cover);
+      } else if (_isNetworkUrl) {
       imageWidget = AppNetworkImage(
         url: heroAsset,
         width: double.infinity,
