@@ -350,7 +350,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                 width: double.infinity,
                 child: Column(
                   children: [
-                    // 头图：使用 detail.headImgUrl
+                    // 头图：使用 detail.headImgUrl，为空时用默认图
                     SizedBox(
                       width: double.infinity,
                       child: Padding(
@@ -360,10 +360,10 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                           child: AspectRatio(
                             aspectRatio: 412 / 180,
                             child: headImgUrl.startsWith('http')
-                                ? Image.network(headImgUrl, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _placeholderImage())
+                                                    ? Image.network(headImgUrl, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _defaultHeroImage())
                                 : headImgUrl.isNotEmpty
-                                ? Image.asset(headImgUrl, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _placeholderImage())
-                                : _placeholderImage(),
+                                                    ? Image.asset(headImgUrl, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _defaultHeroImage())
+                                                    : _defaultHeroImage(),
                           ),
                         ),
                       ),
@@ -543,13 +543,9 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
     );
   }
 
-  Widget _placeholderImage() {
-    return Container(
-      width: double.infinity,
-      color: const Color(0xFFF3F5F7),
-      child: const Center(child: Icon(Icons.image, size: 48, color: Color(0xFFCCCCCC))),
-    );
-  }
+  Widget _defaultHeroImage() {
+      return Image.asset('assets/images/service/service_project_hero.png', width: double.infinity, fit: BoxFit.cover);
+    }
 }
 
 /// 时段选择底部弹窗
