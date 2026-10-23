@@ -8,6 +8,7 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/router/route_names.dart';
 import '../../domain/models/reservation_service_detail_model.dart';
 import '../../data/datasources/service_remote_datasource.dart';
 import '../widgets/booking_form_field.dart';
@@ -343,19 +344,36 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
         remark: _notesCtrl.text.trim(),
       );
       response.requireData;
-    } catch (_) {
+
       if (!mounted) return;
       setState(() => _isSubmitting = false);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('报名信息已提交'), behavior: SnackBarBehavior.floating));
-      context.pop();
-      return;
-    }
 
-    if (!mounted) return;
-    setState(() => _isSubmitting = false);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('报名信息已提交'), behavior: SnackBarBehavior.floating));
-    context.pop();
-  }
+          // 显示成功弹窗，点击确定跳转到服务预约列表页
+          await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: const Text('报名成功', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+              content: const Text('您的报名信息已提交成功', style: TextStyle(fontSize: 14, color: Color(0xFF333333))),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop(); // 关闭弹窗
+                    // 跳转到服务预约列表页 (fuwu tab)
+                    context.go(RouteNames.service);
+                  },
+                  child: const Text('确定', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceTabActive)),
+                ),
+              ],
+            ),
+          );
+        } catch (_) {
+          if (!mounted) return;
+          setState(() => _isSubmitting = false);
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('提交失败，请稍后重试'), behavior: SnackBarBehavior.floating));
+        }
+      }
 
   // ─── UI ──────────────────────────────────────────────────────────────
 
