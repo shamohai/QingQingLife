@@ -56,7 +56,11 @@ abstract final class AppColors {
   static const Color serviceCtaGradStart = Color(0xFF3152AF);
   // serviceCtaGradEnd 与 serviceTabActive (#213775) 相同，可直接复用
 
-  // ── 覆盖层
+    // ── 禁用态按钮色 ──
+    static const Color serviceButtonDisabled = Color(0xFFCCCCCC);
+    static const Color serviceButtonDisabledText = Color(0xFF999999);
+
+    // ── 覆盖层
   static const Color overlay = Color(0x1F000000);
   static const Color scrim = Color(0x52000000);
 

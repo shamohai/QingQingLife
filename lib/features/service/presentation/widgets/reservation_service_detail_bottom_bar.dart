@@ -8,7 +8,8 @@ import '../../domain/models/reservation_service_detail_model.dart';
 /// 预约服务详情 — 底部固定操作栏（服务预约 tab 真实 API 数据）
 ///
 /// 固定高度 80dp，白色背景，顶部阴影。
-/// 居中放置深蓝色渐变胶囊按钮，点击跳转到填写信息页（携带 serviceId、serviceName、headImgUrl）。
+/// - myReservationInfo 为 null：显示「立即预约」渐变按钮，可点击跳转报名页
+/// - myReservationInfo 不为 null：显示「已报名」灰色按钮，不可点击
 class ReservationServiceDetailBottomBar extends StatelessWidget {
   final ReservationServiceDetail detail;
 
@@ -18,6 +19,7 @@ class ReservationServiceDetailBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final btnWidth = screenWidth - 60;
+    final hasReserved = detail.myReservationInfo != null;
 
     return Container(
       height: 80,
@@ -30,28 +32,38 @@ class ReservationServiceDetailBottomBar extends StatelessWidget {
         bottom: true,
         child: Center(
           child: GestureDetector(
-            onTap: () {
-              context.pushNamed(
-                'serviceBookingForm',
-                pathParameters: {'id': detail.serviceId.toString()},
-                queryParameters: {'title': detail.serviceName, 'heroAsset': detail.headImgUrl},
-              );
-            },
+            onTap: hasReserved
+                ? null
+                : () {
+                    context.pushNamed(
+                      'serviceBookingForm',
+                      pathParameters: {'id': detail.serviceId.toString()},
+                      extra: detail, // 传递完整的 detail 对象
+                    );
+                  },
             child: Container(
               width: btnWidth,
               height: 51,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRadius.round),
-                gradient: const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [AppColors.serviceCtaGradStart, AppColors.serviceTabActive],
-                ),
+                gradient: hasReserved
+                    ? null
+                    : const LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [AppColors.serviceCtaGradStart, AppColors.serviceTabActive],
+                      ),
+                color: hasReserved ? AppColors.serviceButtonDisabled : null,
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  '立即预约',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white, height: 1.5),
+                  hasReserved ? '已报名' : '立即预约',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: hasReserved ? AppColors.serviceButtonDisabledText : Colors.white,
+                    height: 1.5,
+                  ),
                 ),
               ),
             ),

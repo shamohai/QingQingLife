@@ -8,18 +8,18 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
-import '../../domain/models/service_card_data.dart';
+import '../../domain/models/reservation_service_detail_model.dart';
 import '../widgets/booking_form_field.dart';
 
 /// 预约项目填写信息页面
 ///
 /// 路由: /service/project/:id/book
-/// 进入方式: 从预约项目详情页点击「立即报名」按钮跳转
+/// 进入方式: 从预约项目详情页点击「立即预约/报名」按钮跳转
+/// 接收完整的 ReservationServiceDetail 对象
 class ServiceBookingFormPage extends ConsumerStatefulWidget {
-  final String projectId;
-  final String title;
+  final ReservationServiceDetail detail;
 
-  const ServiceBookingFormPage({super.key, required this.projectId, required this.title});
+  const ServiceBookingFormPage({super.key, required this.detail});
 
   @override
   ConsumerState<ServiceBookingFormPage> createState() => _ServiceBookingFormPageState();
@@ -33,20 +33,15 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
   late final TextEditingController _notesCtrl;
 
   bool _isSubmitting = false;
+  bool _isAlreadyReserved = false;
 
   DateTime? _selectedDate;
-  TimeOfDay? _selectedTime;
+  String? _selectedTimeSlot;
 
-  String get _heroAsset {
-    for (final cards in ServiceCardData.staticListByTab.values) {
-      for (final card in cards) {
-        if (card.id == widget.projectId && card.heroAsset != null) {
-          return card.heroAsset!;
-        }
-      }
-    }
-    return 'assets/images/service/service_project_hero.png';
-  }
+  // 从 calendar 解析出的可选日期列表
+  List<DateTime> _availableDates = [];
+  // 当前选中日期对应的时段列表
+  List<String> _availableTimeSlots = [];
 
   @override
   void initState() {
@@ -56,6 +51,88 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
     _idCtrl = TextEditingController();
     _partyCtrl = TextEditingController();
     _notesCtrl = TextEditingController();
+
+    _parseCalendar();
+    _checkAndPopulateReservation();
+  }
+
+  /// 解析 calendar 数据，提取可选日期
+  void _parseCalendar() {
+    final calendar = widget.detail.calendar;
+    if (calendar == null) return;
+
+    try {
+      // 假设 calendar 是 Map<String, dynamic> 或 List
+      if (calendar is Map) {
+        final dates = calendar['dates'] as List<dynamic>? ?? [];
+        for (final dateStr in dates) {
+          if (dateStr is String) {
+            final parsed = DateTime.tryParse(dateStr);
+            if (parsed != null) _availableDates.add(parsed);
+          }
+        }
+      } else if (calendar is List) {
+        for (final dateStr in calendar) {
+          if (dateStr is String) {
+            final parsed = DateTime.tryParse(dateStr);
+            if (parsed != null) _availableDates.add(parsed);
+          }
+        }
+      }
+      _availableDates.sort((a, b) => a.compareTo(b));
+    } catch (_) {
+      // 解析失败时忽略，使用默认日期选择器
+    }
+  }
+
+  /// 检查是否已报名，如果已报名则填充表单并禁用
+  void _checkAndPopulateReservation() {
+    final myInfo = widget.detail.myReservationInfo;
+    if (myInfo != null) {
+      _isAlreadyReserved = true;
+      _nameCtrl.text = myInfo['contactName'] as String? ?? '';
+      _phoneCtrl.text = myInfo['contactPhone'] as String? ?? '';
+      _idCtrl.text = myInfo['idCard'] as String? ?? '';
+      _partyCtrl.text = (myInfo['partySize'] as num?)?.toString() ?? '';
+      _notesCtrl.text = myInfo['remark'] as String? ?? '';
+
+      // 解析已选日期和时段
+      final dateStr = myInfo['reservationDate'] as String?;
+      if (dateStr != null) {
+        _selectedDate = DateTime.tryParse(dateStr);
+        _updateTimeSlotsForDate(_selectedDate!);
+      }
+      final timeSlot = myInfo['timeSlot'] as String?;
+      if (timeSlot != null) {
+        _selectedTimeSlot = timeSlot;
+      }
+    }
+  }
+
+  /// 根据选中的日期更新可用时段列表
+  void _updateTimeSlotsForDate(DateTime date) {
+    final calendar = widget.detail.calendar;
+    if (calendar == null) return;
+
+    try {
+      final dateKey = DateFormat('yyyy-MM-dd').format(date);
+      List<String> slots = [];
+
+      if (calendar is Map) {
+        final slotsMap = calendar['slots'] as Map<String, dynamic>? ?? {};
+        slots = (slotsMap[dateKey] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [];
+      }
+
+      if (mounted) {
+        setState(() {
+          _availableTimeSlots = slots;
+          // 如果当前选中的时段不在新列表中，清空选择
+          if (_selectedTimeSlot != null && !slots.contains(_selectedTimeSlot)) {
+            _selectedTimeSlot = null;
+          }
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -106,25 +183,63 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
   }
 
   Future<void> _openDatePicker() async {
+    if (_isAlreadyReserved) return;
+
+    DateTime initialDate = _selectedDate ?? DateTime.now();
+    DateTime firstDate = DateTime.now();
+    DateTime lastDate = DateTime.now().add(const Duration(days: 365));
+
+    // 如果有可用日期列表，限制选择范围
+    if (_availableDates.isNotEmpty) {
+      firstDate = _availableDates.first.isAfter(firstDate) ? _availableDates.first : firstDate;
+      lastDate = _availableDates.last.isBefore(lastDate) ? _availableDates.last : lastDate;
+      if (initialDate.isBefore(firstDate)) initialDate = firstDate;
+      if (initialDate.isAfter(lastDate)) initialDate = lastDate;
+    }
+
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      selectableDayPredicate: _availableDates.isNotEmpty
+          ? (day) => _availableDates.any((d) => d.year == day.year && d.month == day.month && d.day == day.day)
+          : null,
     );
+
     if (picked != null && mounted) {
-      setState(() => _selectedDate = picked);
+      setState(() {
+        _selectedDate = picked;
+        _selectedTimeSlot = null; // 切换日期时清空时段选择
+      });
+      _updateTimeSlotsForDate(picked);
     }
   }
 
-  Future<void> _openTimePicker() async {
-    final picked = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+  Future<void> _openTimeSlotPicker() async {
+    if (_isAlreadyReserved) return;
+    if (_selectedDate == null) {
+      _showError('请先选择预约日期');
+      return;
+    }
+    if (_availableTimeSlots.isEmpty) {
+      _showError('该日期暂无可用时段');
+      return;
+    }
+
+    final picked = await showModalBottomSheet<String>(
+      context: context,
+      builder: (ctx) => _TimeSlotPickerSheet(slots: _availableTimeSlots, current: _selectedTimeSlot),
+    );
+
     if (picked != null && mounted) {
-      setState(() => _selectedTime = picked);
+      setState(() => _selectedTimeSlot = picked);
     }
   }
 
   Future<void> _handleSubmit() async {
+    if (_isAlreadyReserved) return;
+
     final nameError = _validateName();
     if (nameError != null) {
       _showError(nameError);
@@ -145,11 +260,23 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
       _showError(partyError);
       return;
     }
+    if (_selectedDate == null) {
+      _showError('请选择预约日期');
+      return;
+    }
+    if (_selectedTimeSlot == null) {
+      _showError('请选择预约时段');
+      return;
+    }
 
     if (!mounted) return;
     setState(() => _isSubmitting = true);
-    // 一期：提交后直接 pop，后续接 API 时替换
+
+    // TODO: 调用真实报名 API
+    // final response = await ref.read(serviceRepositoryProvider).submitReservation(...)
+
     await Future.delayed(const Duration(milliseconds: 300));
+
     if (!mounted) return;
     setState(() => _isSubmitting = false);
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('报名信息已提交'), behavior: SnackBarBehavior.floating));
@@ -165,17 +292,18 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
     );
   }
 
-  Widget _buildTextField(TextEditingController ctrl, {TextInputType? keyboardType, int? maxLength, String? hintText}) {
+  Widget _buildTextField(TextEditingController ctrl, {TextInputType? keyboardType, int? maxLength, String? hintText, bool enabled = true}) {
     return TextField(
       controller: ctrl,
       keyboardType: keyboardType,
       maxLength: maxLength,
+      enabled: enabled,
       inputFormatters: keyboardType == TextInputType.phone
           ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), LengthLimitingTextInputFormatter(maxLength ?? 11)]
           : keyboardType == TextInputType.number
           ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), LengthLimitingTextInputFormatter(maxLength ?? 3)]
           : [],
-      style: const TextStyle(fontSize: 16, color: Colors.black),
+      style: TextStyle(fontSize: 16, color: enabled ? Colors.black : const Color(0xFF8E8E93)),
       decoration: InputDecoration(
         isDense: true,
         counterText: '',
@@ -206,9 +334,12 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
 
   @override
   Widget build(BuildContext context) {
+    final detail = widget.detail;
+    final headImgUrl = detail.headImgUrl;
+
     return Scaffold(
       backgroundColor: AppColors.servicePageBackground,
-      appBar: _buildAppBar(context, title: widget.title),
+      appBar: _buildAppBar(context, title: detail.serviceName),
       body: SafeArea(
         bottom: false,
         child: CustomScrollView(
@@ -219,6 +350,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                 width: double.infinity,
                 child: Column(
                   children: [
+                    // 头图：使用 detail.headImgUrl
                     SizedBox(
                       width: double.infinity,
                       child: Padding(
@@ -227,7 +359,11 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                           borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
                           child: AspectRatio(
                             aspectRatio: 412 / 180,
-                            child: Image.asset(_heroAsset, width: double.infinity, fit: BoxFit.cover),
+                            child: headImgUrl.startsWith('http')
+                                ? Image.network(headImgUrl, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _placeholderImage())
+                                : headImgUrl.isNotEmpty
+                                ? Image.asset(headImgUrl, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _placeholderImage())
+                                : _placeholderImage(),
                           ),
                         ),
                       ),
@@ -247,32 +383,59 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              // 已报名提示
+                              if (_isAlreadyReserved) ...[
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                  decoration: BoxDecoration(color: const Color(0xFFF0F0F0), borderRadius: BorderRadius.circular(8)),
+                                  child: const Text(
+                                    '您已报名该项目，不可重复报名',
+                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF999999)),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+
                               // Field 1: 联系人
                               BookingFormField(
                                 label: '联系人',
                                 imageAsset: 'assets/images/service/service_booking_name.png',
-                                valueWidget: _buildTextField(_nameCtrl, maxLength: 30, hintText: '请输入联系人姓名'),
+                                valueWidget: _buildTextField(_nameCtrl, maxLength: 30, hintText: '请输入联系人姓名', enabled: !_isAlreadyReserved),
                               ),
 
                               // Field 2: 联系电话
                               BookingFormField(
                                 label: '联系电话',
                                 imageAsset: 'assets/images/service/service_booking_phone.png',
-                                valueWidget: _buildTextField(_phoneCtrl, keyboardType: TextInputType.phone, maxLength: 11, hintText: '请输入联系电话'),
+                                valueWidget: _buildTextField(
+                                  _phoneCtrl,
+                                  keyboardType: TextInputType.phone,
+                                  maxLength: 11,
+                                  hintText: '请输入联系电话',
+                                  enabled: !_isAlreadyReserved,
+                                ),
                               ),
 
                               // Field 3: 身份证号码
                               BookingFormField(
                                 label: '身份证号码',
                                 imageAsset: 'assets/images/service/service_booking_idcard.png',
-                                valueWidget: _buildTextField(_idCtrl, maxLength: 18, hintText: '请输入身份证号码'),
+                                valueWidget: _buildTextField(_idCtrl, maxLength: 18, hintText: '请输入身份证号码', enabled: !_isAlreadyReserved),
                               ),
 
                               // Field 4: 预约人数
                               BookingFormField(
                                 label: '预约人数',
                                 imageAsset: 'assets/images/service/service_booking_count.png',
-                                valueWidget: _buildTextField(_partyCtrl, keyboardType: TextInputType.number, maxLength: 3, hintText: '请输入预约人数'),
+                                valueWidget: _buildTextField(
+                                  _partyCtrl,
+                                  keyboardType: TextInputType.number,
+                                  maxLength: 3,
+                                  hintText: '请输入预约人数',
+                                  enabled: !_isAlreadyReserved,
+                                ),
                               ),
 
                               // Field 5: 预约日期
@@ -282,17 +445,17 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                                 valueWidget: _selectedDate == null
                                     ? _buildValueText('请选择预约日期')
                                     : _buildValueText(DateFormat('yyyy-MM-dd').format(_selectedDate!), Colors.black),
-                                showChevron: true,
-                                onTap: _openDatePicker,
+                                showChevron: !_isAlreadyReserved,
+                                onTap: _isAlreadyReserved ? null : _openDatePicker,
                               ),
 
                               // Field 6: 预约时段
                               BookingFormField(
                                 label: '预约时段',
                                 imageAsset: 'assets/images/service/service_booking_time.png',
-                                valueWidget: _selectedTime == null ? _buildValueText('请选择预约时段') : _buildValueText(_selectedTime!.format(context), Colors.black),
-                                showChevron: true,
-                                onTap: _openTimePicker,
+                                valueWidget: _selectedTimeSlot == null ? _buildValueText('请选择预约时段') : _buildValueText(_selectedTimeSlot!, Colors.black),
+                                showChevron: !_isAlreadyReserved,
+                                onTap: _isAlreadyReserved ? null : _openTimeSlotPicker,
                               ),
 
                               const SizedBox(height: 16),
@@ -310,7 +473,8 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                                 child: TextField(
                                   controller: _notesCtrl,
                                   maxLines: 5,
-                                  style: const TextStyle(fontSize: 16, color: Colors.black),
+                                  enabled: !_isAlreadyReserved,
+                                  style: TextStyle(fontSize: 16, color: _isAlreadyReserved ? const Color(0xFF8E8E93) : Colors.black),
                                   decoration: const InputDecoration(
                                     hintText: '请输入备注信息',
                                     hintStyle: TextStyle(fontSize: 16, color: Color(0xFF8E8E93)),
@@ -344,29 +508,114 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
           color: Colors.white,
           padding: const EdgeInsets.fromLTRB(30, AppSpacing.md, 30, AppSpacing.lg),
           child: GestureDetector(
-            onTap: _isSubmitting ? null : _handleSubmit,
+            onTap: (_isSubmitting || _isAlreadyReserved) ? null : _handleSubmit,
             child: Container(
               width: double.infinity,
               height: 51,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRadius.round),
-                gradient: const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [AppColors.serviceCtaGradStart, AppColors.serviceTabActive],
-                ),
+                gradient: _isAlreadyReserved
+                    ? null
+                    : const LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [AppColors.serviceCtaGradStart, AppColors.serviceTabActive],
+                      ),
+                color: _isAlreadyReserved ? AppColors.serviceButtonDisabled : null,
               ),
               child: Center(
                 child: _isSubmitting
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Text(
-                        '提交报名',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white, height: 1.5),
+                    : Text(
+                        _isAlreadyReserved ? '已报名' : '提交报名',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: _isAlreadyReserved ? AppColors.serviceButtonDisabledText : Colors.white,
+                          height: 1.5,
+                        ),
                       ),
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _placeholderImage() {
+    return Container(
+      width: double.infinity,
+      color: const Color(0xFFF3F5F7),
+      child: const Center(child: Icon(Icons.image, size: 48, color: Color(0xFFCCCCCC))),
+    );
+  }
+}
+
+/// 时段选择底部弹窗
+class _TimeSlotPickerSheet extends StatelessWidget {
+  final List<String> slots;
+  final String? current;
+
+  const _TimeSlotPickerSheet({required this.slots, this.current});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(color: const Color(0xFFE0E0E0), borderRadius: BorderRadius.circular(2)),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            '选择预约时段',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
+          ),
+          const SizedBox(height: 16),
+          Flexible(
+            child: ListView.separated(
+              shrinkWrap: true,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              itemCount: slots.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (_, index) {
+                final slot = slots[index];
+                final isSelected = slot == current;
+                return GestureDetector(
+                  onTap: () => Navigator.of(context).pop(slot),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: isSelected ? const Color(0xFFE8EDFF) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: isSelected ? AppColors.serviceTabActive : const Color(0xFFE0E0E0)),
+                    ),
+                    child: Text(
+                      slot,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                        color: isSelected ? AppColors.serviceTabActive : Colors.black,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }
