@@ -104,7 +104,8 @@ class _AllOrdersPageState extends ConsumerState<AllOrdersPage> {
                     ? const SliverToBoxAdapter(child: AppEmpty(message: '暂无订单'))
                     : SliverList.builder(
                         itemCount: state.orders.length,
-                        itemBuilder: (context, index) => OrderCard(item: state.orders[index]),
+                        itemBuilder: (context, index) =>
+                            OrderCard(item: state.orders[index], onCancelOrder: notifier.cancelOrder, onConfirmReceived: notifier.confirmReceived),
                       ),
               ),
               if (state.orders.isNotEmpty)

@@ -34,6 +34,14 @@ class OrderRemoteDataSource {
       fromJson: (dynamic json) => OrderDetailResponse.fromJson(Map<String, dynamic>.from(json as Map)).toDomain(),
     );
   }
+
+  Future<ApiResponse<void>> cancelOrder(String orderId) {
+    return _apiClient.post<void>('/api/order/cancelorder', data: <String, dynamic>{'orderid': int.tryParse(orderId) ?? 0});
+  }
+
+  Future<ApiResponse<void>> confirmReceived(String orderId) {
+    return _apiClient.post<void>('/api/order/orderreceipt', data: <String, dynamic>{'orderid': int.tryParse(orderId) ?? 0});
+  }
 }
 
 final orderRemoteDataSourceProvider = Provider<OrderRemoteDataSource>((ref) => OrderRemoteDataSource(ref.read(apiClientProvider)));
