@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
-import '../../../../app/router/route_names.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -12,7 +10,6 @@ import '../../domain/models/reservation_service_detail_model.dart';
 import '../providers/reservation_service_detail_provider.dart';
 import '../widgets/project_detail_hero_image.dart';
 import '../widgets/reservation_service_detail_info_card.dart';
-import '../widgets/reservation_service_detail_subtle_info_card.dart';
 import '../widgets/reservation_service_detail_bottom_bar.dart';
 
 /// 预约服务详情页面（服务预约 tab - 真实 API 数据）
@@ -34,7 +31,7 @@ class ReservationServiceDetailPage extends ConsumerWidget {
       appBar: detailAsync.when(
         loading: () => _buildAppBar(context),
         error: (_, _) => _buildAppBar(context),
-        data: (detail) => _buildAppBar(context, title: detail.serviceName),
+        data: (detail) => _buildAppBar(context, detail: detail),
       ),
       body: detailAsync.when(
         loading: () => const Center(child: AppLoading()),
@@ -65,7 +62,6 @@ class ReservationServiceDetailPage extends ConsumerWidget {
                   offset: const Offset(0, -50),
                   child: ReservationServiceDetailInfoCard(detail: detail),
                 ),
-                ReservationServiceDetailSubtleInfoCard(detail: detail),
               ],
             ),
           ),
@@ -74,7 +70,8 @@ class ReservationServiceDetailPage extends ConsumerWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context, {String? title}) {
+  PreferredSizeWidget _buildAppBar(BuildContext context, {ReservationServiceDetail? detail}) {
+    final remark = detail?.reservationRemark ?? '';
     return AppBar(
       backgroundColor: AppColors.servicePageBackground,
       elevation: 0,
@@ -85,21 +82,44 @@ class ReservationServiceDetailPage extends ConsumerWidget {
         icon: const Icon(Icons.arrow_back, color: Colors.black),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      title: Text(title ?? '预约项目详情', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: Colors.black)),
+      title: Text(detail?.serviceName ?? '预约项目详情', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: Colors.black)),
       centerTitle: false,
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 14),
           child: TextButton(
-            onPressed: () => context.push(RouteNames.customerService),
+            onPressed: remark.isNotEmpty ? () => _showReservationRemarkDialog(context, remark) : null,
             style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-            child: const Text(
+            child: Text(
               '预约说明',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.serviceProjectBlue),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: remark.isNotEmpty ? AppColors.serviceProjectBlue : AppColors.serviceProjectBlue.withValues(alpha: 0.5),
+              ),
             ),
           ),
         ),
       ],
+    );
+  }
+
+  void _showReservationRemarkDialog(BuildContext context, String remark) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('预约说明', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+        content: SingleChildScrollView(
+          child: Text(remark, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF333333), height: 1.6)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('知道了', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceTabActive)),
+          ),
+        ],
+      ),
     );
   }
 }
