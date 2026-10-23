@@ -1,5 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
+import '../../../../app/config/app_config.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -10,7 +12,7 @@ import '../../domain/models/service_project_detail_model.dart';
 /// 内部布局（Column 流式）：
 ///  - 标题 "项目简介"：24sp/Semibold，padding left=19 top=10
 ///  - 蓝色渐变分割线：94x7，borderRadius=999，margin top=18
-///  - 描述正文：16sp/Regular，lineHeight=1.5，padding left=19 right=19 bottom=107
+///  - 描述正文：富文本（HtmlWidget），height 随内容自动适应
 ///
 /// 卡片四角圆角（AppRadius.md），带轻微阴影。
 class ProjectDetailInfoCard extends StatelessWidget {
@@ -20,6 +22,7 @@ class ProjectDetailInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final description = product.description;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Container(
@@ -58,11 +61,13 @@ class ProjectDetailInfoCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            // 描述正文
-            Text(
-              product.description,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black, height: 1.5),
-            ),
+            // 描述正文：富文本 HTML，使用 HtmlWidget 渲染
+            if (description.isNotEmpty)
+              HtmlWidget(
+                description,
+                baseUrl: Uri.parse(AppConfig.baseUrl),
+                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black, height: 1.5),
+              ),
           ],
         ),
       ),
