@@ -64,6 +64,8 @@ class AllOrdersNotifier extends Notifier<AllOrdersState> {
   ];
   static const pageSize = 20;
   int _requestVersion = 0;
+  final _cancellingOrderIds = <String>{};
+  final _confirmingOrderIds = <String>{};
 
   @override
   AllOrdersState build() => const AllOrdersState();
@@ -92,6 +94,32 @@ class AllOrdersNotifier extends Notifier<AllOrdersState> {
   Future<void> loadMore() {
     if (state.isLoading || state.isLoadingMore || !state.hasMore) return Future.value();
     return _fetch(append: true);
+  }
+
+  Future<void> cancelOrder(String orderId) async {
+    if (orderId.isEmpty || !_cancellingOrderIds.add(orderId)) return;
+    try {
+      final response = await ref.read(orderRepositoryProvider).cancelOrder(orderId, '');
+      if (!response.success) {
+        throw ApiException(code: response.code, message: response.message);
+      }
+      await loadOrders();
+    } finally {
+      _cancellingOrderIds.remove(orderId);
+    }
+  }
+
+  Future<void> confirmReceived(String orderId) async {
+    if (orderId.isEmpty || !_confirmingOrderIds.add(orderId)) return;
+    try {
+      final response = await ref.read(orderRepositoryProvider).confirmReceived(orderId);
+      if (!response.success) {
+        throw ApiException(code: response.code, message: response.message);
+      }
+      await loadOrders();
+    } finally {
+      _confirmingOrderIds.remove(orderId);
+    }
   }
 
   Future<void> _fetch({bool append = false}) async {
