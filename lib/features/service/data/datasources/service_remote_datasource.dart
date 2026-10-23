@@ -40,6 +40,39 @@ class ServiceRemoteDataSource implements ServiceRepository {
     );
   }
 
+  @override
+  Future<ApiResponse<int>> submitReservation({
+    required int serviceId,
+    required String contactName,
+    required String contactPhoneNumber,
+    required String reservationDateTime,
+    required String idNo,
+    required int userCount,
+    required String remark,
+  }) async {
+    return apiClient.post<int>(
+      '/api/sys/app/submitreservation',
+      data: <String, dynamic>{
+        'serviceid': serviceId,
+        'contactname': contactName,
+        'contactphonenumber': contactPhoneNumber,
+        'reservationdatetime': reservationDateTime,
+        'idno': idNo,
+        'usercount': userCount,
+        'remark': remark,
+      },
+      fromJson: (dynamic json) {
+        if (json is num) return json.toInt();
+        if (json is Map) {
+          final rid = json['reservationid'] ?? json['reservationId'];
+          if (rid is num) return rid.toInt();
+          if (rid is String) return int.tryParse(rid) ?? 0;
+        }
+        return 0;
+      },
+    );
+  }
+
 
   Future<ApiResponse<List<ShareCartTemplate>>> getShareCartTemplateList() async {
     return apiClient.post<List<ShareCartTemplate>>(

@@ -17,6 +17,19 @@ abstract class ServiceRepository {
   /// 响应：detail / myreservationinfo / calendar
   Future<ApiResponse<ReservationServiceDetail>> getReservationServiceDetail(int serviceId);
 
+  /// 提交预约报名
+  /// 请求：{serviceid, contactname, contactphonenumber, reservationdatetime, idno, usercount, remark}
+  /// 响应：reservationid
+  Future<ApiResponse<int>> submitReservation({
+    required int serviceId,
+    required String contactName,
+    required String contactPhoneNumber,
+    required String reservationDateTime,
+    required String idNo,
+    required int userCount,
+    required String remark,
+  });
+
   /// 获取购酒享服务模板列表
   Future<ApiResponse<List<ShareCartTemplate>>> getShareCartTemplateList();
 
@@ -24,25 +37,25 @@ abstract class ServiceRepository {
   Future<ApiResponse<ShareCartTemplateDetail>> getShareCartTemplateDetail(int templateId);
 
   /// 创建权益购物车（当 cartId 为空时调用）
-  /// 请求 body：{"templateid": templateId}
-  /// 响应：{"sharecartid": int}
+  /// 请求 body：{templateid: templateId}
+  /// 响应：{sharecartid: int}
   Future<ApiResponse<int>> createShareCart(int templateId);
 
   /// 获取购物车中的商品列表
-  /// 请求 body：{"sharecartid": shareCartId, "listtype": 1}
+  /// 请求 body：{sharecartid: shareCartId, listtype: 1}
   Future<ApiResponse<ShareCartProductList>> getShareCartProductList(int shareCartId);
 
   /// 获取继续加购候选商品列表（支持分页）
-  /// 请求 body：{"sharecartid": shareCartId, "pageindex": pageIndex, "pagesize": pageSize}
+  /// 请求 body：{sharecartid: shareCartId, pageindex: pageIndex, pagesize: pageSize}
   Future<ApiResponse<CandidateProductList>> getCandidateProductList(int shareCartId, int pageIndex, int pageSize);
 
   /// 向权益购物车添加/修改商品数量
-  /// 请求 body：{"sharecartid": shareCartId, "pid": pid, "newcount": newCount, "increment": false}
+  /// 请求 body：{sharecartid: shareCartId, pid: pid, newcount: newCount, increment: false}
   /// 响应包含 cansubmit / verifymsg
   Future<ApiResponse<ShareCartProductList>> addProductToShareCart(int shareCartId, int pid, int newCount);
 
   /// 提交权益团购订单
-  /// 请求 body：{"sharecartid": int, "addressid": int}
+  /// 请求 body：{sharecartid: int, addressid: int}
   /// 响应包含 cansubmit / verifymsg，成功后包含 orderId
   Future<ApiResponse<ServiceSubmitOrderResult>> submitGroupOrder(int shareCartId, int addressId);
 }

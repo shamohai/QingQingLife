@@ -9,6 +9,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../domain/models/reservation_service_detail_model.dart';
+import '../../data/datasources/service_remote_datasource.dart';
 import '../widgets/booking_form_field.dart';
 
 /// 预约项目填写信息页面
@@ -272,10 +273,29 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
     if (!mounted) return;
     setState(() => _isSubmitting = true);
 
-    // TODO: 调用真实报名 API
-    // final response = await ref.read(serviceRepositoryProvider).submitReservation(...)
+    // reservationdatetime: 日期 + 时段拼接，格式 yyyy-MM-dd HH:mm
+    final dateOnly = DateFormat('yyyy-MM-dd').format(_selectedDate!);
+    final timeSlot = _selectedTimeSlot ?? '';
+    final reservationDateTime = timeSlot.isNotEmpty ? '$dateOnly $timeSlot' : dateOnly;
 
-    await Future.delayed(const Duration(milliseconds: 300));
+    try {
+      final dataSource = ref.read(serviceRemoteDataSourceProvider);
+      final response = await dataSource.submitReservation(
+        serviceId: widget.detail.serviceId,
+        contactName: _nameCtrl.text.trim(),
+        contactPhoneNumber: _phoneCtrl.text.trim(),
+        reservationDateTime: reservationDateTime,
+        idNo: _idCtrl.text.trim(),
+        userCount: int.parse(_partyCtrl.text.trim()),
+        remark: _notesCtrl.text.trim(),
+      );
+      response.requireData;
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isSubmitting = false);
+      _showError('提交失败，请稍后重试');
+      return;
+    }
 
     if (!mounted) return;
     setState(() => _isSubmitting = false);
