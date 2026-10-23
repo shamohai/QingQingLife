@@ -4,6 +4,8 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/providers.dart';
 import '../../domain/repositories/member_repository.dart';
+import '../models/coupon_group_model.dart';
+import '../models/service_coupon_model.dart';
 import '../models/member_authority_model.dart';
 import '../models/member_rank_models.dart';
 
@@ -206,6 +208,52 @@ class MemberRemoteDataSource {
       return ApiResponse.success(MemberAuthorityModel.fromJson(response.data!));
     }
     return ApiResponse.error(response.message, code: response.code);
+  }
+
+  /// 获取我的优惠券分组列表。
+  ///
+  /// 接口：POST /api/promotion/getcoupongrouplist
+  /// 请求体：{status, groupid: 0, receivecrmcoupon: false, receivewelfare: false}
+  /// 状态：1 有效 / 2 已使用 / 3 已过期 / 4 转赠中。
+  Future<ApiResponse<CouponGroupListResult>> getCouponGroupList({required CouponGroupStatus status}) async {
+    return _apiClient.post<CouponGroupListResult>(
+      '/api/promotion/getcoupongrouplist',
+      data: <String, dynamic>{'status': status.apiValue, 'groupid': 0, 'receivecrmcoupon': false, 'receivewelfare': false},
+      fromJson: (dynamic json) => CouponGroupListResult.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  /// 获取服务券列表。
+  ///
+  /// 接口：POST /api/promotion/getservicecouponlist
+  /// 请求体：{status, selfsetonly}
+  /// 状态：0 未使用 / 1 已失效 / 2 转赠中。
+  Future<ApiResponse<ServiceCouponListResult>> getServiceCouponList({required ServiceCouponStatus status, bool selfSetOnly = false}) async {
+    return _apiClient.post<ServiceCouponListResult>(
+      '/api/promotion/getservicecouponlist',
+      data: <String, dynamic>{'status': status.apiValue, 'selfsetonly': selfSetOnly},
+      fromJson: (dynamic json) => ServiceCouponListResult.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  /// 刷新服务券兑换信息。
+  ///
+  /// 接口：POST /api/promotion/v2/refreshservicecouponinfov2
+  /// 请求体：{userid: null, coupontypeid, count, perfercouponsn}
+  Future<ApiResponse<ServiceCouponInfoResult>> refreshServiceCouponInfoV2({required int couponTypeId, required int count, String? preferCouponSn}) async {
+    return _apiClient.post<ServiceCouponInfoResult>(
+      '/api/promotion/v2/refreshservicecouponinfov2',
+      data: <String, dynamic>{'userid': null, 'coupontypeid': couponTypeId, 'count': count, 'perfercouponsn': preferCouponSn},
+      fromJson: (dynamic json) => ServiceCouponInfoResult.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  /// 转赠服务券。
+  ///
+  /// 接口：POST /api/promotion/giveservicecoupon
+  /// 请求体：{serviceconponid, count}（字段名按接口文档保留）。
+  Future<ApiResponse<void>> giveServiceCoupon({required int serviceCouponId, required int count}) async {
+    return _apiClient.post<void>('/api/promotion/giveservicecoupon', data: <String, dynamic>{'serviceconponid': serviceCouponId, 'count': count});
   }
 }
 

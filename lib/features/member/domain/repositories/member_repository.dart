@@ -1,4 +1,6 @@
 import '../../data/models/member_authority_model.dart';
+import '../../data/models/coupon_group_model.dart';
+import '../../data/models/service_coupon_model.dart';
 import '../../data/models/member_rank_models.dart';
 import '../../../../core/network/api_response.dart';
 
@@ -32,6 +34,18 @@ abstract class MemberRepository {
 
   /// 获取优惠券列表
   Future<ApiResponse<CouponListResult>> getCoupons({required int page, required int pageSize, CouponStatus? status});
+
+  /// 获取我的优惠券分组列表（真实接口：POST /api/promotion/getcoupongrouplist）
+  Future<ApiResponse<CouponGroupListResult>> getCouponGroupList({required CouponGroupStatus status});
+
+  /// 获取服务券列表（真实接口：POST /api/promotion/getservicecouponlist）
+  Future<ApiResponse<ServiceCouponListResult>> getServiceCouponList({required ServiceCouponStatus status, bool selfSetOnly = false});
+
+  /// 刷新服务券兑换信息（真实接口：POST /api/promotion/v2/refreshservicecouponinfov2）
+  Future<ApiResponse<ServiceCouponInfoResult>> refreshServiceCouponInfoV2({required int couponTypeId, required int count, String? preferCouponSn});
+
+  /// 转赠服务券（真实接口：POST /api/promotion/giveservicecoupon）
+  Future<ApiResponse<void>> giveServiceCoupon({required int serviceCouponId, required int count});
 
   /// 领取优惠券
   Future<ApiResponse<void>> claimCoupon(String couponTemplateId);
