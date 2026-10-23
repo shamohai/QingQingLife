@@ -79,7 +79,7 @@ class ServiceRecordsPage extends ConsumerWidget {
                             itemBuilder: (context, index) =>
                                 ReservationRecordCard(
                                   item: items[index],
-                                  onViewTap: () => context.push('/service/project/${items[index].serviceId}'),
+                                  onViewTap: () => context.push('/service/reservation/${items[index].serviceId}'),
                                 ),
                           ),
                   ),
