@@ -5,6 +5,7 @@ import '../../../points_mall/data/models/service_product_detail_model.dart';
 import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
 import '../../../points_mall/data/models/get_credit_product_list_model.dart';
 import '../../../points_mall/data/models/credit_product_category_model.dart';
+import '../../../points_mall/data/models/pre_credit_order_info_model.dart';
 
 /// 积分商城仓库接口
 abstract class PointsRepository {
@@ -59,6 +60,14 @@ abstract class PointsRepository {
     int? categoryId,
     int? sort,
     bool? asc,
+  });
+
+  /// 获取预下单积分订单信息
+  /// 接口：POST /api/order/dealprecreditorderinfo
+  Future<ApiResponse<PreCreditOrderInfoModel>> getPreCreditOrderInfo({
+    required int userServiceId,
+    required String productId,
+    required int quantity,
   });
 }
 

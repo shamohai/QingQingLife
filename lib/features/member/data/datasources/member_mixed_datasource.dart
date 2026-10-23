@@ -40,7 +40,7 @@ class MemberMixedDataSource implements MemberRepository {
 
   // ── 已对接真实接口：用户收货地址 ───────────────────────────
   @override
-  Future<ApiResponse<List<MemberAddress>>> getAddresses() => remote.getAddresses();
+  Future<ApiResponse<List<MemberAddress>>> getAddresses({int addressId = 0}) => remote.getAddresses(addressId: addressId);
 
   @override
   Future<ApiResponse<MemberAddress>> saveAddress(MemberAddress address) => remote.saveAddress(address);

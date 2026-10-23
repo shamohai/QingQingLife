@@ -10,6 +10,7 @@ import '../../../points_mall/data/models/sign_in_result.dart';
 import '../../../points_mall/data/models/service_product_detail_model.dart';
 import '../../../points_mall/data/models/get_credit_product_list_model.dart';
 import '../../../points_mall/data/models/credit_product_category_model.dart';
+import '../../../points_mall/data/models/pre_credit_order_info_model.dart';
 
 /// 积分商城远程数据源
 ///
@@ -94,6 +95,34 @@ class PointsRemoteDataSource implements PointsRepository {
       '/api/product/getproductinfo',
       data: <String, dynamic>{'pid': int.tryParse(productId) ?? 0},
       fromJson: (dynamic json) => ServiceProductDetail.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  @override
+  Future<ApiResponse<PreCreditOrderInfoModel>> getPreCreditOrderInfo({
+    required int userServiceId,
+    required String productId,
+    required int quantity,
+  }) async {
+    final pid = int.tryParse(productId) ?? 0;
+    return _apiClient.post<PreCreditOrderInfoModel>(
+      '/api/order/dealprecreditorderinfo',
+      data: <String, dynamic>{
+        'userserviceid': userServiceId,
+        'isgiftcard': false,
+        'productlist': [
+          <String, dynamic>{
+            'itemid': pid,
+            'num': quantity,
+          }
+        ],
+      },
+      fromJson: (dynamic json) {
+        if (json is Map<String, dynamic>) {
+          return PreCreditOrderInfoModel.fromJson(json);
+        }
+        return const PreCreditOrderInfoModel(recvrType: RecvrType.none);
+      },
     );
   }
 

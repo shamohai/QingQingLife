@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../product/domain/repositories/product_repository.dart';
-import '../../../../../core/widgets/app_image.dart';
+import '../../data/models/carousel_model.dart';
+import '../../../../core/widgets/app_image.dart';
 
 /// 金刚区：10格图标导航（2行5列），白色卡片容器
 /// 设计稿：66x66 图标 + 14px 黑色文字，16px 水平间距
@@ -38,35 +42,94 @@ class _KingKongItem extends StatelessWidget {
   final HomeKingKongItem item;
   const _KingKongItem({required this.item});
 
+  void _handleTap(BuildContext context) {
+    final actionUrl = item.actionUrl ?? '';
+    switch (item.jumpType) {
+      case JumpType.productDetail:
+        if (actionUrl.isNotEmpty) {
+          context.push(RouteNames.productDetail.replaceFirst(':id', actionUrl));
+        }
+        break;
+      case JumpType.creditMall:
+        context.push(RouteNames.pointsMall);
+        break;
+      case JumpType.cart:
+        context.push(RouteNames.cart);
+        break;
+      case JumpType.orderList:
+        context.push(RouteNames.orders);
+        break;
+      case JumpType.productList:
+      case JumpType.programPage:
+      case JumpType.zjProgramPage:
+      case JumpType.webView:
+        if (actionUrl.isNotEmpty) {
+          if (actionUrl.startsWith('/pages/mall/index') || actionUrl.startsWith('/shop')) {
+            context.go(RouteNames.shop);
+          } else if (actionUrl.startsWith('/points')) {
+            context.go(RouteNames.points);
+          } else if (actionUrl.startsWith('/home')) {
+            context.go(RouteNames.home);
+          } else if (actionUrl.startsWith('/')) {
+            context.push(actionUrl);
+          } else {
+            final uri = Uri.tryParse(actionUrl);
+            if (uri != null) {
+              launchUrl(uri, mode: LaunchMode.externalApplication);
+            }
+          }
+        }
+        break;
+      case JumpType.none:
+      default:
+        if (actionUrl.isNotEmpty) {
+          if (actionUrl.startsWith('/pages/mall/index') || actionUrl.startsWith('/shop')) {
+            context.go(RouteNames.shop);
+          } else if (actionUrl.startsWith('/points')) {
+            context.go(RouteNames.points);
+          } else if (actionUrl.startsWith('/home')) {
+            context.go(RouteNames.home);
+          } else if (actionUrl.startsWith('/')) {
+            context.push(actionUrl);
+          }
+        }
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: 44, // 44x44 图标尺寸，为 5 列网格和文字保留充足空间
-          height: 44,
-          child: item.iconUrl.isNotEmpty
-              ? AppNetworkImage(url: item.iconUrl, fit: BoxFit.contain, memCacheWidth: 88, memCacheHeight: 88)
-              : Container(
-                  decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(AppRadius.md)),
-                  child: const Center(child: Icon(Icons.category_outlined, size: 24, color: Colors.grey)),
-                ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          item.label,
-          style: AppTextStyles.labelSmall.copyWith(
-            fontSize: 12, // 设计稿 12px 标准标签字号
-            color: const Color(0xFF1A1D1C), // 设计稿黑色文字
-            fontWeight: FontWeight.w500,
+    return InkWell(
+      onTap: () => _handleTap(context),
+      borderRadius: BorderRadius.circular(8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 44, // 44x44 图标尺寸，为 5 列网格和文字保留充足空间
+            height: 44,
+            child: item.iconUrl.isNotEmpty
+                ? AppNetworkImage(url: item.iconUrl, fit: BoxFit.contain, memCacheWidth: 88, memCacheHeight: 88)
+                : Container(
+                    decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(AppRadius.md)),
+                    child: const Center(child: Icon(Icons.category_outlined, size: 24, color: Colors.grey)),
+                  ),
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
-        ),
-      ],
+          const SizedBox(height: 4),
+          Text(
+            item.label,
+            style: AppTextStyles.labelSmall.copyWith(
+              fontSize: 12, // 设计稿 12px 标准标签字号
+              color: const Color(0xFF1A1D1C), // 设计稿黑色文字
+              fontWeight: FontWeight.w500,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }

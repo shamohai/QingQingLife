@@ -2,19 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/models/service_product_detail_model.dart';
-import '../providers/confirm_order_provider.dart';
 
 class ConfirmOrderBottomBar extends ConsumerWidget {
   final ServiceProductDetail product;
+  final int quantity;
   final int pointsBalance;
   final VoidCallback onSubmit;
 
-  const ConfirmOrderBottomBar({super.key, required this.product, required this.pointsBalance, required this.onSubmit});
+  const ConfirmOrderBottomBar({
+    super.key,
+    required this.product,
+    required this.quantity,
+    required this.pointsBalance,
+    required this.onSubmit,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final quantity = ref.watch(confirmOrderProvider).quantity;
     final totalPoints = product.points * quantity;
+    final isPointsEnough = pointsBalance >= totalPoints;
+
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
@@ -75,18 +82,25 @@ class ConfirmOrderBottomBar extends ConsumerWidget {
               ),
               const SizedBox(width: 20),
               GestureDetector(
-                onTap: totalPoints > pointsBalance ? null : onSubmit,
-                child: Container(
-                  width: 156,
-                  height: 47,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(999),
-                    gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3152AF), Color(0xFF213775)]),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      '提交订单',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
+                onTap: isPointsEnough ? onSubmit : null,
+                child: Opacity(
+                  opacity: isPointsEnough ? 1.0 : 0.5,
+                  child: Container(
+                    width: 156,
+                    height: 47,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(999),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFF3152AF), Color(0xFF213775)],
+                      ),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        '提交订单',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
+                      ),
                     ),
                   ),
                 ),

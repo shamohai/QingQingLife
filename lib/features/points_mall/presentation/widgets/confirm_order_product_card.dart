@@ -8,17 +8,21 @@ import '../../data/models/service_product_detail_model.dart';
 class ConfirmOrderProductCard extends StatefulWidget {
   final ServiceProductDetail product;
   final int quantity;
+  final bool isQuantityEditable;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
   final ValueChanged<int> onQuantityChanged;
+  final ValueChanged<String>? onNoteChanged;
 
   const ConfirmOrderProductCard({
     super.key,
     required this.product,
     required this.quantity,
+    this.isQuantityEditable = true,
     required this.onIncrement,
     required this.onDecrement,
     required this.onQuantityChanged,
+    this.onNoteChanged,
   });
 
   @override
@@ -27,12 +31,14 @@ class ConfirmOrderProductCard extends StatefulWidget {
 
 class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
   late TextEditingController _qtyController;
+  late TextEditingController _noteController;
   late FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
     _qtyController = TextEditingController(text: '${widget.quantity}');
+    _noteController = TextEditingController();
     _focusNode = FocusNode();
   }
 
@@ -53,16 +59,17 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
   @override
   void dispose() {
     _qtyController.dispose();
+    _noteController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
 
   void _onQuantitySubmitted(String value) {
+    if (!widget.isQuantityEditable) return;
     final newQty = int.tryParse(value);
     if (newQty != null && newQty > 0) {
       widget.onQuantityChanged(newQty);
     } else {
-      // 输入非法时恢复成当前正确数量
       _qtyController.text = '${widget.quantity}';
       _qtyController.selection = TextSelection.collapsed(offset: _qtyController.text.length);
     }
@@ -75,8 +82,7 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
 
     return Container(
       width: cardWidth,
-      // height: 172, // 建议去掉固定高度，让内容自适应
-      margin: const EdgeInsets.only(left: 10, right: 10, top: 0),
+      margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -87,7 +93,6 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 左侧：图片 + 名称 + 标签
                 Expanded(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,7 +133,6 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                // 右侧：积分 + 市场价
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisSize: MainAxisSize.min,
@@ -166,36 +170,42 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    _QtyButton(label: '-', onTap: widget.onDecrement, isMinus: true),
+                    _QtyButton(
+                      label: '-',
+                      onTap: widget.isQuantityEditable ? widget.onDecrement : null,
+                      isMinus: true,
+                      enabled: widget.isQuantityEditable,
+                    ),
                     Container(
                       width: 36,
                       height: 28,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        border: Border.symmetric(horizontal: BorderSide(color: Color(0xFFD9D9D9), width: 1.0)),
+                      decoration: BoxDecoration(
+                        color: widget.isQuantityEditable ? Colors.white : const Color(0xFFF3F5F7),
+                        border: const Border.symmetric(horizontal: BorderSide(color: Color(0xFFD9D9D9), width: 1.0)),
                       ),
                       alignment: Alignment.center,
                       child: TextField(
                         controller: _qtyController,
                         focusNode: _focusNode,
+                        enabled: widget.isQuantityEditable,
                         textAlign: TextAlign.center,
                         textAlignVertical: TextAlignVertical.center,
                         keyboardType: TextInputType.number,
                         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
-                          color: Color(0xFF1F2024),
-                          height: 1.2, // 调整行高以辅助垂直居中
+                          color: widget.isQuantityEditable ? const Color(0xFF1F2024) : const Color(0xFF8E8E97),
+                          height: 1.2,
                         ),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           isDense: true,
-                          isCollapsed: true, // 进一步压缩内部空间
+                          isCollapsed: true,
                           contentPadding: EdgeInsets.zero,
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,
-                          fillColor: Colors.white,
+                          fillColor: widget.isQuantityEditable ? Colors.white : const Color(0xFFF3F5F7),
                           filled: true,
                         ),
                         onSubmitted: _onQuantitySubmitted,
@@ -205,7 +215,12 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
                         },
                       ),
                     ),
-                    _QtyButton(label: '+', onTap: widget.onIncrement, isMinus: false),
+                    _QtyButton(
+                      label: '+',
+                      onTap: widget.isQuantityEditable ? widget.onIncrement : null,
+                      isMinus: false,
+                      enabled: widget.isQuantityEditable,
+                    ),
                   ],
                 ),
 
@@ -220,13 +235,19 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Color(0xFF1F2024)),
                     ),
                     const SizedBox(width: 10),
-                    const Expanded(
-                      child: Text(
-                        '请填写备注信息  >',
+                    Expanded(
+                      child: TextField(
+                        controller: _noteController,
                         textAlign: TextAlign.right,
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97)),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 16, color: Color(0xFF1F2024)),
+                        decoration: const InputDecoration(
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                          border: InputBorder.none,
+                          hintText: '请填写备注信息',
+                          hintStyle: TextStyle(fontSize: 16, color: Color(0xFF8E8E97)),
+                        ),
+                        onChanged: widget.onNoteChanged,
                       ),
                     ),
                   ],
@@ -242,10 +263,16 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
 
 class _QtyButton extends StatelessWidget {
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final bool isMinus;
+  final bool enabled;
 
-  const _QtyButton({required this.label, required this.onTap, this.isMinus = false});
+  const _QtyButton({
+    required this.label,
+    required this.onTap,
+    this.isMinus = false,
+    this.enabled = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -254,20 +281,25 @@ class _QtyButton extends StatelessWidget {
         : const BorderRadius.only(topRight: Radius.circular(8), bottomRight: Radius.circular(8));
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: enabled ? onTap : null,
       behavior: HitTestBehavior.opaque,
       child: Container(
         width: 18,
         height: 28,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: const Color(0xFFF3F5F7),
+          color: enabled ? const Color(0xFFF3F5F7) : const Color(0xFFEBEBEB),
           border: Border.all(color: const Color(0xFFD9D9D9)),
           borderRadius: borderRadius,
         ),
         child: Text(
           label,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w400, color: Color(0xFF000000), height: 1.0),
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w400,
+            color: enabled ? const Color(0xFF000000) : const Color(0xFFA0A0A0),
+            height: 1.0,
+          ),
         ),
       ),
     );

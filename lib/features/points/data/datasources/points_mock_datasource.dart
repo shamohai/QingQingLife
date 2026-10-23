@@ -11,6 +11,8 @@ import '../../../points_mall/data/models/service_product_detail_model.dart';
 import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
 import '../../../points_mall/data/models/get_credit_product_list_model.dart';
 import '../../../points_mall/data/models/credit_product_category_model.dart';
+import '../../../points_mall/data/models/pre_credit_order_info_model.dart';
+import 'points_remote_datasource.dart';
 
 /// Mock 积分商城数据源 - 开发/测试环境使用
 ///
@@ -546,6 +548,27 @@ class MockPointsDataSource implements PointsRepository {
         total: products.length,
         page: page,
         pageSize: pageSize,
+      ),
+    );
+  }
+
+  @override
+  Future<ApiResponse<PreCreditOrderInfoModel>> getPreCreditOrderInfo({
+    required int userServiceId,
+    required String productId,
+    required int quantity,
+  }) async {
+    if (apiClient != null) {
+      final remote = PointsRemoteDataSource(apiClient: apiClient!);
+      return remote.getPreCreditOrderInfo(
+        userServiceId: userServiceId,
+        productId: productId,
+        quantity: quantity,
+      );
+    }
+    return ApiResponse.success(
+      const PreCreditOrderInfoModel(
+        recvrType: RecvrType.shipAddress,
       ),
     );
   }

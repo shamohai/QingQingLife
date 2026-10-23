@@ -2,6 +2,7 @@
 library;
 
 import 'package:qingqinglife/features/product/domain/repositories/product_repository.dart';
+import 'carousel_model.dart';
 
 /// 首页 4 个模块响应聚合模型
 class HomeInfoModel {
@@ -83,12 +84,14 @@ class HomeNavListModel {
   final String title;
   final String iconUrl;
   final String actionUrl;
+  final JumpType jumpType;
 
   const HomeNavListModel({
     required this.id,
     required this.title,
     required this.iconUrl,
     required this.actionUrl,
+    required this.jumpType,
   });
 
   factory HomeNavListModel.fromJson(Map<String, dynamic> json) {
@@ -97,6 +100,7 @@ class HomeNavListModel {
       title: (json['title'] ?? json['name'] ?? json['navname'] ?? json['label'] ?? '').toString(),
       iconUrl: (json['coverurl'] ?? json['imgurl'] ?? json['iconurl'] ?? json['icon'] ?? json['imageurl'] ?? '').toString().replaceAll('&amp;', '&'),
       actionUrl: (json['path'] ?? json['viewurl'] ?? json['actionurl'] ?? json['url'] ?? json['link'] ?? '').toString(),
+      jumpType: JumpType.fromJson(json['jumptype'] ?? json['jump_type']),
     );
   }
 
@@ -105,6 +109,7 @@ class HomeNavListModel {
       iconUrl: iconUrl,
       label: title,
       actionUrl: actionUrl.isNotEmpty ? actionUrl : null,
+      jumpType: jumpType,
     );
   }
 }
@@ -174,6 +179,7 @@ class HomeMonthlyProductModel {
   final String actionUrl;
   final int userServiceId;
   final bool isReceived;
+  final int serviceId;
 
   const HomeMonthlyProductModel({
     required this.id,
@@ -182,6 +188,7 @@ class HomeMonthlyProductModel {
     required this.actionUrl,
     this.userServiceId = 0,
     this.isReceived = false,
+    this.serviceId = 0,
   });
 
   factory HomeMonthlyProductModel.fromJson(
@@ -212,6 +219,7 @@ class HomeMonthlyProductModel {
       actionUrl: (json['path'] ?? json['viewurl'] ?? json['actionurl'] ?? json['url'] ?? '').toString(),
       userServiceId: parsedUserServiceId,
       isReceived: parsedIsReceived,
+      serviceId: parentServiceId ?? 0,
     );
   }
 
@@ -223,6 +231,7 @@ class HomeMonthlyProductModel {
       actionUrl: actionUrl.isNotEmpty ? actionUrl : null,
       userServiceId: userServiceId,
       isReceived: isReceived,
+      serviceId: serviceId,
     );
   }
 }

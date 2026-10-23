@@ -49,7 +49,7 @@ abstract class MemberRepository {
   Future<ApiResponse<StatementResult>> getStatements({required int page, required int pageSize, StatementType? type});
 
   /// 获取收货地址列表
-  Future<ApiResponse<List<MemberAddress>>> getAddresses();
+  Future<ApiResponse<List<MemberAddress>>> getAddresses({int addressId = 0});
 
   /// 新增/编辑收货地址
   Future<ApiResponse<MemberAddress>> saveAddress(MemberAddress address);

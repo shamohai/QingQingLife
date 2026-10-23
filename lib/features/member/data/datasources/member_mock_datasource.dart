@@ -248,7 +248,7 @@ class MockMemberDataSource implements MemberRepository {
   int _addressIdSeq = 3;
 
   @override
-  Future<ApiResponse<List<MemberAddress>>> getAddresses() async {
+  Future<ApiResponse<List<MemberAddress>>> getAddresses({int addressId = 0}) async {
     return ApiResponse.success(List.of(_addresses));
   }
 

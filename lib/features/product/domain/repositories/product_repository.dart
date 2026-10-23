@@ -71,8 +71,14 @@ class HomeKingKongItem {
   final String iconUrl;
   final String label;
   final String? actionUrl;
+  final JumpType jumpType;
 
-  const HomeKingKongItem({required this.iconUrl, required this.label, this.actionUrl});
+  const HomeKingKongItem({
+    required this.iconUrl,
+    required this.label,
+    this.actionUrl,
+    this.jumpType = JumpType.none,
+  });
 }
 
 /// 首页新人礼
@@ -93,6 +99,7 @@ class HomeMonthlyBenefit {
   final String? actionUrl;
   final int userServiceId;
   final bool isReceived;
+  final int serviceId;
 
   const HomeMonthlyBenefit({
     required this.id,
@@ -101,6 +108,7 @@ class HomeMonthlyBenefit {
     this.actionUrl,
     this.userServiceId = 0,
     this.isReceived = false,
+    this.serviceId = 0,
   });
 
   bool get isClaimed => userServiceId > 0;
@@ -112,6 +120,7 @@ class HomeMonthlyBenefit {
     String? actionUrl,
     int? userServiceId,
     bool? isReceived,
+    int? serviceId,
   }) {
     return HomeMonthlyBenefit(
       id: id ?? this.id,
@@ -120,6 +129,7 @@ class HomeMonthlyBenefit {
       actionUrl: actionUrl ?? this.actionUrl,
       userServiceId: userServiceId ?? this.userServiceId,
       isReceived: isReceived ?? this.isReceived,
+      serviceId: serviceId ?? this.serviceId,
     );
   }
 }

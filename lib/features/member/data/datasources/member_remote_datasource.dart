@@ -124,13 +124,14 @@ class MemberRemoteDataSource {
   /// 获取当前用户的收货地址列表。
   ///
   /// 接口：POST /api/sys/getuseraddresslist
-  /// 请求体：{"addressid": 0}（0 表示返回全部地址）
+  /// 请求体：{"addressid": 0}（0 表示返回全部地址，-1 默认返回 1 条/默认地址）
   /// 响应：{addresslist: [{id, consignee, provincename, cityname,
   /// countyname, address, isdefult, phone, mobile, ...}], datatag}
-  Future<ApiResponse<List<MemberAddress>>> getAddresses() async {
+  @override
+  Future<ApiResponse<List<MemberAddress>>> getAddresses({int addressId = 0}) async {
     return _apiClient.post<List<MemberAddress>>(
       '/api/sys/getuseraddresslist',
-      data: const <String, dynamic>{'addressid': 0},
+      data: <String, dynamic>{'addressid': addressId},
       fromJson: (dynamic json) {
         final map = json is Map<String, dynamic> ? json : <String, dynamic>{};
         final rawList = map['addresslist'];

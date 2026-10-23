@@ -208,11 +208,11 @@ class HomePage extends ConsumerWidget {
                                 }
 
                                 // 状态 1：当月未领取 -> 调 receiveUserService 接口
-                                final serviceIdInt = int.tryParse(benefit.id) ?? 0;
+                                final serviceIdInt = benefit.serviceId > 0 ? benefit.serviceId : (int.tryParse(benefit.id) ?? 0);
                                 if (serviceIdInt <= 0) {
                                   if (!context.mounted) return;
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('无效的商品ID')),
+                                    const SnackBar(content: Text('无效的权益ID')),
                                   );
                                   return;
                                 }
