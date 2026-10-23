@@ -5,13 +5,16 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_image.dart';
+import '../../../../core/network/exceptions/exceptions.dart';
 import '../../domain/entities/order_list_order.dart';
 import 'order_amount_text.dart';
 
 class OrderCard extends StatelessWidget {
   final OrderListOrder item;
+  final Future<void> Function(String orderId)? onCancelOrder;
+  final Future<void> Function(String orderId)? onConfirmReceived;
 
-  const OrderCard({super.key, required this.item});
+  const OrderCard({super.key, required this.item, this.onCancelOrder, this.onConfirmReceived});
 
   void _showPending(BuildContext context, String action) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$action接口暂未接入')));
@@ -293,20 +296,32 @@ class OrderCard extends StatelessWidget {
   }
 
   Widget _buildActionButtonsRow(BuildContext context) {
+    // 申请售后功能暂时保留数据映射，但不在订单列表展示入口。
+    final visibleActions = item.actions.where((action) => action != OrderListAction.afterSale).toList();
+    if (visibleActions.isEmpty) return const SizedBox.shrink();
+
     return Align(
       alignment: Alignment.centerRight,
       child: Wrap(
         spacing: AppSpacing.sm,
         runSpacing: AppSpacing.sm,
         alignment: WrapAlignment.end,
-        children: item.actions.map((action) => _buildButton(context, action)).toList(),
+        children: visibleActions.map((action) => _buildButton(context, action)).toList(),
       ),
     );
   }
 
   Widget _buildButton(BuildContext context, OrderListAction action) {
     return GestureDetector(
-      onTap: () => _showPending(context, action.label),
+      onTap: () {
+        if (action == OrderListAction.cancel) {
+          _confirmCancel(context);
+        } else if (action == OrderListAction.confirm) {
+          _confirmReceived(context);
+        } else {
+          _showPending(context, action.label);
+        }
+      },
       child: Container(
         height: 44,
         width: 96,
@@ -327,6 +342,147 @@ class OrderCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _confirmCancel(BuildContext context) async {
+    final orderId = item.id;
+    if (orderId == null || orderId.isEmpty || onCancelOrder == null) {
+      _showPending(context, '取消订单');
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierColor: const Color(0x4D000000),
+      barrierDismissible: true,
+      builder: (dialogContext) => Dialog(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 13),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 414, minHeight: 207, maxHeight: 207),
+          child: _CancelOrderDialog(onCancel: () => Navigator.of(dialogContext).pop(false), onConfirm: () => Navigator.of(dialogContext).pop(true)),
+        ),
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    try {
+      await onCancelOrder!(orderId);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('订单已取消')));
+    } catch (error) {
+      if (!context.mounted) return;
+      final message = error is NetworkException ? error.message : '请稍后重试';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('取消订单失败：$message')));
+    }
+  }
+
+  Future<void> _confirmReceived(BuildContext context) async {
+    final orderId = item.id;
+    if (orderId == null || orderId.isEmpty || onConfirmReceived == null) {
+      _showPending(context, '确认收货');
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierColor: const Color(0x4D000000),
+      builder: (dialogContext) => Dialog(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 13),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 414, minHeight: 207, maxHeight: 207),
+          child: _CancelOrderDialog(
+            title: '你确定已收到货了吗？',
+            onCancel: () => Navigator.of(dialogContext).pop(false),
+            onConfirm: () => Navigator.of(dialogContext).pop(true),
+          ),
+        ),
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    try {
+      await onConfirmReceived!(orderId);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('已确认收货')));
+    } catch (error) {
+      if (!context.mounted) return;
+      final message = error is NetworkException ? error.message : '请稍后重试';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('确认收货失败：$message')));
+    }
+  }
+}
+
+class _CancelOrderDialog extends StatelessWidget {
+  final String title;
+  final VoidCallback onCancel;
+  final VoidCallback onConfirm;
+
+  const _CancelOrderDialog({this.title = '你确定要取消订单吗？', required this.onCancel, required this.onConfirm});
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 48),
+            child: Text(
+              title,
+              style: TextStyle(fontSize: 20, height: 1.4, fontWeight: FontWeight.w500, color: Colors.black),
+            ),
+          ),
+          const Spacer(),
+          SizedBox(
+            height: 79,
+            child: DecoratedBox(
+              decoration: const BoxDecoration(
+                border: Border(top: BorderSide(color: Color(0xFFE5E5E5))),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _CancelOrderDialogButton(label: '取消', color: Color(0xFF8E8E93), onPressed: onCancel),
+                  ),
+                  const SizedBox(
+                    height: double.infinity,
+                    child: VerticalDivider(width: 1, thickness: 1, color: Color(0xFFE5E5E5)),
+                  ),
+                  Expanded(
+                    child: _CancelOrderDialogButton(label: '确认', color: Color(0xFF213775), onPressed: onConfirm),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CancelOrderDialogButton extends StatelessWidget {
+  final String label;
+  final Color color;
+  final VoidCallback onPressed;
+
+  const _CancelOrderDialogButton({required this.label, required this.color, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        foregroundColor: color,
+        shape: const RoundedRectangleBorder(),
+        textStyle: const TextStyle(fontSize: 24, height: 1.4, fontWeight: FontWeight.w500),
+      ),
+      child: Text(label),
     );
   }
 }

@@ -41,10 +41,10 @@ class OrderRepositoryImpl implements OrderRepository {
   Future<ApiResponse<OrderDetail>> getOrderDetail(String orderId) => remote.getOrderDetail(orderId);
 
   @override
-  Future<ApiResponse<void>> cancelOrder(String orderId, String reason) => legacy.cancelOrder(orderId, reason);
+  Future<ApiResponse<void>> cancelOrder(String orderId, String reason) => remote.cancelOrder(orderId);
 
   @override
-  Future<ApiResponse<void>> confirmReceived(String orderId) => legacy.confirmReceived(orderId);
+  Future<ApiResponse<void>> confirmReceived(String orderId) => remote.confirmReceived(orderId);
 
   @override
   Future<ApiResponse<AfterSaleResult>> applyAfterSale({
