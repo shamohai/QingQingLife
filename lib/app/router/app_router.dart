@@ -183,7 +183,16 @@ final appRouter = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.confirmOrder,
-        pageBuilder: (c, s) => MaterialPage(child: ConfirmOrderPage(productId: s.pathParameters['id']!)),
+        pageBuilder: (c, s) {
+          final userServiceIdStr = s.uri.queryParameters['userServiceId'];
+          final userServiceId = userServiceIdStr != null ? int.tryParse(userServiceIdStr) : null;
+          return MaterialPage(
+            child: ConfirmOrderPage(
+              productId: s.pathParameters['id']!,
+              userServiceId: userServiceId,
+            ),
+          );
+        },
       ),
       GoRoute(
         path: RouteNames.allProducts,

@@ -18,7 +18,8 @@ import '../widgets/confirm_order_redeemer_form.dart';
 
 class ConfirmOrderPage extends ConsumerWidget {
   final String productId;
-  const ConfirmOrderPage({super.key, required this.productId});
+  final int? userServiceId;
+  const ConfirmOrderPage({super.key, required this.productId, this.userServiceId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

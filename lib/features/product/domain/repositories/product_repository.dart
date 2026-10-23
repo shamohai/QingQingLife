@@ -91,8 +91,37 @@ class HomeMonthlyBenefit {
   final String title;
   final String? imageUrl;
   final String? actionUrl;
+  final int userServiceId;
+  final bool isReceived;
 
-  const HomeMonthlyBenefit({required this.id, required this.title, this.imageUrl, this.actionUrl});
+  const HomeMonthlyBenefit({
+    required this.id,
+    required this.title,
+    this.imageUrl,
+    this.actionUrl,
+    this.userServiceId = 0,
+    this.isReceived = false,
+  });
+
+  bool get isClaimed => userServiceId > 0;
+
+  HomeMonthlyBenefit copyWith({
+    String? id,
+    String? title,
+    String? imageUrl,
+    String? actionUrl,
+    int? userServiceId,
+    bool? isReceived,
+  }) {
+    return HomeMonthlyBenefit(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      imageUrl: imageUrl ?? this.imageUrl,
+      actionUrl: actionUrl ?? this.actionUrl,
+      userServiceId: userServiceId ?? this.userServiceId,
+      isReceived: isReceived ?? this.isReceived,
+    );
+  }
 }
 
 

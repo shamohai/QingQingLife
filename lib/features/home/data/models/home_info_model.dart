@@ -111,26 +111,52 @@ class HomeNavListModel {
 
 /// 2. 每月权益数据模型 (monthlyserviceinfo)
 class HomeMonthlyServiceInfoModel {
+  final int serviceId;
   final String title;
+  final String subtitle;
+  final bool isReceived;
+  final int userServiceId;
   final List<HomeMonthlyProductModel> productList;
 
   const HomeMonthlyServiceInfoModel({
+    this.serviceId = 0,
     required this.title,
+    this.subtitle = '',
+    this.isReceived = false,
+    this.userServiceId = 0,
     required this.productList,
   });
 
   factory HomeMonthlyServiceInfoModel.fromJson(Map<String, dynamic> json) {
+    final serviceIdVal = json['serviceid'] ?? json['id'] ?? 0;
+    final parentServiceId = serviceIdVal is num ? serviceIdVal.toInt() : int.tryParse('$serviceIdVal') ?? 0;
+
+    final isReceivedVal = json['isreceived'] ?? json['is_received'] ?? json['isclaimed'] ?? json['is_claimed'] ?? false;
+    final parsedIsReceived = isReceivedVal is bool ? isReceivedVal : (isReceivedVal == 1 || isReceivedVal == '1' || isReceivedVal == 'true');
+
+    final userServiceIdVal = json['userserviceid'] ?? json['user_service_id'] ?? 0;
+    final parsedUserServiceId = userServiceIdVal is num ? userServiceIdVal.toInt() : int.tryParse('$userServiceIdVal') ?? 0;
+
     final rawList = json['productlist'] ?? json['product_list'] ?? json['list'] ?? json['products'];
     final items = <HomeMonthlyProductModel>[];
     if (rawList is List) {
       for (final item in rawList) {
         if (item is Map<String, dynamic>) {
-          items.add(HomeMonthlyProductModel.fromJson(item));
+          items.add(HomeMonthlyProductModel.fromJson(
+            item,
+            parentServiceId: parentServiceId,
+            parentIsReceived: parsedIsReceived || parsedUserServiceId > 0,
+            parentUserServiceId: parsedUserServiceId,
+          ));
         }
       }
     }
     return HomeMonthlyServiceInfoModel(
+      serviceId: parentServiceId,
       title: (json['title'] ?? json['name'] ?? '每月权益').toString(),
+      subtitle: (json['subtitle'] ?? '').toString(),
+      isReceived: parsedIsReceived,
+      userServiceId: parsedUserServiceId,
       productList: items,
     );
   }
@@ -146,20 +172,46 @@ class HomeMonthlyProductModel {
   final String title;
   final String imageUrl;
   final String actionUrl;
+  final int userServiceId;
+  final bool isReceived;
 
   const HomeMonthlyProductModel({
     required this.id,
     required this.title,
     required this.imageUrl,
     required this.actionUrl,
+    this.userServiceId = 0,
+    this.isReceived = false,
   });
 
-  factory HomeMonthlyProductModel.fromJson(Map<String, dynamic> json) {
+  factory HomeMonthlyProductModel.fromJson(
+    Map<String, dynamic> json, {
+    int? parentServiceId,
+    bool? parentIsReceived,
+    int? parentUserServiceId,
+  }) {
+    // 优先识别 pid 作为权益项商品 ID，如无则回退到 parentServiceId / id
+    final itemId = json['pid'] ?? json['serviceid'] ?? json['id'] ?? json['productid'] ?? parentServiceId ?? '';
+
+    // 优先识别 productname 作为权益标题，回退到 title / name
+    final titleVal = json['productname'] ?? json['title'] ?? json['name'] ?? '';
+
+    // 优先识别 productimg 作为商品图片，回退到 coverurl / imgurl / imageurl
+    final imageVal = json['productimg'] ?? json['coverurl'] ?? json['imgurl'] ?? json['imageurl'] ?? '';
+
+    final itemUserServiceId = json['userserviceid'] ?? json['user_service_id'] ?? parentUserServiceId ?? 0;
+    final itemIsReceived = json['isreceived'] ?? json['is_received'] ?? json['isclaimed'] ?? json['is_claimed'] ?? parentIsReceived ?? false;
+
+    final parsedUserServiceId = itemUserServiceId is num ? itemUserServiceId.toInt() : int.tryParse('$itemUserServiceId') ?? 0;
+    final parsedIsReceived = itemIsReceived is bool ? itemIsReceived : (itemIsReceived == 1 || itemIsReceived == '1' || itemIsReceived == 'true');
+
     return HomeMonthlyProductModel(
-      id: (json['id'] ?? json['productid'] ?? '').toString(),
-      title: (json['title'] ?? json['name'] ?? json['productname'] ?? '').toString(),
-      imageUrl: (json['coverurl'] ?? json['imgurl'] ?? json['imageurl'] ?? json['productimg'] ?? '').toString().replaceAll('&amp;', '&'),
+      id: itemId.toString(),
+      title: titleVal.toString().trim(),
+      imageUrl: imageVal.toString().replaceAll('&amp;', '&'),
       actionUrl: (json['path'] ?? json['viewurl'] ?? json['actionurl'] ?? json['url'] ?? '').toString(),
+      userServiceId: parsedUserServiceId,
+      isReceived: parsedIsReceived,
     );
   }
 
@@ -169,6 +221,8 @@ class HomeMonthlyProductModel {
       title: title,
       imageUrl: imageUrl.isNotEmpty ? imageUrl : null,
       actionUrl: actionUrl.isNotEmpty ? actionUrl : null,
+      userServiceId: userServiceId,
+      isReceived: isReceived,
     );
   }
 }
