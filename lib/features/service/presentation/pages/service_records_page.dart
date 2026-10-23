@@ -7,27 +7,31 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../core/widgets/app_empty.dart';
-import '../providers/service_provider.dart';
-import '../widgets/service_record_card.dart';
+import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_error.dart';
+import '../providers/reservation_record_provider.dart';
+import '../widgets/reservation_record_card.dart';
 
 /// 预约/报名记录子页面。
 ///
-/// 接收 GoRouter query parameter 中的 `activeTab`，默认 'ongoing'。
-/// 顶部两段纯文字分段标签（已预约 / 已结束），下方按当前 Tab 过滤渲染卡片列表。
+/// 接收 GoRouter query parameter 中的 activeTab，默认 ongoing。
+/// 顶部两段纯文字分段标签（已预约 / 已结束），下方按当前 Tab 请求真实 API 数据。
 ///
-/// 悬浮按钮组由父级 [ServicePage] 的 Stack 提供，本页面不重复引入。
+/// 悬浮按钮组由父级 ServicePage 的 Stack 提供，本页面不重复引入。
 class ServiceRecordsPage extends ConsumerWidget {
-  /// 从路由参数中读取初始激活的 Tab，key 为 'activeTab'。
+  /// 从路由参数中读取初始激活的 Tab，key 为 activeTab。
   final String activeTab;
 
   const ServiceRecordsPage({super.key, this.activeTab = 'ongoing'});
 
+  /// tab key 对应的 reservationlisttype：
+  ///   ongoing -> 1（已预约）
+  ///   finished -> 2（已完成）
+  int get _listType => activeTab == _TabKey.finished ? 2 : 1;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final allItems = ref.watch(serviceRecordDataProvider);
-    final filteredItems = activeTab == _TabKey.ongoing
-        ? allItems.where((item) => item.status == _TabKey.ongoing).toList()
-        : allItems.where((item) => item.status == _TabKey.finished).toList();
+    final listAsync = ref.watch(myReservationListProvider(_listType));
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -58,16 +62,27 @@ class ServiceRecordsPage extends ConsumerWidget {
               children: [
                 _buildSegmentedTabs(context, activeTab),
                 Expanded(
-                  child: filteredItems.isEmpty
-                      ? const SizedBox(height: 200, child: AppEmpty(message: '暂无记录'))
-                      : ListView.separated(
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-                          itemCount: filteredItems.length,
-                          separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
-                          itemBuilder: (context, index) {
-                            return ServiceRecordCard(item: filteredItems[index]);
-                          },
-                        ),
+                  child: listAsync.when(
+                    loading: () => const Center(child: AppLoading()),
+                    error: (e, _) => Center(
+                      child: AppError(
+                        message: '加载失败，请稍后重试',
+                        onRetry: () => ref.invalidate(myReservationListProvider(_listType)),
+                      ),
+                    ),
+                    data: (items) => items.isEmpty
+                        ? const SizedBox(height: 200, child: AppEmpty(message: '暂无记录'))
+                        : ListView.separated(
+                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+                            itemCount: items.length,
+                            separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
+                            itemBuilder: (context, index) =>
+                                ReservationRecordCard(
+                                  item: items[index],
+                                  onViewTap: () => context.push('/service/project/${items[index].serviceId}'),
+                                ),
+                          ),
+                  ),
                 ),
               ],
             ),
@@ -93,7 +108,6 @@ class ServiceRecordsPage extends ConsumerWidget {
             return Expanded(
               child: GestureDetector(
                 onTap: () {
-                  // 使用 pushReplacement 配合 Uri 替换当前路由的 query parameter
                   final uri = Uri.parse('/service/records').replace(queryParameters: {'activeTab': tab.$1});
                   context.pushReplacement(uri.toString());
                 },

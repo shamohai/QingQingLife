@@ -1,6 +1,7 @@
 import '../../../../core/network/api_response.dart';
 import '../models/reservation_service_item.dart';
 import '../models/reservation_service_detail_model.dart';
+import '../models/reservation_record_item.dart';
 import '../models/share_cart_template_model.dart';
 import '../models/share_cart_template_detail_model.dart';
 import '../models/share_cart_product_model.dart';
@@ -30,6 +31,15 @@ abstract class ServiceRepository {
     required String remark,
   });
 
+
+  /// 获取我的预约/报名记录列表（分页）
+  /// 请求：{reservationlisttype: 0|1|2, pageindex: int, pagesize: int}
+  /// reservationlisttype: 0=全部, 1=已预约, 2=已完成
+  Future<ApiResponse<List<ReservationRecordItem>>> getMyReservationList({
+    required int reservationListType,
+    int pageIndex = 1,
+    int pageSize = 20,
+  });
   /// 获取购酒享服务模板列表
   Future<ApiResponse<List<ShareCartTemplate>>> getShareCartTemplateList();
 

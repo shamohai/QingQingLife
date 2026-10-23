@@ -11,6 +11,7 @@ import '../../domain/models/share_cart_candidate_model.dart';
 import '../../domain/models/service_submit_order_model.dart';
 import '../../domain/models/reservation_service_item.dart';
 import '../../domain/models/reservation_service_detail_model.dart';
+import '../../domain/models/reservation_record_item.dart';
 
 /// 服务中心远程数据源
 class ServiceRemoteDataSource implements ServiceRepository {
@@ -69,6 +70,27 @@ class ServiceRemoteDataSource implements ServiceRepository {
           if (rid is String) return int.tryParse(rid) ?? 0;
         }
         return 0;
+      },
+    );
+  }
+
+  @override
+  Future<ApiResponse<List<ReservationRecordItem>>> getMyReservationList({
+    required int reservationListType,
+    int pageIndex = 1,
+    int pageSize = 20,
+  }) async {
+    return apiClient.post<List<ReservationRecordItem>>(
+      '/api/sys/app/getmyreservationlist',
+      data: <String, dynamic>{
+        'reservationlisttype': reservationListType,
+        'pageindex': pageIndex,
+        'pagesize': pageSize,
+      },
+      fromJson: (dynamic json) {
+        final source = json as Map<String, dynamic>? ?? const <String, dynamic>{};
+        final listJson = source['list'] as List<dynamic>? ?? const <dynamic>[];
+        return listJson.map((e) => ReservationRecordItem.fromJson(e as Map<String, dynamic>)).toList();
       },
     );
   }
