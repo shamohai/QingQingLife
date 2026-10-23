@@ -333,22 +333,25 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
     final reservationDateTime = fullStartTime.isNotEmpty ? fullStartTime : DateFormat('yyyy-MM-dd').format(_selectedDate!);
 
     try {
-      final dataSource = ref.read(serviceRemoteDataSourceProvider);
-      final response = await dataSource.submitReservation(
-        serviceId: widget.detail.serviceId,
-        contactName: _nameCtrl.text.trim(),
-        contactPhoneNumber: _phoneCtrl.text.trim(),
-        reservationDateTime: reservationDateTime,
-        idNo: _idCtrl.text.trim(),
-        userCount: int.parse(_partyCtrl.text.trim()),
-        remark: _notesCtrl.text.trim(),
-      );
-      response.requireData;
+          final dataSource = ref.read(serviceRemoteDataSourceProvider);
+          final response = await dataSource.submitReservation(
+            serviceId: widget.detail.serviceId,
+            contactName: _nameCtrl.text.trim(),
+            contactPhoneNumber: _phoneCtrl.text.trim(),
+            reservationDateTime: reservationDateTime,
+            idNo: _idCtrl.text.trim(),
+            userCount: int.parse(_partyCtrl.text.trim()),
+            remark: _notesCtrl.text.trim(),
+          );
+          response.requireData;
 
-      if (!mounted) return;
-      setState(() => _isSubmitting = false);
+          if (!mounted) return;
+          setState(() {
+            _isSubmitting = false;
+            _isAlreadyReserved = true; // 提交成功后设为已报名状态，表单变只读
+          });
 
-          // 显示成功弹窗，点击确定跳转到服务预约列表页
+          // 显示成功弹窗
           await showDialog(
             context: context,
             barrierDismissible: false,
@@ -360,8 +363,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                 TextButton(
                   onPressed: () {
                     Navigator.of(ctx).pop(); // 关闭弹窗
-                    // 跳转到服务预约列表页 (fuwu tab)
-                    context.go(RouteNames.service);
+                    context.go(RouteNames.service); // 跳转到服务预约列表页
                   },
                   child: const Text('确定', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceTabActive)),
                 ),
