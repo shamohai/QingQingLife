@@ -71,7 +71,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
   // ─── 解析 calendar ──────────────────────────────────────────────────
 
   /// 解析 calendar 数据，提取可选日期和时段
-  /// calendar 结构：List<{date: String, timeslots: List<{starttime, endtime, fullstarttiime}>>}
+  /// calendar 结构：List<{date: String, timeslots: List<{starttime, endtime, fullstarttime}>>}
   void _parseCalendar() {
     final calendar = widget.detail.calendar;
     if (calendar == null) return;
@@ -121,7 +121,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
         if (timeSlot != null && _availableTimeSlotObjects.isNotEmpty) {
           try {
             final matched = _availableTimeSlotObjects.firstWhere(
-              (s) => s['timedescr'] == timeSlot || s['fullstarttiime'] == timeSlot,
+              (s) => s['timedescr'] == timeSlot || s['fullstarttime'] == timeSlot,
               orElse: () => <String, dynamic>{},
             );
             if (matched.isNotEmpty) {
@@ -154,14 +154,14 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                   if (slot is Map) {
                     final start = slot['starttime'] as String? ?? '';
                     final end = slot['endtime'] as String? ?? '';
-                    final fullStart = slot['fullstarttiime'] as String? ?? '';
+                    final fullStart = slot['fullstarttime'] as String? ?? '';
                     final timedescr = slot['timedescr'] as String? ?? '';
                     if (start.isNotEmpty && end.isNotEmpty) {
                       slotObjects.add({
                         'timedescr': timedescr,
                         'starttime': start,
                         'endtime': end,
-                        'fullstarttiime': fullStart,
+                        'fullstarttime': fullStart,
                       });
                     }
                   }
@@ -329,8 +329,8 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
     if (!mounted) return;
     setState(() => _isSubmitting = true);
 
-    // reservationdatetime: 使用 fullstarttiime
-    final fullStartTime = _selectedTimeSlotObj?['fullstarttiime'] as String? ?? '';
+    // reservationdatetime: 使用 fullstarttime
+    final fullStartTime = _selectedTimeSlotObj?['fullstarttime'] as String? ?? '';
     final reservationDateTime = fullStartTime.isNotEmpty ? fullStartTime : DateFormat('yyyy-MM-dd').format(_selectedDate!);
 
     try {
