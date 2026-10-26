@@ -1,7 +1,8 @@
-/// 首页 4 个模块接口响应数据模型（POST /api/common/gethomeinfo）
+/// 首页 4 个模块接口响应数据模型（POST /api/common/app/gethomeinfo）
 library;
 
 import 'package:qingqinglife/features/product/domain/repositories/product_repository.dart';
+
 import 'carousel_model.dart';
 
 /// 首页 4 个模块响应聚合模型
@@ -11,12 +12,7 @@ class HomeInfoModel {
   final HomeOnlineActivityInfoModel? onlineActivityInfo;
   final HomeOfflineActivityInfoModel? offlineActivityInfo;
 
-  const HomeInfoModel({
-    required this.navList,
-    this.monthlyServiceInfo,
-    this.onlineActivityInfo,
-    this.offlineActivityInfo,
-  });
+  const HomeInfoModel({required this.navList, this.monthlyServiceInfo, this.onlineActivityInfo, this.offlineActivityInfo});
 
   factory HomeInfoModel.fromJson(Map<String, dynamic> json) {
     // 1. navlist (金刚区)
@@ -86,13 +82,7 @@ class HomeNavListModel {
   final String actionUrl;
   final JumpType jumpType;
 
-  const HomeNavListModel({
-    required this.id,
-    required this.title,
-    required this.iconUrl,
-    required this.actionUrl,
-    required this.jumpType,
-  });
+  const HomeNavListModel({required this.id, required this.title, required this.iconUrl, required this.actionUrl, required this.jumpType});
 
   factory HomeNavListModel.fromJson(Map<String, dynamic> json) {
     return HomeNavListModel(
@@ -105,12 +95,7 @@ class HomeNavListModel {
   }
 
   HomeKingKongItem toKingKongItem() {
-    return HomeKingKongItem(
-      iconUrl: iconUrl,
-      label: title,
-      actionUrl: actionUrl.isNotEmpty ? actionUrl : null,
-      jumpType: jumpType,
-    );
+    return HomeKingKongItem(iconUrl: iconUrl, label: title, actionUrl: actionUrl.isNotEmpty ? actionUrl : null, jumpType: jumpType);
   }
 }
 
@@ -119,7 +104,8 @@ class HomeMonthlyServiceInfoModel {
   final int serviceId;
   final String title;
   final String subtitle;
-  final bool isReceived;
+  final bool isReceived; // 当月权益优惠券已领取
+  final bool settlemented; // 已发货\已兑换\已核销
   final int userServiceId;
   final List<HomeMonthlyProductModel> productList;
 
@@ -128,6 +114,7 @@ class HomeMonthlyServiceInfoModel {
     required this.title,
     this.subtitle = '',
     this.isReceived = false,
+    this.settlemented = false,
     this.userServiceId = 0,
     required this.productList,
   });
@@ -139,6 +126,9 @@ class HomeMonthlyServiceInfoModel {
     final isReceivedVal = json['isreceived'] ?? json['is_received'] ?? json['isclaimed'] ?? json['is_claimed'] ?? false;
     final parsedIsReceived = isReceivedVal is bool ? isReceivedVal : (isReceivedVal == 1 || isReceivedVal == '1' || isReceivedVal == 'true');
 
+    final settlementedVal = json['settlemented'] ?? json['is_settlemented'] ?? json['issettlemented'] ?? json['settlement'] ?? false;
+    final parsedSettlemented = settlementedVal is bool ? settlementedVal : (settlementedVal == 1 || settlementedVal == '1' || settlementedVal == 'true');
+
     final userServiceIdVal = json['userserviceid'] ?? json['user_service_id'] ?? 0;
     final parsedUserServiceId = userServiceIdVal is num ? userServiceIdVal.toInt() : int.tryParse('$userServiceIdVal') ?? 0;
 
@@ -147,12 +137,15 @@ class HomeMonthlyServiceInfoModel {
     if (rawList is List) {
       for (final item in rawList) {
         if (item is Map<String, dynamic>) {
-          items.add(HomeMonthlyProductModel.fromJson(
-            item,
-            parentServiceId: parentServiceId,
-            parentIsReceived: parsedIsReceived || parsedUserServiceId > 0,
-            parentUserServiceId: parsedUserServiceId,
-          ));
+          items.add(
+            HomeMonthlyProductModel.fromJson(
+              item,
+              parentServiceId: parentServiceId,
+              parentIsReceived: parsedIsReceived || parsedUserServiceId > 0,
+              parentUserServiceId: parsedUserServiceId,
+              parentSettlemented: parsedSettlemented,
+            ),
+          );
         }
       }
     }
@@ -161,6 +154,7 @@ class HomeMonthlyServiceInfoModel {
       title: (json['title'] ?? json['name'] ?? '每月权益').toString(),
       subtitle: (json['subtitle'] ?? '').toString(),
       isReceived: parsedIsReceived,
+      settlemented: parsedSettlemented,
       userServiceId: parsedUserServiceId,
       productList: items,
     );
@@ -178,7 +172,8 @@ class HomeMonthlyProductModel {
   final String imageUrl;
   final String actionUrl;
   final int userServiceId;
-  final bool isReceived;
+  final bool isReceived; // 当月权益优惠券已领取
+  final bool settlemented; // 已发货\已兑换\已核销
   final int serviceId;
 
   const HomeMonthlyProductModel({
@@ -188,6 +183,7 @@ class HomeMonthlyProductModel {
     required this.actionUrl,
     this.userServiceId = 0,
     this.isReceived = false,
+    this.settlemented = false,
     this.serviceId = 0,
   });
 
@@ -196,6 +192,7 @@ class HomeMonthlyProductModel {
     int? parentServiceId,
     bool? parentIsReceived,
     int? parentUserServiceId,
+    bool? parentSettlemented,
   }) {
     // 优先识别 pid 作为权益项商品 ID，如无则回退到 parentServiceId / id
     final itemId = json['pid'] ?? json['serviceid'] ?? json['id'] ?? json['productid'] ?? parentServiceId ?? '';
@@ -208,9 +205,11 @@ class HomeMonthlyProductModel {
 
     final itemUserServiceId = json['userserviceid'] ?? json['user_service_id'] ?? parentUserServiceId ?? 0;
     final itemIsReceived = json['isreceived'] ?? json['is_received'] ?? json['isclaimed'] ?? json['is_claimed'] ?? parentIsReceived ?? false;
+    final itemSettlemented = json['settlemented'] ?? json['is_settlemented'] ?? json['issettlemented'] ?? json['settlement'] ?? parentSettlemented ?? false;
 
     final parsedUserServiceId = itemUserServiceId is num ? itemUserServiceId.toInt() : int.tryParse('$itemUserServiceId') ?? 0;
     final parsedIsReceived = itemIsReceived is bool ? itemIsReceived : (itemIsReceived == 1 || itemIsReceived == '1' || itemIsReceived == 'true');
+    final parsedSettlemented = itemSettlemented is bool ? itemSettlemented : (itemSettlemented == 1 || itemSettlemented == '1' || itemSettlemented == 'true');
 
     return HomeMonthlyProductModel(
       id: itemId.toString(),
@@ -219,6 +218,7 @@ class HomeMonthlyProductModel {
       actionUrl: (json['path'] ?? json['viewurl'] ?? json['actionurl'] ?? json['url'] ?? '').toString(),
       userServiceId: parsedUserServiceId,
       isReceived: parsedIsReceived,
+      settlemented: parsedSettlemented,
       serviceId: parentServiceId ?? 0,
     );
   }
@@ -231,6 +231,7 @@ class HomeMonthlyProductModel {
       actionUrl: actionUrl.isNotEmpty ? actionUrl : null,
       userServiceId: userServiceId,
       isReceived: isReceived,
+      settlemented: settlemented,
       serviceId: serviceId,
     );
   }
@@ -241,10 +242,7 @@ class HomeOnlineActivityInfoModel {
   final String title;
   final List<HomeActivityBlockModel> blocks;
 
-  const HomeOnlineActivityInfoModel({
-    required this.title,
-    required this.blocks,
-  });
+  const HomeOnlineActivityInfoModel({required this.title, required this.blocks});
 
   factory HomeOnlineActivityInfoModel.fromJson(dynamic jsonInput) {
     var title = '线上活动';
@@ -280,10 +278,7 @@ class HomeOnlineActivityInfoModel {
       }
     }
 
-    return HomeOnlineActivityInfoModel(
-      title: title,
-      blocks: items,
-    );
+    return HomeOnlineActivityInfoModel(title: title, blocks: items);
   }
 
   List<HomeActivityBlock> toActivityBlocks() {
@@ -299,13 +294,7 @@ class HomeActivityBlockModel {
   final List<String>? imageUrls;
   final String actionUrl;
 
-  const HomeActivityBlockModel({
-    required this.id,
-    required this.title,
-    this.imageUrl,
-    this.imageUrls,
-    required this.actionUrl,
-  });
+  const HomeActivityBlockModel({required this.id, required this.title, this.imageUrl, this.imageUrls, required this.actionUrl});
 
   factory HomeActivityBlockModel.fromJson(Map<String, dynamic> json) {
     List<String>? urls;
@@ -328,13 +317,7 @@ class HomeActivityBlockModel {
   }
 
   HomeActivityBlock toActivityBlock() {
-    return HomeActivityBlock(
-      id: id,
-      title: title,
-      imageUrl: imageUrl,
-      imageUrls: imageUrls,
-      actionUrl: actionUrl.isNotEmpty ? actionUrl : null,
-    );
+    return HomeActivityBlock(id: id, title: title, imageUrl: imageUrl, imageUrls: imageUrls, actionUrl: actionUrl.isNotEmpty ? actionUrl : null);
   }
 }
 
@@ -343,10 +326,7 @@ class HomeOfflineActivityInfoModel {
   final String title;
   final List<HomeOfflineBlockModel> blocks;
 
-  const HomeOfflineActivityInfoModel({
-    required this.title,
-    required this.blocks,
-  });
+  const HomeOfflineActivityInfoModel({required this.title, required this.blocks});
 
   factory HomeOfflineActivityInfoModel.fromJson(dynamic jsonInput) {
     var title = '线下活动';
@@ -382,10 +362,7 @@ class HomeOfflineActivityInfoModel {
       }
     }
 
-    return HomeOfflineActivityInfoModel(
-      title: title,
-      blocks: items,
-    );
+    return HomeOfflineActivityInfoModel(title: title, blocks: items);
   }
 
   List<HomeTopicActivityBlock> toTopicActivityBlocks() {
@@ -400,12 +377,7 @@ class HomeOfflineBlockModel {
   final String imageUrl;
   final String actionUrl;
 
-  const HomeOfflineBlockModel({
-    required this.id,
-    required this.title,
-    required this.imageUrl,
-    required this.actionUrl,
-  });
+  const HomeOfflineBlockModel({required this.id, required this.title, required this.imageUrl, required this.actionUrl});
 
   factory HomeOfflineBlockModel.fromJson(Map<String, dynamic> json) {
     return HomeOfflineBlockModel(
@@ -417,11 +389,6 @@ class HomeOfflineBlockModel {
   }
 
   HomeTopicActivityBlock toTopicActivityBlock() {
-    return HomeTopicActivityBlock(
-      id: id,
-      title: title,
-      imageUrl: imageUrl.isNotEmpty ? imageUrl : null,
-      actionUrl: actionUrl.isNotEmpty ? actionUrl : null,
-    );
+    return HomeTopicActivityBlock(id: id, title: title, imageUrl: imageUrl.isNotEmpty ? imageUrl : null, actionUrl: actionUrl.isNotEmpty ? actionUrl : null);
   }
 }

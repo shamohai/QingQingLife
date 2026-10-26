@@ -83,7 +83,7 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
   @override
   PointsConfirmOrderState build() {
     final isEditable = arg.userServiceId == 0;
-    _fetchPreOrderInfo();
+    Future.microtask(() => _fetchPreOrderInfo());
     return PointsConfirmOrderState(
       productId: arg.productId,
       userServiceId: arg.userServiceId,
@@ -95,6 +95,7 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
   }
 
   Future<void> _fetchPreOrderInfo() async {
+    if (!ref.mounted) return;
     state = state.copyWith(preOrderInfoAsync: const AsyncValue.loading());
 
     final repository = ref.read(pointsRepositoryProvider);
@@ -103,6 +104,8 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
       productId: state.productId,
       quantity: state.quantity,
     );
+
+    if (!ref.mounted) return;
 
     if (response.success && response.data != null) {
       final preInfo = response.data!;
@@ -124,9 +127,12 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
   }
 
   Future<void> refreshAddress() async {
+    if (!ref.mounted) return;
     state = state.copyWith(addressAsync: const AsyncValue.loading());
     final memberRepo = ref.read(memberRepositoryProvider);
     final response = await memberRepo.getAddresses(addressId: -1);
+
+    if (!ref.mounted) return;
 
     if (response.success && response.data != null && response.data!.isNotEmpty) {
       state = state.copyWith(addressAsync: AsyncValue.data(response.data!.first));

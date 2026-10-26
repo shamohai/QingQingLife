@@ -33,12 +33,12 @@ class ProductRemoteDataSource implements ProductRepository {
     return ApiResponse.success(response.data!.banners);
   }
 
-  // ── 首页 4 个模块接口 (POST /api/common/gethomeinfo) ───────────────────────
+  // ── 首页 4 个模块接口 (POST /api/common/app/gethomeinfo) ───────────────────────
 
   @override
   Future<ApiResponse<HomeProductData>> getHomeProductData() async {
     final response = await _apiClient.post<HomeInfoModel>(
-      '/api/common/gethomeinfo',
+      '/api/common/app/gethomeinfo',
       fromJson: (dynamic json) => HomeInfoModel.fromJson(json as Map<String, dynamic>),
     );
     if (!response.success || response.data == null) {
@@ -65,13 +65,7 @@ class ProductRemoteDataSource implements ProductRepository {
   }
 
   @override
-  Future<ApiResponse<ProductListResult>> getProductList({
-    required int page,
-    required int pageSize,
-    String? categoryId,
-    String? keyword,
-    String? sortBy,
-  }) async {
+  Future<ApiResponse<ProductListResult>> getProductList({required int page, required int pageSize, String? categoryId, String? keyword, String? sortBy}) async {
     throw UnimplementedError('getProductList not implemented in ProductRemoteDataSource');
   }
 
@@ -81,11 +75,7 @@ class ProductRemoteDataSource implements ProductRepository {
   }
 
   @override
-  Future<ApiResponse<ProductListResult>> searchProducts({
-    required String keyword,
-    required int page,
-    required int pageSize,
-  }) async {
+  Future<ApiResponse<ProductListResult>> searchProducts({required String keyword, required int page, required int pageSize}) async {
     throw UnimplementedError('searchProducts not implemented in ProductRemoteDataSource');
   }
 }

@@ -10,7 +10,8 @@ class HomeMonthlyBenefits extends StatelessWidget {
   final List<HomeMonthlyBenefit> benefits;
   final Set<String> claimingIds;
   final int activeUserServiceId; // 当前当月激活的 userServiceId（>0 表示已领取）
-  final bool isReceived; // 是否已最终兑换实物
+  final bool isReceived; // 当月权益优惠券是否已领取
+  final bool settlemented; // 是否已发货\已兑换\已核销
   final ValueChanged<HomeMonthlyBenefit>? onImageTap;
   final ValueChanged<HomeMonthlyBenefit>? onClaimTap;
 
@@ -20,6 +21,7 @@ class HomeMonthlyBenefits extends StatelessWidget {
     this.claimingIds = const {},
     this.activeUserServiceId = 0,
     this.isReceived = false,
+    this.settlemented = false,
     this.onImageTap,
     this.onClaimTap,
   });
@@ -81,16 +83,18 @@ class HomeMonthlyBenefits extends StatelessWidget {
                 separatorBuilder: (context, index) => const SizedBox(width: 12),
                 itemBuilder: (context, index) {
                   final benefit = benefits[index];
-                  // 判断每个 item 的有效 userServiceId 和 isReceived 状态
+                  // 判断每个 item 的有效 userServiceId、isClaimed 和 isSettlemented 状态
                   final effectiveUserServiceId = activeUserServiceId > 0 ? activeUserServiceId : benefit.userServiceId;
-                  final effectiveIsReceived = isReceived || benefit.isReceived;
+                  final effectiveIsClaimed = effectiveUserServiceId > 0 || isReceived || benefit.isReceived;
+                  final effectiveSettlemented = settlemented || benefit.settlemented;
                   final isClaiming = claimingIds.contains(benefit.id);
 
                   return _BenefitSlot(
                     benefit: benefit,
                     index: index,
                     userServiceId: effectiveUserServiceId,
-                    isReceived: effectiveIsReceived,
+                    isClaimed: effectiveIsClaimed,
+                    isSettlemented: effectiveSettlemented,
                     isClaiming: isClaiming,
                     onImageTap: onImageTap,
                     onClaimTap: onClaimTap,
@@ -108,7 +112,8 @@ class _BenefitSlot extends StatelessWidget {
   final HomeMonthlyBenefit benefit;
   final int index;
   final int userServiceId;
-  final bool isReceived;
+  final bool isClaimed;
+  final bool isSettlemented;
   final bool isClaiming;
   final ValueChanged<HomeMonthlyBenefit>? onImageTap;
   final ValueChanged<HomeMonthlyBenefit>? onClaimTap;
@@ -117,7 +122,8 @@ class _BenefitSlot extends StatelessWidget {
     required this.benefit,
     required this.index,
     required this.userServiceId,
-    required this.isReceived,
+    required this.isClaimed,
+    required this.isSettlemented,
     required this.isClaiming,
     this.onImageTap,
     this.onClaimTap,
@@ -128,11 +134,9 @@ class _BenefitSlot extends StatelessWidget {
     final assetPath = 'assets/images/home/quanyi_${index % 6}.png';
     final imageUrl = (benefit.imageUrl != null && benefit.imageUrl!.isNotEmpty) ? benefit.imageUrl! : assetPath;
 
-    // 状态 1: userServiceId <= 0 (当月未领取) -> 按钮"领取"
-    // 状态 2: userServiceId > 0 且 !isReceived (当月已领取未兑换) -> 按钮"去兑换"
-    // 状态 3: userServiceId > 0 且 isReceived (当月已兑换) -> 按钮"已兑换"（不可点击）
-    final isClaimed = userServiceId > 0;
-
+    // 状态 1: !isClaimed (当月未领取) -> 按钮"领取"
+    // 状态 2: isClaimed 且 !isSettlemented (当月已领取未兑换/未核销) -> 按钮"去兑换"
+    // 状态 3: isClaimed 且 isSettlemented (当月已发货/已兑换/已核销) -> 按钮"已兑换"（不可点击）
     final String buttonText;
     final Color buttonBgColor;
     final bool buttonDisabled;
@@ -141,11 +145,11 @@ class _BenefitSlot extends StatelessWidget {
       buttonText = '处理中';
       buttonBgColor = const Color(0xFFC9CDD4);
       buttonDisabled = true;
-    } else if (isClaimed && isReceived) {
+    } else if (isClaimed && isSettlemented) {
       buttonText = '已兑换';
       buttonBgColor = const Color(0xFFC9CDD4);
       buttonDisabled = true;
-    } else if (isClaimed && !isReceived) {
+    } else if (isClaimed && !isSettlemented) {
       buttonText = '去兑换';
       buttonBgColor = const Color(0xFFFB9126);
       buttonDisabled = false;
