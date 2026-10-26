@@ -12,6 +12,7 @@ import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
 import '../../../points_mall/data/models/get_credit_product_list_model.dart';
 import '../../../points_mall/data/models/credit_product_category_model.dart';
 import '../../../points_mall/data/models/pre_credit_order_info_model.dart';
+import '../../../points_mall/data/models/points_submit_order_models.dart';
 import 'points_remote_datasource.dart';
 
 /// Mock 积分商城数据源 - 开发/测试环境使用
@@ -569,6 +570,51 @@ class MockPointsDataSource implements PointsRepository {
     return ApiResponse.success(
       const PreCreditOrderInfoModel(
         recvrType: RecvrType.shipAddress,
+      ),
+    );
+  }
+
+  @override
+  Future<ApiResponse<SubmitCreditOrderResp>> submitCreditOrder(SubmitCreditOrderReq req) async {
+    if (apiClient != null) {
+      final remote = PointsRemoteDataSource(apiClient: apiClient!);
+      return remote.submitCreditOrder(req);
+    }
+    return ApiResponse.success(
+      const SubmitCreditOrderResp(
+        result: 0,
+        descr: '提交成功(Mock)',
+        orderIds: [88001],
+      ),
+    );
+  }
+
+  @override
+  Future<ApiResponse<SubmitServiceCouponIntegralOrderResp>> submitServiceCouponIntegralOrder(SubmitServiceCouponIntegralOrderReq req) async {
+    if (apiClient != null) {
+      final remote = PointsRemoteDataSource(apiClient: apiClient!);
+      return remote.submitServiceCouponIntegralOrder(req);
+    }
+    return ApiResponse.success(
+      const SubmitServiceCouponIntegralOrderResp(
+        result: 0,
+        descr: '提交成功(Mock)',
+        orderId: 88002,
+      ),
+    );
+  }
+
+  @override
+  Future<ApiResponse<SubmitBaiLiHuiOrderResp>> submitBaiLiHuiOrder(SubmitBaiLiHuiOrderReq req) async {
+    if (apiClient != null) {
+      final remote = PointsRemoteDataSource(apiClient: apiClient!);
+      return remote.submitBaiLiHuiOrder(req);
+    }
+    return ApiResponse.success(
+      const SubmitBaiLiHuiOrderResp(
+        result: 0,
+        descr: '提交成功(Mock)',
+        orderId: 88003,
       ),
     );
   }

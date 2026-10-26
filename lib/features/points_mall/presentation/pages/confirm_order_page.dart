@@ -155,7 +155,7 @@ class ConfirmOrderPage extends ConsumerWidget {
                   child: ConfirmOrderRedeemerForm(
                     onNameChanged: (name) => ref.read(pointsConfirmOrderProvider(arg).notifier).setRedeemerName(name),
                     onPhoneChanged: (phone) => ref.read(pointsConfirmOrderProvider(arg).notifier).setRedeemerPhone(phone),
-                    onSubmitted: () => _handleSubmit(context, ref, product, arg, preInfo),
+                    onSubmitted: () => _handleSubmit(context, ref, arg),
                   ),
                 ),
 
@@ -177,7 +177,8 @@ class ConfirmOrderPage extends ConsumerWidget {
           product: product,
           quantity: orderState.quantity,
           pointsBalance: d.currentPoints,
-          onSubmit: () => _handleSubmit(ref.context, ref, product, arg, preInfo),
+          isSubmitting: orderState.isSubmitting,
+          onSubmit: () => _handleSubmit(ref.context, ref, arg),
         ),
         loading: () => const SizedBox(height: 56),
         error: (_, _) => const SizedBox(height: 56),
@@ -190,50 +191,27 @@ class ConfirmOrderPage extends ConsumerWidget {
   Future<void> _handleSubmit(
     BuildContext context,
     WidgetRef ref,
-    ServiceProductDetail product,
     PointsConfirmOrderArg arg,
-    PreCreditOrderInfoModel preInfo,
   ) async {
-    final orderState = ref.read(pointsConfirmOrderProvider(arg));
+    final notifier = ref.read(pointsConfirmOrderProvider(arg).notifier);
+    final submitResult = await notifier.submitOrder();
 
-    // 校验接收人/地址
-    if (preInfo.recvrType == RecvrType.shipAddress) {
-      final address = orderState.addressAsync.value;
-      if (address == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('请先添加收货地址')),
-        );
-        final selected = await context.push<MemberAddress>(RouteNames.addressAdd);
-        if (selected != null) {
-          ref.read(pointsConfirmOrderProvider(arg).notifier).setAddress(selected);
-        } else {
-          ref.read(pointsConfirmOrderProvider(arg).notifier).refreshAddress();
-        }
-        return;
-      }
-    } else if (preInfo.recvrType == RecvrType.recvrMobile) {
-      if (orderState.redeemerName.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请输入接收人姓名')));
-        return;
-      }
-      if (orderState.redeemerPhone.trim().isEmpty || orderState.redeemerPhone.length != 11) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请输入正确的11位手机号')));
-        return;
-      }
-    }
+    if (!context.mounted) return;
 
-    final totalPoints = product.points * orderState.quantity;
-    const mockOrderId = 'DDBH4565465789087654678908765789';
-    const mockOrderNo = 'DDBH45674567898908765789';
-
-    if (context.mounted) {
+    if (submitResult.success && submitResult.data != null) {
+      final res = submitResult.data!;
       context.push(
         RouteNames.paymentResult,
         extra: PointsPaymentSuccessData(
-          orderNo: mockOrderNo,
-          transactionNo: mockOrderId,
-          pointsDeducted: totalPoints,
+          orderNo: res.orderNo,
+          transactionNo: res.orderId,
+          pointsDeducted: res.pointsDeducted,
         ),
+      );
+    } else {
+      final errorMsg = submitResult.message.isNotEmpty ? submitResult.message : '提交订单失败';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMsg)),
       );
     }
   }

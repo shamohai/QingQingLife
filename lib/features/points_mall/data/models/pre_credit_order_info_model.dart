@@ -29,15 +29,50 @@ enum RecvrType {
   }
 }
 
+/// 积分预下单订单类型
+enum OrderType {
+  /// 青稞粒/自营积分订单 (SubmitCreditOrder API)
+  creditOrder(2),
+
+  /// 服务券兑换订单 (SubmitServiceCouponIntegralOrder API)
+  serviceCouponBuyOrder(23),
+
+  /// 百礼汇第三方积分订单 (SubmitBaiLiHuiOrder API)
+  baiLiHuiIntegralOrder(25),
+
+  /// 未知订单类型
+  unknown(-1);
+
+  final int value;
+  const OrderType(this.value);
+
+  factory OrderType.fromValue(dynamic val) {
+    if (val == null) return OrderType.unknown;
+    final v = val is num ? val.toInt() : int.tryParse(val.toString()) ?? -1;
+    switch (v) {
+      case 2:
+        return OrderType.creditOrder;
+      case 23:
+        return OrderType.serviceCouponBuyOrder;
+      case 25:
+        return OrderType.baiLiHuiIntegralOrder;
+      default:
+        return OrderType.unknown;
+    }
+  }
+}
+
 /// 预下单信息模型 (`LCS__Api__Handler__Order__DealPreCreditOrderInfo`)
 class PreCreditOrderInfoModel {
   final RecvrType recvrType;
+  final OrderType orderType;
   final int? totalPoints;
   final ServiceProductDetail? product;
   final Map<String, dynamic>? rawData;
 
   const PreCreditOrderInfoModel({
     required this.recvrType,
+    this.orderType = OrderType.unknown,
     this.totalPoints,
     this.product,
     this.rawData,
@@ -45,8 +80,11 @@ class PreCreditOrderInfoModel {
 
   factory PreCreditOrderInfoModel.fromJson(Map<String, dynamic> json) {
     final orderObj = (json['order'] ?? json['Order']) as Map<String, dynamic>?;
-    final rawType = orderObj?['recvrtype'] ?? orderObj?['RecvrType'] ?? json['recvrtype'] ?? json['RecvrType'];
-    final recvrType = RecvrType.fromValue(rawType);
+    final rawRecvrType = orderObj?['recvrtype'] ?? orderObj?['RecvrType'] ?? json['recvrtype'] ?? json['RecvrType'];
+    final recvrType = RecvrType.fromValue(rawRecvrType);
+
+    final rawOrderType = orderObj?['ordertype'] ?? orderObj?['OrderType'] ?? json['ordertype'] ?? json['OrderType'];
+    final orderType = OrderType.fromValue(rawOrderType);
 
     final points = (json['totalpoints'] ?? json['TotalPoints'] ?? orderObj?['totalpoints'] ?? orderObj?['TotalPoints']) as int?;
 
@@ -71,6 +109,7 @@ class PreCreditOrderInfoModel {
 
     return PreCreditOrderInfoModel(
       recvrType: recvrType,
+      orderType: orderType,
       totalPoints: points,
       product: productDetail,
       rawData: json,

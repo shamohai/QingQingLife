@@ -7,6 +7,7 @@ class ConfirmOrderBottomBar extends ConsumerWidget {
   final ServiceProductDetail product;
   final int quantity;
   final int pointsBalance;
+  final bool isSubmitting;
   final VoidCallback onSubmit;
 
   const ConfirmOrderBottomBar({
@@ -14,6 +15,7 @@ class ConfirmOrderBottomBar extends ConsumerWidget {
     required this.product,
     required this.quantity,
     required this.pointsBalance,
+    this.isSubmitting = false,
     required this.onSubmit,
   });
 
@@ -21,6 +23,7 @@ class ConfirmOrderBottomBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final totalPoints = product.points * quantity;
     final isPointsEnough = pointsBalance >= totalPoints;
+    final isClickable = isPointsEnough && !isSubmitting;
 
     return Container(
       width: double.infinity,
@@ -82,9 +85,9 @@ class ConfirmOrderBottomBar extends ConsumerWidget {
               ),
               const SizedBox(width: 20),
               GestureDetector(
-                onTap: isPointsEnough ? onSubmit : null,
+                onTap: isClickable ? onSubmit : null,
                 child: Opacity(
-                  opacity: isPointsEnough ? 1.0 : 0.5,
+                  opacity: isClickable ? 1.0 : 0.5,
                   child: Container(
                     width: 156,
                     height: 47,
@@ -96,11 +99,20 @@ class ConfirmOrderBottomBar extends ConsumerWidget {
                         colors: [Color(0xFF3152AF), Color(0xFF213775)],
                       ),
                     ),
-                    child: const Center(
-                      child: Text(
-                        '提交订单',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
-                      ),
+                    child: Center(
+                      child: isSubmitting
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text(
+                              '提交订单',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
+                            ),
                     ),
                   ),
                 ),
