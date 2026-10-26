@@ -206,8 +206,7 @@ class ServiceRemoteDataSource implements ServiceRepository {
         'phone': phone,
         'idno': idNo,
         'remark': remark,
-        'signupusercount': signupUserCount,
-        'authtoken': 0,
+        'signupusercount': signupUserCount
       },
       fromJson: (dynamic json) => 0,
     );
