@@ -152,7 +152,7 @@ class ActivityDetailPage extends ConsumerWidget {
         ),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      title: Text(title ?? '活动详情', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: Colors.black)),
+      title: Text('活动详情', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: Colors.black)),
       centerTitle: false,
     );
   }
