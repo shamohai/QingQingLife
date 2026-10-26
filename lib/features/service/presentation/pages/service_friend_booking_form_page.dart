@@ -94,11 +94,41 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请完善报名信息')));
       return;
     }
+
+    final maxSignupCount = widget.detail?.maxSignupCount ?? 0;
+    final count = int.tryParse(_countController.text.trim()) ?? 0;
     final friendCount = int.tryParse(_friendCountController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-    if (_bringFriend && friendCount > 1) {
-      await _showLimitDialog();
+    final totalCount = count + friendCount;
+
+    // 根据 maxSignupCount 校验
+    if (maxSignupCount == 0) {
+      await _showLimitDialog('暂无挚友会权益，无法报名');
       return;
     }
+
+    if (maxSignupCount == 1) {
+      // 仅自己参加，不能携带亲友
+      if (_bringFriend || friendCount > 0) {
+        await _showLimitDialog('该活动仅限本人参加，不可携带亲友');
+        return;
+      }
+      if (count > 1) {
+        await _showLimitDialog('该活动仅限本人参加，报名人数不能超过 1 人');
+        return;
+      }
+    } else {
+      // maxSignupCount > 1，可以携带亲友，总人数不能超过 maxSignupCount
+      if (totalCount > maxSignupCount) {
+        // 如果是因为携带亲友超限，显示特定提示
+        if (_bringFriend && friendCount > 0) {
+          await _showLimitDialog('携带亲友人数已经达到上限\n请参与购酒享服务活动');
+        } else {
+          await _showLimitDialog('报名总人数（含本人）不能超过 $maxSignupCount 人');
+        }
+        return;
+      }
+    }
+
     setState(() => _submitting = true);
     await Future<void>.delayed(const Duration(milliseconds: 300));
     if (!mounted) return;
@@ -106,7 +136,7 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
     Navigator.of(context).pop();
   }
 
-  Future<void> _showLimitDialog() {
+  Future<void> _showLimitDialog(String message) {
     return showDialog<void>(
       context: context,
       barrierColor: Colors.black26,
@@ -129,14 +159,14 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
                     constraints: const BoxConstraints(),
                   ),
                 ),
-                const Align(
+                Align(
                   alignment: Alignment.topCenter,
                   child: Padding(
-                    padding: EdgeInsets.only(top: 88),
+                    padding: const EdgeInsets.only(top: 88),
                     child: Text(
-                      '携带亲友人数已经达到上限\n请参与购酒享服务活动',
+                      message,
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black, height: 1.4),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black, height: 1.4),
                     ),
                   ),
                 ),
@@ -154,7 +184,7 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
                         elevation: 0,
                       ),
-                      child: const Text('前往购酒享服务', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400)),
+                      child: const Text('我知道了', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400)),
                     ),
                   ),
                 ),
