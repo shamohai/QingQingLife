@@ -1,35 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
+import '../providers/offline_activity_signup_provider.dart';
 
 /// 挚友会独立报名页，不复用服务预约表单。
 ///
 /// 如果传入 [detail] 且 [detail.mySignupInfo] 不为空，则展示已有报名信息（回显模式）；
 /// 否则为空表单（新报名模式）。
 /// 头图优先从 [detail.postUrl] 获取；若无 detail 则回退到 [heroAsset]（兼容旧 mock 路由）。
-class ServiceFriendBookingFormPage extends StatefulWidget {
+class ServiceFriendBookingFormPage extends ConsumerStatefulWidget {
   final String title;
-  final String? heroAsset; // 兼容旧 mock 路由，优先使用 detail.postUrl
+  final String? heroAsset;
   final OfflineActivityDetail? detail;
 
   const ServiceFriendBookingFormPage({super.key, required this.title, this.heroAsset, this.detail});
 
   @override
-  State<ServiceFriendBookingFormPage> createState() => _ServiceFriendBookingFormPageState();
+  ConsumerState<ServiceFriendBookingFormPage> createState() => _ServiceFriendBookingFormPageState();
 }
 
-class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormPage> {
+class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBookingFormPage> {
   late final TextEditingController _countController;
   late final TextEditingController _nameController;
   late final TextEditingController _phoneController;
   late final TextEditingController _friendCountController;
 
-  bool _bringFriend = false; // 默认不携带亲友
+  bool _bringFriend = false;
   bool _submitting = false;
 
   @override
@@ -38,27 +41,21 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
     _countController = TextEditingController();
     _nameController = TextEditingController();
     _phoneController = TextEditingController();
-    _friendCountController = TextEditingController(); // 默认空，不携带亲友时隐藏
+    _friendCountController = TextEditingController();
 
-    // 如果有已报名信息，回显填充表单
     _populateFromSignupInfo();
   }
 
   void _populateFromSignupInfo() {
     final signupInfo = widget.detail?.mySignupInfo;
     if (signupInfo == null) return;
-
-    // 回显报名人数（默认 1 人，即本人）
     _countController.text = signupInfo.signupUserCount.toString();
-    // 回显联系人姓名
     _nameController.text = signupInfo.username;
-    // 回显联系电话
     _phoneController.text = signupInfo.phone;
-    // 回显亲友人数：signupusercount - 1（总报名人数减去本人）
     final friendCount = signupInfo.signupUserCount - 1;
     if (friendCount > 0) {
       _bringFriend = true;
-      _friendCountController.text = '${friendCount}人';
+      _friendCountController.text = '$friendCount人';
     }
   }
 
@@ -88,6 +85,10 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
   }
 
   Future<void> _submit() async {
+    if (widget.detail?.activityId.isEmpty ?? true) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('活动 ID 为空，无法报名')));
+      return;
+    }
     if (_countController.text.trim().isEmpty || _nameController.text.trim().isEmpty || _phoneController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请完善报名信息')));
       return;
@@ -95,18 +96,16 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
 
     final maxSignupCount = widget.detail?.maxSignupCount ?? 0;
     final count = int.tryParse(_countController.text.trim()) ?? 0;
-    final friendCount = int.tryParse(_friendCountController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-    final totalCount = count + friendCount;
+    final friendCountNum = int.tryParse(_friendCountController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+    final totalCount = count + friendCountNum;
 
-    // 根据 maxSignupCount 校验
     if (maxSignupCount == 0) {
       await _showLimitDialog('暂无挚友会权益，无法报名');
       return;
     }
 
     if (maxSignupCount == 1) {
-      // 仅自己参加，不能携带亲友
-      if (_bringFriend || friendCount > 0) {
+      if (_bringFriend || friendCountNum > 0) {
         await _showLimitDialog('该活动仅限本人参加，不可携带亲友');
         return;
       }
@@ -115,10 +114,8 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
         return;
       }
     } else {
-      // maxSignupCount > 1，可以携带亲友，总人数不能超过 maxSignupCount
       if (totalCount > maxSignupCount) {
-        // 如果是因为携带亲友超限，显示特定提示
-        if (_bringFriend && friendCount > 0) {
+        if (_bringFriend && friendCountNum > 0) {
           await _showLimitDialog('携带亲友人数已经达到上限\n请参与购酒享服务活动');
         } else {
           await _showLimitDialog('报名总人数（含本人）不能超过 $maxSignupCount 人');
@@ -128,10 +125,72 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
     }
 
     setState(() => _submitting = true);
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    if (!mounted) return;
-    setState(() => _submitting = false);
-    Navigator.of(context).pop();
+
+    final params = <String, dynamic>{
+      'activityid': widget.detail!.activityId,
+      'username': _nameController.text.trim(),
+      'phone': _phoneController.text.trim(),
+      'idno': '',
+      'remark': '',
+      'signupusercount': totalCount,
+    };
+
+    try {
+      await ref.read(signupOfflineActivityProvider(params).future);
+      if (!mounted) return;
+      setState(() => _submitting = false);
+      _showSuccessDialog();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _submitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message), behavior: SnackBarBehavior.floating));
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _submitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('网络异常，请重试'), behavior: SnackBarBehavior.floating));
+    }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.check_circle, size: 48, color: AppColors.serviceTabActive),
+              const SizedBox(height: 16),
+              const Text(
+                '报名成功',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.serviceTabActive,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
+                    elevation: 0,
+                  ),
+                  child: const Text('我知道了', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _showLimitDialog(String message) {
@@ -255,20 +314,14 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          _Choice(
-                            selected: _bringFriend,
-                            label: '是',
-                            onTap: () => setState(() {
-                              _bringFriend = true;
-                            }),
-                          ),
+                          _Choice(selected: _bringFriend, label: '是', onTap: () => setState(() => _bringFriend = true)),
                           const SizedBox(width: 54),
                           _Choice(
                             selected: !_bringFriend,
                             label: '否',
                             onTap: () => setState(() {
                               _bringFriend = false;
-                              _friendCountController.clear(); // 不携带亲友时清空
+                              _friendCountController.clear();
                             }),
                           ),
                         ],

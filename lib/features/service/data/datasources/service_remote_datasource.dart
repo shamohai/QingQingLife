@@ -89,6 +89,7 @@ class ServiceRemoteDataSource implements ServiceRepository {
     );
   }
 
+  @override
   Future<ApiResponse<List<ShareCartTemplate>>> getShareCartTemplateList() async {
     return apiClient.post<List<ShareCartTemplate>>(
       '/api/groupMall/shareCart/gettemplatelist',
@@ -185,6 +186,30 @@ class ServiceRemoteDataSource implements ServiceRepository {
         final source = json as Map<String, dynamic>? ?? const <String, dynamic>{};
         return OfflineActivityDetail.fromJson(source);
       },
+    );
+  }
+
+  @override
+  Future<ApiResponse<int>> signupOfflineActivity({
+    required String activityId,
+    required String username,
+    required String phone,
+    String idNo = '',
+    String remark = '',
+    int signupUserCount = 1,
+  }) async {
+    return apiClient.post<int>(
+      '/api/promotion/app/activity/signupofflineactivity',
+      data: <String, dynamic>{
+        'activityid': activityId,
+        'username': username,
+        'phone': phone,
+        'idno': idNo,
+        'remark': remark,
+        'signupusercount': signupUserCount,
+        'authtoken': 0,
+      },
+      fromJson: (dynamic json) => 0,
     );
   }
 }

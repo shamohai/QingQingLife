@@ -76,4 +76,16 @@ abstract class ServiceRepository {
   /// Get offline activity detail
   /// POST /api/promotion/app/activity/getofflineactivitydetail
   Future<ApiResponse<OfflineActivityDetail>> getOfflineActivityDetail(String activityId);
+
+  /// 线下活动报名提交（挚友会 / 活动报名共用）
+  /// 请求：{activityid, username, phone, idno, remark, signupusercount, authtoken: 0}
+  /// 响应：result=0 表示报名成功
+  Future<ApiResponse<int>> signupOfflineActivity({
+    required String activityId,
+    required String username,
+    required String phone,
+    String idNo = '',
+    String remark = '',
+    int signupUserCount = 1,
+  });
 }

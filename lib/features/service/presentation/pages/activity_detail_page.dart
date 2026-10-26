@@ -49,7 +49,7 @@ class ActivityDetailPage extends ConsumerWidget {
   }
 
   void _onBookTap(BuildContext context, OfflineActivityDetail detail) {
-    if (detail.isSignup) return;
+    if (!detail.isSignup) return;
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ServiceActivityBookingFormPage(activityId: detail.activityId, title: detail.title, heroAsset: detail.postUrl),
@@ -73,28 +73,27 @@ class ActivityDetailPage extends ConsumerWidget {
         bottom: true,
         child: Center(
           child: GestureDetector(
-            onTap: detail.isSignup ? null : () => _onBookTap(context, detail),
+            onTap: detail.isSignup ? () => _onBookTap(context, detail) : null,
             child: Container(
               width: btnWidth,
               height: 51,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRadius.round),
                 gradient: detail.isSignup
-                    ? null
-                    : const LinearGradient(
+                    ? const LinearGradient(
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                         colors: [AppColors.serviceCtaGradStart, AppColors.serviceTabActive],
-                      ),
-                color: detail.isSignup ? const Color(0xFFCCCCCC) : null,
+                      ) : null,
+                color: detail.isSignup ? null : const Color(0xFFCCCCCC),
               ),
               child: Center(
                 child: Text(
-                  detail.isSignup ? '已报名' : '立即报名',
+                  detail.isSignup ? '立即报名' : '已报名',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
-                    color: detail.isSignup ? Colors.white.withValues(alpha: 0.5) : Colors.white,
+                    color: detail.isSignup ? Colors.white : Colors.white.withValues(alpha: 0.5),
                     height: 1.5,
                   ),
                 ),
