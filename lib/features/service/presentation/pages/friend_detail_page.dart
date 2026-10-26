@@ -50,10 +50,10 @@ class FriendDetailPage extends ConsumerWidget {
   }
 
   void _onBookTap(BuildContext context, OfflineActivityDetail detail) {
-    if (detail.isSignup) return;
+    if (!detail.isSignup) return;
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ServiceFriendBookingFormPage(title: '挚友会报名', heroAsset: detail.postUrl),
+        builder: (_) => ServiceFriendBookingFormPage(title: '挚友会报名', detail: detail),
       ),
     );
   }
@@ -73,20 +73,20 @@ class FriendDetailPage extends ConsumerWidget {
         bottom: true,
         child: Center(
           child: GestureDetector(
-            onTap: detail.isSignup ? null : () => _onBookTap(context, detail),
+            onTap: detail.isSignup ? () => _onBookTap(context, detail) : null,
             child: Container(
               width: btnWidth,
               height: 51,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRadius.round),
                 gradient: detail.isSignup
-                    ? null
-                    : const LinearGradient(
+                    ? const LinearGradient(
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                         colors: [AppColors.serviceCtaGradStart, AppColors.serviceTabActive],
-                      ),
-                color: detail.isSignup ? const Color(0xFFCCCCCC) : null,
+                      )
+                    : null,
+                color: detail.isSignup ? null : const Color(0xFFCCCCCC),
               ),
               child: const Center(
                 child: Text(
@@ -134,7 +134,7 @@ class FriendDetailPage extends ConsumerWidget {
         icon: const Icon(Icons.arrow_back, color: Colors.black),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      title: Text(title ?? '挚友报名会', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: Colors.black)),
+      title: Text('挚友报名会', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: Colors.black)),
       centerTitle: false,
     );
   }

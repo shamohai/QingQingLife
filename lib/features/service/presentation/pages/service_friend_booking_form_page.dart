@@ -4,13 +4,19 @@ import 'package:flutter/services.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../domain/models/offline_activity_detail_model.dart';
 
 /// 挚友会独立报名页，不复用服务预约表单。
+///
+/// 如果传入 [detail] 且 [detail.mySignupInfo] 不为空，则展示已有报名信息（回显模式）；
+/// 否则为空表单（新报名模式）。
+/// 头图优先从 [detail.postUrl] 获取；若无 detail 则回退到 [heroAsset]（兼容旧 mock 路由）。
 class ServiceFriendBookingFormPage extends StatefulWidget {
   final String title;
-  final String heroAsset;
+  final String? heroAsset; // 兼容旧 mock 路由，优先使用 detail.postUrl
+  final OfflineActivityDetail? detail;
 
-  const ServiceFriendBookingFormPage({super.key, required this.title, this.heroAsset = ''});
+  const ServiceFriendBookingFormPage({super.key, required this.title, this.heroAsset, this.detail});
 
   @override
   State<ServiceFriendBookingFormPage> createState() => _ServiceFriendBookingFormPageState();
@@ -22,7 +28,7 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
   late final TextEditingController _phoneController;
   late final TextEditingController _friendCountController;
 
-  bool _bringFriend = true;
+  bool _bringFriend = false; // 默认不携带亲友
   bool _submitting = false;
 
   @override
@@ -31,7 +37,36 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
     _countController = TextEditingController();
     _nameController = TextEditingController();
     _phoneController = TextEditingController();
-    _friendCountController = TextEditingController(text: '1人');
+    _friendCountController = TextEditingController(); // 默认空，不携带亲友时隐藏
+
+    // 如果有已报名信息，回显填充表单
+    _populateFromSignupInfo();
+  }
+
+  void _populateFromSignupInfo() {
+    final signupInfo = widget.detail?.mySignupInfo;
+    if (signupInfo == null || signupInfo.isEmpty) return;
+
+    // 回显报名人数
+    if (signupInfo['count'] != null) {
+      _countController.text = signupInfo['count'].toString();
+    }
+    // 回显联系人姓名
+    if (signupInfo['name'] != null) {
+      _nameController.text = signupInfo['name'].toString();
+    }
+    // 回显联系电话
+    if (signupInfo['phone'] != null) {
+      _phoneController.text = signupInfo['phone'].toString();
+    }
+    // 回显是否携带亲友
+    if (signupInfo['bringFriend'] != null) {
+      _bringFriend = signupInfo['bringFriend'] as bool? ?? false;
+    }
+    // 回显亲友人数（只有携带亲友时才显示）
+    if (_bringFriend && signupInfo['friendCount'] != null) {
+      _friendCountController.text = '${signupInfo['friendCount']}人';
+    }
   }
 
   @override
@@ -41,6 +76,17 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
     _phoneController.dispose();
     _friendCountController.dispose();
     super.dispose();
+  }
+
+  Widget _buildHeroImage() {
+    final postUrl = widget.detail?.postUrl;
+    if (postUrl != null && postUrl.isNotEmpty) {
+      return Image.network(postUrl, fit: BoxFit.cover);
+    }
+    if (widget.heroAsset != null && widget.heroAsset!.isNotEmpty) {
+      return Image.asset(widget.heroAsset!, fit: BoxFit.cover);
+    }
+    return Container(color: AppColors.surfaceVariant);
   }
 
   Future<void> _submit() async {
@@ -146,10 +192,7 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
               padding: const EdgeInsets.symmetric(horizontal: 14),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(AppRadius.md),
-                child: AspectRatio(
-                  aspectRatio: 412 / 180,
-                  child: Image.asset(widget.heroAsset, fit: BoxFit.cover),
-                ),
+                child: AspectRatio(aspectRatio: 412 / 180, child: _buildHeroImage()),
               ),
             ),
             Transform.translate(
@@ -184,17 +227,32 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          _Choice(selected: _bringFriend, label: '是', onTap: () => setState(() => _bringFriend = true)),
+                          _Choice(
+                            selected: _bringFriend,
+                            label: '是',
+                            onTap: () => setState(() {
+                              _bringFriend = true;
+                            }),
+                          ),
                           const SizedBox(width: 54),
-                          _Choice(selected: !_bringFriend, label: '否', onTap: () => setState(() => _bringFriend = false)),
+                          _Choice(
+                            selected: !_bringFriend,
+                            label: '否',
+                            onTap: () => setState(() {
+                              _bringFriend = false;
+                              _friendCountController.clear(); // 不携带亲友时清空
+                            }),
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      _FriendField(
-                        label: '亲友人数',
-                        icon: Icons.people_outline,
-                        child: _input(_friendCountController, '1人', keyboardType: TextInputType.number),
-                      ),
+                      if (_bringFriend) ...[
+                        const SizedBox(height: 16),
+                        _FriendField(
+                          label: '亲友人数',
+                          icon: Icons.people_outline,
+                          child: _input(_friendCountController, '1人', keyboardType: TextInputType.number),
+                        ),
+                      ],
                     ],
                   ),
                 ),

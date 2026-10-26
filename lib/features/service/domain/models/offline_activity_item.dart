@@ -25,7 +25,7 @@ class OfflineActivityItem {
   /// 活动状态
   final int status;
 
-  /// 是否已报名
+  /// 是否可报名
   final bool isSignup;
 
   /// 头图 URL
