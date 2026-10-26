@@ -10,6 +10,7 @@ import '../../domain/models/share_cart_product_model.dart';
 import '../../domain/models/share_cart_candidate_model.dart';
 import '../../domain/models/service_submit_order_model.dart';
 import '../../domain/models/offline_activity_item.dart';
+import '../../domain/models/offline_activity_detail_model.dart';
 import '../../domain/models/reservation_service_item.dart';
 import '../../domain/models/reservation_service_detail_model.dart';
 import '../../domain/models/reservation_record_item.dart';
@@ -171,6 +172,18 @@ class ServiceRemoteDataSource implements ServiceRepository {
         final source = json as Map<String, dynamic>? ?? const <String, dynamic>{};
         final listJson = source['activitylist'] as List<dynamic>? ?? const <dynamic>[];
         return listJson.map((e) => OfflineActivityItem.fromJson(e as Map<String, dynamic>)).toList();
+      },
+    );
+  }
+
+  @override
+  Future<ApiResponse<OfflineActivityDetail>> getOfflineActivityDetail(String activityId) async {
+    return apiClient.post<OfflineActivityDetail>(
+      '/api/promotion/app/activity/getofflineactivitydetail',
+      data: <String, dynamic>{'activityid': activityId, 'authtoken': 0},
+      fromJson: (dynamic json) {
+        final source = json as Map<String, dynamic>? ?? const <String, dynamic>{};
+        return OfflineActivityDetail.fromJson(source);
       },
     );
   }

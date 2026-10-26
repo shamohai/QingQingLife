@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
+
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+
+import '../../../../app/config/app_config.dart';
+import '../../domain/models/offline_activity_detail_model.dart';
 import '../../domain/models/service_project_detail_model.dart';
 
 class ActivityDetailInfoCard extends StatelessWidget {
   final ServiceProjectDetail activity;
+  final OfflineActivityDetail? detail;
 
-  const ActivityDetailInfoCard({super.key, required this.activity});
+  const ActivityDetailInfoCard({super.key, required this.activity, this.detail});
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +47,15 @@ class ActivityDetailInfoCard extends StatelessWidget {
                 ),
               ),
             ],
+            if (detail != null && detail!.contentHtml.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: HtmlWidget(
+                  detail!.contentHtml,
+                  baseUrl: Uri.parse(AppConfig.baseUrl),
+                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black, height: 1.5),
+                ),
+              ),
           ],
         ),
       ),

@@ -10,7 +10,7 @@ class ServiceFriendBookingFormPage extends StatefulWidget {
   final String title;
   final String heroAsset;
 
-  const ServiceFriendBookingFormPage({super.key, required this.title, required this.heroAsset});
+  const ServiceFriendBookingFormPage({super.key, required this.title, this.heroAsset = ''});
 
   @override
   State<ServiceFriendBookingFormPage> createState() => _ServiceFriendBookingFormPageState();

@@ -1,5 +1,6 @@
 import '../../../../core/network/api_response.dart';
 import '../models/offline_activity_item.dart';
+import '../models/offline_activity_detail_model.dart';
 import '../models/reservation_service_item.dart';
 import '../models/reservation_service_detail_model.dart';
 import '../models/reservation_record_item.dart';
@@ -71,4 +72,8 @@ abstract class ServiceRepository {
   /// typdsfriends=true 查询挚友会活动，false 查询其他活动
   /// 响应：{activitylist: [...], result: 0, descr: null, datatag: ""}
   Future<ApiResponse<List<OfflineActivityItem>>> getOfflineActivityList({required bool typdsfriends, int pageIndex = 1, int pageSize = 20});
+
+  /// Get offline activity detail
+  /// POST /api/promotion/app/activity/getofflineactivitydetail
+  Future<ApiResponse<OfflineActivityDetail>> getOfflineActivityDetail(String activityId);
 }

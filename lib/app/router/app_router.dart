@@ -117,11 +117,11 @@ final appRouter = Provider<GoRouter>((ref) {
                   ),
                   GoRoute(
                     path: 'friend/:id',
-                    pageBuilder: (c, s) => MaterialPage(child: FriendDetailPage(projectId: s.pathParameters['id']!)),
+                    pageBuilder: (c, s) => MaterialPage(child: FriendDetailPage(activityId: s.pathParameters['id']!)),
                   ),
                   GoRoute(
                     path: 'activity/:id',
-                    pageBuilder: (c, s) => MaterialPage(child: ActivityDetailPage(projectId: s.pathParameters['id']!)),
+                    pageBuilder: (c, s) => MaterialPage(child: ActivityDetailPage(activityId: s.pathParameters['id']!)),
                   ),
                   GoRoute(
                     name: 'serviceBookingForm',
@@ -363,3 +363,4 @@ class _TabItem extends StatelessWidget {
     );
   }
 }
+

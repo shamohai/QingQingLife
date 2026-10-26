@@ -13,6 +13,9 @@ class OfflineActivityItem {
   /// 活动副标题
   final String subtitle;
 
+  /// 活动限制条件
+  final String limitations;
+
   /// 活动开始日期（yyyy-MM-dd）
   final String startDate;
 
@@ -32,6 +35,7 @@ class OfflineActivityItem {
     required this.activityId,
     required this.title,
     required this.subtitle,
+    required this.limitations,
     required this.startDate,
     required this.endDate,
     required this.status,
@@ -44,6 +48,7 @@ class OfflineActivityItem {
       activityId: json['activityid'] as String? ?? '',
       title: json['title'] as String? ?? '',
       subtitle: json['subtitle'] as String? ?? '',
+      limitations: json['limitations'] as String? ?? '',
       startDate: json['startdate'] as String? ?? '',
       endDate: json['enddate'] as String? ?? '',
       status: (json['status'] as num?)?.toInt() ?? 0,

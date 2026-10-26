@@ -74,6 +74,22 @@ class HuodongActivityListItem extends StatelessWidget {
                     ),
                   ],
                 ),
+              if (item.dateRangeDisplay.isNotEmpty) const SizedBox(height: 8),
+              if (item.limitations.isNotEmpty)
+                Row(
+                  children: [
+                    const Icon(Icons.account_circle_outlined, size: 18, color: Colors.black),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        item.limitations,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E93), height: 1.43),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
             ],
           ),
         ),
