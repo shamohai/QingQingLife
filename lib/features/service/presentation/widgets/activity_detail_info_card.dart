@@ -7,18 +7,14 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 import '../../../../app/config/app_config.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
-import '../../domain/models/service_project_detail_model.dart';
 
 class ActivityDetailInfoCard extends StatelessWidget {
-  final ServiceProjectDetail activity;
-  final OfflineActivityDetail? detail;
+  final OfflineActivityDetail detail;
 
-  const ActivityDetailInfoCard({super.key, required this.activity, this.detail});
+  const ActivityDetailInfoCard({super.key, required this.detail});
 
   @override
   Widget build(BuildContext context) {
-    final contentImage = activity.detailImageAsset;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 13),
       child: Container(
@@ -35,23 +31,13 @@ class ActivityDetailInfoCard extends StatelessWidget {
             const SizedBox(height: 14),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: _ActivityMetadata(activity: activity),
+              child: _ActivityMetadata(detail: detail),
             ),
-            if (contentImage != null) ...[
-              const SizedBox(height: 30),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 11),
-                child: AspectRatio(
-                  aspectRatio: 394 / 368,
-                  child: Image.asset(contentImage, width: double.infinity, fit: BoxFit.cover),
-                ),
-              ),
-            ],
-            if (detail != null && detail!.contentHtml.isNotEmpty)
+            if (detail.contentHtml.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: HtmlWidget(
-                  detail!.contentHtml,
+                  detail.contentHtml,
                   baseUrl: Uri.parse(AppConfig.baseUrl),
                   textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black, height: 1.5),
                 ),
@@ -96,9 +82,9 @@ class _ActivityIntroHeader extends StatelessWidget {
 }
 
 class _ActivityMetadata extends StatelessWidget {
-  final ServiceProjectDetail activity;
+  final OfflineActivityDetail detail;
 
-  const _ActivityMetadata({required this.activity});
+  const _ActivityMetadata({required this.detail});
 
   @override
   Widget build(BuildContext context) {
@@ -107,10 +93,10 @@ class _ActivityMetadata extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _MetadataLine(label: '活动时间', value: activity.activityTime, style: style),
-        _MetadataLine(label: '报名时间', value: activity.registrationTime, style: style),
-        _MetadataLine(label: '活动地址', value: activity.activityAddress, style: style),
-        _MetadataLine(label: '限制人数', value: activity.limitCount == null ? null : '${activity.limitCount}人', style: style),
+        _MetadataLine(label: '活动时间', value: detail.dateRangeDisplay, style: style),
+        // 报名时间字段暂无，后端补充后可添加
+        if (detail.addressList.isNotEmpty) _MetadataLine(label: '活动地址', value: detail.addressList.first.address, style: style),
+        _MetadataLine(label: '限制人数', value: detail.maxSignupCount > 0 ? '${detail.maxSignupCount}人' : null, style: style),
       ],
     );
   }

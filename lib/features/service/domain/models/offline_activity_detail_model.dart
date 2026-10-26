@@ -3,7 +3,7 @@
 /// 对应接口：POST /api/promotion/app/activity/getofflineactivitydetail
 /// 请求：{"activityid": "uuid", "authtoken": 0}
 /// 响应：{"detail": {...}, "mysignupinfo": null|{...}, "maxsignupcount": int,
-///        "result": 0, "descr": null, "datatag": ""}
+///        "addresslist": [...], "result": 0, "descr": null, "datatag": ""}
 class OfflineActivityDetail {
   /// 活动 ID
   final String activityId;
@@ -36,7 +36,10 @@ class OfflineActivityDetail {
   final int maxSignupCount;
 
   /// 用户自身的报名信息（当前后端为 null）
-  final Map<String, dynamic>? mySignupInfo;
+  final MySignupInfo? mySignupInfo;
+
+  /// 活动地址列表
+  final List<ActivityAddress> addressList;
 
   const OfflineActivityDetail({
     required this.activityId,
@@ -50,11 +53,14 @@ class OfflineActivityDetail {
     required this.contentHtml,
     required this.maxSignupCount,
     this.mySignupInfo,
+    this.addressList = const [],
   });
 
   /// 从扁平行数据（已剔除 result/descr/datatag）中解析
   factory OfflineActivityDetail.fromJson(Map<String, dynamic> json) {
     final detail = json['detail'] as Map<String, dynamic>? ?? const <String, dynamic>{};
+    final mySignupInfoJson = json['mysignupinfo'] as Map<String, dynamic>?;
+    final addressListJson = json['addresslist'] as List<dynamic>?;
     return OfflineActivityDetail(
       activityId: detail['activityid'] as String? ?? '',
       title: detail['title'] as String? ?? '',
@@ -66,7 +72,8 @@ class OfflineActivityDetail {
       postUrl: detail['posturl'] as String? ?? '',
       contentHtml: detail['contenthtml'] as String? ?? '',
       maxSignupCount: (json['maxsignupcount'] as num?)?.toInt() ?? 0,
-      mySignupInfo: json['mysignupinfo'] as Map<String, dynamic>?,
+      mySignupInfo: mySignupInfoJson != null ? MySignupInfo.fromJson(mySignupInfoJson) : null,
+      addressList: addressListJson?.map((e) => ActivityAddress.fromJson(e as Map<String, dynamic>)).toList() ?? [],
     );
   }
 
@@ -75,5 +82,96 @@ class OfflineActivityDetail {
     if (startDate.isEmpty && endDate.isEmpty) return '';
     if (startDate == endDate) return startDate;
     return '$startDate 至 $endDate';
+  }
+}
+
+/// 用户自身的报名信息
+///
+/// 对应接口返回的 mysignupinfo 对象结构：
+/// {
+///   "signupid": "",
+///   "scrmmemberid": "",
+///   "username": "",
+///   "phone": "",
+///   "idno": "",
+///   "remark": "",
+///   "signupusercount": ""
+/// }
+class MySignupInfo {
+  /// 报名 ID
+  final String signupId;
+
+  /// SCRM 会员 ID
+  final String scrmMemberId;
+
+  /// 用户名/联系人姓名
+  final String username;
+
+  /// 联系电话
+  final String phone;
+
+  /// 身份证号
+  final String idNo;
+
+  /// 备注
+  final String remark;
+
+  /// 报名总人数（含本人）
+  final int signupUserCount;
+
+  const MySignupInfo({
+    required this.signupId,
+    required this.scrmMemberId,
+    required this.username,
+    required this.phone,
+    required this.idNo,
+    required this.remark,
+    required this.signupUserCount,
+  });
+
+  factory MySignupInfo.fromJson(Map<String, dynamic> json) {
+    return MySignupInfo(
+      signupId: json['signupid'] as String? ?? '',
+      scrmMemberId: json['scrmmemberid'] as String? ?? '',
+      username: json['username'] as String? ?? '',
+      phone: json['phone'] as String? ?? '',
+      idNo: json['idno'] as String? ?? '',
+      remark: json['remark'] as String? ?? '',
+      signupUserCount: (json['signupusercount'] as num?)?.toInt() ?? 0,
+    );
+  }
+}
+
+/// 活动地址模型
+///
+/// 对应接口返回的 addresslist 数组项结构：
+/// {
+///   "id": "",
+///   "address": "",
+///   "activityid": "",
+///   "coordinate": ""
+/// }
+class ActivityAddress {
+  /// 地址 ID
+  final String id;
+
+  /// 详细地址
+  final String address;
+
+  /// 关联活动 ID
+  final String activityId;
+
+  /// 坐标（经纬度，如 "116.397428,39.90923"）
+  final String coordinate;
+
+  const ActivityAddress({required this.id, required this.address, required this.activityId, required this.coordinate});
+
+  factory ActivityAddress.fromJson(Map<String, dynamic> json) {
+    return ActivityAddress(
+      id: json['id'] as String? ?? '',
+      address: json['address'] as String? ?? '',
+      activityId: json['activityid'] as String? ?? '',
+      coordinate: json['coordinate'] as String? ?? '',
+    );
   }
 }

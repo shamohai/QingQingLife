@@ -110,8 +110,8 @@ class HuodongActivityListItem extends StatelessWidget {
                     ),
                   ],
                 ),
-              if (item.limitations.isNotEmpty) const SizedBox(height: 8),
-              // 状态行：进行中/已结束
+              if (item.limitations.isNotEmpty) const SizedBox(height: 3),
+              // 状态行：进行中/已结束 + 右侧报名按钮
               Row(
                 children: [
                   const Icon(Icons.flag_outlined, size: 18, color: Colors.black),
@@ -125,34 +125,34 @@ class HuodongActivityListItem extends StatelessWidget {
                       height: 1.43,
                     ),
                   ),
+                  const Spacer(),
+                  // 报名按钮：固定 78x31，红色描边
+                  SizedBox(
+                    height: 31,
+                    width: 78,
+                    child: OutlinedButton(
+                      onPressed: item.isSignup ? onTap : null,
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppColors.serviceButtonRed),
+                        backgroundColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
+                        padding: EdgeInsets.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(
+                        item.isSignup ? '立即报名' : '已报名',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: item.isSignup ? AppColors.serviceButtonRed : AppColors.serviceButtonRed.withValues(alpha: 0.5),
+                        ),
+                        softWrap: false,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],
-          ),
-        ),
-        const SizedBox(width: 22),
-        // 右侧报名按钮：固定 78x31，红色描边
-        SizedBox(
-          height: 31,
-          width: 78,
-          child: OutlinedButton(
-            onPressed: item.isSignup ? null : onTap,
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.serviceButtonRed),
-              backgroundColor: Colors.transparent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
-              padding: EdgeInsets.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(
-              item.isSignup ? '已报名' : '立即报名',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: item.isSignup ? AppColors.serviceButtonRed.withValues(alpha: 0.5) : AppColors.serviceButtonRed,
-              ),
-              softWrap: false,
-            ),
           ),
         ),
       ],

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/widgets/app_image.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
 
 /// 挚友会独立报名页，不复用服务预约表单。
@@ -45,27 +46,19 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
 
   void _populateFromSignupInfo() {
     final signupInfo = widget.detail?.mySignupInfo;
-    if (signupInfo == null || signupInfo.isEmpty) return;
+    if (signupInfo == null) return;
 
-    // 回显报名人数
-    if (signupInfo['count'] != null) {
-      _countController.text = signupInfo['count'].toString();
-    }
+    // 回显报名人数（默认 1 人，即本人）
+    _countController.text = signupInfo.signupUserCount.toString();
     // 回显联系人姓名
-    if (signupInfo['name'] != null) {
-      _nameController.text = signupInfo['name'].toString();
-    }
+    _nameController.text = signupInfo.username;
     // 回显联系电话
-    if (signupInfo['phone'] != null) {
-      _phoneController.text = signupInfo['phone'].toString();
-    }
-    // 回显是否携带亲友
-    if (signupInfo['bringFriend'] != null) {
-      _bringFriend = signupInfo['bringFriend'] as bool? ?? false;
-    }
-    // 回显亲友人数（只有携带亲友时才显示）
-    if (_bringFriend && signupInfo['friendCount'] != null) {
-      _friendCountController.text = '${signupInfo['friendCount']}人';
+    _phoneController.text = signupInfo.phone;
+    // 回显亲友人数：signupusercount - 1（总报名人数减去本人）
+    final friendCount = signupInfo.signupUserCount - 1;
+    if (friendCount > 0) {
+      _bringFriend = true;
+      _friendCountController.text = '${friendCount}人';
     }
   }
 
@@ -81,7 +74,12 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
   Widget _buildHeroImage() {
     final postUrl = widget.detail?.postUrl;
     if (postUrl != null && postUrl.isNotEmpty) {
-      return Image.network(postUrl, fit: BoxFit.cover);
+      return AppNetworkImage(
+        url: postUrl,
+        fit: BoxFit.cover,
+        placeholder: Container(color: AppColors.surfaceVariant),
+        errorWidget: Container(color: AppColors.surfaceVariant),
+      );
     }
     if (widget.heroAsset != null && widget.heroAsset!.isNotEmpty) {
       return Image.asset(widget.heroAsset!, fit: BoxFit.cover);

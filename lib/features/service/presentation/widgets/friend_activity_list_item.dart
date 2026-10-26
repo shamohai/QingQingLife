@@ -89,7 +89,7 @@ class FriendActivityListItem extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: item.isSignup ? AppColors.serviceButtonRed.withValues(alpha: 0.5) : AppColors.serviceButtonRed,
+                    color: item.isSignup ? AppColors.serviceButtonRed : AppColors.serviceButtonRed.withValues(alpha: 0.5),
                   ),
                   softWrap: false,
                   overflow: TextOverflow.visible,

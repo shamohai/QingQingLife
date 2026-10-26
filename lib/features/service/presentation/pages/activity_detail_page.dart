@@ -7,7 +7,6 @@ import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
-import '../../domain/models/service_project_detail_model.dart';
 import '../providers/offline_activity_detail_provider.dart';
 import '../widgets/activity_detail_info_card.dart';
 import '../widgets/project_detail_hero_image.dart';
@@ -89,10 +88,15 @@ class ActivityDetailPage extends ConsumerWidget {
                       ),
                 color: detail.isSignup ? const Color(0xFFCCCCCC) : null,
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  '立即报名',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white, height: 1.5),
+                  detail.isSignup ? '已报名' : '立即报名',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: detail.isSignup ? Colors.white.withValues(alpha: 0.5) : Colors.white,
+                    height: 1.5,
+                  ),
                 ),
               ),
             ),
@@ -103,21 +107,6 @@ class ActivityDetailPage extends ConsumerWidget {
   }
 
   Widget _buildBody(BuildContext context, OfflineActivityDetail detail) {
-    // 将真实 detail 映射为 ActivityDetailInfoCard 所需的 ServiceProjectDetail（仅用于 metadata 行）
-    final cardModel = ServiceProjectDetail(
-      id: detail.activityId,
-      title: detail.title,
-      heroAsset: detail.postUrl,
-      description: detail.contentHtml,
-      onBook: () {},
-      type: ServiceProjectDetailType.activity,
-      activityTime: detail.dateRangeDisplay,
-      registrationTime: null,
-      activityAddress: null,
-      limitCount: detail.maxSignupCount > 0 ? detail.maxSignupCount : null,
-      detailImageAsset: null,
-    );
-
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
@@ -135,7 +124,7 @@ class ActivityDetailPage extends ConsumerWidget {
                     ProjectDetailHeroImage(heroAsset: detail.postUrl, horizontalPadding: 14, aspectRatio: 412 / 180),
                     Padding(
                       padding: EdgeInsets.only(top: heroHeight - overlap),
-                      child: ActivityDetailInfoCard(activity: cardModel, detail: detail),
+                      child: ActivityDetailInfoCard(detail: detail),
                     ),
                   ],
                 );
