@@ -1,6 +1,7 @@
 import '../../../../core/network/api_response.dart';
 import '../enums/order_type.dart';
 import '../entities/order_list_order.dart';
+import '../entities/service_coupon_order.dart';
 
 /// 订单仓库接口
 abstract class OrderRepository {
@@ -12,6 +13,18 @@ abstract class OrderRepository {
     String? couponCode,
     int? pointsToUse,
     String? remark,
+  });
+
+  /// 预处理服务券订单（真实接口：POST /api/order/v2/predealservicecouponorder）
+  Future<ApiResponse<ServiceCouponPreDealData>> preDealServiceCouponOrder({required int serviceCouponId, required int count, int? addressId});
+
+  /// 提交服务券订单（真实接口：POST /api/order/v2/submitservicecouponorder）
+  Future<ApiResponse<ServiceCouponOrderSubmitResult>> submitServiceCouponOrder({
+    required int serviceCouponId,
+    required int count,
+    required int addressId,
+    String? remark,
+    DateTime? sendTime,
   });
 
   /// 获取订单列表（分页）

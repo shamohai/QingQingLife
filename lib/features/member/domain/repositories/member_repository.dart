@@ -47,6 +47,9 @@ abstract class MemberRepository {
   /// 转赠服务券（真实接口：POST /api/promotion/giveservicecoupon）
   Future<ApiResponse<void>> giveServiceCoupon({required int serviceCouponId, required int count});
 
+  /// 取消转赠服务券（真实接口：POST /api/promotion/giveservicecouponreovoke）
+  Future<ApiResponse<void>> revokeServiceCoupon({required int serviceCouponId, required String shareGroup});
+
   /// 领取优惠券
   Future<ApiResponse<void>> claimCoupon(String couponTemplateId);
 

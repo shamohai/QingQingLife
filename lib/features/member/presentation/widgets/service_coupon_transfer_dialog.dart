@@ -34,6 +34,30 @@ Future<ServiceCouponTransferResult?> runServiceCouponTransferFlow({
   return result;
 }
 
+Future<ServiceCouponTransferResult?> runServiceCouponCancelTransferFlow({
+  required BuildContext context,
+  required WidgetRef ref,
+  required ServiceCouponInfo coupon,
+}) async {
+  final navigator = Navigator.of(context, rootNavigator: true);
+  unawaited(
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator(color: Colors.white)),
+    ),
+  );
+
+  final result = await ref.read(serviceCouponTransferProvider).revoke(coupon: coupon);
+  if (navigator.mounted) navigator.pop();
+  if (!context.mounted) return result;
+
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(result.message), behavior: SnackBarBehavior.floating));
+  return result;
+}
+
 Future<int?> showServiceCouponTransferDialog({required BuildContext context, required int maxCount}) {
   return showDialog<int>(
     context: context,

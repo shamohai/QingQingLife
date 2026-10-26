@@ -237,6 +237,11 @@ class MockMemberDataSource implements MemberRepository {
   }
 
   @override
+  Future<ApiResponse<void>> revokeServiceCoupon({required int serviceCouponId, required String shareGroup}) async {
+    return ApiResponse.success(null);
+  }
+
+  @override
   Future<ApiResponse<void>> claimCoupon(String couponTemplateId) async {
     return ApiResponse.success(null);
   }

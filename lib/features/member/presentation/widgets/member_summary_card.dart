@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
+import '../../../../core/widgets/app_image.dart';
 import '../providers/member_level_provider.dart';
 import '../providers/user_profile_provider.dart';
 
@@ -37,11 +38,7 @@ class MemberSummaryCard extends ConsumerWidget {
     final profileMode = profileState != null;
     final effectiveLevel =
         level ??
-        MemberLevelOption(
-          id: profileState!.currentRank?.userrid ?? 0,
-          name: profileState.levelName,
-          growthThreshold: profileState.nextLevelGrowthValue,
-        );
+        MemberLevelOption(id: profileState!.currentRank?.userrid ?? 0, name: profileState.levelName, growthThreshold: profileState.nextLevelGrowthValue);
     final effectiveGrowthValue = growthValue ?? profileState!.growthValue;
     final reached = !profileMode && effectiveGrowthValue >= effectiveLevel.growthThreshold;
     final progressText = profileMode
@@ -51,6 +48,7 @@ class MemberSummaryCard extends ConsumerWidget {
         : '$effectiveGrowthValue/${effectiveLevel.growthThreshold}升级';
     final benefitsText = profileMode ? '尊享多项会员权益，立即解锁' : '可尊享${_cnNum(effectiveLevel.cardBenefitsCount)}项会员权益';
     final statusText = profileMode ? _formatExpireDate(profileState.memberExpireDate) : (reached ? '已达到该等级，继续保持！' : '暂未达到该等级，怎能轻易认输！');
+    final levelIconUrl = level?.iconUrl.trim() ?? '';
 
     return GestureDetector(
       onTap: onTap,
@@ -144,8 +142,17 @@ class MemberSummaryCard extends ConsumerWidget {
 
             const SizedBox(width: 8),
 
-            // ── 右侧金色等级徽章 ──────────────────────────────────────
-            Image.asset('assets/images/member/member_badge_level.webp', width: 84, fit: BoxFit.contain),
+            // ── 右侧等级徽章：详情页使用接口 iconurl，我的页保留本地默认图 ──
+            if (levelIconUrl.isNotEmpty)
+              SizedBox(
+                width: 84,
+                height: 84,
+                child: AppNetworkImage(url: levelIconUrl, fit: BoxFit.contain, memCacheWidth: 168, memCacheHeight: 168),
+              )
+            else if (!profileMode)
+              const SizedBox(width: 84, height: 84)
+            else
+              Image.asset('assets/images/member/member_badge_level.webp', width: 84, fit: BoxFit.contain),
           ],
         ),
       ),

@@ -255,6 +255,18 @@ class MemberRemoteDataSource {
   Future<ApiResponse<void>> giveServiceCoupon({required int serviceCouponId, required int count}) async {
     return _apiClient.post<void>('/api/promotion/giveservicecoupon', data: <String, dynamic>{'serviceconponid': serviceCouponId, 'count': count});
   }
+
+  /// 取消转赠服务券。
+  ///
+  /// 接口：POST /api/promotion/giveservicecouponreovoke
+  /// 请求体：{serviceconponid, sharegroup}
+  /// `serviceconponid` 为文档保留字段名；取消转赠以列表返回的 `sharegroup` 定位转赠记录。
+  Future<ApiResponse<void>> revokeServiceCoupon({required int serviceCouponId, required String shareGroup}) async {
+    return _apiClient.post<void>(
+      '/api/promotion/giveservicecouponreovoke',
+      data: <String, dynamic>{'serviceconponid': serviceCouponId, 'sharegroup': shareGroup},
+    );
+  }
 }
 
 /// MemberRemoteDataSource Provider

@@ -23,15 +23,26 @@ class MemberLevelOption {
   /// 顶部卡片「可尊享 X 项会员权益」（由 getrankdetail 的权益条数回填）
   final int cardBenefitsCount;
 
-  const MemberLevelOption({required this.id, required this.name, required this.growthThreshold, this.nextGrowthThreshold = 0, this.cardBenefitsCount = 0});
+  /// 等级图标（RankBaseInfo.iconurl）
+  final String iconUrl;
 
-  MemberLevelOption copyWith({int? cardBenefitsCount}) {
+  const MemberLevelOption({
+    required this.id,
+    required this.name,
+    required this.growthThreshold,
+    this.nextGrowthThreshold = 0,
+    this.cardBenefitsCount = 0,
+    this.iconUrl = '',
+  });
+
+  MemberLevelOption copyWith({int? cardBenefitsCount, String? iconUrl}) {
     return MemberLevelOption(
       id: id,
       name: name,
       growthThreshold: growthThreshold,
       nextGrowthThreshold: nextGrowthThreshold,
       cardBenefitsCount: cardBenefitsCount ?? this.cardBenefitsCount,
+      iconUrl: iconUrl ?? this.iconUrl,
     );
   }
 }
@@ -223,7 +234,8 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
       final detail = detailResp.data!;
       final benefitAuths = _mapBenefitAuths(detail);
       final updatedLevels = [...levels];
-      updatedLevels[index] = levels[index].copyWith(cardBenefitsCount: benefitAuths.length);
+      final detailIconUrl = detail.rankbaseinfo?.iconUrl.trim() ?? '';
+      updatedLevels[index] = levels[index].copyWith(cardBenefitsCount: benefitAuths.length, iconUrl: detailIconUrl.isEmpty ? null : detailIconUrl);
 
       state = _copy(
         loading: false,
@@ -343,7 +355,13 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
 
   /// RankBaseInfo → 等级页签选项
   MemberLevelOption _toLevelOption(RankBaseInfo rank) {
-    return MemberLevelOption(id: rank.userrid, name: rank.userridname, growthThreshold: rank.currentrankstart, nextGrowthThreshold: rank.currentrankend);
+    return MemberLevelOption(
+      id: rank.userrid,
+      name: rank.userridname,
+      growthThreshold: rank.currentrankstart,
+      nextGrowthThreshold: rank.currentrankend,
+      iconUrl: rank.iconUrl,
+    );
   }
 
   /// 匹配用户当前等级所在的页签下标（找不到时兜底为最高等级）

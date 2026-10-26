@@ -61,6 +61,12 @@ abstract final class RouteNames {
 
   // 积分商城服务商品确认订单
   static const String confirmOrder = '/points/service/:id/confirm';
+  // 服务券支付订单确认
+  static const String serviceCouponConfirmOrder = '/points/service/:id/coupon-order';
+
+  static String serviceCouponConfirmOrderPath({required int serviceCouponId, required int count}) {
+    return Uri(path: serviceCouponConfirmOrder.replaceFirst(':id', '$serviceCouponId'), queryParameters: {'count': '$count'}).toString();
+  }
 
   // 消息通知
   static const String notifications = '/notifications';

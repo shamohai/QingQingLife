@@ -76,7 +76,17 @@ class RankBaseInfo {
   /// 当前等级的结束积分；等于 0 表示无上限
   final int currentrankend;
 
-  const RankBaseInfo({required this.userrid, required this.userridname, this.expiredate, this.currentrankstart = 0, this.currentrankend = 0});
+  /// 等级图标地址
+  final String iconUrl;
+
+  const RankBaseInfo({
+    required this.userrid,
+    required this.userridname,
+    this.expiredate,
+    this.currentrankstart = 0,
+    this.currentrankend = 0,
+    this.iconUrl = '',
+  });
 
   /// 过期日期（解析失败返回 null）
   DateTime? get expireDate => expiredate == null ? null : DateTime.tryParse(expiredate!);
@@ -88,6 +98,7 @@ class RankBaseInfo {
       expiredate: json['expiredate'] as String?,
       currentrankstart: _asInt(json['currentrankstart']),
       currentrankend: _asInt(json['currentrankend']),
+      iconUrl: (json['iconurl'] as String?)?.trim() ?? '',
     );
   }
 }

@@ -198,6 +198,19 @@ class _ServiceCouponListPageState extends ConsumerState<ServiceCouponListPage> {
   }
 
   Future<void> _onCouponTap(BuildContext context, ServiceCouponInfo coupon, ServiceCouponStatus status) async {
+    if (status == ServiceCouponStatus.transferring) {
+      final action = await showModalBottomSheet<String>(
+        context: context,
+        backgroundColor: Colors.transparent,
+        useSafeArea: true,
+        builder: (_) => ServiceCouponActionSheet(couponName: coupon.couponName, canDeliver: false, canTransfer: false, actionLabels: const ['取消转赠']),
+      );
+      if (!context.mounted || action != '取消转赠') return;
+
+      await runServiceCouponCancelTransferFlow(context: context, ref: ref, coupon: coupon);
+      return;
+    }
+
     if (status != ServiceCouponStatus.valid) return;
 
     final action = await showModalBottomSheet<String>(
@@ -217,6 +230,18 @@ class _ServiceCouponListPageState extends ConsumerState<ServiceCouponListPage> {
 
     if (action == '转增好友') {
       await runServiceCouponTransferFlow(context: context, ref: ref, coupon: coupon);
+      return;
+    }
+
+    if (action == '快递到家') {
+      if (coupon.serviceCouponId <= 0) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(const SnackBar(content: Text('服务券信息无效，请刷新后重试'), behavior: SnackBarBehavior.floating));
+        return;
+      }
+      final count = coupon.num > 0 ? coupon.num : 1;
+      await context.push(RouteNames.serviceCouponConfirmOrderPath(serviceCouponId: coupon.serviceCouponId, count: count));
       return;
     }
 

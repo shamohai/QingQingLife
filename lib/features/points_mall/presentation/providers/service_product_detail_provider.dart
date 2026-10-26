@@ -9,9 +9,6 @@ import '../../data/models/service_product_detail_model.dart';
 final serviceProductDetailProvider = FutureProvider.family.autoDispose<ServiceProductDetail, String>((ref, productId) async {
   final repository = ref.read(pointsRepositoryProvider);
 
-  //测试时使用牦牛券
-  productId = '2002';
-
   final response = await repository.getServiceProductDetail(productId);
   if (!response.success || response.data == null) {
     throw Exception(response.message);

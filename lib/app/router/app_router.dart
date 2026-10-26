@@ -36,6 +36,7 @@ import '../../features/points_mall/presentation/pages/service_product_detail_pag
 import '../../features/points_mall/presentation/pages/confirm_order_page.dart';
 import '../../features/points_mall/presentation/pages/all_products_page.dart';
 import '../../features/points_mall/presentation/pages/points_payment_success_page.dart';
+import '../../features/order/presentation/pages/service_coupon_confirm_order_page.dart';
 import '../../features/points/presentation/pages/points_detail_page.dart';
 import '../../features/points/presentation/pages/points_rules_page.dart';
 import '../../features/order/presentation/pages/all_orders_page.dart';
@@ -208,10 +209,17 @@ final appRouter = Provider<GoRouter>((ref) {
           final userServiceIdStr = s.uri.queryParameters['userServiceId'];
           final userServiceId = userServiceIdStr != null ? int.tryParse(userServiceIdStr) : null;
           return MaterialPage(
-            child: ConfirmOrderPage(
-              productId: s.pathParameters['id']!,
-              userServiceId: userServiceId,
-            ),
+            child: ConfirmOrderPage(productId: s.pathParameters['id']!, userServiceId: userServiceId),
+          );
+        },
+      ),
+      GoRoute(
+        path: RouteNames.serviceCouponConfirmOrder,
+        pageBuilder: (c, s) {
+          final serviceCouponId = int.tryParse(s.pathParameters['id'] ?? '') ?? 0;
+          final initialCount = int.tryParse(s.uri.queryParameters['count'] ?? '') ?? 1;
+          return MaterialPage(
+            child: ServiceCouponConfirmOrderPage(serviceCouponId: serviceCouponId, initialCount: initialCount),
           );
         },
       ),

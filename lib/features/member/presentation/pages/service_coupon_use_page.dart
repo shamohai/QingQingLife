@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../data/models/service_coupon_model.dart';
 import '../providers/service_coupon_use_provider.dart';
@@ -78,7 +79,7 @@ class _ServiceCouponUsePageState extends ConsumerState<ServiceCouponUsePage> {
                       padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.xl),
                       child: Column(
                         children: [
-                          ServiceCouponCodeCard(coupon: coupon, onTransfer: _handleTransfer, onDeliver: () => _showPendingMessage('快递到家')),
+                          ServiceCouponCodeCard(coupon: coupon, onTransfer: _handleTransfer, onDeliver: _handleDeliver),
                           const SizedBox(height: AppSpacing.sm),
                           _buildCountCard(state),
                           if (coupon.remark.trim().isNotEmpty) ...[const SizedBox(height: AppSpacing.sm), _buildDescriptionCard(coupon)],
@@ -230,6 +231,19 @@ class _ServiceCouponUsePageState extends ConsumerState<ServiceCouponUsePage> {
     context.pop();
   }
 
+  Future<void> _handleDeliver() async {
+    final state = ref.read(serviceCouponUseProvider);
+    final coupon = state.coupon ?? widget.coupon;
+    if (coupon.serviceCouponId <= 0) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('服务券信息无效，请刷新后重试'), behavior: SnackBarBehavior.floating));
+      return;
+    }
+    final count = state.count > 0 ? state.count : 1;
+    await context.push(RouteNames.serviceCouponConfirmOrderPath(serviceCouponId: coupon.serviceCouponId, count: count));
+  }
+
   void _setCountText(int count) {
     final text = '$count';
     if (_countController.text == text) return;
@@ -243,11 +257,5 @@ class _ServiceCouponUsePageState extends ConsumerState<ServiceCouponUsePage> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text('最多可使用$maxCount张'), behavior: SnackBarBehavior.floating));
-  }
-
-  void _showPendingMessage(String action) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('$action功能待接入'), behavior: SnackBarBehavior.floating));
   }
 }

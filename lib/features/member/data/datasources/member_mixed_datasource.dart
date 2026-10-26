@@ -74,6 +74,10 @@ class MemberMixedDataSource implements MemberRepository {
       remote.giveServiceCoupon(serviceCouponId: serviceCouponId, count: count);
 
   @override
+  Future<ApiResponse<void>> revokeServiceCoupon({required int serviceCouponId, required String shareGroup}) =>
+      remote.revokeServiceCoupon(serviceCouponId: serviceCouponId, shareGroup: shareGroup);
+
+  @override
   Future<ApiResponse<CouponListResult>> getCoupons({required int page, required int pageSize, CouponStatus? status}) =>
       mock.getCoupons(page: page, pageSize: pageSize, status: status);
 

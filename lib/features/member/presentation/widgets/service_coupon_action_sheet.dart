@@ -7,10 +7,11 @@ class ServiceCouponActionSheet extends StatelessWidget {
   final String couponName;
   final bool canDeliver;
   final bool canTransfer;
+  final List<String>? actionLabels;
 
-  const ServiceCouponActionSheet({super.key, required this.couponName, required this.canDeliver, required this.canTransfer});
+  const ServiceCouponActionSheet({super.key, required this.couponName, required this.canDeliver, required this.canTransfer, this.actionLabels});
 
-  List<String> get actions => ['到店使用', if (canDeliver) '快递到家', if (canTransfer) '转增好友'];
+  List<String> get actions => actionLabels ?? ['到店使用', if (canDeliver) '快递到家', if (canTransfer) '转增好友'];
 
   @override
   Widget build(BuildContext context) {

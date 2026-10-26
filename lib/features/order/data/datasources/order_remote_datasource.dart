@@ -4,6 +4,7 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/providers.dart';
 import '../../domain/repositories/order_repository.dart';
+import '../../domain/entities/service_coupon_order.dart';
 import '../models/order_detail_response.dart';
 import '../models/order_list_response.dart';
 
@@ -24,6 +25,34 @@ class OrderRemoteDataSource {
         'pagesize': pageSize,
       },
       fromJson: (dynamic json) => OrderListResponse.fromJson(Map<String, dynamic>.from(json as Map)),
+    );
+  }
+
+  Future<ApiResponse<ServiceCouponPreDealData>> preDealServiceCouponOrder({required int serviceCouponId, required int count, int? addressId}) {
+    return _apiClient.post<ServiceCouponPreDealData>(
+      '/api/order/v2/predealservicecouponorder',
+      data: <String, dynamic>{'servicecouponid': serviceCouponId, 'num': count, 'addressid': addressId},
+      fromJson: (dynamic json) => ServiceCouponPreDealData.fromJson(Map<String, dynamic>.from(json as Map)),
+    );
+  }
+
+  Future<ApiResponse<ServiceCouponOrderSubmitResult>> submitServiceCouponOrder({
+    required int serviceCouponId,
+    required int count,
+    required int addressId,
+    String? remark,
+    DateTime? sendTime,
+  }) {
+    return _apiClient.post<ServiceCouponOrderSubmitResult>(
+      '/api/order/v2/submitservicecouponorder',
+      data: <String, dynamic>{
+        'servicecouponid': serviceCouponId,
+        'num': count,
+        'addressid': addressId,
+        'remark': remark,
+        'sendtime': sendTime?.toIso8601String(),
+      },
+      fromJson: (dynamic json) => ServiceCouponOrderSubmitResult.fromJson(Map<String, dynamic>.from(json as Map)),
     );
   }
 

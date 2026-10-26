@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/repositories/order_repository.dart';
 import '../../../../core/network/api_response.dart';
+import '../../domain/entities/service_coupon_order.dart';
 
 /// Mock 订单数据源 - 开发/测试环境使用
 class MockOrderDataSource implements OrderRepository {
@@ -27,6 +28,22 @@ class MockOrderDataSource implements OrderRepository {
         prepayId: 'prepay_${DateTime.now().millisecondsSinceEpoch}',
       ),
     );
+  }
+
+  @override
+  Future<ApiResponse<ServiceCouponPreDealData>> preDealServiceCouponOrder({required int serviceCouponId, required int count, int? addressId}) async {
+    return ApiResponse.error('服务券订单预处理请使用远程数据源');
+  }
+
+  @override
+  Future<ApiResponse<ServiceCouponOrderSubmitResult>> submitServiceCouponOrder({
+    required int serviceCouponId,
+    required int count,
+    required int addressId,
+    String? remark,
+    DateTime? sendTime,
+  }) async {
+    return ApiResponse.error('服务券订单提交请使用远程数据源');
   }
 
   @override

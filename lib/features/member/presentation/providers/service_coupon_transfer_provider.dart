@@ -33,6 +33,26 @@ class ServiceCouponTransferController {
     await ref.read(serviceCouponListProvider.notifier).load();
     return const ServiceCouponTransferResult(success: true, message: '转赠成功');
   }
+
+  Future<ServiceCouponTransferResult> revoke({required ServiceCouponInfo coupon}) async {
+    final shareGroup = coupon.shareGroup.trim();
+    if (coupon.serviceCouponId <= 0 && shareGroup.isEmpty) {
+      return const ServiceCouponTransferResult(success: false, message: '服务券信息无效，请刷新后重试');
+    }
+
+    try {
+      final response = await ref.read(memberRepositoryProvider).revokeServiceCoupon(serviceCouponId: coupon.serviceCouponId, shareGroup: shareGroup);
+      if (!response.success) {
+        final message = response.message.trim();
+        return ServiceCouponTransferResult(success: false, message: message.isEmpty || message == 'unknown error' ? '取消转赠失败，请稍后重试' : message);
+      }
+
+      await ref.read(serviceCouponListProvider.notifier).load();
+      return const ServiceCouponTransferResult(success: true, message: '取消转赠成功');
+    } catch (_) {
+      return const ServiceCouponTransferResult(success: false, message: '取消转赠失败，请稍后重试');
+    }
+  }
 }
 
 final serviceCouponTransferProvider = Provider<ServiceCouponTransferController>((ref) => ServiceCouponTransferController(ref));

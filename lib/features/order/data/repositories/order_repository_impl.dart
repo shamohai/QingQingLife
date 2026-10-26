@@ -1,4 +1,5 @@
 import '../../../../core/network/api_response.dart';
+import '../../domain/entities/service_coupon_order.dart';
 import '../../domain/repositories/order_repository.dart';
 import '../datasources/order_remote_datasource.dart';
 
@@ -36,6 +37,19 @@ class OrderRepositoryImpl implements OrderRepository {
     pointsToUse: pointsToUse,
     remark: remark,
   );
+
+  @override
+  Future<ApiResponse<ServiceCouponPreDealData>> preDealServiceCouponOrder({required int serviceCouponId, required int count, int? addressId}) =>
+      remote.preDealServiceCouponOrder(serviceCouponId: serviceCouponId, count: count, addressId: addressId);
+
+  @override
+  Future<ApiResponse<ServiceCouponOrderSubmitResult>> submitServiceCouponOrder({
+    required int serviceCouponId,
+    required int count,
+    required int addressId,
+    String? remark,
+    DateTime? sendTime,
+  }) => remote.submitServiceCouponOrder(serviceCouponId: serviceCouponId, count: count, addressId: addressId, remark: remark, sendTime: sendTime);
 
   @override
   Future<ApiResponse<OrderDetail>> getOrderDetail(String orderId) => remote.getOrderDetail(orderId);

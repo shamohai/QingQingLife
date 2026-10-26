@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../features/auth/presentation/providers/auth_provider.dart';
+import '../../data/models/get_recommend_product_list_model.dart';
 import '../../data/models/service_product_detail_model.dart';
 import 'exchange_confirm_dialog.dart';
 import 'tips_dialog.dart';
@@ -64,6 +65,16 @@ class BottomActionBar extends ConsumerWidget {
     }
 
     final effectiveId = productId.isNotEmpty ? productId : (product.id.isNotEmpty ? product.id : 'service_001');
+
+    if (product.productType == CreditProductType.serviceCouponSale) {
+      final serviceCouponId = product.serviceCoupon?.couponConfigId ?? int.tryParse(effectiveId) ?? 0;
+      if (serviceCouponId <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('服务券信息无效，请稍后重试')));
+        return;
+      }
+      GoRouter.of(context).push(RouteNames.serviceCouponConfirmOrderPath(serviceCouponId: serviceCouponId, count: 1));
+      return;
+    }
 
     // 2. auth 权限判断
     if (product.auth) {
