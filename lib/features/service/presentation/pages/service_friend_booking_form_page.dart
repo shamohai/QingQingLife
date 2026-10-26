@@ -202,47 +202,43 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
         return Dialog(
           insetPadding: const EdgeInsets.symmetric(horizontal: 13),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          child: SizedBox(
-            height: 207,
-            child: Stack(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Positioned(
-                  top: 18,
-                  right: 18,
-                  child: IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close, size: 30, color: Color(0xFF333333)),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 88),
-                    child: Text(
-                      message,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black, height: 1.4),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: 31,
-                  right: 31,
-                  bottom: 34,
-                  child: SizedBox(
-                    height: 54,
-                    child: ElevatedButton(
+                // 关闭按钮
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.serviceTabActive,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
-                        elevation: 0,
-                      ),
-                      child: const Text('我知道了', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400)),
+                      icon: const Icon(Icons.close, size: 24, color: Color(0xFF333333)),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
+                  ],
+                ),
+                // 提示文案
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black, height: 1.4),
+                ),
+                const SizedBox(height: 32),
+                // 确认按钮
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.serviceTabActive,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
+                      elevation: 0,
+                    ),
+                    child: const Text('我知道了', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
                   ),
                 ),
               ],
