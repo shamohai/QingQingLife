@@ -1,4 +1,5 @@
 import '../../../../core/network/api_response.dart';
+import '../models/offline_activity_item.dart';
 import '../models/reservation_service_item.dart';
 import '../models/reservation_service_detail_model.dart';
 import '../models/reservation_record_item.dart';
@@ -31,15 +32,11 @@ abstract class ServiceRepository {
     required String remark,
   });
 
-
   /// 获取我的预约/报名记录列表（分页）
   /// 请求：{reservationlisttype: 0|1|2, pageindex: int, pagesize: int}
   /// reservationlisttype: 0=全部, 1=已预约, 2=已完成
-  Future<ApiResponse<List<ReservationRecordItem>>> getMyReservationList({
-    required int reservationListType,
-    int pageIndex = 1,
-    int pageSize = 20,
-  });
+  Future<ApiResponse<List<ReservationRecordItem>>> getMyReservationList({required int reservationListType, int pageIndex = 1, int pageSize = 20});
+
   /// 获取购酒享服务模板列表
   Future<ApiResponse<List<ShareCartTemplate>>> getShareCartTemplateList();
 
@@ -68,4 +65,10 @@ abstract class ServiceRepository {
   /// 请求 body：{sharecartid: int, addressid: int}
   /// 响应包含 cansubmit / verifymsg，成功后包含 orderId
   Future<ApiResponse<ServiceSubmitOrderResult>> submitGroupOrder(int shareCartId, int addressId);
+
+  /// 获取线下活动列表（挚友会 / 活动报名共用）
+  /// 请求：{typdsfriends: bool, authtoken: 0, pageindex: int, pagesize: int}
+  /// typdsfriends=true 查询挚友会活动，false 查询其他活动
+  /// 响应：{activitylist: [...], result: 0, descr: null, datatag: ""}
+  Future<ApiResponse<List<OfflineActivityItem>>> getOfflineActivityList({required bool typdsfriends, int pageIndex = 1, int pageSize = 20});
 }

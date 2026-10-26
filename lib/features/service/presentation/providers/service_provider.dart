@@ -5,6 +5,7 @@ import '../../domain/models/service_record_item.dart';
 import '../../data/datasources/service_remote_datasource.dart';
 import '../../domain/models/share_cart_template_model.dart';
 import '../../domain/models/reservation_service_item.dart';
+import '../../domain/models/offline_activity_item.dart';
 
 /// 按当前选中 Tab 过滤的服务列表卡片数据 Provider（静态 mock，待正式 API 对接后替换）
 final serviceCardDataProvider = Provider<List<ServiceCardData>>((ref) {
@@ -47,5 +48,19 @@ class ServiceTabNotifier extends Notifier<String> {
 final reservationServiceListProvider = FutureProvider<List<ReservationServiceItem>>((ref) async {
   final dataSource = ref.read(serviceRemoteDataSourceProvider);
   final response = await dataSource.getReservationServiceList();
+  return response.requireData;
+});
+
+/// 挚友报名会列表 Provider（typdsfriends=true）
+final zhiyouhuiActivityListProvider = FutureProvider<List<OfflineActivityItem>>((ref) async {
+  final dataSource = ref.read(serviceRemoteDataSourceProvider);
+  final response = await dataSource.getOfflineActivityList(typdsfriends: true);
+  return response.requireData;
+});
+
+/// 活动报名列表 Provider（typdsfriends=false）
+final huodongActivityListProvider = FutureProvider<List<OfflineActivityItem>>((ref) async {
+  final dataSource = ref.read(serviceRemoteDataSourceProvider);
+  final response = await dataSource.getOfflineActivityList(typdsfriends: false);
   return response.requireData;
 });

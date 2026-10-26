@@ -8,9 +8,9 @@ import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../providers/service_provider.dart';
 import '../widgets/service_tab_bar.dart';
-import '../widgets/service_list_item.dart';
+import '../widgets/friend_activity_list_item.dart';
+import '../widgets/huodong_activity_list_item.dart';
 import '../widgets/reservation_service_list_item.dart';
-import '../widgets/service_activity_card_item.dart';
 import '../widgets/service_floating_buttons.dart';
 import '../widgets/share_cart_template_item.dart';
 
@@ -72,41 +72,48 @@ class ServicePage extends ConsumerWidget {
     );
   }
 
-  /// 活动报名列表（第三个 tab）：列表项点击跳转到详情页
+  /// 活动报名列表（第三个 tab）：使用真实 API 数据
   Widget _buildHuodongBody(WidgetRef ref, void Function(String) onItemTap) {
-    final cards = ref.watch(serviceCardDataProvider);
-    return cards.isEmpty
-        ? const SizedBox(height: 200, child: AppEmpty(message: '暂无活动'))
-        : ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            children: [
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 11),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 14, bottom: 14),
-                        child: ServiceActivityCardItem(data: cards[0], onTap: () => onItemTap(cards[0].id)),
+    final activitiesAsync = ref.watch(huodongActivityListProvider);
+    return activitiesAsync.when(
+      data: (activities) {
+        if (activities.isEmpty) {
+          return const SizedBox(height: 200, child: AppEmpty(message: '暂无活动'));
+        }
+        return ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          children: [
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 11),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 14, bottom: 14),
+                      child: HuodongActivityListItem(item: activities[0], onTap: () => onItemTap(activities[0].activityId)),
+                    ),
+                    for (int i = 1; i < activities.length; i++)
+                      Column(
+                        children: [
+                          Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 14, bottom: 14),
+                            child: HuodongActivityListItem(item: activities[i], onTap: () => onItemTap(activities[i].activityId)),
+                          ),
+                        ],
                       ),
-                      for (int i = 1; i < cards.length; i++)
-                        Column(
-                          children: [
-                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 14, bottom: 14),
-                              child: ServiceActivityCardItem(data: cards[i], onTap: () => onItemTap(cards[i].id)),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
-            ],
-          );
+            ),
+          ],
+        );
+      },
+      loading: () => const AppLoading(),
+      error: (_, _) => const SizedBox(height: 200, child: AppEmpty(message: '加载失败，请重试')),
+    );
   }
 
   /// 服务预约列表（第一个 tab）：列表项点击跳转到详情页
@@ -154,42 +161,48 @@ class ServicePage extends ConsumerWidget {
     );
   }
 
-  /// 挚友报名会列表（第二个 tab）：列表项点击跳转到详情页
-  /// 样式与服务预约一致，分离便于后续独立扩展
+  /// 挚友报名会列表（第二个 tab）：使用真实 API 数据
   Widget _buildZhiyouhuiBody(WidgetRef ref, void Function(String) onItemTap) {
-    final cards = ref.watch(serviceCardDataProvider);
-    return cards.isEmpty
-        ? const SizedBox(height: 200, child: AppEmpty(message: '暂无挚友报名会'))
-        : ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            children: [
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 11),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 14, bottom: 14),
-                        child: ServiceListItem(data: cards[0], onBookTap: onItemTap),
+    final activitiesAsync = ref.watch(zhiyouhuiActivityListProvider);
+    return activitiesAsync.when(
+      data: (activities) {
+        if (activities.isEmpty) {
+          return const SizedBox(height: 200, child: AppEmpty(message: '暂无挚友报名会'));
+        }
+        return ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          children: [
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 11),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 14, bottom: 14),
+                      child: FriendActivityListItem(item: activities[0], onTap: () => onItemTap(activities[0].activityId)),
+                    ),
+                    for (int i = 1; i < activities.length; i++)
+                      Column(
+                        children: [
+                          Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 14, bottom: 14),
+                            child: FriendActivityListItem(item: activities[i], onTap: () => onItemTap(activities[i].activityId)),
+                          ),
+                        ],
                       ),
-                      for (int i = 1; i < cards.length; i++)
-                        Column(
-                          children: [
-                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 14, bottom: 14),
-                              child: ServiceListItem(data: cards[i], onBookTap: onItemTap),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
-            ],
-          );
+            ),
+          ],
+        );
+      },
+      loading: () => const AppLoading(),
+      error: (_, _) => const SizedBox(height: 200, child: AppEmpty(message: '加载失败，请重试')),
+    );
   }
 
   Widget _buildGoujiuBody(BuildContext context, WidgetRef ref) {

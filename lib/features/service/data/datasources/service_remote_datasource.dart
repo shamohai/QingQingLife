@@ -9,6 +9,7 @@ import '../../domain/models/share_cart_template_detail_model.dart';
 import '../../domain/models/share_cart_product_model.dart';
 import '../../domain/models/share_cart_candidate_model.dart';
 import '../../domain/models/service_submit_order_model.dart';
+import '../../domain/models/offline_activity_item.dart';
 import '../../domain/models/reservation_service_item.dart';
 import '../../domain/models/reservation_service_detail_model.dart';
 import '../../domain/models/reservation_record_item.dart';
@@ -75,18 +76,10 @@ class ServiceRemoteDataSource implements ServiceRepository {
   }
 
   @override
-  Future<ApiResponse<List<ReservationRecordItem>>> getMyReservationList({
-    required int reservationListType,
-    int pageIndex = 1,
-    int pageSize = 20,
-  }) async {
+  Future<ApiResponse<List<ReservationRecordItem>>> getMyReservationList({required int reservationListType, int pageIndex = 1, int pageSize = 20}) async {
     return apiClient.post<List<ReservationRecordItem>>(
       '/api/sys/app/getmyreservationlist',
-      data: <String, dynamic>{
-        'reservationlisttype': reservationListType,
-        'pageindex': pageIndex,
-        'pagesize': pageSize,
-      },
+      data: <String, dynamic>{'reservationlisttype': reservationListType, 'pageindex': pageIndex, 'pagesize': pageSize},
       fromJson: (dynamic json) {
         final source = json as Map<String, dynamic>? ?? const <String, dynamic>{};
         final listJson = source['list'] as List<dynamic>? ?? const <dynamic>[];
@@ -94,7 +87,6 @@ class ServiceRemoteDataSource implements ServiceRepository {
       },
     );
   }
-
 
   Future<ApiResponse<List<ShareCartTemplate>>> getShareCartTemplateList() async {
     return apiClient.post<List<ShareCartTemplate>>(
@@ -167,6 +159,19 @@ class ServiceRemoteDataSource implements ServiceRepository {
       '/api/groupMall/order/submitgrouporder',
       data: <String, dynamic>{'sharecartid': shareCartId, 'addressid': addressId},
       fromJson: (dynamic json) => ServiceSubmitOrderResult.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  @override
+  Future<ApiResponse<List<OfflineActivityItem>>> getOfflineActivityList({required bool typdsfriends, int pageIndex = 1, int pageSize = 20}) async {
+    return apiClient.post<List<OfflineActivityItem>>(
+      '/api/promotion/app/activity/getofflineactivitylist',
+      data: <String, dynamic>{'typdsfriends': typdsfriends, 'authtoken': 0, 'pageindex': pageIndex, 'pagesize': pageSize},
+      fromJson: (dynamic json) {
+        final source = json as Map<String, dynamic>? ?? const <String, dynamic>{};
+        final listJson = source['activitylist'] as List<dynamic>? ?? const <dynamic>[];
+        return listJson.map((e) => OfflineActivityItem.fromJson(e as Map<String, dynamic>)).toList();
+      },
     );
   }
 }
