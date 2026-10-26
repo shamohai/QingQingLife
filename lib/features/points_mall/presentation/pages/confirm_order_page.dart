@@ -10,7 +10,6 @@ import '../../data/models/points_payment_success_data.dart';
 import '../../data/models/pre_credit_order_info_model.dart';
 import '../../data/models/service_product_detail_model.dart';
 import '../providers/confirm_order_provider.dart';
-import '../providers/points_mall_paging_providers.dart';
 import '../widgets/confirm_order_bottom_bar.dart';
 import '../widgets/confirm_order_header.dart';
 import '../widgets/confirm_order_product_card.dart';
@@ -20,11 +19,7 @@ class ConfirmOrderPage extends ConsumerWidget {
   final String productId;
   final int? userServiceId;
 
-  const ConfirmOrderPage({
-    super.key,
-    required this.productId,
-    this.userServiceId,
-  });
+  const ConfirmOrderPage({super.key, required this.productId, this.userServiceId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,10 +33,7 @@ class ConfirmOrderPage extends ConsumerWidget {
       body: orderState.preOrderInfoAsync.when(
         loading: () => const Center(child: AppLoading()),
         error: (error, stack) => Center(
-          child: AppError(
-            message: '预下单信息加载失败: $error',
-            onRetry: () => ref.invalidate(pointsConfirmOrderProvider(arg)),
-          ),
+          child: AppError(message: '预下单信息加载失败: $error', onRetry: () => ref.invalidate(pointsConfirmOrderProvider(arg))),
         ),
         data: (preInfo) {
           final product = preInfo.product ?? ServiceProductDetail.mock;
@@ -72,24 +64,13 @@ class ConfirmOrderPage extends ConsumerWidget {
         Positioned.fill(
           child: Column(
             children: [
-              Expanded(
-                flex: 50,
-                child: Container(color: const Color(0xFFF3F5F7)),
-              ),
+              Expanded(flex: 50, child: Container(color: const Color(0xFFF3F5F7))),
               Expanded(
                 flex: 50,
                 child: Container(
                   decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Color(0xFFF3F5F7), Color(0xFFFFFFFF)],
-                    ),
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/order/order_bottom_bg.png'),
-                      fit: BoxFit.cover,
-                      alignment: Alignment.bottomCenter,
-                    ),
+                    gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFF3F5F7), Color(0xFFFFFFFF)]),
+                    image: DecorationImage(image: AssetImage('assets/images/order/order_bottom_bg.png'), fit: BoxFit.cover, alignment: Alignment.bottomCenter),
                   ),
                 ),
               ),
@@ -169,30 +150,21 @@ class ConfirmOrderPage extends ConsumerWidget {
 
   Widget _buildBottomBar(WidgetRef ref, PointsConfirmOrderArg arg, ServiceProductDetail product) {
     final orderState = ref.watch(pointsConfirmOrderProvider(arg));
-    final pointsAsync = ref.watch(pointsMallStaticDataProvider);
 
-    return pointsAsync.when(
-      data: (d) => orderState.preOrderInfoAsync.when(
-        data: (preInfo) => ConfirmOrderBottomBar(
-          product: product,
-          quantity: orderState.quantity,
-          pointsBalance: d.currentPoints,
-          isSubmitting: orderState.isSubmitting,
-          onSubmit: () => _handleSubmit(ref.context, ref, arg),
-        ),
-        loading: () => const SizedBox(height: 56),
-        error: (_, _) => const SizedBox(height: 56),
+    return orderState.preOrderInfoAsync.when(
+      data: (preInfo) => ConfirmOrderBottomBar(
+        product: product,
+        quantity: orderState.quantity,
+        pointsBalance: preInfo.credit,
+        isSubmitting: orderState.isSubmitting,
+        onSubmit: () => _handleSubmit(ref.context, ref, arg),
       ),
       loading: () => const SizedBox(height: 56),
       error: (_, _) => const SizedBox(height: 56),
     );
   }
 
-  Future<void> _handleSubmit(
-    BuildContext context,
-    WidgetRef ref,
-    PointsConfirmOrderArg arg,
-  ) async {
+  Future<void> _handleSubmit(BuildContext context, WidgetRef ref, PointsConfirmOrderArg arg) async {
     final notifier = ref.read(pointsConfirmOrderProvider(arg).notifier);
     final submitResult = await notifier.submitOrder();
 
@@ -202,17 +174,11 @@ class ConfirmOrderPage extends ConsumerWidget {
       final res = submitResult.data!;
       context.push(
         RouteNames.paymentResult,
-        extra: PointsPaymentSuccessData(
-          orderNo: res.orderNo,
-          transactionNo: res.orderId,
-          pointsDeducted: res.pointsDeducted,
-        ),
+        extra: PointsPaymentSuccessData(orderNo: res.orderNo, transactionNo: res.orderId, pointsDeducted: res.pointsDeducted),
       );
     } else {
       final errorMsg = submitResult.message.isNotEmpty ? submitResult.message : '提交订单失败';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMsg)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMsg)));
     }
   }
 }

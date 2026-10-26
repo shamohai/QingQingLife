@@ -100,11 +100,7 @@ class PointsRemoteDataSource implements PointsRepository {
   }
 
   @override
-  Future<ApiResponse<PreCreditOrderInfoModel>> getPreCreditOrderInfo({
-    required int userServiceId,
-    required String productId,
-    required int quantity,
-  }) async {
+  Future<ApiResponse<PreCreditOrderInfoModel>> getPreCreditOrderInfo({required int userServiceId, required String productId, required int quantity}) async {
     final pid = int.tryParse(productId) ?? 0;
     return _apiClient.post<PreCreditOrderInfoModel>(
       '/api/order/dealprecreditorderinfo',
@@ -112,10 +108,7 @@ class PointsRemoteDataSource implements PointsRepository {
         'userserviceid': userServiceId,
         'isgiftcard': false,
         'productlist': [
-          <String, dynamic>{
-            'itemid': pid,
-            'num': quantity,
-          }
+          <String, dynamic>{'itemid': pid, 'num': quantity},
         ],
       },
       fromJson: (dynamic json) {

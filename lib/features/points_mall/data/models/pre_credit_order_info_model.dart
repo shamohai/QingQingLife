@@ -67,6 +67,8 @@ class PreCreditOrderInfoModel {
   final RecvrType recvrType;
   final OrderType orderType;
   final int? totalPoints;
+  final int credit;
+  final int redeemableQuantity;
   final ServiceProductDetail? product;
   final Map<String, dynamic>? rawData;
 
@@ -74,45 +76,64 @@ class PreCreditOrderInfoModel {
     required this.recvrType,
     this.orderType = OrderType.unknown,
     this.totalPoints,
+    this.credit = 0,
+    this.redeemableQuantity = 0,
     this.product,
     this.rawData,
   });
 
   factory PreCreditOrderInfoModel.fromJson(Map<String, dynamic> json) {
-    final orderObj = (json['order'] ?? json['Order']) as Map<String, dynamic>?;
+    final orderObj = _map(json['order'] ?? json['Order']);
+    final stores = _mapList(json['stores'] ?? json['Stores'] ?? orderObj?['stores'] ?? orderObj?['Stores']);
+    final products = stores.expand((store) => _mapList(store['products'] ?? store['Products'])).toList();
+    final firstProduct = products.isNotEmpty ? products.first : _map(json['product'] ?? orderObj?['product']);
+
     final rawRecvrType = orderObj?['recvrtype'] ?? orderObj?['RecvrType'] ?? json['recvrtype'] ?? json['RecvrType'];
-    final recvrType = RecvrType.fromValue(rawRecvrType);
-
     final rawOrderType = orderObj?['ordertype'] ?? orderObj?['OrderType'] ?? json['ordertype'] ?? json['OrderType'];
-    final orderType = OrderType.fromValue(rawOrderType);
-
-    final points = (json['totalpoints'] ?? json['TotalPoints'] ?? orderObj?['totalpoints'] ?? orderObj?['TotalPoints']) as int?;
+    final credit = _toInt(json['credit'] ?? json['Credit'] ?? orderObj?['credit'] ?? orderObj?['Credit']);
+    final quantity = _toInt(firstProduct?['num'] ?? firstProduct?['Num'] ?? json['num'] ?? json['Num']);
+    final creditCount = _toInt(firstProduct?['creditcount'] ?? firstProduct?['CreditCount']);
+    final rawTotalPoints = _toInt(json['totalpoints'] ?? json['TotalPoints'] ?? orderObj?['totalpoints'] ?? orderObj?['TotalPoints']);
+    final totalPoints = rawTotalPoints > 0 ? rawTotalPoints : creditCount * (quantity > 0 ? quantity : 1);
 
     ServiceProductDetail? productDetail;
-    final productsJson = json['products'] ?? json['Products'] ?? json['productlist'] ?? json['ProductList'] ?? orderObj?['products'] ?? orderObj?['Products'];
-    if (productsJson is List && productsJson.isNotEmpty) {
-      final firstProd = productsJson.first;
-      if (firstProd is Map<String, dynamic>) {
-        try {
-          productDetail = ServiceProductDetail.fromJson(firstProd);
-        } catch (_) {}
-      }
-    } else if (json['product'] is Map<String, dynamic>) {
-      try {
-        productDetail = ServiceProductDetail.fromJson(json['product'] as Map<String, dynamic>);
-      } catch (_) {}
-    } else if (orderObj?['product'] is Map<String, dynamic>) {
-      try {
-        productDetail = ServiceProductDetail.fromJson(orderObj?['product'] as Map<String, dynamic>);
-      } catch (_) {}
+    if (firstProduct != null) {
+      productDetail = ServiceProductDetail.fromJson(<String, dynamic>{
+        ...firstProduct,
+        'pid': firstProduct['pid'] ?? firstProduct['productid'] ?? firstProduct['itemid'],
+        'name': firstProduct['name'] ?? firstProduct['productname'] ?? '',
+        'price': firstProduct['price'] ?? firstProduct['creditcount'] ?? 0,
+        'marketprice': firstProduct['marketprice'] ?? 0,
+        'carouselimg': _imageList(firstProduct['imgurl'] ?? firstProduct['ImgUrl'] ?? firstProduct['carouselimg']),
+        'stocknum': firstProduct['num'] ?? firstProduct['Num'] ?? 0,
+        'creditcount': firstProduct['creditcount'] ?? firstProduct['CreditCount'] ?? 0,
+        'iscredit': true,
+      });
     }
 
     return PreCreditOrderInfoModel(
-      recvrType: recvrType,
-      orderType: orderType,
-      totalPoints: points,
+      recvrType: RecvrType.fromValue(rawRecvrType),
+      orderType: OrderType.fromValue(rawOrderType),
+      totalPoints: totalPoints,
+      credit: credit,
+      redeemableQuantity: quantity,
       product: productDetail,
       rawData: json,
     );
+  }
+
+  static Map<String, dynamic>? _map(dynamic value) => value is Map ? Map<String, dynamic>.from(value) : null;
+
+  static List<Map<String, dynamic>> _mapList(dynamic value) {
+    if (value is! List) return const [];
+    return value.whereType<Map>().map((item) => Map<String, dynamic>.from(item)).toList();
+  }
+
+  static int _toInt(dynamic value) => value is num ? value.toInt() : int.tryParse(value?.toString() ?? '') ?? 0;
+
+  static List<String> _imageList(dynamic value) {
+    if (value is List) return value.map((e) => e.toString()).where((e) => e.isNotEmpty).toList();
+    final image = value?.toString() ?? '';
+    return image.isEmpty ? const [] : [image];
   }
 }

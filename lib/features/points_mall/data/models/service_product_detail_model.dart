@@ -309,13 +309,13 @@ class ServiceProductDetail {
   });
 
   factory ServiceProductDetail.fromJson(Map<String, dynamic> json) {
-    // carouselimg 是 String 列表，取第一张作为主图/封面
-    final carouselimgs = json['carouselimg'] as List<dynamic>? ?? [];
-    final carouselImages = carouselimgs.map((e) => e as String).where((u) => u.isNotEmpty).toList();
+    final carouselRaw = json['carouselimg'];
+    final carouselimgs = carouselRaw is List ? carouselRaw : const <dynamic>[];
+    final carouselImages = carouselimgs.map((e) => e.toString()).where((u) => u.isNotEmpty).toList();
     final mainImage = carouselImages.isNotEmpty ? carouselImages.first : '';
     final heroImage = carouselImages.length > 1 ? carouselImages[1] : mainImage;
 
-    final serviceCouponMap = json['servicecoupon'] as Map<String, dynamic>?;
+    final serviceCouponMap = json['servicecoupon'] is Map ? Map<String, dynamic>.from(json['servicecoupon'] as Map) : null;
     final serviceCoupon = serviceCouponMap != null ? ServiceCouponInfo.fromJson(serviceCouponMap) : null;
 
     return ServiceProductDetail(
@@ -331,24 +331,24 @@ class ServiceProductDetail {
       description: serviceCoupon?.descriptionHtml ?? '',
       carouselImages: carouselImages,
       // API 原始字段
-      productId: (json['pid'] as int?)?.toInt() ?? 0,
-      priceCents: (json['price'] as int?)?.toInt() ?? 0, // 积分
-      priceDesc: json['pricedesc'] as String?,
+      productId: _toInt(json['pid']),
+      priceCents: _toInt(json['price']), // 积分
+      priceDesc: json['pricedesc']?.toString(),
       isTemplate: json['istemplate'] == true || json['istemplate'] == 1,
       isCredit: json['iscredit'] == true || json['iscredit'] == 1,
-      productState: (json['productstate'] as int?)?.toInt() ?? 0,
+      productState: _toInt(json['productstate']),
       shipFee: _parseDecimal(json['shipfee']),
-      saleUnit: json['saleunit'] as String?,
-      creditCount: (json['creditcount'] as int?)?.toInt() ?? 0,
+      saleUnit: json['saleunit']?.toString(),
+      creditCount: _toInt(json['creditcount']),
       productType: CreditProductType.fromJson(json['producttype']),
       baiLiHuiType: json['baiLiHuiType'] != null ? BaiLiHuiProductType.fromJson(json['baiLiHuiType']) : null,
-      fuluType: json['fulutype'] as int?,
-      templateType: json['templatetype'] as int?,
+      fuluType: _nullableInt(json['fulutype']),
+      templateType: _nullableInt(json['templatetype']),
       auth: json['auth'] == true || json['auth'] == 1,
-      authTips: json['authtips'] as String?,
-      datatag: json['datatag'] as String?,
+      authTips: json['authtips']?.toString(),
+      datatag: json['datatag']?.toString(),
       specs: _parseList(json['parameter'], CommonPara.fromJson),
-      singlePromotion: json['singlepromotion'] != null ? PromotionInfo.fromJson(json['singlepromotion'] as Map<String, dynamic>) : null,
+      singlePromotion: json['singlepromotion'] is Map ? PromotionInfo.fromJson(Map<String, dynamic>.from(json['singlepromotion'] as Map)) : null,
       giftpromotion: _parseList(json['giftpromotion'], PromotionInfo.fromJson),
       buysendPromotion: _parseList(json['buysendpromotion'], PromotionInfo.fromJson),
       storePromotion: _parseList(json['storepromotion'], PromotionInfo.fromJson),
@@ -356,6 +356,10 @@ class ServiceProductDetail {
       serviceCoupon: serviceCoupon,
     );
   }
+
+  static int _toInt(dynamic value) => value is num ? value.toInt() : int.tryParse(value?.toString() ?? '') ?? 0;
+
+  static int? _nullableInt(dynamic value) => value == null ? null : _toInt(value);
 
   /// 通用 Decimal 解析辅助
   static Decimal _parseDecimal(dynamic v) {

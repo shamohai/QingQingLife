@@ -11,18 +11,12 @@ class PointsConfirmOrderArg {
   final String productId;
   final int userServiceId;
 
-  const PointsConfirmOrderArg({
-    required this.productId,
-    this.userServiceId = 0,
-  });
+  const PointsConfirmOrderArg({required this.productId, this.userServiceId = 0});
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is PointsConfirmOrderArg &&
-          runtimeType == other.runtimeType &&
-          productId == other.productId &&
-          userServiceId == other.userServiceId;
+      other is PointsConfirmOrderArg && runtimeType == other.runtimeType && productId == other.productId && userServiceId == other.userServiceId;
 
   @override
   int get hashCode => productId.hashCode ^ userServiceId.hashCode;
@@ -105,17 +99,15 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
     state = state.copyWith(preOrderInfoAsync: const AsyncValue.loading());
 
     final repository = ref.read(pointsRepositoryProvider);
-    final response = await repository.getPreCreditOrderInfo(
-      userServiceId: state.userServiceId,
-      productId: state.productId,
-      quantity: state.quantity,
-    );
+    final response = await repository.getPreCreditOrderInfo(userServiceId: state.userServiceId, productId: state.productId, quantity: state.quantity);
 
     if (!ref.mounted) return;
 
     if (response.success && response.data != null) {
       final preInfo = response.data!;
-      state = state.copyWith(preOrderInfoAsync: AsyncValue.data(preInfo));
+      final maxQuantity = preInfo.redeemableQuantity;
+      final nextQuantity = maxQuantity > 0 && state.quantity > maxQuantity ? maxQuantity : state.quantity;
+      state = state.copyWith(quantity: nextQuantity, preOrderInfoAsync: AsyncValue.data(preInfo));
 
       if (preInfo.recvrType == RecvrType.shipAddress) {
         await refreshAddress();
@@ -123,12 +115,7 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
         state = state.copyWith(addressAsync: const AsyncValue.data(null));
       }
     } else {
-      state = state.copyWith(
-        preOrderInfoAsync: AsyncValue.error(
-          response.message.isNotEmpty ? response.message : '获取订单预处理信息失败',
-          StackTrace.current,
-        ),
-      );
+      state = state.copyWith(preOrderInfoAsync: AsyncValue.error(response.message.isNotEmpty ? response.message : '获取订单预处理信息失败', StackTrace.current));
     }
   }
 
@@ -153,6 +140,8 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
 
   void increment() {
     if (!state.isQuantityEditable) return;
+    final maxQuantity = state.preOrderInfoAsync.value?.redeemableQuantity ?? 0;
+    if (maxQuantity > 0 && state.quantity >= maxQuantity) return;
     state = state.copyWith(quantity: state.quantity + 1);
     _fetchPreOrderInfo();
   }
@@ -207,24 +196,13 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
             addressId = int.tryParse(address.id ?? '') ?? 0;
           }
 
-          final req = SubmitCreditOrderReq(
-            pid: pid,
-            num: quantity,
-            addressId: addressId,
-            userServiceId: state.userServiceId,
-            remark: state.note,
-          );
+          final req = SubmitCreditOrderReq(pid: pid, num: quantity, addressId: addressId, userServiceId: state.userServiceId, remark: state.note);
 
           final resp = await repository.submitCreditOrder(req);
           if (resp.success && resp.data != null && (resp.data!.result == 0 || resp.data!.result == 200)) {
             final orderIdStr = resp.data!.orderIds.isNotEmpty ? resp.data!.orderIds.first.toString() : '0';
             return ApiResponse.success(
-              PointsOrderSubmitResult(
-                orderId: orderIdStr,
-                orderNo: orderIdStr,
-                pointsDeducted: totalPoints,
-                message: resp.data!.descr,
-              ),
+              PointsOrderSubmitResult(orderId: orderIdStr, orderNo: orderIdStr, pointsDeducted: totalPoints, message: resp.data!.descr),
             );
           } else {
             return ApiResponse.error(resp.data?.descr ?? resp.message.ifEmpty('提交订单失败'));
@@ -232,21 +210,13 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
 
         // 2. 服务券兑换订单 (SubmitServiceCouponIntegralOrder API)
         case OrderType.serviceCouponBuyOrder:
-          final req = SubmitServiceCouponIntegralOrderReq(
-            pid: pid,
-            num: quantity,
-          );
+          final req = SubmitServiceCouponIntegralOrderReq(pid: pid, num: quantity);
 
           final resp = await repository.submitServiceCouponIntegralOrder(req);
           if (resp.success && resp.data != null && (resp.data!.result == 0 || resp.data!.result == 200)) {
             final orderIdStr = resp.data!.orderId?.toString() ?? '0';
             return ApiResponse.success(
-              PointsOrderSubmitResult(
-                orderId: orderIdStr,
-                orderNo: orderIdStr,
-                pointsDeducted: totalPoints,
-                message: resp.data!.descr,
-              ),
+              PointsOrderSubmitResult(orderId: orderIdStr, orderNo: orderIdStr, pointsDeducted: totalPoints, message: resp.data!.descr),
             );
           } else {
             return ApiResponse.error(resp.data?.descr ?? resp.message.ifEmpty('提交订单失败'));
@@ -300,12 +270,7 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
           if (resp.success && resp.data != null && (resp.data!.result == 0 || resp.data!.result == 200)) {
             final orderIdStr = resp.data!.orderId?.toString() ?? '0';
             return ApiResponse.success(
-              PointsOrderSubmitResult(
-                orderId: orderIdStr,
-                orderNo: orderIdStr,
-                pointsDeducted: totalPoints,
-                message: resp.data!.descr,
-              ),
+              PointsOrderSubmitResult(orderId: orderIdStr, orderNo: orderIdStr, pointsDeducted: totalPoints, message: resp.data!.descr),
             );
           } else {
             return ApiResponse.error(resp.data?.descr ?? resp.message.ifEmpty('提交订单失败'));
