@@ -199,20 +199,13 @@ class _BenefitSlot extends StatelessWidget {
             onTap: buttonDisabled ? null : () => onClaimTap?.call(benefit),
             behavior: HitTestBehavior.opaque,
             child: Container(
-              width: 37,
-              height: 17,
-              decoration: BoxDecoration(
-                color: buttonBgColor,
-                borderRadius: BorderRadius.circular(10),
-              ),
+              width: 50,
+              height: 20,
+              decoration: BoxDecoration(color: buttonBgColor, borderRadius: BorderRadius.circular(10)),
               child: Center(
                 child: Text(
                   buttonText,
-                  style: const TextStyle(
-                    fontSize: 8,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: const TextStyle(fontSize: 9, color: Colors.white, fontWeight: FontWeight.w500),
                 ),
               ),
             ),
