@@ -88,15 +88,11 @@ class ReservationServiceDetailPage extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.only(right: 14),
           child: TextButton(
-            onPressed: remark.isNotEmpty ? () => _showReservationRemarkDialog(context, remark) : null,
+            onPressed: () => _showReservationRemarkDialog(context, remark),
             style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
             child: Text(
               '预约说明',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: remark.isNotEmpty ? AppColors.serviceProjectBlue : AppColors.serviceProjectBlue.withValues(alpha: 0.5),
-              ),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.serviceProjectBlue),
             ),
           ),
         ),
@@ -105,18 +101,25 @@ class ReservationServiceDetailPage extends ConsumerWidget {
   }
 
   void _showReservationRemarkDialog(BuildContext context, String remark) {
+    final displayText = remark.isNotEmpty ? remark : '暂无说明';
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('预约说明', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
         content: SingleChildScrollView(
-          child: Text(remark, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF333333), height: 1.6)),
+          child: Text(
+            displayText,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF333333), height: 1.6),
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('知道了', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceTabActive)),
+            child: const Text(
+              '知道了',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceTabActive),
+            ),
           ),
         ],
       ),

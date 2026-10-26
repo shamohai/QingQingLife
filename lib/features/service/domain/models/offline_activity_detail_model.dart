@@ -60,7 +60,7 @@ class OfflineActivityDetail {
   factory OfflineActivityDetail.fromJson(Map<String, dynamic> json) {
     final detail = json['detail'] as Map<String, dynamic>? ?? const <String, dynamic>{};
     final mySignupInfoJson = json['mysignupinfo'] as Map<String, dynamic>?;
-    final addressListJson = json['addresslist'] as List<dynamic>?;
+    final addressListJson = detail['addresslist'] as List<dynamic>?;
     return OfflineActivityDetail(
       activityId: detail['activityid'] as String? ?? '',
       title: detail['title'] as String? ?? '',

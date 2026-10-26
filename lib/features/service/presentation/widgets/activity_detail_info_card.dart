@@ -89,13 +89,20 @@ class _ActivityMetadata extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const style = TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black, height: 1.5);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _MetadataLine(label: '活动时间', value: detail.dateRangeDisplay, style: style),
         // 报名时间字段暂无，后端补充后可添加
-        if (detail.addressList.isNotEmpty) _MetadataLine(label: '活动地址', value: detail.addressList.first.address, style: style),
+        if (detail.addressList.isNotEmpty)
+          ...detail.addressList.asMap().entries.map((entry) {
+            final index = entry.key + 1;
+            final address = entry.value;
+            final label = detail.addressList.length > 1 ? '活动地址$index' : '活动地址';
+            // 调试：打印地址对象
+            // print('ActivityAddress: id=${address.id}, address=${address.address}, activityId=${address.activityId}, coordinate=${address.coordinate}');
+            return _MetadataLine(label: label, value: address.address, style: style);
+          }),
         _MetadataLine(label: '限制人数', value: detail.maxSignupCount > 0 ? '${detail.maxSignupCount}人' : null, style: style),
       ],
     );
