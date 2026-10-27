@@ -23,7 +23,6 @@ class ServicePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedTab = ref.watch(selectedTabProvider);
-    final isHuodong = selectedTab == 'huodong';
 
     // 列表项点击 → 根据当前 Tab 跳转到对应详情页
     void onItemTap(String id) {
@@ -65,8 +64,7 @@ class ServicePage extends ConsumerWidget {
               ],
             ),
           ),
-          // 悬浮按钮组（huodong tab 不显示）
-          if (!isHuodong) const ServiceFloatingButtons(),
+          const ServiceFloatingButtons(),
         ],
       ),
     );
