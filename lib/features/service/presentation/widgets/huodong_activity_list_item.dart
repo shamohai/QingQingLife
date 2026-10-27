@@ -19,26 +19,36 @@ class HuodongActivityListItem extends StatelessWidget {
 
   const HuodongActivityListItem({super.key, required this.item, required this.onTap});
 
-  /// 根据开始时间和结束时间判断活动状态
-  /// 返回 true 表示进行中，false 表示已结束
-  bool _isActivityOngoing() {
-    if (item.startDate.isEmpty || item.endDate.isEmpty) return false;
-    try {
-      final now = DateTime.now();
-      final start = DateTime.parse(item.startDate);
-      final end = DateTime.parse(item.endDate);
-      // 结束日期包含当天，所以比较时要把结束日期设为当天 23:59:59
-      final endOfDay = DateTime(end.year, end.month, end.day, 23, 59, 59);
-      return now.isAfter(start.subtract(const Duration(days: 1))) && now.isBefore(endOfDay.add(const Duration(days: 1)));
-    } catch (_) {
-      return false;
+  /// 获取状态文案
+  String _getStatusText() {
+    switch (item.status) {
+      case 0:
+        return '未开始';
+      case 1:
+        return '进行中';
+      case 2:
+        return '已结束';
+      default:
+        return '未知';
+    }
+  }
+
+  /// 获取状态颜色
+  Color _getStatusColor() {
+    switch (item.status) {
+      case 0:
+        return AppColors.outline; // 灰色
+      case 1:
+        return AppColors.serviceButtonRed; // 红色
+      case 2:
+        return AppColors.outline; // 灰色
+      default:
+        return AppColors.outline;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isOngoing = _isActivityOngoing();
-
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -111,19 +121,14 @@ class HuodongActivityListItem extends StatelessWidget {
                   ],
                 ),
               if (item.limitations.isNotEmpty) const SizedBox(height: 3),
-              // 状态行：进行中/已结束 + 右侧报名按钮
+              // 状态行：状态 + 右侧报名按钮
               Row(
                 children: [
                   const Icon(Icons.flag_outlined, size: 18, color: Colors.black),
                   const SizedBox(width: 10),
                   Text(
-                    isOngoing ? '进行中' : '已结束',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: isOngoing ? AppColors.serviceButtonRed : AppColors.outline,
-                      height: 1.43,
-                    ),
+                    _getStatusText(),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: _getStatusColor(), height: 1.43),
                   ),
                   const Spacer(),
                   // 报名按钮：固定 78x31，红色描边
@@ -141,11 +146,7 @@ class HuodongActivityListItem extends StatelessWidget {
                       ),
                       child: Text(
                         '立即报名',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.serviceButtonRed,
-                        ),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.serviceButtonRed),
                         softWrap: false,
                       ),
                     ),
