@@ -179,31 +179,33 @@ class HomePage extends ConsumerWidget {
                               activeUserServiceId: activeUserServiceId,
                               onImageTap: (benefit) {
                                 final effectiveUserServiceId = activeUserServiceId > 0 ? activeUserServiceId : benefit.userServiceId;
-                                final effectiveIsReceived = benefit.isReceived;
+                                final effectiveIsClaimed = effectiveUserServiceId > 0 || benefit.isReceived;
+                                final effectiveSettlemented = benefit.settlemented;
 
-                                if (effectiveUserServiceId > 0 && !effectiveIsReceived) {
-                                  // 状态 2：当月已领取未兑换 -> 点击图片跳转到确认订单页
+                                if (effectiveIsClaimed && !effectiveSettlemented) {
+                                  // 状态 2：当月已领取未兑换/未核销 -> 点击图片跳转到确认订单页
                                   final path = '${RouteNames.confirmOrder.replaceFirst(':id', benefit.id)}?userServiceId=$effectiveUserServiceId';
                                   GoRouter.of(context).push(path);
                                 } else {
-                                  // 状态 1 (未领取) 或 状态 3 (已兑换) -> 跳转到积分商品详情页
+                                  // 状态 1 (未领取) 或 状态 3 (已兑换/已发货/已核销) -> 跳转到积分商品详情页
                                   final path = RouteNames.serviceProductDetail.replaceFirst(':id', benefit.id);
                                   GoRouter.of(context).push(path);
                                 }
                               },
                               onClaimTap: (benefit) async {
                                 final effectiveUserServiceId = activeUserServiceId > 0 ? activeUserServiceId : benefit.userServiceId;
-                                final effectiveIsReceived = benefit.isReceived;
+                                final effectiveIsClaimed = effectiveUserServiceId > 0 || benefit.isReceived;
+                                final effectiveSettlemented = benefit.settlemented;
 
-                                if (effectiveUserServiceId > 0 && !effectiveIsReceived) {
+                                if (effectiveIsClaimed && !effectiveSettlemented) {
                                   // 状态 2：点击【去兑换】-> 直接跳转到确认订单页
                                   final path = '${RouteNames.confirmOrder.replaceFirst(':id', benefit.id)}?userServiceId=$effectiveUserServiceId';
                                   GoRouter.of(context).push(path);
                                   return;
                                 }
 
-                                if (effectiveUserServiceId > 0 && effectiveIsReceived) {
-                                  // 状态 3：已兑换，按钮不可点击
+                                if (effectiveIsClaimed && effectiveSettlemented) {
+                                  // 状态 3：已兑换/已发货/已核销，按钮不可点击
                                   return;
                                 }
 

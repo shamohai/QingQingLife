@@ -6,6 +6,7 @@ import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
 import '../../../points_mall/data/models/get_credit_product_list_model.dart';
 import '../../../points_mall/data/models/credit_product_category_model.dart';
 import '../../../points_mall/data/models/pre_credit_order_info_model.dart';
+import '../../../points_mall/data/models/points_submit_order_models.dart';
 
 /// 积分商城仓库接口
 abstract class PointsRepository {
@@ -69,6 +70,18 @@ abstract class PointsRepository {
     required String productId,
     required int quantity,
   });
+
+  /// 提交青稞粒/自营积分订单 (OrderType == 2)
+  /// 接口：POST /api/order/submitcreditorder
+  Future<ApiResponse<SubmitCreditOrderResp>> submitCreditOrder(SubmitCreditOrderReq req);
+
+  /// 提交服务券兑换订单 (OrderType == 23)
+  /// 接口：POST /api/order/v2/submitservicecouponintegralorder
+  Future<ApiResponse<SubmitServiceCouponIntegralOrderResp>> submitServiceCouponIntegralOrder(SubmitServiceCouponIntegralOrderReq req);
+
+  /// 提交百礼汇第三方积分订单 (OrderType == 25)
+  /// 接口：POST /api/order/submitbailihuiorder
+  Future<ApiResponse<SubmitBaiLiHuiOrderResp>> submitBaiLiHuiOrder(SubmitBaiLiHuiOrderReq req);
 }
 
 /// 积分商品详情

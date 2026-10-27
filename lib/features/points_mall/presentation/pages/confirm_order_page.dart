@@ -10,7 +10,6 @@ import '../../data/models/points_payment_success_data.dart';
 import '../../data/models/pre_credit_order_info_model.dart';
 import '../../data/models/service_product_detail_model.dart';
 import '../providers/confirm_order_provider.dart';
-import '../providers/points_mall_paging_providers.dart';
 import '../widgets/confirm_order_bottom_bar.dart';
 import '../widgets/confirm_order_header.dart';
 import '../widgets/confirm_order_product_card.dart';
@@ -20,11 +19,7 @@ class ConfirmOrderPage extends ConsumerWidget {
   final String productId;
   final int? userServiceId;
 
-  const ConfirmOrderPage({
-    super.key,
-    required this.productId,
-    this.userServiceId,
-  });
+  const ConfirmOrderPage({super.key, required this.productId, this.userServiceId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,10 +33,7 @@ class ConfirmOrderPage extends ConsumerWidget {
       body: orderState.preOrderInfoAsync.when(
         loading: () => const Center(child: AppLoading()),
         error: (error, stack) => Center(
-          child: AppError(
-            message: '预下单信息加载失败: $error',
-            onRetry: () => ref.invalidate(pointsConfirmOrderProvider(arg)),
-          ),
+          child: AppError(message: '预下单信息加载失败: $error', onRetry: () => ref.invalidate(pointsConfirmOrderProvider(arg))),
         ),
         data: (preInfo) {
           final product = preInfo.product ?? ServiceProductDetail.mock;
@@ -72,24 +64,13 @@ class ConfirmOrderPage extends ConsumerWidget {
         Positioned.fill(
           child: Column(
             children: [
-              Expanded(
-                flex: 50,
-                child: Container(color: const Color(0xFFF3F5F7)),
-              ),
+              Expanded(flex: 50, child: Container(color: const Color(0xFFF3F5F7))),
               Expanded(
                 flex: 50,
                 child: Container(
                   decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Color(0xFFF3F5F7), Color(0xFFFFFFFF)],
-                    ),
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/order/order_bottom_bg.png'),
-                      fit: BoxFit.cover,
-                      alignment: Alignment.bottomCenter,
-                    ),
+                    gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFF3F5F7), Color(0xFFFFFFFF)]),
+                    image: DecorationImage(image: AssetImage('assets/images/order/order_bottom_bg.png'), fit: BoxFit.cover, alignment: Alignment.bottomCenter),
                   ),
                 ),
               ),
@@ -155,7 +136,7 @@ class ConfirmOrderPage extends ConsumerWidget {
                   child: ConfirmOrderRedeemerForm(
                     onNameChanged: (name) => ref.read(pointsConfirmOrderProvider(arg).notifier).setRedeemerName(name),
                     onPhoneChanged: (phone) => ref.read(pointsConfirmOrderProvider(arg).notifier).setRedeemerPhone(phone),
-                    onSubmitted: () => _handleSubmit(context, ref, product, arg, preInfo),
+                    onSubmitted: () => _handleSubmit(context, ref, arg),
                   ),
                 ),
 
@@ -169,72 +150,35 @@ class ConfirmOrderPage extends ConsumerWidget {
 
   Widget _buildBottomBar(WidgetRef ref, PointsConfirmOrderArg arg, ServiceProductDetail product) {
     final orderState = ref.watch(pointsConfirmOrderProvider(arg));
-    final pointsAsync = ref.watch(pointsMallStaticDataProvider);
 
-    return pointsAsync.when(
-      data: (d) => orderState.preOrderInfoAsync.when(
-        data: (preInfo) => ConfirmOrderBottomBar(
-          product: product,
-          quantity: orderState.quantity,
-          pointsBalance: d.currentPoints,
-          onSubmit: () => _handleSubmit(ref.context, ref, product, arg, preInfo),
-        ),
-        loading: () => const SizedBox(height: 56),
-        error: (_, _) => const SizedBox(height: 56),
+    return orderState.preOrderInfoAsync.when(
+      data: (preInfo) => ConfirmOrderBottomBar(
+        product: product,
+        quantity: orderState.quantity,
+        pointsBalance: preInfo.credit,
+        isSubmitting: orderState.isSubmitting,
+        onSubmit: () => _handleSubmit(ref.context, ref, arg),
       ),
       loading: () => const SizedBox(height: 56),
       error: (_, _) => const SizedBox(height: 56),
     );
   }
 
-  Future<void> _handleSubmit(
-    BuildContext context,
-    WidgetRef ref,
-    ServiceProductDetail product,
-    PointsConfirmOrderArg arg,
-    PreCreditOrderInfoModel preInfo,
-  ) async {
-    final orderState = ref.read(pointsConfirmOrderProvider(arg));
+  Future<void> _handleSubmit(BuildContext context, WidgetRef ref, PointsConfirmOrderArg arg) async {
+    final notifier = ref.read(pointsConfirmOrderProvider(arg).notifier);
+    final submitResult = await notifier.submitOrder();
 
-    // 校验接收人/地址
-    if (preInfo.recvrType == RecvrType.shipAddress) {
-      final address = orderState.addressAsync.value;
-      if (address == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('请先添加收货地址')),
-        );
-        final selected = await context.push<MemberAddress>(RouteNames.addressAdd);
-        if (selected != null) {
-          ref.read(pointsConfirmOrderProvider(arg).notifier).setAddress(selected);
-        } else {
-          ref.read(pointsConfirmOrderProvider(arg).notifier).refreshAddress();
-        }
-        return;
-      }
-    } else if (preInfo.recvrType == RecvrType.recvrMobile) {
-      if (orderState.redeemerName.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请输入接收人姓名')));
-        return;
-      }
-      if (orderState.redeemerPhone.trim().isEmpty || orderState.redeemerPhone.length != 11) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请输入正确的11位手机号')));
-        return;
-      }
-    }
+    if (!context.mounted) return;
 
-    final totalPoints = product.points * orderState.quantity;
-    const mockOrderId = 'DDBH4565465789087654678908765789';
-    const mockOrderNo = 'DDBH45674567898908765789';
-
-    if (context.mounted) {
+    if (submitResult.success && submitResult.data != null) {
+      final res = submitResult.data!;
       context.push(
         RouteNames.paymentResult,
-        extra: PointsPaymentSuccessData(
-          orderNo: mockOrderNo,
-          transactionNo: mockOrderId,
-          pointsDeducted: totalPoints,
-        ),
+        extra: PointsPaymentSuccessData(orderNo: res.orderNo, transactionNo: res.orderId, pointsDeducted: res.pointsDeducted),
       );
+    } else {
+      final errorMsg = submitResult.message.isNotEmpty ? submitResult.message : '提交订单失败';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMsg)));
     }
   }
 }

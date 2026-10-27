@@ -11,6 +11,7 @@ import '../../../points_mall/data/models/service_product_detail_model.dart';
 import '../../../points_mall/data/models/get_credit_product_list_model.dart';
 import '../../../points_mall/data/models/credit_product_category_model.dart';
 import '../../../points_mall/data/models/pre_credit_order_info_model.dart';
+import '../../../points_mall/data/models/points_submit_order_models.dart';
 
 /// 积分商城远程数据源
 ///
@@ -99,11 +100,7 @@ class PointsRemoteDataSource implements PointsRepository {
   }
 
   @override
-  Future<ApiResponse<PreCreditOrderInfoModel>> getPreCreditOrderInfo({
-    required int userServiceId,
-    required String productId,
-    required int quantity,
-  }) async {
+  Future<ApiResponse<PreCreditOrderInfoModel>> getPreCreditOrderInfo({required int userServiceId, required String productId, required int quantity}) async {
     final pid = int.tryParse(productId) ?? 0;
     return _apiClient.post<PreCreditOrderInfoModel>(
       '/api/order/dealprecreditorderinfo',
@@ -111,10 +108,7 @@ class PointsRemoteDataSource implements PointsRepository {
         'userserviceid': userServiceId,
         'isgiftcard': false,
         'productlist': [
-          <String, dynamic>{
-            'itemid': pid,
-            'num': quantity,
-          }
+          <String, dynamic>{'itemid': pid, 'num': quantity},
         ],
       },
       fromJson: (dynamic json) {
@@ -122,6 +116,48 @@ class PointsRemoteDataSource implements PointsRepository {
           return PreCreditOrderInfoModel.fromJson(json);
         }
         return const PreCreditOrderInfoModel(recvrType: RecvrType.none);
+      },
+    );
+  }
+
+  @override
+  Future<ApiResponse<SubmitCreditOrderResp>> submitCreditOrder(SubmitCreditOrderReq req) async {
+    return _apiClient.post<SubmitCreditOrderResp>(
+      '/api/order/submitcreditorder',
+      data: req.toJson(),
+      fromJson: (dynamic json) {
+        if (json is Map<String, dynamic>) {
+          return SubmitCreditOrderResp.fromJson(json);
+        }
+        return const SubmitCreditOrderResp(result: -1, descr: '格式错误');
+      },
+    );
+  }
+
+  @override
+  Future<ApiResponse<SubmitServiceCouponIntegralOrderResp>> submitServiceCouponIntegralOrder(SubmitServiceCouponIntegralOrderReq req) async {
+    return _apiClient.post<SubmitServiceCouponIntegralOrderResp>(
+      '/api/order/v2/submitservicecouponintegralorder',
+      data: req.toJson(),
+      fromJson: (dynamic json) {
+        if (json is Map<String, dynamic>) {
+          return SubmitServiceCouponIntegralOrderResp.fromJson(json);
+        }
+        return const SubmitServiceCouponIntegralOrderResp(result: -1, descr: '格式错误');
+      },
+    );
+  }
+
+  @override
+  Future<ApiResponse<SubmitBaiLiHuiOrderResp>> submitBaiLiHuiOrder(SubmitBaiLiHuiOrderReq req) async {
+    return _apiClient.post<SubmitBaiLiHuiOrderResp>(
+      '/api/order/submitbailihuiorder',
+      data: req.toJson(),
+      fromJson: (dynamic json) {
+        if (json is Map<String, dynamic>) {
+          return SubmitBaiLiHuiOrderResp.fromJson(json);
+        }
+        return const SubmitBaiLiHuiOrderResp(result: -1, descr: '格式错误');
       },
     );
   }

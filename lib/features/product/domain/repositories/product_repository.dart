@@ -98,7 +98,8 @@ class HomeMonthlyBenefit {
   final String? imageUrl;
   final String? actionUrl;
   final int userServiceId;
-  final bool isReceived;
+  final bool isReceived; // 当月权益优惠券已领取
+  final bool settlemented; // 已发货\已兑换\已核销
   final int serviceId;
 
   const HomeMonthlyBenefit({
@@ -108,10 +109,11 @@ class HomeMonthlyBenefit {
     this.actionUrl,
     this.userServiceId = 0,
     this.isReceived = false,
+    this.settlemented = false,
     this.serviceId = 0,
   });
 
-  bool get isClaimed => userServiceId > 0;
+  bool get isClaimed => userServiceId > 0 || isReceived;
 
   HomeMonthlyBenefit copyWith({
     String? id,
@@ -120,6 +122,7 @@ class HomeMonthlyBenefit {
     String? actionUrl,
     int? userServiceId,
     bool? isReceived,
+    bool? settlemented,
     int? serviceId,
   }) {
     return HomeMonthlyBenefit(
@@ -129,6 +132,7 @@ class HomeMonthlyBenefit {
       actionUrl: actionUrl ?? this.actionUrl,
       userServiceId: userServiceId ?? this.userServiceId,
       isReceived: isReceived ?? this.isReceived,
+      settlemented: settlemented ?? this.settlemented,
       serviceId: serviceId ?? this.serviceId,
     );
   }
