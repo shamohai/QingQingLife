@@ -10,7 +10,7 @@ import '../widgets/coupon_entry_card.dart';
 /// 我的卡券页（/coupons）
 ///
 /// 结构（设计稿）：
-///   浅色背景 → 返回栏「我的卡券」→ 三个固定卡券类型入口
+///   白色背景 → 返回栏「我的卡券」→ 三个双段券形入口
 ///   → 「更多福利卡敬请期待…」→ 底部湖景背景。
 ///
 /// 当前「天佑德优惠券」已接入真实分组列表；服务券和待解锁红包的列表能力
@@ -43,9 +43,9 @@ class MyCouponsPage extends StatelessWidget {
                 child: Column(
                   children: [
                     _buildNavBar(context),
-                    const SizedBox(height: AppSpacing.xxl),
+                    const SizedBox(height: AppSpacing.md),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                       child: Column(
                         children: [
                           for (var i = 0; i < CouponEntry.all.length; i++) ...[
@@ -55,10 +55,10 @@ class MyCouponsPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 82),
+                    const SizedBox(height: 54),
                     const Text(
                       '更多福利卡敬请期待…',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Color(0xFF8E8E93), height: 1.2),
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xFF8E8E93), height: 1.4),
                     ),
                   ],
                 ),
@@ -85,7 +85,7 @@ class MyCouponsPage extends StatelessWidget {
 
   Widget _buildNavBar(BuildContext context) {
     return SizedBox(
-      height: 42,
+      height: 44,
       child: Row(
         children: [
           GestureDetector(
@@ -93,12 +93,13 @@ class MyCouponsPage extends StatelessWidget {
             onTap: () => context.pop(),
             child: const Padding(
               padding: EdgeInsets.only(left: AppSpacing.md),
-              child: Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF000000)),
+              child: Icon(Icons.arrow_back_ios_new, size: 21, color: Color(0xFF000000)),
             ),
           ),
+          const SizedBox(width: AppSpacing.sm),
           const Text(
             '我的卡券',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Color(0xFF000000), height: 1.2),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF000000), height: 1.2),
           ),
         ],
       ),

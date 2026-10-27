@@ -166,19 +166,8 @@ class _CouponListPageState extends ConsumerState<CouponListPage> {
       separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
       itemBuilder: (context, index) {
         final coupon = state.coupons[index];
-        return CouponGroupCard(coupon: coupon, statusOverride: state.status, onTap: () => _onCouponTap(context, state.status));
+        return CouponGroupCard(coupon: coupon, statusOverride: state.status);
       },
     );
-  }
-
-  void _onCouponTap(BuildContext context, CouponGroupStatus status) {
-    final label = switch (status) {
-      CouponGroupStatus.valid => '去使用',
-      CouponGroupStatus.used || CouponGroupStatus.expired => '查看详情',
-      CouponGroupStatus.transferring => '转赠中',
-    };
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('$label功能待接入'), behavior: SnackBarBehavior.floating));
   }
 }

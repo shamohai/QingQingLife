@@ -113,7 +113,7 @@ class ServiceCouponOrderProduct {
     required this.isCredit,
     this.productSn,
     this.productName,
-    this.imageUrl,
+    this.imgUrl,
     this.priceDescription,
     this.marketPriceDescription,
     this.saleUnit,
@@ -132,7 +132,7 @@ class ServiceCouponOrderProduct {
   final bool isCredit;
   final String? productSn;
   final String? productName;
-  final String? imageUrl;
+  final String? imgUrl;
   final String? priceDescription;
   final String? marketPriceDescription;
   final String? saleUnit;
@@ -159,7 +159,7 @@ class ServiceCouponOrderProduct {
       isCredit: _boolean(json['iscredit']),
       productSn: _nullableText(json['productsn']),
       productName: _nullableText(json['productname']),
-      imageUrl: _nullableText(json['imgurl']),
+      imgUrl: _nullableText(json['imgurl']),
       priceDescription: _nullableText(json['pricedesc']),
       marketPriceDescription: _nullableText(json['marketpricedesc']),
       saleUnit: _nullableText(json['saleunit']),
