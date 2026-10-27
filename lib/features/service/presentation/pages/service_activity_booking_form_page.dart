@@ -38,6 +38,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
   late final TextEditingController _notesCtrl;
 
   bool _isSubmitting = false;
+  bool _isAlreadyReserved = false;
 
   @override
   void initState() {
@@ -131,10 +132,14 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
         remark: _notesCtrl.text.trim(),
         signupUserCount: int.tryParse(_partyCtrl.text.trim()) ?? 1,
       );
-      response.requireData;
+      // 报名接口成功时无数据载荷，仅校验 success
+      if (!response.success) throw ApiException(code: response.code, message: response.message);
 
       if (!mounted) return;
-      setState(() => _isSubmitting = false);
+      setState(() {
+        _isSubmitting = false;
+        _isAlreadyReserved = true;
+      });
 
       // 显示成功弹窗
       await showDialog(
@@ -176,22 +181,25 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
       controller: ctrl,
       keyboardType: keyboardType,
       maxLength: maxLength,
+      enabled: !_isAlreadyReserved,
       inputFormatters: keyboardType == TextInputType.phone
           ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), LengthLimitingTextInputFormatter(maxLength ?? 11)]
           : keyboardType == TextInputType.number
           ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), LengthLimitingTextInputFormatter(maxLength ?? 3)]
           : [],
-      style: const TextStyle(fontSize: 16, color: Colors.black),
+      style: TextStyle(fontSize: 16, color: _isAlreadyReserved ? const Color(0xFF333333) : Colors.black),
       decoration: InputDecoration(
         isDense: true,
         counterText: '',
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
         focusedBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
         hintText: hintText ?? '',
         hintStyle: const TextStyle(fontSize: 16, color: Color(0xFF8E8E93)),
         contentPadding: EdgeInsets.zero,
-        filled: false,
+        filled: _isAlreadyReserved,
+        fillColor: _isAlreadyReserved ? const Color(0xFFF5F5F5) : null,
       ),
     );
   }
@@ -337,24 +345,32 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
           color: Colors.white,
           padding: const EdgeInsets.fromLTRB(30, AppSpacing.md, 30, AppSpacing.lg),
           child: GestureDetector(
-            onTap: _isSubmitting ? null : _handleSubmit,
+            onTap: (_isSubmitting || _isAlreadyReserved) ? null : _handleSubmit,
             child: Container(
               width: double.infinity,
               height: 51,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRadius.round),
-                gradient: const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [AppColors.serviceCtaGradStart, AppColors.serviceTabActive],
-                ),
+                gradient: _isAlreadyReserved
+                    ? null
+                    : const LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [AppColors.serviceCtaGradStart, AppColors.serviceTabActive],
+                      ),
+                color: _isAlreadyReserved ? AppColors.serviceButtonDisabled : null,
               ),
               child: Center(
                 child: _isSubmitting
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Text(
-                        '提交报名',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white, height: 1.5),
+                    : Text(
+                        _isAlreadyReserved ? '已报名' : '提交报名',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: _isAlreadyReserved ? AppColors.serviceButtonDisabledText : Colors.white,
+                          height: 1.5,
+                        ),
                       ),
               ),
             ),

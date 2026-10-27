@@ -45,11 +45,16 @@ class ApiResponse<T> {
   }
 
   /// 便捷访问数据，若失败则抛出 ApiException
-  T get requireData {
-    if (!success) throw ApiException(code: code, message: message);
-    if (data == null) throw const ApiException(message: 'data is null');
-    return data!;
-  }
+    /// 注意：成功但无数据载荷时返回 null，调用方需自行判断
+    T? get dataOrNull => data;
+
+    /// 强制获取数据，失败或数据为空均抛出 ApiException
+    /// 仅用于明确期望有数据载荷的场景（如列表、详情接口）
+    T get requireData {
+      if (!success) throw ApiException(code: code, message: message);
+      if (data == null) throw const ApiException(message: 'data is null');
+      return data!;
+    }
 
   /// 成功响应
   factory ApiResponse.success(T data) => ApiResponse<T>(code: 0, message: 'success', data: data, success: true);
