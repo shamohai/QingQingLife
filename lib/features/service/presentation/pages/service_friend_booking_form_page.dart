@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../app/router/route_names.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
@@ -27,7 +29,7 @@ class ServiceFriendBookingFormPage extends ConsumerStatefulWidget {
 }
 
 class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBookingFormPage> {
-  late final TextEditingController _countController;
+  //late final TextEditingController _countController;
   late final TextEditingController _nameController;
   late final TextEditingController _phoneController;
   late final TextEditingController _friendCountController;
@@ -39,7 +41,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
   @override
   void initState() {
     super.initState();
-    _countController = TextEditingController();
+    // _countController = TextEditingController();
     _nameController = TextEditingController();
     _phoneController = TextEditingController();
     _friendCountController = TextEditingController();
@@ -50,7 +52,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
   void _populateFromSignupInfo() {
     final signupInfo = widget.detail?.mySignupInfo;
     if (signupInfo == null) return;
-    _countController.text = signupInfo.signupUserCount.toString();
+    // _countController.text = signupInfo.signupUserCount.toString();
     _nameController.text = signupInfo.username;
     _phoneController.text = signupInfo.phone;
     final friendCount = signupInfo.signupUserCount - 1;
@@ -62,7 +64,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
 
   @override
   void dispose() {
-    _countController.dispose();
+    // _countController.dispose();
     _nameController.dispose();
     _phoneController.dispose();
     _friendCountController.dispose();
@@ -102,13 +104,13 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
     return null;
   }
 
-  String? _validateCount() {
-    final v = _countController.text.trim();
-    if (v.isEmpty) return '请输入报名人数';
-    final n = int.tryParse(v);
-    if (n == null || n < 1 || n > 999) return '请输入正确的报名人数';
-    return null;
-  }
+  //String? _validateCount() {
+  //  final v = _countController.text.trim();
+  //  if (v.isEmpty) return '请输入报名人数';
+  //  final n = int.tryParse(v);
+  //  if (n == null || n < 1 || n > 999) return '请输入正确的报名人数';
+  //  return null;
+  //}
 
   String? _validateFriendCount() {
     final v = _friendCountController.text.trim();
@@ -139,11 +141,11 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
       _showError(phoneError);
       return;
     }
-    final countError = _validateCount();
-    if (countError != null) {
-      _showError(countError);
-      return;
-    }
+    //final countError = _validateCount();
+    //if (countError != null) {
+    //  _showError(countError);
+    //  return;
+    //}
     final friendCountError = _validateFriendCount();
     if (friendCountError != null) {
       _showError(friendCountError);
@@ -151,30 +153,24 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
     }
 
     final maxSignupCount = widget.detail?.maxSignupCount ?? 0;
-    final count = int.tryParse(_countController.text.trim()) ?? 0;
+    //final count = int.tryParse(_countController.text.trim()) ?? 0;
     final friendCountNum = int.tryParse(_friendCountController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
 
     if (maxSignupCount == 0) {
       await _showLimitDialog('暂无挚友会权益，无法报名');
       return;
-    }
-
-    if (maxSignupCount == 1) {
+    } else if (maxSignupCount == 1) {
       if (_bringFriend || friendCountNum > 0) {
         await _showLimitDialog('该活动仅限本人参加，不可携带亲友');
         return;
       }
-      if (count > 1) {
-        await _showLimitDialog('该活动仅限本人参加，报名人数不能超过 1 人');
-        return;
-      }
+      //if (count > 1) {
+      //  await _showLimitDialog('该活动仅限本人参加，报名人数不能超过 1 人');
+      //  return;
+      //}
     } else {
-      if (count > maxSignupCount) {
-        if (_bringFriend && friendCountNum > 0) {
-          await _showLimitDialog('携带亲友人数已经达到上限\n请参与购酒享服务活动');
-        } else {
-          await _showLimitDialog('报名总人数（含本人）不能超过 $maxSignupCount 人');
-        }
+      if (_bringFriend && friendCountNum > maxSignupCount - 1) {
+        await _showLimitDialog('携带亲友人数已经达到上限\n请参与购酒享服务活动');
         return;
       }
     }
@@ -188,7 +184,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
       'phone': _phoneController.text.trim(),
       'idno': '',
       'remark': '',
-      'signupusercount': count,
+      'signupusercount': friendCountNum + 1, // 报名人数 = 本人 + 亲友人数
     };
 
     try {
@@ -234,7 +230,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(ctx).pop();
-                    Navigator.of(context).pop();
+                    context.go(RouteNames.service);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.serviceTabActive,
@@ -351,11 +347,11 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _FriendField(
-                        label: '报名人数',
-                        icon: Icons.groups_outlined,
-                        child: _input(_countController, '请输入报名人数', keyboardType: TextInputType.number),
-                      ),
+                      //_FriendField(
+                      //  label: '报名人数',
+                      //  icon: Icons.groups_outlined,
+                      //  child: _input(_countController, '请输入报名人数', keyboardType: TextInputType.number),
+                      //),
                       _FriendField(label: '联系人', icon: Icons.person_outline, child: _input(_nameController, '请输入联系人姓名')),
                       _FriendField(
                         label: '联系电话',

@@ -10,7 +10,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/widgets/app_image.dart';
-import '../../data/datasources/service_remote_datasource.dart';
+import '../providers/offline_activity_signup_provider.dart';
 import '../widgets/booking_form_field.dart';
 
 /// 活动报名填写信息页面
@@ -87,9 +87,9 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
 
   String? _validatePartySize() {
     final v = _partyCtrl.text.trim();
-    if (v.isEmpty) return null;
+    if (v.isEmpty) return '请输入报名人数';
     final n = int.tryParse(v);
-    if (n == null || n < 1 || n > 999) return '请输入正确的预约人数';
+    if (n == null || n < 1 || n > 999) return '报名人数必须为 1~999 的整数';
     return null;
   }
 
@@ -98,6 +98,12 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
   }
 
   Future<void> _handleSubmit() async {
+    // 检查 activityId 是否为空
+    if (widget.activityId.isEmpty) {
+      _showError('活动 ID 为空，无法报名');
+      return;
+    }
+
     final nameError = _validateName();
     if (nameError != null) {
       _showError(nameError);
@@ -122,47 +128,23 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
     if (!mounted) return;
     setState(() => _isSubmitting = true);
 
-    try {
-      final dataSource = ref.read(serviceRemoteDataSourceProvider);
-      final response = await dataSource.signupOfflineActivity(
-        activityId: widget.activityId,
-        username: _nameCtrl.text.trim(),
-        phone: _phoneCtrl.text.trim(),
-        idNo: _idCtrl.text.trim(),
-        remark: _notesCtrl.text.trim(),
-        signupUserCount: int.tryParse(_partyCtrl.text.trim()) ?? 1,
-      );
-      // 报名接口成功时无数据载荷，仅校验 success
-      if (!response.success) throw ApiException(code: response.code, message: response.message);
+    final params = <String, dynamic>{
+      'activityid': widget.activityId,
+      'username': _nameCtrl.text.trim(),
+      'phone': _phoneCtrl.text.trim(),
+      'idno': _idCtrl.text.trim(),
+      'remark': _notesCtrl.text.trim(),
+      'signupusercount': int.tryParse(_partyCtrl.text.trim()) ?? 1,
+    };
 
+    try {
+      await ref.read(signupOfflineActivityProvider(params).future);
       if (!mounted) return;
       setState(() {
         _isSubmitting = false;
         _isAlreadyReserved = true;
       });
-
-      // 显示成功弹窗
-      await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (ctx) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('报名成功', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-          content: const Text('您的报名信息已提交成功', style: TextStyle(fontSize: 14, color: Color(0xFF333333))),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(ctx).pop(); // 关闭弹窗
-                context.go(RouteNames.service); // 跳转到服务预约列表页
-              },
-              child: const Text(
-                '确定',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceTabActive),
-              ),
-            ),
-          ],
-        ),
-      );
+      _showSuccessDialog();
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
@@ -172,6 +154,48 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
       setState(() => _isSubmitting = false);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('网络异常，请稍后重试'), behavior: SnackBarBehavior.floating));
     }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.check_circle, size: 48, color: AppColors.serviceTabActive),
+              const SizedBox(height: 16),
+              const Text(
+                '报名成功',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop(); // 关闭弹窗
+                    context.go(RouteNames.service);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.serviceTabActive,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
+                    elevation: 0,
+                  ),
+                  child: const Text('我知道了', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   // ─── UI helpers ─────────────────────────────────────────────────────────
