@@ -85,20 +85,74 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
     return Container(color: AppColors.surfaceVariant);
   }
 
-  Future<void> _submit() async {
+  // ─── 验证 ────────────────────────────────────────────────────────────
+
+  static final RegExp _phoneRegex = RegExp(r'^1\d{10}$');
+
+  String? _validateName() {
+    final v = _nameController.text.trim();
+    if (v.isEmpty) return '请输入联系人姓名';
+    return null;
+  }
+
+  String? _validatePhone() {
+    final v = _phoneController.text.trim();
+    if (v.isEmpty) return '请输入联系电话';
+    if (!_phoneRegex.hasMatch(v)) return '请输入正确的联系电话';
+    return null;
+  }
+
+  String? _validateCount() {
+    final v = _countController.text.trim();
+    if (v.isEmpty) return '请输入报名人数';
+    final n = int.tryParse(v);
+    if (n == null || n < 1 || n > 999) return '请输入正确的报名人数';
+    return null;
+  }
+
+  String? _validateFriendCount() {
+    final v = _friendCountController.text.trim();
+    if (v.isEmpty) return null;
+    final n = int.tryParse(v.replaceAll(RegExp(r'[^0-9]'), ''));
+    if (n == null || n < 0 || n > 999) return '请输入正确的亲友人数';
+    return null;
+  }
+
+  void _showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating));
+  }
+
+  Future<void> _handleSubmit() async {
+    // 检查 activityId 是否为空
     if (widget.detail?.activityId.isEmpty ?? true) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('活动 ID 为空，无法报名')));
+      _showError('活动 ID 为空，无法报名');
       return;
     }
-    if (_countController.text.trim().isEmpty || _nameController.text.trim().isEmpty || _phoneController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请完善报名信息')));
+
+    final nameError = _validateName();
+    if (nameError != null) {
+      _showError(nameError);
+      return;
+    }
+    final phoneError = _validatePhone();
+    if (phoneError != null) {
+      _showError(phoneError);
+      return;
+    }
+    final countError = _validateCount();
+    if (countError != null) {
+      _showError(countError);
+      return;
+    }
+    final friendCountError = _validateFriendCount();
+    if (friendCountError != null) {
+      _showError(friendCountError);
       return;
     }
 
     final maxSignupCount = widget.detail?.maxSignupCount ?? 0;
     final count = int.tryParse(_countController.text.trim()) ?? 0;
     final friendCountNum = int.tryParse(_friendCountController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-    final totalCount = count + friendCountNum;
 
     if (maxSignupCount == 0) {
       await _showLimitDialog('暂无挚友会权益，无法报名');
@@ -115,7 +169,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
         return;
       }
     } else {
-      if (totalCount > maxSignupCount) {
+      if (count > maxSignupCount) {
         if (_bringFriend && friendCountNum > 0) {
           await _showLimitDialog('携带亲友人数已经达到上限\n请参与购酒享服务活动');
         } else {
@@ -125,6 +179,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
       }
     }
 
+    if (!mounted) return;
     setState(() => _submitting = true);
 
     final params = <String, dynamic>{
@@ -133,7 +188,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
       'phone': _phoneController.text.trim(),
       'idno': '',
       'remark': '',
-      'signupusercount': totalCount,
+      'signupusercount': count,
     };
 
     try {
@@ -352,7 +407,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
           child: SizedBox(
             height: 51,
             child: ElevatedButton(
-              onPressed: (_submitting || _isAlreadyReserved) ? null : _submit,
+              onPressed: (_submitting || _isAlreadyReserved) ? null : _handleSubmit,
               style: ElevatedButton.styleFrom(
                 backgroundColor: _isAlreadyReserved ? AppColors.serviceButtonDisabled : AppColors.serviceTabActive,
                 foregroundColor: Colors.white,
