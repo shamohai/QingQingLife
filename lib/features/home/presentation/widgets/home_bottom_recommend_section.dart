@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../core/presentation/paging/paging_controller_mixin.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../../points_mall/data/models/get_credit_product_list_model.dart';
@@ -178,7 +179,9 @@ class _ProductCard extends StatelessWidget {
       child: InkWell(
         onTap: () {
           // 点击跳转积分商品详情页
-          context.push('/points-mall/product/${product.productId}');
+          context.push(
+            RouteNames.serviceProductDetail.replaceFirst(':id', '${product.productId}'),
+          );
         },
         borderRadius: BorderRadius.circular(14),
         child: Column(
