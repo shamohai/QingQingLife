@@ -168,7 +168,7 @@ class ServiceRemoteDataSource implements ServiceRepository {
   Future<ApiResponse<List<OfflineActivityItem>>> getOfflineActivityList({required bool typdsfriends, int pageIndex = 1, int pageSize = 20}) async {
     return apiClient.post<List<OfflineActivityItem>>(
       '/api/promotion/app/activity/getofflineactivitylist',
-      data: <String, dynamic>{'typdsfriends': typdsfriends, 'authtoken': 0, 'pageindex': pageIndex, 'pagesize': pageSize},
+      data: <String, dynamic>{'typdsfriends': typdsfriends, 'pageindex': pageIndex, 'pagesize': pageSize},
       fromJson: (dynamic json) {
         final source = json as Map<String, dynamic>? ?? const <String, dynamic>{};
         final listJson = source['activitylist'] as List<dynamic>? ?? const <dynamic>[];
@@ -181,7 +181,7 @@ class ServiceRemoteDataSource implements ServiceRepository {
   Future<ApiResponse<OfflineActivityDetail>> getOfflineActivityDetail(String activityId) async {
     return apiClient.post<OfflineActivityDetail>(
       '/api/promotion/app/activity/getofflineactivitydetail',
-      data: <String, dynamic>{'activityid': activityId, 'authtoken': 0},
+      data: <String, dynamic>{'activityid': activityId},
       fromJson: (dynamic json) {
         final source = json as Map<String, dynamic>? ?? const <String, dynamic>{};
         return OfflineActivityDetail.fromJson(source);
