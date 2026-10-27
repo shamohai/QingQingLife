@@ -88,10 +88,15 @@ class FriendDetailPage extends ConsumerWidget {
                     : null,
                 color: detail.isSignup ? null : const Color(0xFFCCCCCC),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  '立即报名',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white, height: 1.5),
+                  detail.isSignup ? '立即报名' : detail.message,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                    height: 1.5,
+                  ),
                 ),
               ),
             ),

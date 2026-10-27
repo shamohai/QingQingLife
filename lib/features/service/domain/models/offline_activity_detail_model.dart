@@ -32,6 +32,9 @@ class OfflineActivityDetail {
   /// 富文本内容（HTML）
   final String contentHtml;
 
+  /// 消息/描述
+  final String message;
+
   /// 最大报名人数（0 表示不限）
   final int maxSignupCount;
 
@@ -51,6 +54,7 @@ class OfflineActivityDetail {
     required this.isSignup,
     required this.postUrl,
     required this.contentHtml,
+    required this.message,
     required this.maxSignupCount,
     this.mySignupInfo,
     this.addressList = const [],
@@ -71,6 +75,7 @@ class OfflineActivityDetail {
       isSignup: detail['issignup'] as bool? ?? false,
       postUrl: detail['posturl'] as String? ?? '',
       contentHtml: detail['contenthtml'] as String? ?? '',
+      message: detail['message'] as String? ?? '',
       maxSignupCount: (json['maxsignupcount'] as num?)?.toInt() ?? 0,
       mySignupInfo: mySignupInfoJson != null ? MySignupInfo.fromJson(mySignupInfoJson) : null,
       addressList: addressListJson?.map((e) => ActivityAddress.fromJson(e as Map<String, dynamic>)).toList() ?? [],

@@ -89,11 +89,11 @@ class ActivityDetailPage extends ConsumerWidget {
               ),
               child: Center(
                 child: Text(
-                  detail.isSignup ? '立即报名' : '已报名',
+                  detail.isSignup ? '立即报名' : detail.message,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
-                    color: detail.isSignup ? Colors.white : Colors.white.withValues(alpha: 0.5),
+                    color: Colors.white,
                     height: 1.5,
                   ),
                 ),
