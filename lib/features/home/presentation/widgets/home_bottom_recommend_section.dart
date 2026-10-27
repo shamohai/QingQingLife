@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../core/presentation/paging/paging_controller_mixin.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../../points_mall/data/models/get_credit_product_list_model.dart';
@@ -42,41 +43,14 @@ class HomeBottomRecommendSection extends ConsumerWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 左侧列：模块 1（元宝专区图片卡片） + 偶数索引商品
+            // 左侧列：偶数索引商品
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // 模块 1：元宝图片卡片 (白色背景，圆角 14px)
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Image.asset(
-                      'assets/images/home/yuanbao.png',
-                      fit: BoxFit.cover,
-                      height: 180,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        height: 180,
-                        color: const Color(0xFFF5F5F5),
-                        child: const Center(
-                          child: Text('元宝专区', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                        ),
-                      ),
-                    ),
-                  ),
-                  for (final card in leftCards) ...[
-                    const SizedBox(height: 12),
-                    card,
+                  for (int i = 0; i < leftCards.length; i++) ...[
+                    if (i > 0) const SizedBox(height: 12),
+                    leftCards[i],
                   ],
                 ],
               ),
@@ -87,10 +61,7 @@ class HomeBottomRecommendSection extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  for (int i = 0; i < rightCards.length; i++) ...[
-                    if (i > 0) const SizedBox(height: 12),
-                    rightCards[i],
-                  ],
+                  for (int i = 0; i < rightCards.length; i++) ...[if (i > 0) const SizedBox(height: 12), rightCards[i]],
                 ],
               ),
             ),
@@ -101,11 +72,7 @@ class HomeBottomRecommendSection extends ConsumerWidget {
         if (pagingData.isLoading) ...[
           const SizedBox(height: 20),
           const Center(
-            child: SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
-            ),
+            child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70)),
           ),
         ],
 
@@ -137,16 +104,9 @@ class HomeBottomRecommendSection extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               if (!pagingData.hasMore && items.isNotEmpty)
-                const Text(
-                  '没有更多了',
-                  style: TextStyle(fontSize: 10, color: Colors.white70),
-                )
+                const Text('没有更多了', style: TextStyle(fontSize: 10, color: Colors.white70))
               else
-                const SizedBox(
-                  width: 24,
-                  height: 14,
-                  child: Icon(Icons.keyboard_arrow_down, size: 24, color: Colors.white),
-                ),
+                const SizedBox(width: 24, height: 14, child: Icon(Icons.keyboard_arrow_down, size: 24, color: Colors.white)),
             ],
           ),
         ),
@@ -166,19 +126,13 @@ class _ProductCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))],
       ),
       padding: const EdgeInsets.all(8),
       child: InkWell(
         onTap: () {
           // 点击跳转积分商品详情页
-          context.push('/points-mall/product/${product.productId}');
+          context.push(RouteNames.serviceProductDetail.replaceFirst(':id', '${product.productId}'));
         },
         borderRadius: BorderRadius.circular(14),
         child: Column(
@@ -265,20 +219,12 @@ class _ProductCard extends StatelessWidget {
                     children: [
                       Text(
                         '${product.creditPrice}',
-                        style: const TextStyle(
-                          color: Color(0xFFFF2105),
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: const TextStyle(color: Color(0xFFFF2105), fontSize: 15, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(width: 2),
                       const Text(
                         '积分',
-                        style: TextStyle(
-                          color: Color(0xFFFF2105),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: TextStyle(color: Color(0xFFFF2105), fontSize: 10, fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
@@ -288,8 +234,7 @@ class _ProductCard extends StatelessWidget {
                   width: 16,
                   height: 16,
                   fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.shopping_cart, size: 16, color: Color(0xFFFF2105)),
+                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.shopping_cart, size: 16, color: Color(0xFFFF2105)),
                 ),
               ],
             ),

@@ -16,12 +16,12 @@ class PointsFloatingButtons extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _FloatingButton(
-          asset: 'assets/images/points/icon-cart.png',
-          label: '购物车',
-          iconSize: 32, // 购物车图本身比较小，稍微放大一点
-          onTap: onCartTap ?? () => context.push(RouteNames.cart),
-        ),
+        // _FloatingButton(
+        //   asset: 'assets/images/points/icon-cart.png',
+        //   label: '购物车',
+        //   iconSize: 32, // 购物车图本身比较小，稍微放大一点
+        //   onTap: onCartTap ?? () => context.push(RouteNames.cart),
+        // ),
         const SizedBox(height: 12),
         _FloatingButton(
           asset: 'assets/images/points/icon-service.png',

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
@@ -71,7 +73,12 @@ class HomeHotProducts extends ConsumerWidget {
             child: PagingListView<CreditMallProduct>(
               provider: homeHotProductsProvider,
               scrollDirection: Axis.horizontal,
-              itemBuilder: (context, product, index) => HomeCreditProductCard(product: product),
+              itemBuilder: (context, product, index) => GestureDetector(
+                onTap: () => context.push(
+                  RouteNames.serviceProductDetail.replaceFirst(':id', '${product.productId}'),
+                ),
+                child: HomeCreditProductCard(product: product),
+              ),
               shrinkWrap: true,
               physics: const BouncingScrollPhysics(),
               separatorBuilder: const SizedBox(width: AppSpacing.sm),

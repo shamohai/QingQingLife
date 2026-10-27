@@ -43,6 +43,10 @@ class _KingKongItem extends StatelessWidget {
   const _KingKongItem({required this.item});
 
   void _handleTap(BuildContext context) {
+    // 金刚区当前统一进入积分商城全部商品页；后续可在此处追加分类参数。
+    context.push(RouteNames.allProducts);
+    return;
+
     final actionUrl = item.actionUrl ?? '';
     switch (item.jumpType) {
       case JumpType.productDetail:

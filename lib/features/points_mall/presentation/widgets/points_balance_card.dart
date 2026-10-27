@@ -15,10 +15,9 @@ import 'points_hot_product_card.dart';
 class PointsBalanceCard extends ConsumerStatefulWidget {
   final int currentPoints;
   final int expiringPoints;
-  final DateTime expiryDate;
   final VoidCallback? onDetailTap;
 
-  const PointsBalanceCard({super.key, required this.currentPoints, required this.expiringPoints, required this.expiryDate, this.onDetailTap});
+  const PointsBalanceCard({super.key, required this.currentPoints, required this.expiringPoints, this.onDetailTap});
 
   @override
   ConsumerState<PointsBalanceCard> createState() => _PointsBalanceCardState();
@@ -64,7 +63,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
                             text: '${widget.expiringPoints}积分',
                             style: const TextStyle(color: Color(0xFF0088FF)),
                           ),
-                          TextSpan(text: '将于${widget.expiryDate.year}年${widget.expiryDate.month}月${widget.expiryDate.day}日到期'),
+                          const TextSpan(text: '即将到期，请尽快使用'),
                         ],
                       ),
                       style: const TextStyle(fontSize: 11, color: Color(0xFF555555)),
@@ -186,9 +185,9 @@ class HotProductsListView extends ConsumerWidget {
               product: items[index],
               onTap: () {
                 final product = items[index];
-                if (product.type == PointsProductType.service) {
-                  GoRouter.of(context).push('/points/service/${product.id}');
-                }
+                //if (product.type == PointsProductType.service) {
+                GoRouter.of(context).push('/points/service/${product.id}');
+                //}
               },
             ),
           ),
