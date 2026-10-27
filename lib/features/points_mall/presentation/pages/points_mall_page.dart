@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/providers/repository_providers.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../providers/points_mall_paging_providers.dart';
@@ -23,9 +25,23 @@ class PointsMallPage extends ConsumerStatefulWidget {
   ConsumerState<PointsMallPage> createState() => _PointsMallPageState();
 }
 
+final pointsMallProfilePointsProvider = FutureProvider<int>((ref) async {
+  final response = await ref.read(authProvider.notifier).getCurrentUser();
+  if (!response.success || response.data == null) {
+    throw Exception(response.message);
+  }
+  return response.data!.points;
+});
+
 class _PointsMallPageState extends ConsumerState<PointsMallPage> {
   final _searchController = TextEditingController();
   int _activeCategoryId = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.microtask(() => ref.read(pointsMallProfilePointsProvider));
+  }
 
   @override
   void dispose() {
@@ -58,6 +74,9 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
           ],
         ),
         data: (staticData) => Stack(
+          // 个人资料接口返回的 paycredit 覆盖积分商城首页模型中的积分 Mock 值
+          // 其余积分商城数据仍由积分商城接口提供。
+
           children: [
             NotificationListener<ScrollNotification>(
               onNotification: (notification) {
@@ -302,26 +321,27 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                             left: 10,
                             right: 10,
                             child: PointsBalanceCard(
-                              currentPoints: staticData.currentPoints,
+                              currentPoints: ref
+                                  .watch(pointsMallProfilePointsProvider)
+                                  .maybeWhen(data: (points) => points, orElse: () => staticData.currentPoints),
                               expiringPoints: staticData.expiringPoints,
-                              expiryDate: staticData.expiryDate,
                               onDetailTap: () => GoRouter.of(context).push(RouteNames.pointsDetail),
                             ),
                           ),
 
-                          // ==================== 2. 搜索框 ====================
-                          Positioned(
-                            top: MediaQuery.of(context).padding.top + 2,
-                            left: 14,
-                            right: 14,
-                            child: PointsSearchArea(
-                              searchController: _searchController,
-                              onSearch: () {
-                                FocusScope.of(context).unfocus();
-                                // 搜索逻辑
-                              },
-                            ),
-                          ),
+                          // // ==================== 2. 搜索框 ====================
+                          // Positioned(
+                          //   top: MediaQuery.of(context).padding.top + 2,
+                          //   left: 14,
+                          //   right: 14,
+                          //   child: PointsSearchArea(
+                          //     searchController: _searchController,
+                          //     onSearch: () {
+                          //       FocusScope.of(context).unfocus();
+                          //       // 搜索逻辑
+                          //     },
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
