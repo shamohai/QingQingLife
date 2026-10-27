@@ -267,8 +267,11 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
           );
 
           final resp = await repository.submitBaiLiHuiOrder(req);
-          if (resp.success && resp.data != null && (resp.data!.result == 0 || resp.data!.result == 200)) {
-            final orderIdStr = resp.data!.orderId?.toString() ?? '0';
+          if (resp.success && resp.data != null && resp.data!.result == 0) {
+            final orderIdStr = resp.data!.orderId?.toString() ?? '';
+            if (orderIdStr.isEmpty) {
+              return ApiResponse.error('提交订单成功，但未返回订单号');
+            }
             return ApiResponse.success(
               PointsOrderSubmitResult(orderId: orderIdStr, orderNo: orderIdStr, pointsDeducted: totalPoints, message: resp.data!.descr),
             );

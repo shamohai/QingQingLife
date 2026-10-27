@@ -4,10 +4,9 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../data/models/points_payment_success_data.dart';
 
-/// 积分支付成功页面
+/// 积分提交订单成功页面
 ///
-/// 由确认订单页（ConfirmOrderPage）在提交订单后跳转至该页。
-/// 数据来源：PointsExchangeResult（mock），字段通过构造函数传入。
+/// 由确认订单页在真实提交订单成功后跳转至该页。订单号来自接口返回的 orderid。
 class PointsPaymentSuccessPage extends StatelessWidget {
   final String orderNo;
   final String transactionNo;
@@ -20,8 +19,7 @@ class PointsPaymentSuccessPage extends StatelessWidget {
     if (extra is PointsPaymentSuccessData) {
       return PointsPaymentSuccessPage(orderNo: extra.orderNo, transactionNo: extra.transactionNo, pointsDeducted: extra.pointsDeducted);
     }
-    // 无数据时降级为 mock
-    return const PointsPaymentSuccessPage(orderNo: 'DDBH45674568908765789', transactionNo: 'DDBH45654087654678908765789');
+    return const PointsPaymentSuccessPage(orderNo: '', transactionNo: '');
   }
 
   /// 跳转订单明细（路由暂未实现，暂返回上一页并 toast 提示）
@@ -43,22 +41,13 @@ class PointsPaymentSuccessPage extends StatelessWidget {
                   child: Column(
                     children: [
                       // 上半部 50% 纯背景色 #F3F5F7，无渐变
-                      Expanded(
-                        flex: 50,
-                        child: Container(
-                          color: const Color(0xFFF3F5F7),
-                        ),
-                      ),
+                      Expanded(flex: 50, child: Container(color: const Color(0xFFF3F5F7))),
                       // 下半部 50% 背景图加图层
                       Expanded(
                         flex: 50,
                         child: Container(
                           decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [Color(0xFFF3F5F7), Color(0xFFFFFFFF)],
-                            ),
+                            gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFF3F5F7), Color(0xFFFFFFFF)]),
                             image: DecorationImage(
                               image: AssetImage('assets/images/order/order_bottom_bg.png'),
                               fit: BoxFit.cover,
@@ -86,7 +75,7 @@ class PointsPaymentSuccessPage extends StatelessWidget {
                         const Align(
                           alignment: Alignment.center,
                           child: Text(
-                            '兑换成功',
+                            '提交订单成功',
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF000000), height: 1.0),
                           ),
                         ),
@@ -106,7 +95,7 @@ class PointsPaymentSuccessPage extends StatelessWidget {
                                   const SizedBox(height: AppSpacing.sm),
                                   OrderInfoRow(label: '交易单号', value: transactionNo),
                                   const SizedBox(height: AppSpacing.sm),
-                                  OrderInfoRow(label: '交易状态', value: '兑换成功'),
+                                  OrderInfoRow(label: '交易状态', value: '提交成功'),
                                   const SizedBox(height: AppSpacing.lg),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,

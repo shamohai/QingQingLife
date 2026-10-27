@@ -6,21 +6,12 @@ class SubmitCreditOrderReq {
   final int userServiceId;
   final String? remark;
 
-  const SubmitCreditOrderReq({
-    required this.pid,
-    required this.num,
-    required this.addressId,
-    this.userServiceId = 0,
-    this.remark,
-  });
+  const SubmitCreditOrderReq({required this.pid, required this.num, required this.addressId, this.userServiceId = 0, this.remark});
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'products': <Map<String, dynamic>>[
-        <String, dynamic>{
-          'pid': pid,
-          'num': num,
-        }
+        <String, dynamic>{'pid': pid, 'num': num},
       ],
       'addressid': addressId,
       'userserviceid': userServiceId,
@@ -36,12 +27,7 @@ class SubmitCreditOrderResp {
   final List<int> orderIds;
   final num? surplusMoney;
 
-  const SubmitCreditOrderResp({
-    required this.result,
-    this.descr,
-    this.orderIds = const [],
-    this.surplusMoney,
-  });
+  const SubmitCreditOrderResp({required this.result, this.descr, this.orderIds = const [], this.surplusMoney});
 
   factory SubmitCreditOrderResp.fromJson(Map<String, dynamic> json) {
     final rawResult = json['result'] ?? json['Result'] ?? -1;
@@ -52,10 +38,7 @@ class SubmitCreditOrderResp {
     List<int> parsedOrderIds = [];
     final rawOrderIds = json['orderids'] ?? json['OrderIds'] ?? json['orderid'] ?? json['OrderId'];
     if (rawOrderIds is List) {
-      parsedOrderIds = rawOrderIds
-          .map((e) => e is num ? e.toInt() : int.tryParse('$e') ?? 0)
-          .where((e) => e > 0)
-          .toList();
+      parsedOrderIds = rawOrderIds.map((e) => e is num ? e.toInt() : int.tryParse('$e') ?? 0).where((e) => e > 0).toList();
     } else if (rawOrderIds != null) {
       final singleId = rawOrderIds is num ? rawOrderIds.toInt() : int.tryParse('$rawOrderIds') ?? 0;
       if (singleId > 0) parsedOrderIds.add(singleId);
@@ -64,12 +47,7 @@ class SubmitCreditOrderResp {
     final rawSurplus = json['surplusmoney'] ?? json['SurplusMoney'];
     final parsedSurplus = rawSurplus is num ? rawSurplus : num.tryParse('$rawSurplus');
 
-    return SubmitCreditOrderResp(
-      result: parsedResult,
-      descr: rawDescr,
-      orderIds: parsedOrderIds,
-      surplusMoney: parsedSurplus,
-    );
+    return SubmitCreditOrderResp(result: parsedResult, descr: rawDescr, orderIds: parsedOrderIds, surplusMoney: parsedSurplus);
   }
 }
 
@@ -78,16 +56,10 @@ class SubmitServiceCouponIntegralOrderReq {
   final int pid;
   final int num;
 
-  const SubmitServiceCouponIntegralOrderReq({
-    required this.pid,
-    required this.num,
-  });
+  const SubmitServiceCouponIntegralOrderReq({required this.pid, required this.num});
 
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
-      'pid': pid,
-      'num': num,
-    };
+    return <String, dynamic>{'pid': pid, 'num': num};
   }
 }
 
@@ -97,11 +69,7 @@ class SubmitServiceCouponIntegralOrderResp {
   final String? descr;
   final int? orderId;
 
-  const SubmitServiceCouponIntegralOrderResp({
-    required this.result,
-    this.descr,
-    this.orderId,
-  });
+  const SubmitServiceCouponIntegralOrderResp({required this.result, this.descr, this.orderId});
 
   factory SubmitServiceCouponIntegralOrderResp.fromJson(Map<String, dynamic> json) {
     final rawResult = json['result'] ?? json['Result'] ?? -1;
@@ -112,11 +80,7 @@ class SubmitServiceCouponIntegralOrderResp {
     final rawOrderId = json['orderid'] ?? json['OrderId'];
     final parsedOrderId = rawOrderId is num ? rawOrderId.toInt() : int.tryParse('$rawOrderId');
 
-    return SubmitServiceCouponIntegralOrderResp(
-      result: parsedResult,
-      descr: rawDescr,
-      orderId: parsedOrderId,
-    );
+    return SubmitServiceCouponIntegralOrderResp(result: parsedResult, descr: rawDescr, orderId: parsedOrderId);
   }
 }
 
@@ -165,26 +129,19 @@ class SubmitBaiLiHuiOrderResp {
   final String? descr;
   final int? orderId;
 
-  const SubmitBaiLiHuiOrderResp({
-    required this.result,
-    this.descr,
-    this.orderId,
-  });
+  const SubmitBaiLiHuiOrderResp({required this.result, this.descr, this.orderId});
 
   factory SubmitBaiLiHuiOrderResp.fromJson(Map<String, dynamic> json) {
     final rawResult = json['result'] ?? json['Result'] ?? -1;
     final parsedResult = rawResult is num ? rawResult.toInt() : int.tryParse('$rawResult') ?? -1;
 
-    final rawDescr = (json['descr'] ?? json['Descr']) as String?;
+    final rawDescr = json['descr'] ?? json['Descr'];
+    final parsedDescr = rawDescr?.toString();
 
     final rawOrderId = json['orderid'] ?? json['OrderId'];
     final parsedOrderId = rawOrderId is num ? rawOrderId.toInt() : int.tryParse('$rawOrderId');
 
-    return SubmitBaiLiHuiOrderResp(
-      result: parsedResult,
-      descr: rawDescr,
-      orderId: parsedOrderId,
-    );
+    return SubmitBaiLiHuiOrderResp(result: parsedResult, descr: parsedDescr, orderId: parsedOrderId);
   }
 }
 
@@ -195,10 +152,5 @@ class PointsOrderSubmitResult {
   final int pointsDeducted;
   final String? message;
 
-  const PointsOrderSubmitResult({
-    required this.orderId,
-    required this.orderNo,
-    required this.pointsDeducted,
-    this.message,
-  });
+  const PointsOrderSubmitResult({required this.orderId, required this.orderNo, required this.pointsDeducted, this.message});
 }
