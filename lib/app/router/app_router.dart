@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,6 +37,7 @@ import '../../features/points_mall/presentation/pages/service_product_detail_pag
 import '../../features/points_mall/presentation/pages/confirm_order_page.dart';
 import '../../features/points_mall/presentation/pages/all_products_page.dart';
 import '../../features/points_mall/presentation/pages/points_payment_success_page.dart';
+import '../../core/presentation/pages/webview_page.dart';
 import '../../features/order/presentation/pages/service_coupon_confirm_order_page.dart';
 import '../../features/points/presentation/pages/points_detail_page.dart';
 import '../../features/points/presentation/pages/points_rules_page.dart';
@@ -227,6 +229,18 @@ final appRouter = Provider<GoRouter>((ref) {
         path: RouteNames.allProducts,
         pageBuilder: (c, s) => const MaterialPage(child: AllProductsPage()),
       ),
+      if (!kIsWeb)
+        GoRoute(
+          path: RouteNames.webView,
+          pageBuilder: (c, s) {
+            final url = s.uri.queryParameters['url'] ?? '';
+            final uri = Uri.tryParse(url);
+            if (uri == null || !(uri.scheme == 'http' || uri.scheme == 'https')) {
+              return const MaterialPage(child: Scaffold(body: Center(child: Text('无效的网页地址'))));
+            }
+            return MaterialPage(child: WebViewPage(url: url));
+          },
+        ),
       GoRoute(
         path: RouteNames.paymentResult,
         pageBuilder: (c, s) => MaterialPage(child: PointsPaymentSuccessPage.fromExtra(s.extra)),

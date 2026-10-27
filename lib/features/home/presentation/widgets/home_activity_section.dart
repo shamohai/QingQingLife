@@ -1,6 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../../app/router/route_names.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -149,9 +154,12 @@ class _ActivityCardState extends State<_ActivityCard> {
     final images = _images;
     final isTall = widget.height > 200;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(14), // 设计稿 14px 圆角
-      child: SizedBox(
+    return InkWell(
+      onTap: () => _openActivity(context),
+      borderRadius: BorderRadius.circular(14),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14), // 设计稿 14px 圆角
+        child: SizedBox(
         height: widget.height,
         child: Stack(
           children: [
@@ -283,7 +291,24 @@ class _ActivityCardState extends State<_ActivityCard> {
             ),
           ],
         ),
+        ),
       ),
     );
+  }
+
+  void _openActivity(BuildContext context) {
+    final path = widget.block.actionUrl?.trim() ?? '';
+    if (path.isEmpty) return;
+
+    final uri = Uri.tryParse(path);
+    if (uri == null || !(uri.scheme == 'http' || uri.scheme == 'https')) return;
+
+    if (kIsWeb) {
+      launchUrl(uri, webOnlyWindowName: '_blank');
+      return;
+    }
+
+    final route = Uri(path: RouteNames.webView, queryParameters: {'url': uri.toString()});
+    context.push(route.toString());
   }
 }

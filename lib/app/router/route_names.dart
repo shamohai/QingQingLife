@@ -90,4 +90,7 @@ abstract final class RouteNames {
 
   // 全部商品
   static const String allProducts = '/points/all-products';
+
+  // App 内 H5 页面
+  static const String webView = '/webview';
 }

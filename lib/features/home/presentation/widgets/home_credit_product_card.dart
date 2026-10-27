@@ -35,29 +35,29 @@ class HomeCreditProductCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           // 商品名称（"自营"标签在名称正前方，背景色为 #213775）
-          Text.rich(
-            TextSpan(
-              children: [
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 4),
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF213775),
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                    child: const Text(
-                      '自营',
-                      style: TextStyle(fontSize: 8, fontWeight: FontWeight.w600, color: Colors.white),
+          SizedBox(
+            height: 48,
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(color: const Color(0xFF213775), borderRadius: BorderRadius.circular(3)),
+                      child: const Text(
+                        '自营',
+                        style: TextStyle(fontSize: 8, fontWeight: FontWeight.w600, color: Colors.white),
+                      ),
                     ),
                   ),
-                ),
-                TextSpan(text: product.productName, style: AppTextStyles.bodySmall.copyWith(fontSize: 12)),
-              ],
+                  TextSpan(text: product.productName, style: AppTextStyles.bodySmall.copyWith(fontSize: 12)),
+                ],
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
           // 价格 + 右侧购物车图标，对齐原 HomeProductCard 展示形式
@@ -76,37 +76,22 @@ class HomeCreditProductCard extends StatelessWidget {
                       children: [
                         Text(
                           '${product.creditPrice}',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFFF2121),
-                          ),
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFFFF2121)),
                         ),
                         const SizedBox(width: 2),
-                        const Text(
-                          '积分',
-                          style: TextStyle(fontSize: 10, color: Color(0xFFFF2121)),
-                        ),
+                        const Text('积分', style: TextStyle(fontSize: 10, color: Color(0xFFFF2121))),
                       ],
                     ),
                     // 第二行：市场价 marketPrice（划线）
                     Text(
                       '¥${product.marketPrice.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 9,
-                        color: Color(0xFF8E8E93),
-                        decoration: TextDecoration.lineThrough,
-                      ),
+                      style: const TextStyle(fontSize: 9, color: Color(0xFF8E8E93), decoration: TextDecoration.lineThrough),
                     ),
                   ],
                 ),
               ),
               // 右侧：红色购物车图标 #FF2105
-              const Icon(
-                Icons.shopping_cart_outlined,
-                size: 20,
-                color: Color(0xFFFF2105),
-              ),
+              const Icon(Icons.shopping_cart_outlined, size: 20, color: Color(0xFFFF2105)),
             ],
           ),
         ],

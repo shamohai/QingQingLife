@@ -1,10 +1,7 @@
-/// 商品混合数据源
+/// 商品数据源。
 ///
-/// 已完成对接的接口走远程，尚未实现的后端接口继续走 Mock 占位。
-///
-/// 当前切换策略：
-/// - getCarouselList     → ProductRemoteDataSource（已上线）
-/// - 其余所有方法        → MockProductDataSource
+/// 首页接口使用真实后端数据；尚未完成 API 对接的商品能力暂时保留 Mock，
+/// 以避免影响其他尚未迁移的页面。
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,7 +14,7 @@ import '../../../home/data/models/carousel_model.dart';
 import 'product_mock_datasource.dart';
 import 'product_remote_datasource.dart';
 
-/// 混合数据源：轮播图用真实 API，其余用 Mock 占位
+/// 混合数据源：首页模块使用真实 API，其余未对接能力暂保留 Mock
 class ProductMixedDataSource implements ProductRepository {
   final ProductRemoteDataSource _remote;
   final MockProductDataSource _mock;
@@ -31,18 +28,10 @@ class ProductMixedDataSource implements ProductRepository {
     return _remote.getCarouselList(type: type);
   }
 
-  /// 首页 4 个模块接口（金刚区、每月权益、线上活动、线下活动）切换为 Remote 接口
+  /// 首页模块仅使用真实接口，不再降级到 Mock 数据。
   @override
-  Future<ApiResponse<HomeProductData>> getHomeProductData() async {
-    try {
-      final remoteRes = await _remote.getHomeProductData();
-      if (remoteRes.success && remoteRes.data != null) {
-        return remoteRes;
-      }
-    } catch (_) {
-      // 远程接口异常时保底降级为 Mock
-    }
-    return _mock.getHomeProductData();
+  Future<ApiResponse<HomeProductData>> getHomeProductData() {
+    return _remote.getHomeProductData();
   }
 
   @override
