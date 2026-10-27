@@ -9,6 +9,7 @@ import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
+import '../../../../core/widgets/app_image.dart';
 import '../../data/datasources/service_remote_datasource.dart';
 import '../widgets/booking_form_field.dart';
 
@@ -195,6 +196,20 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
     );
   }
 
+  Widget _buildHeroImage() {
+    // heroAsset 可能是网络 URL，也可能是本地 asset（兼容旧 mock 路由）
+    final url = widget.heroAsset;
+    if (url.startsWith('http')) {
+      return AppNetworkImage(
+        url: url,
+        fit: BoxFit.cover,
+        placeholder: Container(color: AppColors.surfaceVariant),
+        errorWidget: Container(color: AppColors.surfaceVariant),
+      );
+    }
+    return Image.asset(url, fit: BoxFit.cover);
+  }
+
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       backgroundColor: AppColors.servicePageBackground,
@@ -233,10 +248,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
                       padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
                       child: ClipRRect(
                         borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
-                        child: AspectRatio(
-                          aspectRatio: 412 / 180,
-                          child: Image.asset(widget.heroAsset, width: double.infinity, fit: BoxFit.cover),
-                        ),
+                        child: AspectRatio(aspectRatio: 412 / 180, child: _buildHeroImage()),
                       ),
                     ),
                     // Section 2: 表单卡片（向上偏移 50dp 与 Banner 重叠）
