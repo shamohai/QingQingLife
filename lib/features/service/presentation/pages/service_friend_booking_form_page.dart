@@ -34,6 +34,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
 
   bool _bringFriend = false;
   bool _submitting = false;
+  bool _isAlreadyReserved = false;
 
   @override
   void initState() {
@@ -138,7 +139,10 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
     try {
       await ref.read(signupOfflineActivityProvider(params).future);
       if (!mounted) return;
-      setState(() => _submitting = false);
+      setState(() {
+        _submitting = false;
+        _isAlreadyReserved = true;
+      });
       _showSuccessDialog();
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -310,15 +314,17 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          _Choice(selected: _bringFriend, label: '是', onTap: () => setState(() => _bringFriend = true)),
+                          _Choice(selected: _bringFriend, label: '是', onTap: _isAlreadyReserved ? null : () => setState(() => _bringFriend = true)),
                           const SizedBox(width: 54),
                           _Choice(
                             selected: !_bringFriend,
                             label: '否',
-                            onTap: () => setState(() {
-                              _bringFriend = false;
-                              _friendCountController.clear();
-                            }),
+                            onTap: _isAlreadyReserved
+                                ? null
+                                : () => setState(() {
+                                    _bringFriend = false;
+                                    _friendCountController.clear();
+                                  }),
                           ),
                         ],
                       ),
@@ -327,7 +333,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
                         _FriendField(
                           label: '亲友人数',
                           icon: Icons.people_outline,
-                          child: _input(_friendCountController, '1人', keyboardType: TextInputType.number),
+                          child: _input(_friendCountController, '0人', keyboardType: TextInputType.number),
                         ),
                       ],
                     ],
@@ -346,16 +352,23 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
           child: SizedBox(
             height: 51,
             child: ElevatedButton(
-              onPressed: _submitting ? null : _submit,
+              onPressed: (_submitting || _isAlreadyReserved) ? null : _submit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.serviceTabActive,
+                backgroundColor: _isAlreadyReserved ? AppColors.serviceButtonDisabled : AppColors.serviceTabActive,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
                 elevation: 0,
               ),
               child: _submitting
                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('提交报名', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                  : Text(
+                      _isAlreadyReserved ? '已报名' : '提交报名',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: _isAlreadyReserved ? AppColors.serviceButtonDisabledText : Colors.white,
+                      ),
+                    ),
             ),
           ),
         ),
@@ -367,8 +380,9 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
+      enabled: !_isAlreadyReserved,
       inputFormatters: keyboardType == TextInputType.phone ? [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(11)] : null,
-      style: const TextStyle(fontSize: 16, color: Colors.black),
+      style: TextStyle(fontSize: 16, color: _isAlreadyReserved ? const Color(0xFF333333) : Colors.black),
       decoration: InputDecoration(
         isDense: true,
         counterText: '',
@@ -380,8 +394,8 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
         disabledBorder: InputBorder.none,
         errorBorder: InputBorder.none,
         focusedErrorBorder: InputBorder.none,
-        filled: false,
-        fillColor: Colors.transparent,
+        filled: _isAlreadyReserved,
+        fillColor: _isAlreadyReserved ? const Color(0xFFF5F5F5) : null,
         contentPadding: EdgeInsets.zero,
       ),
     );
@@ -428,9 +442,9 @@ class _FriendField extends StatelessWidget {
 class _Choice extends StatelessWidget {
   final bool selected;
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
-  const _Choice({required this.selected, required this.label, required this.onTap});
+  const _Choice({required this.selected, required this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {
