@@ -76,7 +76,7 @@ class FriendActivityListItem extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(minWidth: 78),
               child: OutlinedButton(
-                onPressed: item.isSignup ? onTap : null,
+                onPressed: onTap,
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: AppColors.serviceButtonRed),
                   backgroundColor: Colors.transparent,
@@ -85,11 +85,11 @@ class FriendActivityListItem extends StatelessWidget {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 child: Text(
-                  item.isSignup ? '立即报名' : '已满员',
+                  '立即报名',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: item.isSignup ? AppColors.serviceButtonRed : AppColors.serviceButtonRed.withValues(alpha: 0.5),
+                    color: AppColors.serviceButtonRed,
                   ),
                   softWrap: false,
                   overflow: TextOverflow.visible,
