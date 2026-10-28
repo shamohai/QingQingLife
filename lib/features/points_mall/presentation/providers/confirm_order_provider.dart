@@ -32,7 +32,6 @@ class PointsConfirmOrderState {
   final AsyncValue<PreCreditOrderInfoModel> preOrderInfoAsync;
   final AsyncValue<MemberAddress?> addressAsync;
   final String note;
-  final String redeemerName;
   final String redeemerPhone;
   final bool isSubmitting;
 
@@ -44,7 +43,6 @@ class PointsConfirmOrderState {
     this.preOrderInfoAsync = const AsyncValue.loading(),
     this.addressAsync = const AsyncValue.data(null),
     this.note = '',
-    this.redeemerName = '',
     this.redeemerPhone = '',
     this.isSubmitting = false,
   });
@@ -57,7 +55,6 @@ class PointsConfirmOrderState {
     AsyncValue<PreCreditOrderInfoModel>? preOrderInfoAsync,
     AsyncValue<MemberAddress?>? addressAsync,
     String? note,
-    String? redeemerName,
     String? redeemerPhone,
     bool? isSubmitting,
   }) {
@@ -69,7 +66,6 @@ class PointsConfirmOrderState {
       preOrderInfoAsync: preOrderInfoAsync ?? this.preOrderInfoAsync,
       addressAsync: addressAsync ?? this.addressAsync,
       note: note ?? this.note,
-      redeemerName: redeemerName ?? this.redeemerName,
       redeemerPhone: redeemerPhone ?? this.redeemerPhone,
       isSubmitting: isSubmitting ?? this.isSubmitting,
     );
@@ -184,7 +180,6 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
   }
 
   void setNote(String note) => state = state.copyWith(note: note);
-  void setRedeemerName(String name) => state = state.copyWith(redeemerName: name);
   void setRedeemerPhone(String phone) => state = state.copyWith(redeemerPhone: phone);
 
   /// 提交订单（依据 orderType 分流调用相应 API）
@@ -269,13 +264,9 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
             receiveName = address.name;
             mobile = address.phone;
           } else if (preInfo.recvrType == RecvrType.recvrMobile) {
-            if (state.redeemerName.trim().isEmpty) {
-              return ApiResponse.error('请输入接收人姓名');
-            }
             if (state.redeemerPhone.trim().isEmpty || state.redeemerPhone.length != 11) {
               return ApiResponse.error('请输入正确的11位手机号');
             }
-            receiveName = state.redeemerName.trim();
             mobile = state.redeemerPhone.trim();
           }
 

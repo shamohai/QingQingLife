@@ -134,7 +134,6 @@ class ConfirmOrderPage extends ConsumerWidget {
               if (recvrType == RecvrType.recvrMobile)
                 SliverToBoxAdapter(
                   child: ConfirmOrderRedeemerForm(
-                    onNameChanged: (name) => ref.read(pointsConfirmOrderProvider(arg).notifier).setRedeemerName(name),
                     onPhoneChanged: (phone) => ref.read(pointsConfirmOrderProvider(arg).notifier).setRedeemerPhone(phone),
                     onSubmitted: () => _handleSubmit(context, ref, arg),
                   ),

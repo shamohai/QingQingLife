@@ -5,44 +5,28 @@ import '../../../../../app/theme/app_spacing.dart';
 
 /// 兑换人/手机号接收信息表单（RecvrMobile）
 class ConfirmOrderRedeemerForm extends StatefulWidget {
-  final ValueChanged<String>? onNameChanged;
   final ValueChanged<String>? onPhoneChanged;
   final VoidCallback onSubmitted;
 
-  const ConfirmOrderRedeemerForm({
-    super.key,
-    this.onNameChanged,
-    this.onPhoneChanged,
-    required this.onSubmitted,
-  });
+  const ConfirmOrderRedeemerForm({super.key, this.onPhoneChanged, required this.onSubmitted});
 
   @override
   State<ConfirmOrderRedeemerForm> createState() => _ConfirmOrderRedeemerFormState();
 }
 
 class _ConfirmOrderRedeemerFormState extends State<ConfirmOrderRedeemerForm> {
-  final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _nameFocus = FocusNode();
   final _phoneFocus = FocusNode();
 
   @override
   void dispose() {
-    _nameController.dispose();
     _phoneController.dispose();
-    _nameFocus.dispose();
     _phoneFocus.dispose();
     super.dispose();
   }
 
   void _submit() {
-    final name = _nameController.text.trim();
     final phone = _phoneController.text.trim();
-    if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请输入姓名')));
-      _nameFocus.requestFocus();
-      return;
-    }
     if (phone.isEmpty || phone.length != 11 || !RegExp(r'^\d+$').hasMatch(phone)) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请输入正确的11位手机号')));
       _phoneFocus.requestFocus();
@@ -64,18 +48,6 @@ class _ConfirmOrderRedeemerFormState extends State<ConfirmOrderRedeemerForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '接收人姓名',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF213775)),
-          ),
-          const SizedBox(height: 10),
-          _buildInputField(
-            controller: _nameController,
-            focusNode: _nameFocus,
-            placeholder: '请输入姓名',
-            onChanged: widget.onNameChanged,
-          ),
-          const SizedBox(height: 16),
           const Text(
             '充值/接收手机号',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF213775)),
