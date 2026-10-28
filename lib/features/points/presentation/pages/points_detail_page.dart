@@ -57,7 +57,7 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
             // 2. Banner 内容区（AppBar + 当前积分）
             _buildBannerContent(context, state),
             // 3. 独立月份卡片列表：作为 Root Stack 的直接子节点，设置 top 偏移实现重叠，确保手势完全可以正常响应
-            Padding(padding: const EdgeInsets.only(top: 200), child: _buildRecordList(context, state)),
+            Padding(padding: const EdgeInsets.only(top: 180), child: _buildRecordList(context, state)),
           ],
         ),
       ),
