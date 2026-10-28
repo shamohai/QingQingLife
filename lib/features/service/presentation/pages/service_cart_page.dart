@@ -303,7 +303,12 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
     final notifier = ref.read(serviceCartProvider(params).notifier);
     final addresses = ref.watch(memberAddressesProvider).value ?? const <MemberAddress>[];
     final selectedAddress = _selectedAddress ?? _defaultAddress(addresses);
-    final canCheckout = state.canSubmit && state.cartProducts.isNotEmpty && !state.cartUpdateInProgress && !_isSubmittingOrder;
+    final canCheckout =
+        state.canSubmit &&
+        state.cartProducts.isNotEmpty &&
+        state.selectedProducts.isNotEmpty && // 未选中任何商品时不可结算
+        !state.cartUpdateInProgress &&
+        !_isSubmittingOrder;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.md + 8),
