@@ -296,56 +296,40 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                   //   ),
                   // ),
 
-                  //第2种写法
                   SliverToBoxAdapter(
-                    child: SizedBox(
-                      // Banner 340 + 积分卡片向上覆盖后探出的高度（约 100~120）
-                      height: 436 + 110,
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          SizedBox(
-                            height: 260,
-                            child: PointsBanner(
-                              imageUrl: staticData.bannerUrls.first,
-                              imageUrls: staticData.bannerUrls.length > 1 ? staticData.bannerUrls : null,
-                              height: 260, // 传进去
-                              autoPlay: true, // 默认就是 true，可省略
-                              autoPlayInterval: const Duration(seconds: 3),
-                            ),
+                    child: Stack(
+                      children: [
+                        SizedBox(
+                          height: 260,
+                          child: PointsBanner(
+                            imageUrl: staticData.bannerUrls.first,
+                            imageUrls: staticData.bannerUrls.length > 1 ? staticData.bannerUrls : null,
+                            height: 260, // 传进去
+                            autoPlay: true, // 默认就是 true，可省略
+                            autoPlayInterval: const Duration(seconds: 3),
                           ),
+                        ),
 
-                          // ==================== 4. 积分卡片（设计稿 top:306，相对 Banner 顶部约 257）====================
-                          Positioned(
-                            top: 207, // 306 - 49 ≈ 257（设计稿关键偏移）
-                            left: 10,
-                            right: 10,
-                            child: PointsBalanceCard(
-                              currentPoints: ref
-                                  .watch(pointsMallProfilePointsProvider)
-                                  .maybeWhen(data: (profile) => profile.points, orElse: () => staticData.currentPoints),
-                              expiringPoints: ref
-                                  .watch(pointsMallProfilePointsProvider)
-                                  .maybeWhen(data: (profile) => profile.expiringPoints, orElse: () => staticData.expiringPoints),
-                              onDetailTap: () => GoRouter.of(context).push(RouteNames.pointsDetail),
-                            ),
+                        // ==================== 积分卡片（动态高度自然流布局，避免写死总高度导致空白） ====================
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SizedBox(height: 207),
+                              PointsBalanceCard(
+                                currentPoints: ref
+                                    .watch(pointsMallProfilePointsProvider)
+                                    .maybeWhen(data: (profile) => profile.points, orElse: () => staticData.currentPoints),
+                                expiringPoints: ref
+                                    .watch(pointsMallProfilePointsProvider)
+                                    .maybeWhen(data: (profile) => profile.expiringPoints, orElse: () => staticData.expiringPoints),
+                                onDetailTap: () => GoRouter.of(context).push(RouteNames.pointsDetail),
+                              ),
+                            ],
                           ),
-
-                          // // ==================== 2. 搜索框 ====================
-                          // Positioned(
-                          //   top: MediaQuery.of(context).padding.top + 2,
-                          //   left: 14,
-                          //   right: 14,
-                          //   child: PointsSearchArea(
-                          //     searchController: _searchController,
-                          //     onSearch: () {
-                          //       FocusScope.of(context).unfocus();
-                          //       // 搜索逻辑
-                          //     },
-                          //   ),
-                          // ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
 

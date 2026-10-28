@@ -42,7 +42,7 @@ class MockPointsDataSource implements PointsRepository {
 
   static PointsMallHomeData get _mockHomeData => PointsMallHomeData(
     bannerUrl: 'assets/images/points/banner.jpg',
-    bannerUrls: ['assets/images/points/banner.jpg', 'assets/images/points/banner.jpg', 'assets/images/points/banner.jpg'],
+    bannerUrls: ['assets/images/points/banner.jpg'],
     currentPoints: 143544,
     expiringPoints: 1200,
     expiryDate: DateTime(2026, 12, 31),
@@ -554,24 +554,12 @@ class MockPointsDataSource implements PointsRepository {
   }
 
   @override
-  Future<ApiResponse<PreCreditOrderInfoModel>> getPreCreditOrderInfo({
-    required int userServiceId,
-    required String productId,
-    required int quantity,
-  }) async {
+  Future<ApiResponse<PreCreditOrderInfoModel>> getPreCreditOrderInfo({required int userServiceId, required String productId, required int quantity}) async {
     if (apiClient != null) {
       final remote = PointsRemoteDataSource(apiClient: apiClient!);
-      return remote.getPreCreditOrderInfo(
-        userServiceId: userServiceId,
-        productId: productId,
-        quantity: quantity,
-      );
+      return remote.getPreCreditOrderInfo(userServiceId: userServiceId, productId: productId, quantity: quantity);
     }
-    return ApiResponse.success(
-      const PreCreditOrderInfoModel(
-        recvrType: RecvrType.shipAddress,
-      ),
-    );
+    return ApiResponse.success(const PreCreditOrderInfoModel(recvrType: RecvrType.shipAddress));
   }
 
   @override
@@ -580,13 +568,7 @@ class MockPointsDataSource implements PointsRepository {
       final remote = PointsRemoteDataSource(apiClient: apiClient!);
       return remote.submitCreditOrder(req);
     }
-    return ApiResponse.success(
-      const SubmitCreditOrderResp(
-        result: 0,
-        descr: '提交成功(Mock)',
-        orderIds: [88001],
-      ),
-    );
+    return ApiResponse.success(const SubmitCreditOrderResp(result: 0, descr: '提交成功(Mock)', orderIds: [88001]));
   }
 
   @override
@@ -595,13 +577,7 @@ class MockPointsDataSource implements PointsRepository {
       final remote = PointsRemoteDataSource(apiClient: apiClient!);
       return remote.submitServiceCouponIntegralOrder(req);
     }
-    return ApiResponse.success(
-      const SubmitServiceCouponIntegralOrderResp(
-        result: 0,
-        descr: '提交成功(Mock)',
-        orderId: 88002,
-      ),
-    );
+    return ApiResponse.success(const SubmitServiceCouponIntegralOrderResp(result: 0, descr: '提交成功(Mock)', orderId: 88002));
   }
 
   @override
@@ -610,13 +586,7 @@ class MockPointsDataSource implements PointsRepository {
       final remote = PointsRemoteDataSource(apiClient: apiClient!);
       return remote.submitBaiLiHuiOrder(req);
     }
-    return ApiResponse.success(
-      const SubmitBaiLiHuiOrderResp(
-        result: 0,
-        descr: '提交成功(Mock)',
-        orderId: 88003,
-      ),
-    );
+    return ApiResponse.success(const SubmitBaiLiHuiOrderResp(result: 0, descr: '提交成功(Mock)', orderId: 88003));
   }
 }
 
