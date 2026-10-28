@@ -10,6 +10,7 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../features/member/domain/repositories/member_repository.dart';
 import '../../../../features/member/presentation/providers/member_addresses_provider.dart';
 import '../../domain/models/share_cart_candidate_model.dart';
@@ -45,6 +46,13 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
   Widget build(BuildContext context) {
     final params = ServiceCartInitialParams(templateId: widget.templateId, headImg: widget.headImg, existingCartId: widget.cartId);
     final asyncState = ref.watch(serviceCartProvider(params));
+
+    // 监听 cartError，非空时弹出错误提示框
+    ref.listen(serviceCartProvider(params), (prev, next) {
+      if (next.value?.cartError.isNotEmpty == true && context.mounted) {
+        _showErrorDialog(next.value!.cartError, params);
+      }
+    });
 
     return Scaffold(
       backgroundColor: AppColors.servicePageBackground,
@@ -346,7 +354,7 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
                           child: Text(
                             state.verifyMsg,
                             textAlign: TextAlign.right,
-                            style: const TextStyle(fontSize: 14, color: Colors.grey),
+                            style: const TextStyle(fontSize: 10, color: Colors.grey),
                           ),
                         ),
                     ],
@@ -409,9 +417,12 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
 
       final uri = Uri(path: RouteNames.customerService, queryParameters: {'templateId': widget.templateId.toString()});
       await context.push(uri.toString());
-    } catch (error) {
+    } on NetworkException catch (error) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('订单提交失败：$error')));
+      _showErrorDialog(error.toDisplayMessage(), params);
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('网络异常，请稍后重试')));
     } finally {
       if (mounted) setState(() => _isSubmittingOrder = false);
     }
@@ -424,6 +435,49 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('购物车更新失败：$error')));
     }
+  }
+
+  void _showErrorDialog(String message, ServiceCartInitialParams params) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline, size: 40, color: Color(0xFFFF5252)),
+              const SizedBox(height: 16),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.black),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    ref.read(serviceCartProvider(params).notifier).clearCartError();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.serviceTabActive,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
+                    elevation: 0,
+                  ),
+                  child: const Text('我知道了', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
