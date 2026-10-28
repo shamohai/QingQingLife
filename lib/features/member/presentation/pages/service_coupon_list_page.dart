@@ -240,8 +240,7 @@ class _ServiceCouponListPageState extends ConsumerState<ServiceCouponListPage> {
           ..showSnackBar(const SnackBar(content: Text('服务券信息无效，请刷新后重试'), behavior: SnackBarBehavior.floating));
         return;
       }
-      final count = coupon.num > 0 ? coupon.num : 1;
-      await context.push(RouteNames.serviceCouponConfirmOrderPath(serviceCouponId: coupon.serviceCouponId, count: count));
+      await context.push(RouteNames.serviceCouponConfirmOrderPath(serviceCouponId: coupon.serviceCouponId, count: 1));
       return;
     }
 

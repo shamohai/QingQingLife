@@ -18,7 +18,7 @@ import 'mall_payment_success_page.dart';
 
 /// 服务券支付订单确认页。
 ///
-/// 页面数据全部来自服务券订单预处理接口，商品可兑换数量只读展示，不可在本页修改。
+/// 地址信息来自服务券订单预处理接口，服务券数量在本页即时调整。
 class ServiceCouponConfirmOrderPage extends ConsumerStatefulWidget {
   const ServiceCouponConfirmOrderPage({super.key, required this.serviceCouponId, this.initialCount = 1});
 
@@ -31,6 +31,7 @@ class ServiceCouponConfirmOrderPage extends ConsumerStatefulWidget {
 
 class _ServiceCouponConfirmOrderPageState extends ConsumerState<ServiceCouponConfirmOrderPage> {
   late final TextEditingController _remarkController;
+  late final int _initialCouponCount;
   int _requestedCouponCount = 1;
   int? _selectedAddressId;
   bool _isSubmitting = false;
@@ -38,7 +39,8 @@ class _ServiceCouponConfirmOrderPageState extends ConsumerState<ServiceCouponCon
   @override
   void initState() {
     super.initState();
-    _requestedCouponCount = widget.initialCount > 0 ? widget.initialCount : 1;
+    _initialCouponCount = widget.initialCount > 0 ? widget.initialCount : 1;
+    _requestedCouponCount = _initialCouponCount;
     _remarkController = TextEditingController();
   }
 
@@ -54,7 +56,7 @@ class _ServiceCouponConfirmOrderPageState extends ConsumerState<ServiceCouponCon
       return _buildScaffold(body: const AppError(message: '服务券信息无效，请返回后重试'));
     }
 
-    final query = (serviceCouponId: widget.serviceCouponId, count: _requestedCouponCount, addressId: _selectedAddressId);
+    final query = (serviceCouponId: widget.serviceCouponId, count: _initialCouponCount, addressId: _selectedAddressId);
     final preDealAsync = ref.watch(serviceCouponPreDealProvider(query));
     return preDealAsync.when(
       loading: () => _buildScaffold(body: const Center(child: AppLoading())),
@@ -66,8 +68,6 @@ class _ServiceCouponConfirmOrderPageState extends ConsumerState<ServiceCouponCon
         return _buildScaffold(
           body: _buildContent(preDeal, effectiveCount),
           bottomNavigationBar: _ServiceCouponOrderBottomBar(
-            amount: preDeal.totalAmount,
-            discount: preDeal.totalDiscount,
             enabled: !_isSubmitting && effectiveCount > 0 && _resolveSubmitAddressId(preDeal) != null,
             submitting: _isSubmitting,
             onSubmit: () => _submit(preDeal, effectiveCount),
@@ -90,7 +90,7 @@ class _ServiceCouponConfirmOrderPageState extends ConsumerState<ServiceCouponCon
     return RefreshIndicator(
       color: AppColors.serviceTabActive,
       onRefresh: () async {
-        ref.invalidate(serviceCouponPreDealProvider((serviceCouponId: widget.serviceCouponId, count: _requestedCouponCount, addressId: _selectedAddressId)));
+        ref.invalidate(serviceCouponPreDealProvider((serviceCouponId: widget.serviceCouponId, count: _initialCouponCount, addressId: _selectedAddressId)));
       },
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
@@ -108,11 +108,7 @@ class _ServiceCouponConfirmOrderPageState extends ConsumerState<ServiceCouponCon
               onIncrement: preDeal.maxCouponCount > effectiveCount ? () => setState(() => _requestedCouponCount = effectiveCount + 1) : null,
             ),
             const SizedBox(height: 10),
-            _ServiceCouponProductCard(products: preDeal.products, remarkController: _remarkController),
-            const SizedBox(height: 10),
-            _ServiceCouponAmountCard(preDeal: preDeal),
-            const SizedBox(height: 10),
-            const _ServiceCouponPaymentCard(),
+            _ServiceCouponProductCard(products: preDeal.products, couponCount: effectiveCount, remarkController: _remarkController),
           ],
         ),
       ),
@@ -360,9 +356,10 @@ class _StepperTapArea extends StatelessWidget {
 }
 
 class _ServiceCouponProductCard extends StatelessWidget {
-  const _ServiceCouponProductCard({required this.products, required this.remarkController});
+  const _ServiceCouponProductCard({required this.products, required this.couponCount, required this.remarkController});
 
   final List<ServiceCouponOrderProduct> products;
+  final int couponCount;
   final TextEditingController remarkController;
 
   @override
@@ -378,7 +375,7 @@ class _ServiceCouponProductCard extends StatelessWidget {
             )
           else
             for (var index = 0; index < products.length; index++) ...[
-              _ServiceCouponProductRow(product: products[index]),
+              _ServiceCouponProductRow(product: products[index], couponCount: couponCount),
               if (index != products.length - 1)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 12),
@@ -403,6 +400,8 @@ class _ServiceCouponProductCard extends StatelessWidget {
                     counterText: '',
                     hintText: '请填写备注信息 >',
                     hintStyle: TextStyle(fontSize: 16, height: 1.4, color: Color(0xFF8E8E93)),
+                    filled: true,
+                    fillColor: Colors.white,
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
                     border: InputBorder.none,
@@ -420,9 +419,10 @@ class _ServiceCouponProductCard extends StatelessWidget {
 }
 
 class _ServiceCouponProductRow extends StatelessWidget {
-  const _ServiceCouponProductRow({required this.product});
+  const _ServiceCouponProductRow({required this.product, required this.couponCount});
 
   final ServiceCouponOrderProduct product;
+  final int couponCount;
 
   @override
   Widget build(BuildContext context) {
@@ -431,7 +431,7 @@ class _ServiceCouponProductRow extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(AppRadius.xs),
-          child: AppNetworkImage(url: product.imageUrl ?? '', width: 70, height: 70, fit: BoxFit.cover, memCacheWidth: 140, memCacheHeight: 140),
+          child: AppNetworkImage(url: product.imgUrl ?? '', width: 70, height: 70, fit: BoxFit.cover, memCacheWidth: 140, memCacheHeight: 140),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -469,109 +469,23 @@ class _ServiceCouponProductRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            const Text('可兑换数量', style: TextStyle(fontSize: 12, height: 1.4, color: Color(0xFF8E8E93))),
-            const SizedBox(height: 5),
-            Text(
-              '${product.quantity < 0 ? 0 : product.quantity}张',
+        SizedBox(
+          height: 70,
+          child: Center(
+            child: Text(
+              'x${couponCount < 0 ? 0 : couponCount}',
               style: const TextStyle(fontSize: 20, height: 1.2, fontWeight: FontWeight.w600, color: AppColors.serviceButtonRed),
             ),
-          ],
+          ),
         ),
       ],
     );
   }
 }
 
-class _ServiceCouponAmountCard extends StatelessWidget {
-  const _ServiceCouponAmountCard({required this.preDeal});
-
-  final ServiceCouponPreDealData preDeal;
-
-  @override
-  Widget build(BuildContext context) {
-    final productTotal = preDeal.stores.fold(Decimal.zero, (sum, item) => sum + item.orderAmount);
-    return _Panel(
-      padding: const EdgeInsets.fromLTRB(12, 14, 12, 16),
-      child: Column(
-        children: [
-          _AmountRow(label: '商品总价', value: _money(productTotal), valueColor: AppColors.serviceButtonRed),
-          const SizedBox(height: 11),
-          _AmountRow(label: '运费', value: _money(preDeal.shipFee)),
-          const SizedBox(height: 11),
-          _AmountRow(label: '优惠金额', value: '-${_money(preDeal.totalDiscount)}', valueColor: AppColors.serviceButtonRed),
-          const SizedBox(height: 15),
-          const Divider(height: 1, color: Color(0xFFE3E8F0)),
-          const SizedBox(height: 14),
-          _AmountRow(label: '合计金额', value: _money(preDeal.totalAmount), valueColor: AppColors.serviceButtonRed, valueSize: 18),
-        ],
-      ),
-    );
-  }
-}
-
-class _AmountRow extends StatelessWidget {
-  const _AmountRow({required this.label, required this.value, this.valueColor = const Color(0xFF1F2024), this.valueSize = 16});
-
-  final String label;
-  final String value;
-  final Color valueColor;
-  final double valueSize;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: valueSize > 16 ? 27 : 24,
-      child: Row(
-        children: [
-          Text(label, style: const TextStyle(fontSize: 16, height: 1.4, color: Color(0xFF1F2024))),
-          const Spacer(),
-          Expanded(
-            child: Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.right,
-              style: TextStyle(fontSize: valueSize, height: 1.4, fontWeight: FontWeight.w500, color: valueColor),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ServiceCouponPaymentCard extends StatelessWidget {
-  const _ServiceCouponPaymentCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return _Panel(
-      height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        children: [
-          Image.asset('assets/images/order/confirm-order-wechat.png', width: 26, height: 26),
-          const SizedBox(width: 10),
-          const Text(
-            '微信支付',
-            style: TextStyle(fontSize: 16, height: 1.4, fontWeight: FontWeight.w500, color: Color(0xFF1F2024)),
-          ),
-          const Spacer(),
-          Image.asset('assets/images/order/confirm-order-selected.png', width: 20, height: 20),
-        ],
-      ),
-    );
-  }
-}
-
 class _ServiceCouponOrderBottomBar extends StatelessWidget {
-  const _ServiceCouponOrderBottomBar({required this.amount, required this.discount, required this.enabled, required this.submitting, required this.onSubmit});
+  const _ServiceCouponOrderBottomBar({required this.enabled, required this.submitting, required this.onSubmit});
 
-  final Decimal amount;
-  final Decimal discount;
   final bool enabled;
   final bool submitting;
   final VoidCallback onSubmit;
@@ -584,59 +498,25 @@ class _ServiceCouponOrderBottomBar extends StatelessWidget {
         color: Colors.white,
         boxShadow: [BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, -2))],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerRight,
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        const TextSpan(
-                          text: '合计：',
-                          style: TextStyle(fontSize: 14, color: Color(0xFF1F2024)),
-                        ),
-                        TextSpan(
-                          text: _money(amount),
-                          style: const TextStyle(fontSize: 24, height: 1.1, fontWeight: FontWeight.w500, color: Color(0xFFFE273D)),
-                        ),
-                      ],
-                    ),
-                    maxLines: 1,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text('共减免${_money(discount)}', style: const TextStyle(fontSize: 12, height: 1.3, color: AppColors.serviceButtonRed)),
-              ],
+      child: SizedBox(
+        width: double.infinity,
+        height: 47,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: enabled ? const [AppColors.serviceCtaGradStart, AppColors.serviceTabActive] : const [Color(0xFFB9C1D4), Color(0xFFD0D5E0)],
+            ),
+            borderRadius: BorderRadius.circular(AppRadius.round),
+          ),
+          child: TextButton(
+            onPressed: enabled ? onSubmit : null,
+            style: TextButton.styleFrom(padding: EdgeInsets.zero, shape: const StadiumBorder()),
+            child: Text(
+              submitting ? '提交中...' : '提交订单',
+              style: const TextStyle(fontSize: 18, height: 1.4, fontWeight: FontWeight.w500, color: Colors.white),
             ),
           ),
-          const SizedBox(width: 18),
-          SizedBox(
-            width: 156,
-            height: 47,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: enabled ? const [AppColors.serviceCtaGradStart, AppColors.serviceTabActive] : const [Color(0xFFB9C1D4), Color(0xFFD0D5E0)],
-                ),
-                borderRadius: BorderRadius.circular(AppRadius.round),
-              ),
-              child: TextButton(
-                onPressed: enabled ? onSubmit : null,
-                style: TextButton.styleFrom(padding: EdgeInsets.zero, shape: const StadiumBorder()),
-                child: Text(
-                  submitting ? '提交中...' : '提交订单',
-                  style: const TextStyle(fontSize: 18, height: 1.4, fontWeight: FontWeight.w500, color: Colors.white),
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -742,7 +622,5 @@ class _Panel extends StatelessWidget {
     );
   }
 }
-
-String _money(Decimal value) => '¥${value.toStringAsFixed(2)}';
 
 int _toCents(Decimal value) => (value * Decimal.fromInt(100)).round().toBigInt().toInt();

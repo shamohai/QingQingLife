@@ -10,17 +10,23 @@ enum CouponEntryType { discount, service, lockedRedPacket }
 class CouponEntry {
   final CouponEntryType type;
   final String title;
-  final List<Color> gradientColors;
-  final Color borderColor;
-  final Color buttonColor;
+  final List<Color> backgroundColors;
+  final List<Color> actionColors;
+  final Color dividerColor;
+
+  /// 「立即查看」胶囊按钮的渐变背景（上 → 下）。
+  final List<Color> pillColors;
+  final Color titleColor;
   final Color buttonTextColor;
 
   const CouponEntry({
     required this.type,
     required this.title,
-    required this.gradientColors,
-    required this.borderColor,
-    required this.buttonColor,
+    required this.backgroundColors,
+    required this.actionColors,
+    required this.dividerColor,
+    required this.pillColors,
+    required this.titleColor,
     required this.buttonTextColor,
   });
 
@@ -28,26 +34,32 @@ class CouponEntry {
     CouponEntry(
       type: CouponEntryType.discount,
       title: '天佑德优惠券',
-      gradientColors: [Color(0xFFF7FBFF), Color(0xFFD6E6FF)],
-      borderColor: Color(0xFFB8CFF0),
-      buttonColor: Color(0xFF7CC2F1),
-      buttonTextColor: Color(0xFF1F5FA8),
+      backgroundColors: [Color(0xFFC9E0FA), Color(0xFFD9E9FB)],
+      actionColors: [Color(0xFF4C8FDE), Color(0xFF3E7ED1)],
+      dividerColor: Color(0xFFE2EEFB),
+      pillColors: [Color(0xFFFFFFFF), Color(0xFFC9E2FA)],
+      titleColor: Color(0xFF225FA8),
+      buttonTextColor: Color(0xFF245FA5),
     ),
     CouponEntry(
       type: CouponEntryType.service,
       title: '天佑德服务券',
-      gradientColors: [Color(0xFFFFF9F0), Color(0xFFFFE4C8)],
-      borderColor: Color(0xFFF0C79C),
-      buttonColor: Color(0xFFFF8A3D),
-      buttonTextColor: Color(0xFFB83E00),
+      backgroundColors: [Color(0xFFF8C795), Color(0xFFFDE4C8)],
+      actionColors: [Color(0xFFF49B57), Color(0xFFE7782D)],
+      dividerColor: Color(0xFFFBE5D1),
+      pillColors: [Color(0xFFFFFFFF), Color(0xFFFBD9B8)],
+      titleColor: Color(0xFFC04B00),
+      buttonTextColor: Color(0xFFB74400),
     ),
     CouponEntry(
       type: CouponEntryType.lockedRedPacket,
       title: '待解锁红包',
-      gradientColors: [Color(0xFFFFFBF0), Color(0xFFFFE8A8)],
-      borderColor: Color(0xFFF0D56E),
-      buttonColor: Color(0xFFFF4B0A),
-      buttonTextColor: Color(0xFF9E2600),
+      backgroundColors: [Color(0xFFFFD47C), Color(0xFFFFE7A8)],
+      actionColors: [Color(0xFFFF521C), Color(0xFFF33B08)],
+      dividerColor: Color(0xFFFFE7B8),
+      pillColors: [Color(0xFFFFFFFF), Color(0xFFFFD8B4)],
+      titleColor: Color(0xFFC43E00),
+      buttonTextColor: Color(0xFFB53300),
     ),
   ];
 }

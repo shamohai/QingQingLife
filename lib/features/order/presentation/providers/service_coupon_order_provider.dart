@@ -8,7 +8,7 @@ typedef ServiceCouponPreDealQuery = ({int serviceCouponId, int count, int? addre
 
 /// 服务券订单预处理。
 ///
-/// 每次服务券张数或收货地址变化时重新请求，金额与可用券信息始终以服务端为准。
+/// 首次进入或收货地址变化时请求；服务券张数由页面本地状态即时更新，不重复请求。
 final serviceCouponPreDealProvider = FutureProvider.family.autoDispose<ServiceCouponPreDealData, ServiceCouponPreDealQuery>((ref, query) async {
   final response = await ref
       .read(orderRepositoryProvider)
