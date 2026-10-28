@@ -13,8 +13,7 @@ import '../widgets/coupon_entry_card.dart';
 ///   白色背景 → 返回栏「我的卡券」→ 三个双段券形入口
 ///   → 「更多福利卡敬请期待…」→ 底部湖景背景。
 ///
-/// 当前「天佑德优惠券」已接入真实分组列表；服务券和待解锁红包的列表能力
-/// 尚未确认，暂时保留页面内提示。
+/// 三类入口均已接入对应列表页。
 class MyCouponsPage extends StatelessWidget {
   const MyCouponsPage({super.key});
 
@@ -113,6 +112,10 @@ class MyCouponsPage extends StatelessWidget {
     }
     if (entry.type == CouponEntryType.service) {
       context.push(RouteNames.serviceCouponList);
+      return;
+    }
+    if (entry.type == CouponEntryType.lockedRedPacket) {
+      context.push(RouteNames.lockedRedPacketList);
       return;
     }
     ScaffoldMessenger.of(context)

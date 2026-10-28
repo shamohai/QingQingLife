@@ -37,6 +37,7 @@ abstract final class RouteNames {
   static const String aboutUs = '/member/about-us';
   static const String coupons = '/coupons';
   static const String couponList = '/coupons/list';
+  static const String lockedRedPacketList = '/coupons/red-packet';
   static const String serviceCouponList = '/coupons/service';
   static const String serviceCouponUse = '/coupons/service/use';
   static const String pointsPage = '/points';
