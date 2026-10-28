@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
@@ -85,7 +87,13 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
               ),
               const Spacer(),
               GestureDetector(
-                onTap: () => GoRouter.of(context).push(RouteNames.pointsRules),
+                onTap: () {
+                  if (kIsWeb) {
+                    launchUrl(Uri.parse(RouteNames.pointsRulesUrl), webOnlyWindowName: '_blank');
+                  } else {
+                    GoRouter.of(context).push(RouteNames.pointsRules);
+                  }
+                },
                 child: const Text(
                   '积分说明',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400, color: AppColors.onSurface),

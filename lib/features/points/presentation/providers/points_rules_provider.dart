@@ -1,12 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/repository_providers.dart';
-import '../../domain/repositories/points_repository.dart';
 
-/// 积分规则页面数据 Provider
-///
-/// 从 [PointsRepository.getPointsRule] 获取规则文本。
-/// 开发/测试环境由 [MockPointsDataSource] 提供静态内容。
+/// 旧版本地积分规则 Provider；积分规则现由后端 H5 提供。
+@Deprecated('积分规则现由后端 H5 页面提供。')
 final pointsRulesProvider = FutureProvider.autoDispose<String>((ref) async {
   final repository = ref.read(pointsRepositoryProvider);
   final response = await repository.getPointsRule();

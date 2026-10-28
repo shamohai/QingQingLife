@@ -6,9 +6,10 @@ import '../../../../../core/widgets/app_empty.dart';
 import '../../../../../core/widgets/app_loading.dart';
 import '../providers/points_rules_provider.dart';
 
-/// 积分规则页面
+/// 旧版本地积分规则页面。
 ///
-/// 入口路径：积分商城 → 积分明细 → 右上角「积分说明」
+/// 积分规则现通过后端 H5 页面展示；此页面不再注册为应用路由。
+@Deprecated('积分规则现通过 WebViewPage 展示。')
 class PointsRulesPage extends StatelessWidget {
   const PointsRulesPage({super.key});
 

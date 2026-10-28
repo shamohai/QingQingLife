@@ -6,8 +6,9 @@ import 'package:webview_flutter/webview_flutter.dart';
 /// App 内 H5 页面。
 class WebViewPage extends StatefulWidget {
   final String url;
+  final String title;
 
-  const WebViewPage({super.key, required this.url});
+  const WebViewPage({super.key, required this.url, this.title = '活动详情'});
 
   @override
   State<WebViewPage> createState() => _WebViewPageState();
@@ -56,7 +57,7 @@ class _WebViewPageState extends State<WebViewPage> {
   Widget build(BuildContext context) {
     if (kIsWeb) {
       return Scaffold(
-        appBar: AppBar(title: const Text('活动详情')),
+        appBar: AppBar(title: Text(widget.title)),
         body: Center(
           child: FilledButton.icon(
             onPressed: () => launchUrl(Uri.parse(widget.url), mode: LaunchMode.externalApplication),
@@ -69,10 +70,8 @@ class _WebViewPageState extends State<WebViewPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('活动详情'),
-        actions: [
-          IconButton(onPressed: _reload, icon: const Icon(Icons.refresh)),
-        ],
+        title: Text(widget.title),
+        actions: [IconButton(onPressed: _reload, icon: const Icon(Icons.refresh))],
       ),
       body: Stack(
         children: [
@@ -88,8 +87,7 @@ class _WebViewPageState extends State<WebViewPage> {
                 ],
               ),
             ),
-          if (_loadingProgress < 100 && _errorMessage == null)
-            LinearProgressIndicator(value: _loadingProgress / 100),
+          if (_loadingProgress < 100 && _errorMessage == null) LinearProgressIndicator(value: _loadingProgress / 100),
         ],
       ),
     );

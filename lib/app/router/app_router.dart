@@ -40,7 +40,6 @@ import '../../features/points_mall/presentation/pages/points_payment_success_pag
 import '../../core/presentation/pages/webview_page.dart';
 import '../../features/order/presentation/pages/service_coupon_confirm_order_page.dart';
 import '../../features/points/presentation/pages/points_detail_page.dart';
-import '../../features/points/presentation/pages/points_rules_page.dart';
 import '../../features/order/presentation/pages/all_orders_page.dart';
 import '../../features/order/presentation/pages/confirm_order_page.dart' as mall_order;
 import '../../features/order/presentation/pages/invoice_center_page.dart';
@@ -284,7 +283,9 @@ final appRouter = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.pointsRules,
-        pageBuilder: (c, s) => const MaterialPage(child: PointsRulesPage()),
+        pageBuilder: (c, s) => MaterialPage(
+          child: WebViewPage(url: RouteNames.pointsRulesUrl, title: '积分规则'),
+        ),
       ),
       GoRoute(
         path: RouteNames.orders,
