@@ -185,7 +185,7 @@ class ServiceCouponInfo {
 ///   marketprice       → marketPrice
 ///   carouselimg[0]    → mainImageUrl / heroImageUrl
 ///   parameter         → specs（规格参数列表）
-///   tags              → 空列表（API 无直接对应字段，保留供后续扩展）
+///   tags              → parameter[x].value（商品标签展示列表）
 class ServiceProductDetail {
   final String id;
   final String? heroImageUrl;
@@ -323,6 +323,7 @@ class ServiceProductDetail {
       heroImageUrl: heroImage.isEmpty ? null : heroImage,
       title: json['name'] as String? ?? '',
       tags: const [],
+      //tags: _parseList(json['parameter'], CommonPara.fromJson).map((parameter) => parameter.value).where((value) => value.trim().isNotEmpty).toList(),
       points: (json['price'] as int?)?.toInt() ?? 0, // 积分
       remainingStock: serviceCoupon?.surplusCount ?? (json['stocknum'] as int?)?.toInt() ?? 0,
       salesCount: (json['monthsale'] as int?)?.toInt() ?? 0,

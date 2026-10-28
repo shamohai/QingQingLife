@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
-import '../../../../../core/widgets/app_image.dart';
 import '../../data/models/service_product_detail_model.dart';
 
 /// 积分商城服务商品详情 — 商品图片 + 详情区域卡片
@@ -59,14 +59,25 @@ class ProductVisualCard extends StatelessWidget {
 
           const SizedBox(height: 10),
 
-          // 主图区域：包含图片 + 叠加的"商品详情"标签
+          // 商品详情富文本区域：接口 description 可能包含 HTML 标签
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10), // 左右两边留出 10 的边距
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(14)),
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [AppNetworkImage(url: product.mainImageUrl, width: double.infinity, fit: BoxFit.fitWidth)],
+              child: Container(
+                width: double.infinity,
+                color: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: HtmlWidget(
+                  product.description.trim().isEmpty ? '<p>暂无商品详情</p>' : product.description,
+                  textStyle: const TextStyle(fontSize: 14, color: Color(0xFF333333), height: 1.6),
+                  customStylesBuilder: (element) {
+                    if (element.localName == 'img') {
+                      return {'width': '100%', 'height': 'auto'};
+                    }
+                    return null;
+                  },
+                ),
               ),
             ),
           ),

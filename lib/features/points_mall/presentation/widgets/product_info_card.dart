@@ -107,24 +107,24 @@ class ProductInfoCard extends StatelessWidget {
               ),
             ),
 
-            // ========== 描述卡片：左右贴边，盖在渐变背景上 ==========
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(14),
-                  topRight: const Radius.circular(14),
-                  bottomLeft: Radius.circular(AppRadius.lg),
-                  bottomRight: Radius.circular(AppRadius.lg),
-                ),
-              ),
-              child: Text(
-                product.description,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF1F2024), height: 1.5),
-              ),
-            ),
+            // // ========== 描述卡片：左右贴边，盖在渐变背景上 ==========
+            // Container(
+            //   width: double.infinity,
+            //   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+            //   decoration: BoxDecoration(
+            //     color: Colors.white,
+            //     borderRadius: BorderRadius.only(
+            //       topLeft: const Radius.circular(14),
+            //       topRight: const Radius.circular(14),
+            //       bottomLeft: Radius.circular(AppRadius.lg),
+            //       bottomRight: Radius.circular(AppRadius.lg),
+            //     ),
+            //   ),
+            //   child: Text(
+            //     product.description,
+            //     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF1F2024), height: 1.5),
+            //   ),
+            // ),
           ],
         ),
       ),

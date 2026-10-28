@@ -40,19 +40,23 @@ class _PointsBannerState extends State<PointsBanner> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
-    if (widget.autoPlay && _urls.length > 1) {
+    final urls = _urls;
+    _pageController = PageController(initialPage: urls.length > 1 ? urls.length * 1000 : 0);
+    if (widget.autoPlay && urls.length > 1) {
       _startAutoPlay();
     }
   }
 
   void _startAutoPlay() {
     _timer?.cancel();
+    if (_urls.length <= 1) return;
     _timer = Timer.periodic(widget.autoPlayInterval, (_) {
-      if (!mounted || _urls.length <= 1) return;
+      if (!mounted) return;
+      if (!_pageController.hasClients || _urls.isEmpty) return;
+      if (_pageController.position.isScrollingNotifier.value) return;
 
-      final next = (_currentIndex + 1) % _urls.length;
-      _pageController.animateToPage(next, duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
+      final nextPage = (_pageController.page ?? _pageController.initialPage.toDouble()).round() + 1;
+      _pageController.animateToPage(nextPage, duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
     });
   }
 
@@ -92,10 +96,9 @@ class _PointsBannerState extends State<PointsBanner> {
                   },
                   child: PageView.builder(
                     controller: _pageController,
-                    itemCount: urls.length,
-                    onPageChanged: (i) => setState(() => _currentIndex = i),
+                    onPageChanged: (i) => setState(() => _currentIndex = i % urls.length),
                     itemBuilder: (context, index) {
-                      return AppNetworkImage(url: urls[index], fit: BoxFit.cover);
+                      return AppNetworkImage(url: urls[index % urls.length], fit: BoxFit.cover);
                     },
                   ),
                 )
@@ -130,9 +133,9 @@ class _PointsBannerState extends State<PointsBanner> {
                 final bool isActive = _currentIndex == index;
                 return GestureDetector(
                   onTap: () {
-                    // 假设你的 PageView 控制器叫 _pageController
-                    // 点击后让轮播图跳转到对应的 index
-                    _pageController.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                    final currentCycle = (_pageController.page ?? _pageController.initialPage.toDouble()).round() ~/ urls.length;
+                    final targetPage = currentCycle * urls.length + index;
+                    _pageController.animateToPage(targetPage, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
                   },
                   // 💡 增加一点透明的 padding，扩大点击区域，防止指示器太细不好点
                   behavior: HitTestBehavior.opaque,

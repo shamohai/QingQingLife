@@ -25,12 +25,12 @@ class PointsMallPage extends ConsumerStatefulWidget {
   ConsumerState<PointsMallPage> createState() => _PointsMallPageState();
 }
 
-final pointsMallProfilePointsProvider = FutureProvider<int>((ref) async {
+final pointsMallProfilePointsProvider = FutureProvider<({int points, int expiringPoints})>((ref) async {
   final response = await ref.read(authProvider.notifier).getCurrentUser();
   if (!response.success || response.data == null) {
     throw Exception(response.message);
   }
-  return response.data!.points;
+  return (points: response.data!.points, expiringPoints: response.data!.expiringPoints);
 });
 
 class _PointsMallPageState extends ConsumerState<PointsMallPage> {
@@ -323,8 +323,10 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                             child: PointsBalanceCard(
                               currentPoints: ref
                                   .watch(pointsMallProfilePointsProvider)
-                                  .maybeWhen(data: (points) => points, orElse: () => staticData.currentPoints),
-                              expiringPoints: staticData.expiringPoints,
+                                  .maybeWhen(data: (profile) => profile.points, orElse: () => staticData.currentPoints),
+                              expiringPoints: ref
+                                  .watch(pointsMallProfilePointsProvider)
+                                  .maybeWhen(data: (profile) => profile.expiringPoints, orElse: () => staticData.expiringPoints),
                               onDetailTap: () => GoRouter.of(context).push(RouteNames.pointsDetail),
                             ),
                           ),

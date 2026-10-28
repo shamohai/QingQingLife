@@ -21,33 +21,30 @@ class HeroSection extends StatefulWidget {
 }
 
 class _HeroSectionState extends State<HeroSection> {
-  final PageController _pageController = PageController();
+  late final PageController _pageController;
   int _currentPage = 0;
   Timer? _timer;
+  bool _isInteracting = false;
 
-  List<String> get _images => widget.product.carouselImages.isNotEmpty
-      ? widget.product.carouselImages
-      : [
-          'assets/images/service/service_product_hero_bg.png',
-          'assets/images/service/service_product_hero_bg2.png',
-          'assets/images/service/service_product_hero_bg3.png',
-        ];
+  List<String> get _images => widget.product.carouselImages.isNotEmpty ? widget.product.carouselImages : [];
 
   @override
   void initState() {
     super.initState();
+    final images = _images;
+    _pageController = PageController(initialPage: images.length > 1 ? images.length * 1000 : 0);
     _startTimer();
   }
 
   void _startTimer() {
+    _timer?.cancel();
+    if (_images.length <= 1 || _isInteracting) return;
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (_pageController.hasClients) {
-        final list = _images;
-        if (list.isNotEmpty) {
-          final nextPage = (_currentPage + 1) % list.length;
-          _pageController.animateToPage(nextPage, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
-        }
-      }
+      if (!mounted) return;
+      if (!_pageController.hasClients || _images.isEmpty) return;
+      if (_pageController.position.isScrollingNotifier.value) return;
+      final nextPage = (_pageController.page ?? _pageController.initialPage.toDouble()).round() + 1;
+      _pageController.animateToPage(nextPage, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
     });
   }
 
@@ -68,22 +65,37 @@ class _HeroSectionState extends State<HeroSection> {
         // 1. 真实设计背景轮播图（439×439，覆盖整个 Hero 区域）
         SizedBox(
           height: 389,
-          child: PageView.builder(
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() {
-                _currentPage = index;
-              });
-            },
-            itemCount: images.length,
-            itemBuilder: (context, index) {
-              return AppNetworkImage(
-                url: images[index],
-                fit: BoxFit.cover,
-                width: double.infinity,
-              );
-            },
-          ),
+          child: images.isEmpty
+              ? Container(color: Colors.grey[200])
+              : images.length == 1
+              ? AppNetworkImage(url: images.first, fit: BoxFit.cover, width: double.infinity)
+              : Listener(
+                  onPointerDown: (_) {
+                    _isInteracting = true;
+                    _timer?.cancel();
+                  },
+                  onPointerUp: (_) {
+                    _isInteracting = false;
+                    _startTimer();
+                  },
+                  onPointerCancel: (_) {
+                    _isInteracting = false;
+                    _startTimer();
+                  },
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      if (images.length < 2) return;
+                      setState(() {
+                        _currentPage = index % images.length;
+                      });
+                      _startTimer();
+                    },
+                    itemBuilder: (context, index) {
+                      return AppNetworkImage(url: images[index % images.length], fit: BoxFit.cover, width: double.infinity);
+                    },
+                  ),
+                ),
         ),
 
         // 2. 返回胶囊按钮（设计稿：margin-top=50, margin-left=24）

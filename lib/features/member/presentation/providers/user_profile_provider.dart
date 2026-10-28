@@ -124,6 +124,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
       int memberLevel = state.memberLevel;
       String levelName = state.levelName;
       int points = state.points;
+      int? expiringPoints = state.expiringPoints;
       int gender = state.gender;
       String genderName = state.genderName;
       DateTime? birthday = state.birthday;
@@ -137,6 +138,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         phoneMasked = _maskPhone(u.phone);
         memberLevel = u.memberLevel;
         points = u.points;
+        expiringPoints = u.expiringPoints;
         gender = u.gender;
         genderName = u.genderName;
         birthday = u.birthday;
@@ -155,6 +157,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         phoneMasked: phoneMasked,
         points: points,
         couponCount: 0,
+        expiringPoints: expiringPoints,
         gender: gender,
         genderName: genderName,
         birthday: birthday,
