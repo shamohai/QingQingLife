@@ -1,66 +1,254 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../app/router/route_names.dart';
+import '../../../../core/network/exceptions/exceptions.dart';
+import '../../../../core/widgets/app_image.dart';
+import '../../domain/models/offline_activity_detail_model.dart';
+import '../providers/offline_activity_signup_provider.dart';
 
 /// 挚友会独立报名页，不复用服务预约表单。
-class ServiceFriendBookingFormPage extends StatefulWidget {
+///
+/// 如果传入 [detail] 且 [detail.mySignupInfo] 不为空，则展示已有报名信息（回显模式）；
+/// 否则为空表单（新报名模式）。
+/// 头图优先从 [detail.postUrl] 获取；若无 detail 则回退到 [heroAsset]（兼容旧 mock 路由）。
+class ServiceFriendBookingFormPage extends ConsumerStatefulWidget {
   final String title;
-  final String heroAsset;
+  final String? heroAsset;
+  final OfflineActivityDetail? detail;
 
-  const ServiceFriendBookingFormPage({super.key, required this.title, required this.heroAsset});
+  const ServiceFriendBookingFormPage({super.key, required this.title, this.heroAsset, this.detail});
 
   @override
-  State<ServiceFriendBookingFormPage> createState() => _ServiceFriendBookingFormPageState();
+  ConsumerState<ServiceFriendBookingFormPage> createState() => _ServiceFriendBookingFormPageState();
 }
 
-class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormPage> {
-  late final TextEditingController _countController;
+class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBookingFormPage> {
+  //late final TextEditingController _countController;
   late final TextEditingController _nameController;
   late final TextEditingController _phoneController;
   late final TextEditingController _friendCountController;
 
-  bool _bringFriend = true;
+  bool _bringFriend = false;
   bool _submitting = false;
+  bool _isAlreadyReserved = false;
 
   @override
   void initState() {
     super.initState();
-    _countController = TextEditingController();
+    // _countController = TextEditingController();
     _nameController = TextEditingController();
     _phoneController = TextEditingController();
-    _friendCountController = TextEditingController(text: '1人');
+    _friendCountController = TextEditingController();
+
+    _populateFromSignupInfo();
+  }
+
+  void _populateFromSignupInfo() {
+    final signupInfo = widget.detail?.mySignupInfo;
+    if (signupInfo == null) return;
+    // _countController.text = signupInfo.signupUserCount.toString();
+    _nameController.text = signupInfo.username;
+    _phoneController.text = signupInfo.phone;
+    final friendCount = signupInfo.signupUserCount - 1;
+    if (friendCount > 0) {
+      _bringFriend = true;
+      _friendCountController.text = '$friendCount人';
+    }
   }
 
   @override
   void dispose() {
-    _countController.dispose();
+    // _countController.dispose();
     _nameController.dispose();
     _phoneController.dispose();
     _friendCountController.dispose();
     super.dispose();
   }
 
-  Future<void> _submit() async {
-    if (_countController.text.trim().isEmpty || _nameController.text.trim().isEmpty || _phoneController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请完善报名信息')));
-      return;
+  Widget _buildHeroImage() {
+    final postUrl = widget.detail?.postUrl;
+    if (postUrl != null && postUrl.isNotEmpty) {
+      return AppNetworkImage(
+        url: postUrl,
+        fit: BoxFit.cover,
+        placeholder: Container(color: AppColors.surfaceVariant),
+        errorWidget: Container(color: AppColors.surfaceVariant),
+      );
     }
-    final friendCount = int.tryParse(_friendCountController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-    if (_bringFriend && friendCount > 1) {
-      await _showLimitDialog();
-      return;
+    if (widget.heroAsset != null && widget.heroAsset!.isNotEmpty) {
+      return Image.asset(widget.heroAsset!, fit: BoxFit.cover);
     }
-    setState(() => _submitting = true);
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    if (!mounted) return;
-    setState(() => _submitting = false);
-    Navigator.of(context).pop();
+    return Container(color: AppColors.surfaceVariant);
   }
 
-  Future<void> _showLimitDialog() {
+  // ─── 验证 ────────────────────────────────────────────────────────────
+
+  static final RegExp _phoneRegex = RegExp(r'^1\d{10}$');
+
+  String? _validateName() {
+    final v = _nameController.text.trim();
+    if (v.isEmpty) return '请输入联系人姓名';
+    return null;
+  }
+
+  String? _validatePhone() {
+    final v = _phoneController.text.trim();
+    if (v.isEmpty) return '请输入联系电话';
+    if (!_phoneRegex.hasMatch(v)) return '请输入正确的联系电话';
+    return null;
+  }
+
+  //String? _validateCount() {
+  //  final v = _countController.text.trim();
+  //  if (v.isEmpty) return '请输入报名人数';
+  //  final n = int.tryParse(v);
+  //  if (n == null || n < 1 || n > 999) return '请输入正确的报名人数';
+  //  return null;
+  //}
+
+  String? _validateFriendCount() {
+    final v = _friendCountController.text.trim();
+    if (v.isEmpty) return null;
+    final n = int.tryParse(v.replaceAll(RegExp(r'[^0-9]'), ''));
+    if (n == null || n < 0 || n > 999) return '请输入正确的亲友人数';
+    return null;
+  }
+
+  void _showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating));
+  }
+
+  Future<void> _handleSubmit() async {
+    // 检查 activityId 是否为空
+    if (widget.detail?.activityId.isEmpty ?? true) {
+      _showError('活动 ID 为空，无法报名');
+      return;
+    }
+
+    final nameError = _validateName();
+    if (nameError != null) {
+      _showError(nameError);
+      return;
+    }
+    final phoneError = _validatePhone();
+    if (phoneError != null) {
+      _showError(phoneError);
+      return;
+    }
+    //final countError = _validateCount();
+    //if (countError != null) {
+    //  _showError(countError);
+    //  return;
+    //}
+    final friendCountError = _validateFriendCount();
+    if (friendCountError != null) {
+      _showError(friendCountError);
+      return;
+    }
+
+    final maxSignupCount = widget.detail?.maxSignupCount ?? 0;
+    //final count = int.tryParse(_countController.text.trim()) ?? 0;
+    final friendCountNum = int.tryParse(_friendCountController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+
+    if (maxSignupCount == 0) {
+          await _showLimitDialog('暂无挚友会权益，无法报名', showBuyWineServiceButton: false);
+      return;
+    } else if (maxSignupCount == 1) {
+      if (_bringFriend || friendCountNum > 0) {
+            await _showLimitDialog('该活动仅限本人参加，不可携带亲友', showBuyWineServiceButton: false);
+        return;
+      }
+      //if (count > 1) {
+      //  await _showLimitDialog('该活动仅限本人参加，报名人数不能超过 1 人');
+      //  return;
+      //}
+    } else {
+      if (_bringFriend && friendCountNum > maxSignupCount - 1) {
+            await _showLimitDialog('携带亲友人数已经达到上限\n请参与购酒享服务活动', showBuyWineServiceButton: true);
+        return;
+      }
+    }
+
+    if (!mounted) return;
+    setState(() => _submitting = true);
+
+    final params = <String, dynamic>{
+      'activityid': widget.detail!.activityId,
+      'username': _nameController.text.trim(),
+      'phone': _phoneController.text.trim(),
+      'idno': '',
+      'remark': '',
+      'signupusercount': friendCountNum + 1, // 报名人数 = 本人 + 亲友人数
+    };
+
+    try {
+      await ref.read(signupOfflineActivityProvider(params).future);
+      if (!mounted) return;
+      setState(() {
+        _submitting = false;
+        _isAlreadyReserved = true;
+      });
+      _showSuccessDialog();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _submitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message), behavior: SnackBarBehavior.floating));
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _submitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('网络异常，请重试'), behavior: SnackBarBehavior.floating));
+    }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.check_circle, size: 48, color: AppColors.serviceTabActive),
+              const SizedBox(height: 16),
+              const Text(
+                '报名成功',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    context.go(RouteNames.service);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.serviceTabActive,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
+                    elevation: 0,
+                  ),
+                  child: const Text('我知道了', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showLimitDialog(String message, {bool showBuyWineServiceButton = false}) {
     return showDialog<void>(
       context: context,
       barrierColor: Colors.black26,
@@ -69,56 +257,61 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
         return Dialog(
           insetPadding: const EdgeInsets.symmetric(horizontal: 13),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          child: SizedBox(
-            height: 207,
-            child: Stack(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Positioned(
-                  top: 18,
-                  right: 18,
-                  child: IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close, size: 30, color: Color(0xFF333333)),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
+                // 关闭按钮
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: Icon(Icons.close, size: 24, color: Color(0xFF333333)),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
                   ),
-                ),
-                const Align(
-                  alignment: Alignment.topCenter,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 88),
-                    child: Text(
-                      '携带亲友人数已经达到上限\n请参与购酒享服务活动',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black, height: 1.4),
-                    ),
+                  // 提示文案
+                  Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black, height: 1.4),
                   ),
-                ),
-                Positioned(
-                  left: 31,
-                  right: 31,
-                  bottom: 34,
-                  child: SizedBox(
+                  const SizedBox(height: 32),
+                  // 确认按钮
+                  SizedBox(
+                    width: double.infinity,
                     height: 54,
                     child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        if (showBuyWineServiceButton) {
+                          // 跳转到服务页第4个tab（购酒享服务）
+                          context.go(RouteNames.service, extra: {'initialTab': 'goujiu'});
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.serviceTabActive,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
                         elevation: 0,
                       ),
-                      child: const Text('前往购酒享服务', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400)),
+                      child: Text(
+                        showBuyWineServiceButton ? '前往购酒享服务' : '我知道了',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    );
-  }
+          );
+        },
+      );
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -146,10 +339,7 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
               padding: const EdgeInsets.symmetric(horizontal: 14),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(AppRadius.md),
-                child: AspectRatio(
-                  aspectRatio: 412 / 180,
-                  child: Image.asset(widget.heroAsset, fit: BoxFit.cover),
-                ),
+                child: AspectRatio(aspectRatio: 412 / 180, child: _buildHeroImage()),
               ),
             ),
             Transform.translate(
@@ -166,11 +356,11 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _FriendField(
-                        label: '报名人数',
-                        icon: Icons.groups_outlined,
-                        child: _input(_countController, '请输入报名人数', keyboardType: TextInputType.number),
-                      ),
+                      //_FriendField(
+                      //  label: '报名人数',
+                      //  icon: Icons.groups_outlined,
+                      //  child: _input(_countController, '请输入报名人数', keyboardType: TextInputType.number),
+                      //),
                       _FriendField(label: '联系人', icon: Icons.person_outline, child: _input(_nameController, '请输入联系人姓名')),
                       _FriendField(
                         label: '联系电话',
@@ -184,17 +374,28 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          _Choice(selected: _bringFriend, label: '是', onTap: () => setState(() => _bringFriend = true)),
+                          _Choice(selected: _bringFriend, label: '是', onTap: _isAlreadyReserved ? null : () => setState(() => _bringFriend = true)),
                           const SizedBox(width: 54),
-                          _Choice(selected: !_bringFriend, label: '否', onTap: () => setState(() => _bringFriend = false)),
+                          _Choice(
+                            selected: !_bringFriend,
+                            label: '否',
+                            onTap: _isAlreadyReserved
+                                ? null
+                                : () => setState(() {
+                                    _bringFriend = false;
+                                    _friendCountController.clear();
+                                  }),
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      _FriendField(
-                        label: '亲友人数',
-                        icon: Icons.people_outline,
-                        child: _input(_friendCountController, '1人', keyboardType: TextInputType.number),
-                      ),
+                      if (_bringFriend) ...[
+                        const SizedBox(height: 16),
+                        _FriendField(
+                          label: '亲友人数',
+                          icon: Icons.people_outline,
+                          child: _input(_friendCountController, '0人', keyboardType: TextInputType.number),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -211,16 +412,23 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
           child: SizedBox(
             height: 51,
             child: ElevatedButton(
-              onPressed: _submitting ? null : _submit,
+              onPressed: (_submitting || _isAlreadyReserved) ? null : _handleSubmit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.serviceTabActive,
+                backgroundColor: _isAlreadyReserved ? AppColors.serviceButtonDisabled : AppColors.serviceTabActive,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
                 elevation: 0,
               ),
               child: _submitting
                   ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('提交报名', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                  : Text(
+                      _isAlreadyReserved ? '已报名' : '提交报名',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: _isAlreadyReserved ? AppColors.serviceButtonDisabledText : Colors.white,
+                      ),
+                    ),
             ),
           ),
         ),
@@ -232,8 +440,9 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
+      enabled: !_isAlreadyReserved,
       inputFormatters: keyboardType == TextInputType.phone ? [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(11)] : null,
-      style: const TextStyle(fontSize: 16, color: Colors.black),
+      style: TextStyle(fontSize: 16, color: _isAlreadyReserved ? const Color(0xFF333333) : Colors.black),
       decoration: InputDecoration(
         isDense: true,
         counterText: '',
@@ -245,8 +454,8 @@ class _ServiceFriendBookingFormPageState extends State<ServiceFriendBookingFormP
         disabledBorder: InputBorder.none,
         errorBorder: InputBorder.none,
         focusedErrorBorder: InputBorder.none,
-        filled: false,
-        fillColor: Colors.transparent,
+        filled: _isAlreadyReserved,
+        fillColor: _isAlreadyReserved ? const Color(0xFFF5F5F5) : null,
         contentPadding: EdgeInsets.zero,
       ),
     );
@@ -293,9 +502,9 @@ class _FriendField extends StatelessWidget {
 class _Choice extends StatelessWidget {
   final bool selected;
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
-  const _Choice({required this.selected, required this.label, required this.onTap});
+  const _Choice({required this.selected, required this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {

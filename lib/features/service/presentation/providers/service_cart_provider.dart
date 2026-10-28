@@ -1,5 +1,6 @@
-﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/utils/money.dart';
 import '../../domain/models/share_cart_candidate_model.dart';
 import '../../domain/models/service_submit_order_model.dart';
@@ -35,6 +36,9 @@ class ServiceCartState {
   final Map<int, bool> selectedMap;
   final bool? isUpdatingCart;
 
+  /// 最近一次操作失败的错误提示（非空时页面应展示弹框）
+  final String cartError;
+
   bool get cartUpdateInProgress => isUpdatingCart == true;
 
   const ServiceCartState({
@@ -46,6 +50,7 @@ class ServiceCartState {
     this.hasMoreCandidates = false,
     this.selectedMap = const {},
     this.isUpdatingCart = false,
+    this.cartError = '',
   });
 
   /// 当前选中的商品列表
@@ -78,6 +83,7 @@ class ServiceCartState {
     bool? hasMoreCandidates,
     Map<int, bool>? selectedMap,
     bool? isUpdatingCart,
+    String? cartError,
   }) {
     return ServiceCartState(
       shareCartId: shareCartId ?? this.shareCartId,
@@ -88,6 +94,7 @@ class ServiceCartState {
       hasMoreCandidates: hasMoreCandidates ?? this.hasMoreCandidates,
       selectedMap: selectedMap ?? this.selectedMap,
       isUpdatingCart: isUpdatingCart ?? cartUpdateInProgress,
+      cartError: cartError ?? this.cartError,
     );
   }
 }
@@ -236,22 +243,23 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
         break;
       }
     }
-    final newCount = existingProduct == null
-        ? 1
-        : (existingProduct.count + 1).toInt();
+    final newCount = existingProduct == null ? 1 : (existingProduct.count + 1).toInt();
     await addProductToCart(candidate.productId, newCount);
   }
 
   /// 向服务端写入目标数量，再拉取最新购物车列表更新本地状态。
+  /// 失败时将错误信息写入 [ServiceCartState.cartError]，页面监听后弹框提示。
   Future<void> addProductToCart(int pid, int newCount) async {
     final current = state.value;
     if (current == null || current.shareCartId == 0 || current.cartUpdateInProgress || newCount < 0) return;
     final ds = ref.read(serviceRemoteDataSourceProvider);
-    state = AsyncData(current.copyWith(isUpdatingCart: true));
+    state = AsyncData(current.copyWith(isUpdatingCart: true, cartError: ''));
     try {
       final mutationResponse = await ds.addProductToShareCart(current.shareCartId, pid, newCount);
       if (!mutationResponse.success) {
-        mutationResponse.requireData;
+        final latest = state.value ?? current;
+        state = AsyncData(latest.copyWith(isUpdatingCart: false, cartError: mutationResponse.displayMessage));
+        return;
       }
       final cartResponse = await ds.getShareCartProductList(current.shareCartId);
       final cart = cartResponse.requireData;
@@ -271,33 +279,53 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
           isUpdatingCart: false,
         ),
       );
-    } finally {
+    } on NetworkException catch (e) {
       final latest = state.value ?? current;
-      if (latest.cartUpdateInProgress) {
-        state = AsyncData(latest.copyWith(isUpdatingCart: false));
-      }
+      state = AsyncData(latest.copyWith(isUpdatingCart: false, cartError: e.toDisplayMessage()));
+    } catch (_) {
+      final latest = state.value ?? current;
+      state = AsyncData(latest.copyWith(isUpdatingCart: false, cartError: '网络异常，请重试'));
     }
   }
 
-  /// 提交权益团购订单。addressId 临时写死为 mock 值，待地址选择功能上线后由页面传入。
+  /// 使用当前购物车和页面传入的收货地址提交权益团购订单。
+  /// 失败时抛出 [ApiException]，由调用方（页面）捕获并弹框提示。
   Future<ServiceSubmitOrderResult> submitOrder(int addressId) async {
     final current = state.value;
     if (current == null || current.shareCartId == 0 || current.cartUpdateInProgress) {
       return const ServiceSubmitOrderResult(guidetext: '购物车未就绪', orderId: 0, result: -1, descr: '');
     }
-    state = AsyncData(current.copyWith(isUpdatingCart: true));
+    state = AsyncData(current.copyWith(isUpdatingCart: true, cartError: ''));
     try {
       final ds = ref.read(serviceRemoteDataSourceProvider);
       final resp = await ds.submitGroupOrder(current.shareCartId, addressId);
       if (!resp.success) {
-        resp.requireData;
+        final latest = state.value ?? current;
+        state = AsyncData(latest.copyWith(isUpdatingCart: false, cartError: resp.displayMessage));
+        throw ApiException(message: resp.displayMessage, code: resp.code);
       }
-      return resp.requireData;
-    } finally {
+      final result = resp.requireData;
       final latest = state.value ?? current;
-      if (latest.cartUpdateInProgress) {
-        state = AsyncData(latest.copyWith(isUpdatingCart: false));
-      }
+      state = AsyncData(latest.copyWith(isUpdatingCart: false));
+      return result;
+    } on ApiException {
+      rethrow;
+    } on NetworkException catch (e) {
+      final latest = state.value ?? current;
+      final displayMsg = e.toDisplayMessage(fallback: '网络异常，请重试');
+      state = AsyncData(latest.copyWith(isUpdatingCart: false, cartError: displayMsg));
+      throw ApiException(message: displayMsg, code: -1);
+    } catch (_) {
+      final latest = state.value ?? current;
+      state = AsyncData(latest.copyWith(isUpdatingCart: false, cartError: '网络异常，请重试'));
+      throw ApiException(message: '网络异常，请重试');
     }
+  }
+
+  /// 清除 cartError（页面弹框关闭后调用）
+  void clearCartError() {
+    final current = state.value;
+    if (current == null || current.cartError.isEmpty) return;
+    state = AsyncData(current.copyWith(cartError: ''));
   }
 }

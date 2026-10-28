@@ -7,6 +7,10 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/router/route_names.dart';
+import '../../../../core/network/exceptions/exceptions.dart';
+import '../../../../core/widgets/app_image.dart';
+import '../providers/offline_activity_signup_provider.dart';
 import '../widgets/booking_form_field.dart';
 
 /// 活动报名填写信息页面
@@ -34,6 +38,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
   late final TextEditingController _notesCtrl;
 
   bool _isSubmitting = false;
+  bool _isAlreadyReserved = false;
 
   @override
   void initState() {
@@ -82,9 +87,9 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
 
   String? _validatePartySize() {
     final v = _partyCtrl.text.trim();
-    if (v.isEmpty) return null;
+    if (v.isEmpty) return '请输入报名人数';
     final n = int.tryParse(v);
-    if (n == null || n < 1 || n > 999) return '请输入正确的预约人数';
+    if (n == null || n < 1 || n > 999) return '报名人数必须为 1~999 的整数';
     return null;
   }
 
@@ -93,6 +98,12 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
   }
 
   Future<void> _handleSubmit() async {
+    // 检查 activityId 是否为空
+    if (widget.activityId.isEmpty) {
+      _showError('活动 ID 为空，无法报名');
+      return;
+    }
+
     final nameError = _validateName();
     if (nameError != null) {
       _showError(nameError);
@@ -116,39 +127,119 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
 
     if (!mounted) return;
     setState(() => _isSubmitting = true);
-    // 一期：提交后直接 pop，后续接 API 时替换
-    await Future.delayed(const Duration(milliseconds: 300));
-    if (!mounted) return;
-    setState(() => _isSubmitting = false);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('报名信息已提交'), behavior: SnackBarBehavior.floating));
-    context.pop();
+
+    final params = <String, dynamic>{
+      'activityid': widget.activityId,
+      'username': _nameCtrl.text.trim(),
+      'phone': _phoneCtrl.text.trim(),
+      'idno': _idCtrl.text.trim(),
+      'remark': _notesCtrl.text.trim(),
+      'signupusercount': int.tryParse(_partyCtrl.text.trim()) ?? 1,
+    };
+
+    try {
+      await ref.read(signupOfflineActivityProvider(params).future);
+      if (!mounted) return;
+      setState(() {
+        _isSubmitting = false;
+        _isAlreadyReserved = true;
+      });
+      _showSuccessDialog();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _isSubmitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message), behavior: SnackBarBehavior.floating));
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isSubmitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('网络异常，请稍后重试'), behavior: SnackBarBehavior.floating));
+    }
   }
 
-  // ─── UI helpers ──────────────────────────────────────────────────────
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.check_circle, size: 48, color: AppColors.serviceTabActive),
+              const SizedBox(height: 16),
+              const Text(
+                '报名成功',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop(); // 关闭弹窗
+                    context.go(RouteNames.service);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.serviceTabActive,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
+                    elevation: 0,
+                  ),
+                  child: const Text('我知道了', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ─── UI helpers ─────────────────────────────────────────────────────────
 
   Widget _buildTextField(TextEditingController ctrl, {TextInputType? keyboardType, int? maxLength, String? hintText}) {
     return TextField(
       controller: ctrl,
       keyboardType: keyboardType,
       maxLength: maxLength,
+      enabled: !_isAlreadyReserved,
       inputFormatters: keyboardType == TextInputType.phone
           ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), LengthLimitingTextInputFormatter(maxLength ?? 11)]
           : keyboardType == TextInputType.number
           ? [FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), LengthLimitingTextInputFormatter(maxLength ?? 3)]
           : [],
-      style: const TextStyle(fontSize: 16, color: Colors.black),
+      style: TextStyle(fontSize: 16, color: _isAlreadyReserved ? const Color(0xFF333333) : Colors.black),
       decoration: InputDecoration(
         isDense: true,
         counterText: '',
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
         focusedBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
         hintText: hintText ?? '',
         hintStyle: const TextStyle(fontSize: 16, color: Color(0xFF8E8E93)),
         contentPadding: EdgeInsets.zero,
-        filled: false,
+        filled: _isAlreadyReserved,
+        fillColor: _isAlreadyReserved ? const Color(0xFFF5F5F5) : null,
       ),
     );
+  }
+
+  Widget _buildHeroImage() {
+    // heroAsset 可能是网络 URL，也可能是本地 asset（兼容旧 mock 路由）
+    final url = widget.heroAsset;
+    if (url.startsWith('http')) {
+      return AppNetworkImage(
+        url: url,
+        fit: BoxFit.cover,
+        placeholder: Container(color: AppColors.surfaceVariant),
+        errorWidget: Container(color: AppColors.surfaceVariant),
+      );
+    }
+    return Image.asset(url, fit: BoxFit.cover);
   }
 
   PreferredSizeWidget _buildAppBar() {
@@ -189,10 +280,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
                       padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
                       child: ClipRRect(
                         borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
-                        child: AspectRatio(
-                          aspectRatio: 412 / 180,
-                          child: Image.asset(widget.heroAsset, width: double.infinity, fit: BoxFit.cover),
-                        ),
+                        child: AspectRatio(aspectRatio: 412 / 180, child: _buildHeroImage()),
                       ),
                     ),
                     // Section 2: 表单卡片（向上偏移 50dp 与 Banner 重叠）
@@ -235,7 +323,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
                                 imageAsset: 'assets/images/service/service_booking_count.png',
                                 valueWidget: _buildTextField(_partyCtrl, keyboardType: TextInputType.number, maxLength: 3, hintText: '请输入报名人数'),
                               ),
-                              // Field 5: 备注（多行，高度特殊，不套用 BookingFormField）
+                              // Field 5: 备注（多行）
                               const Text(
                                 '备注',
                                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF213775)),
@@ -281,24 +369,32 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
           color: Colors.white,
           padding: const EdgeInsets.fromLTRB(30, AppSpacing.md, 30, AppSpacing.lg),
           child: GestureDetector(
-            onTap: _isSubmitting ? null : _handleSubmit,
+            onTap: (_isSubmitting || _isAlreadyReserved) ? null : _handleSubmit,
             child: Container(
               width: double.infinity,
               height: 51,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRadius.round),
-                gradient: const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [AppColors.serviceCtaGradStart, AppColors.serviceTabActive],
-                ),
+                gradient: _isAlreadyReserved
+                    ? null
+                    : const LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [AppColors.serviceCtaGradStart, AppColors.serviceTabActive],
+                      ),
+                color: _isAlreadyReserved ? AppColors.serviceButtonDisabled : null,
               ),
               child: Center(
                 child: _isSubmitting
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Text(
-                        '提交报名',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white, height: 1.5),
+                    : Text(
+                        _isAlreadyReserved ? '已报名' : '提交报名',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: _isAlreadyReserved ? AppColors.serviceButtonDisabledText : Colors.white,
+                          height: 1.5,
+                        ),
                       ),
               ),
             ),

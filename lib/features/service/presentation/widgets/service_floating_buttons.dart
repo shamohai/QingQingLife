@@ -10,7 +10,9 @@ import '../../../../app/router/route_names.dart';
 /// - 左下角：「预约记录」40x40 蓝色圆角按钮，点击跳转服务记录页
 /// - 右下角：购物车 29x30 + 客服 29x30，竖向排列
 class ServiceFloatingButtons extends StatelessWidget {
-  const ServiceFloatingButtons({super.key});
+  final VoidCallback? onServiceTap;
+
+  const ServiceFloatingButtons({super.key, this.onServiceTap});
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +32,12 @@ class ServiceFloatingButtons extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _FloatIconButton(icon: Icons.shopping_cart, onTap: () => context.push(RouteNames.serviceCart)),
-              const SizedBox(height: 8),
-              _FloatIconButton(icon: Icons.headset, onTap: () => context.push(RouteNames.customerService)),
+              _FloatIconButton(
+                asset: 'assets/images/points/icon-service.png',
+                label: '管家服务',
+                iconSize: 18, // 管家服务图填充较大，稍小一点保持视觉平衡
+                onTap: onServiceTap ?? () => context.push(RouteNames.customerService),
+              ),
             ],
           ),
         ),
@@ -68,20 +73,49 @@ class _FloatButton extends StatelessWidget {
 }
 
 class _FloatIconButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
+  final String? asset;
+  final IconData? icon;
+  final String label;
+  final double iconSize;
+  final VoidCallback? onTap;
 
-  const _FloatIconButton({required this.icon, required this.onTap});
+  const _FloatIconButton({this.asset, this.icon, required this.label, this.iconSize = 20, this.onTap}) : assert(asset != null || icon != null);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 29,
-        height: 30,
-        decoration: BoxDecoration(color: AppColors.serviceFloatBg, borderRadius: BorderRadius.circular(15)),
-        child: Icon(icon, size: 17, color: Colors.white),
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Colors.white,
+            width: 1, // 稍微加粗一点，白边更清晰
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // 图标
+            if (asset != null)
+              Image.asset(asset!, width: iconSize, height: iconSize, color: Colors.white)
+            else if (icon != null)
+              Icon(icon, color: Colors.white, size: iconSize)
+            else
+              const SizedBox.shrink(),
+            const SizedBox(height: 2),
+            // 文字
+            Text(
+              label,
+              style: const TextStyle(fontSize: 6, color: Colors.white, height: 1.0, fontWeight: FontWeight.w500),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
       ),
     );
   }

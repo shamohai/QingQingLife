@@ -127,13 +127,13 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
-                    height: 50,
+                    height: 43,
                     child: Stack(
                       clipBehavior: Clip.none,
                       children: [
                         Positioned(
                           left: 0,
-                          top: 38,
+                          top: 25,
                           child: Container(
                             width: 94,
                             height: 7,
