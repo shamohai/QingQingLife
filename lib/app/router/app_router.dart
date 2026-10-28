@@ -109,7 +109,7 @@ final appRouter = Provider<GoRouter>((ref) {
                 routes: [
                   GoRoute(
                     path: 'records',
-                    pageBuilder: (c, s) => MaterialPage(child: ServiceRecordsPage(activeTab: s.uri.queryParameters['activeTab'] ?? 'ongoing')),
+                    pageBuilder: (c, s) => MaterialPage(child: ServiceRecordsPage(activeTab: s.uri.queryParameters['activeTab'] ?? 'reservation')),
                   ),
                   GoRoute(
                     path: 'reservation/:id',
@@ -363,4 +363,3 @@ class _TabItem extends StatelessWidget {
     );
   }
 }
-
