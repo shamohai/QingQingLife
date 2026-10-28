@@ -25,7 +25,10 @@ class ApiResponse<T> {
     final intCode = json['code'] as int?;
     final intResult = json['result'] as int?;
     final code = intCode ?? intResult ?? -1;
-    final message = (json['message'] as String?) ?? (json['descr'] as String?) ?? 'unknown error';
+
+    // 清洗后端返回的 message/descr（去除 \r\n 和首尾空白）
+    final rawMessage = (json['message'] as String?) ?? (json['descr'] as String?) ?? '';
+    final message = rawMessage.cleaned;
     final success = code == 0;
 
     T? data;
@@ -44,19 +47,31 @@ class ApiResponse<T> {
     return ApiResponse(code: code, message: message, data: data, success: success);
   }
 
-  /// 便捷访问数据，若失败则抛出 ApiException
+  /// 用户可读的错误提示。
+  ///
+  /// - [success] 为 true 时返回空字符串（无需展示）
+  /// - [message] 为空或 "unknown error" 时返回 [fallback]
+  /// - 否则返回清洗后的 [message]
+  String get displayMessage => success ? '' : (isDefaultError(message) ? '操作失败，请稍后重试' : message);
+
+  /// 便捷访问数据，若失败则抛出 [ApiException]
+  ///
+  /// 抛出时 [ApiException.message] 已清洗（\r\n 已去除），
+  /// 调用方可直接 `e.toDisplayMessage(fallback: '...')` 获取用户可读提示。
   T get requireData {
-    if (!success) throw ApiException(code: code, message: message);
-    if (data == null) throw const ApiException(message: 'data is null');
+    if (!success) throw ApiException(code: code, message: displayMessage.isEmpty ? '操作失败，请稍后重试' : displayMessage);
+    if (data == null) throw const ApiException(message: '数据为空，请稍后重试');
     return data!;
   }
+
+  /// 便捷访问数据（可选），失败时返回 null，不抛异常
+  T? get dataOrNull => data;
 
   /// 成功响应
   factory ApiResponse.success(T data) => ApiResponse<T>(code: 0, message: 'success', data: data, success: true);
 
   /// 失败响应
-  factory ApiResponse.error(String message, {int code = -1}) =>
-      ApiResponse<T>(code: code, message: message, data: null, success: false);
+  factory ApiResponse.error(String message, {int code = -1}) => ApiResponse<T>(code: code, message: message.cleaned, data: null, success: false);
 
   @override
   String toString() => 'ApiResponse(success:$success, code:$code, message:"$message")';

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
+import '../../../../app/theme/app_spacing.dart';
 import '../../domain/models/share_cart_template_model.dart';
 
 /// 购酒享服务模板列表单项卡片
@@ -16,65 +17,69 @@ class ShareCartTemplateItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 100,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(borderRadius: BorderRadius.circular(AppRadius.sm), child: _NetworkImage(template.headImg, size: 100)),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 92, top: 2),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        template.templateName,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black, height: 1.5),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const Spacer(),
-                      Text(
-                        template.requirements,
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.serviceProjectBlue, height: 1.5),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+    return Row(
+      children: [
+        // 左侧网络图片 100x100
+        ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+          child: _NetworkImage(template.headImg, size: 100),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        // 中间文字
+        Expanded(
+          child: SizedBox(
+            height: 112,
+            child: Padding(
+              padding: EdgeInsets.only(top: AppSpacing.sm),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    template.templateName,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black, height: 1.4),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: SizedBox(
-                    width: 78,
-                    height: 31,
-                    child: OutlinedButton(
-                      onPressed: onTap,
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.serviceButtonRed),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
-                        padding: EdgeInsets.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      child: const Text(
-                        '立即购买',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.serviceButtonRed),
-                        softWrap: false,
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    template.requirements.isNotEmpty ? template.requirements : '顶顶顶顶',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xFF3495E0), height: 1.4),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: SizedBox(
+                      height: 31,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(minWidth: 78),
+                        child: OutlinedButton(
+                          onPressed: onTap,
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppColors.serviceButtonRed),
+                            backgroundColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
+                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: const Text(
+                            '立即购买',
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.serviceButtonRed),
+                            softWrap: false,
+                            overflow: TextOverflow.visible,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -7,27 +7,32 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../core/widgets/app_empty.dart';
-import '../providers/service_provider.dart';
-import '../widgets/service_record_card.dart';
+import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_error.dart';
+import '../providers/offline_activity_record_provider.dart';
+import '../../domain/models/offline_activity_record_item.dart';
+import '../../../../core/presentation/paging/paging_list_view.dart';
+import '../providers/reservation_record_provider.dart';
+import '../widgets/offline_activity_record_card.dart';
+import '../widgets/reservation_record_card.dart';
 
 /// 预约/报名记录子页面。
 ///
-/// 接收 GoRouter query parameter 中的 `activeTab`，默认 'ongoing'。
-/// 顶部两段纯文字分段标签（已预约 / 已结束），下方按当前 Tab 过滤渲染卡片列表。
+/// 单级 Tab 结构：
+///   Tab 1：服务预约 - 调用现有 API，reservationlisttype=0 (全部)
+///   Tab 2：活动报名 - 调用 getmyofflineactivitylist，卡片样式同预约记录卡片
 ///
-/// 悬浮按钮组由父级 [ServicePage] 的 Stack 提供，本页面不重复引入。
+/// 路由 query parameter：
+///   activeTab: 'reservation' | 'activity' (默认 'reservation')
 class ServiceRecordsPage extends ConsumerWidget {
-  /// 从路由参数中读取初始激活的 Tab，key 为 'activeTab'。
+  /// 当前选中的 Tab：'reservation' (服务预约) | 'activity' (活动报名)
   final String activeTab;
 
-  const ServiceRecordsPage({super.key, this.activeTab = 'ongoing'});
+  const ServiceRecordsPage({super.key, this.activeTab = 'reservation'});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final allItems = ref.watch(serviceRecordDataProvider);
-    final filteredItems = activeTab == _TabKey.ongoing
-        ? allItems.where((item) => item.status == _TabKey.ongoing).toList()
-        : allItems.where((item) => item.status == _TabKey.finished).toList();
+    final isReservationTab = activeTab == 'reservation';
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -45,30 +50,16 @@ class ServiceRecordsPage extends ConsumerWidget {
       body: Stack(
         children: [
           // 全屏背景图
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/service/service_record_bg.png',
-              fit: BoxFit.cover,
-            ),
-          ),
+          Positioned.fill(child: Image.asset('assets/images/service/service_record_bg.png', fit: BoxFit.cover)),
           // 内容区
           SafeArea(
             bottom: false,
             child: Column(
               children: [
-                _buildSegmentedTabs(context, activeTab),
-                Expanded(
-                  child: filteredItems.isEmpty
-                      ? const SizedBox(height: 200, child: AppEmpty(message: '暂无记录'))
-                      : ListView.separated(
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-                          itemCount: filteredItems.length,
-                          separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
-                          itemBuilder: (context, index) {
-                            return ServiceRecordCard(item: filteredItems[index]);
-                          },
-                        ),
-                ),
+                // 单级 Tab：服务预约 / 活动报名
+                _buildTabs(context),
+                // 列表内容
+                Expanded(child: isReservationTab ? _buildReservationList(ref) : _buildActivityList(context)),
               ],
             ),
           ),
@@ -77,10 +68,9 @@ class ServiceRecordsPage extends ConsumerWidget {
     );
   }
 
-  /// 两段纯文字分段标签，带白色背景、底部圆角、激活态下划线。
-  /// 切换时通过 pushReplacement 更新 query parameter，避免 Navigation Stack 持续膨胀。
-  Widget _buildSegmentedTabs(BuildContext context, String activeTab) {
-    const tabs = [(_TabKey.ongoing, '已预约'), (_TabKey.finished, '已结束')];
+  /// Tab 栏：服务预约 / 活动报名
+  Widget _buildTabs(BuildContext context) {
+    const tabs = [('reservation', '服务预约记录'), ('activity', '活动报名记录')];
 
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(bottom: Radius.circular(AppRadius.lg)),
@@ -93,7 +83,6 @@ class ServiceRecordsPage extends ConsumerWidget {
             return Expanded(
               child: GestureDetector(
                 onTap: () {
-                  // 使用 pushReplacement 配合 Uri 替换当前路由的 query parameter
                   final uri = Uri.parse('/service/records').replace(queryParameters: {'activeTab': tab.$1});
                   context.pushReplacement(uri.toString());
                 },
@@ -130,10 +119,39 @@ class ServiceRecordsPage extends ConsumerWidget {
       ),
     );
   }
-}
 
-/// Tab 键常量（对应设计稿两态：已预约 / 已结束）
-abstract final class _TabKey {
-  static const String ongoing = 'ongoing';
-  static const String finished = 'finished';
+  /// 服务预约列表（调用真实 API，reservationlisttype=0 全部）
+  Widget _buildReservationList(WidgetRef ref) {
+    const listType = 0; // 全部
+    final listAsync = ref.watch(myReservationListProvider(listType));
+
+    return listAsync.when(
+      loading: () => const Center(child: AppLoading()),
+      error: (e, _) => Center(
+        child: AppError(message: '加载失败，请稍后重试', onRetry: () => ref.invalidate(myReservationListProvider(listType))),
+      ),
+      data: (items) => items.isEmpty
+          ? const SizedBox(height: 200, child: AppEmpty(message: '暂无记录'))
+          : ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+              itemCount: items.length,
+              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
+              itemBuilder: (context, index) =>
+                  ReservationRecordCard(item: items[index], onViewTap: () => context.push('/service/reservation/${items[index].serviceId}')),
+            ),
+    );
+  }
+
+  /// 活动报名记录列表（getmyofflineactivitylist，卡片样式同预约记录卡片）
+  Widget _buildActivityList(BuildContext context) {
+    return PagingListView<OfflineActivityRecordItem>(
+      provider: myOfflineActivityRecordProvider,
+      loadingWidget: const SizedBox(height: 200, child: Center(child: AppLoading())),
+      errorWidget: Center(child: AppError(message: '加载失败，请稍后重试')),
+      emptyWidget: const SizedBox(height: 200, child: AppEmpty(message: '暂无记录')),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+      separatorBuilder: const SizedBox(height: AppSpacing.sm),
+      itemBuilder: (context, item, index) => OfflineActivityRecordCard(item: item, onViewTap: () => context.push('/service/activity/${item.activityId}')),
+    );
+  }
 }
