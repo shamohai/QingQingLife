@@ -9,14 +9,18 @@ import '../../../../app/theme/app_radius.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_error.dart';
+import '../providers/offline_activity_record_provider.dart';
+import '../../domain/models/offline_activity_record_item.dart';
+import '../../../../core/presentation/paging/paging_list_view.dart';
 import '../providers/reservation_record_provider.dart';
+import '../widgets/offline_activity_record_card.dart';
 import '../widgets/reservation_record_card.dart';
 
 /// 预约/报名记录子页面。
 ///
 /// 单级 Tab 结构：
 ///   Tab 1：服务预约 - 调用现有 API，reservationlisttype=0 (全部)
-///   Tab 2：活动报名 - API 未对接，显示占位
+///   Tab 2：活动报名 - 调用 getmyofflineactivitylist，卡片样式同预约记录卡片
 ///
 /// 路由 query parameter：
 ///   activeTab: 'reservation' | 'activity' (默认 'reservation')
@@ -55,7 +59,7 @@ class ServiceRecordsPage extends ConsumerWidget {
                 // 单级 Tab：服务预约 / 活动报名
                 _buildTabs(context),
                 // 列表内容
-                Expanded(child: isReservationTab ? _buildReservationList(ref) : _buildActivityPlaceholder()),
+                Expanded(child: isReservationTab ? _buildReservationList(ref) : _buildActivityList(context)),
               ],
             ),
           ),
@@ -138,19 +142,16 @@ class ServiceRecordsPage extends ConsumerWidget {
     );
   }
 
-  /// 活动报名占位（API 未对接，显示 Mock 提示）
-  Widget _buildActivityPlaceholder() {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.event_note_outlined, size: 64, color: AppColors.serviceTabInactive.withValues(alpha: 0.5)),
-          const SizedBox(height: 16),
-          Text('活动报名记录', style: AppTextStyles.headlineMedium.copyWith(color: AppColors.serviceTabInactive)),
-          const SizedBox(height: 8),
-          Text('接口对接中，敬请期待', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.serviceTabInactive.withValues(alpha: 0.7))),
-        ],
-      ),
+  /// 活动报名记录列表（getmyofflineactivitylist，卡片样式同预约记录卡片）
+  Widget _buildActivityList(BuildContext context) {
+    return PagingListView<OfflineActivityRecordItem>(
+      provider: myOfflineActivityRecordProvider,
+      loadingWidget: const SizedBox(height: 200, child: Center(child: AppLoading())),
+      errorWidget: Center(child: AppError(message: '加载失败，请稍后重试')),
+      emptyWidget: const SizedBox(height: 200, child: AppEmpty(message: '暂无记录')),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+      separatorBuilder: const SizedBox(height: AppSpacing.sm),
+      itemBuilder: (context, item, index) => OfflineActivityRecordCard(item: item, onViewTap: () => context.push('/service/activity/${item.activityId}')),
     );
   }
 }

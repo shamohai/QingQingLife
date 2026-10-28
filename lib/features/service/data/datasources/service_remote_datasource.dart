@@ -14,6 +14,7 @@ import '../../domain/models/offline_activity_detail_model.dart';
 import '../../domain/models/reservation_service_item.dart';
 import '../../domain/models/reservation_service_detail_model.dart';
 import '../../domain/models/reservation_record_item.dart';
+import '../../domain/models/offline_activity_record_item.dart';
 
 /// 服务中心远程数据源
 class ServiceRemoteDataSource implements ServiceRepository {
@@ -85,6 +86,19 @@ class ServiceRemoteDataSource implements ServiceRepository {
         final source = json as Map<String, dynamic>? ?? const <String, dynamic>{};
         final listJson = source['list'] as List<dynamic>? ?? const <dynamic>[];
         return listJson.map((e) => ReservationRecordItem.fromJson(e as Map<String, dynamic>)).toList();
+      },
+    );
+  }
+
+  @override
+  Future<ApiResponse<List<OfflineActivityRecordItem>>> getMyOfflineActivityList({int pageIndex = 1, int pageSize = 10}) async {
+    return apiClient.post<List<OfflineActivityRecordItem>>(
+      '/api/promotion/app/activity/getmyofflineactivitylist',
+      data: <String, dynamic>{'pageindex': pageIndex, 'pagesize': pageSize},
+      fromJson: (dynamic json) {
+        final source = json as Map<String, dynamic>? ?? const <String, dynamic>{};
+        final listJson = source['activitylist'] as List<dynamic>? ?? const <dynamic>[];
+        return listJson.map((e) => OfflineActivityRecordItem.fromJson(e as Map<String, dynamic>)).toList();
       },
     );
   }
@@ -206,7 +220,7 @@ class ServiceRemoteDataSource implements ServiceRepository {
         'phone': phone,
         'idno': idNo,
         'remark': remark,
-        'signupusercount': signupUserCount
+        'signupusercount': signupUserCount,
       },
       fromJson: (dynamic json) => 0,
     );
