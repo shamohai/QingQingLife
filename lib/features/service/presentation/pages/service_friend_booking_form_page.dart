@@ -157,11 +157,11 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
     final friendCountNum = int.tryParse(_friendCountController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
 
     if (maxSignupCount == 0) {
-      await _showLimitDialog('暂无挚友会权益，无法报名');
+      await _showLimitDialog('暂无挚友会权益，无法报名', false);
       return;
     } else if (maxSignupCount == 1) {
       if (_bringFriend || friendCountNum > 0) {
-        await _showLimitDialog('该活动仅限本人参加，不可携带亲友');
+        await _showLimitDialog('该活动仅限本人参加，不可携带亲友', false);
         return;
       }
       //if (count > 1) {
@@ -170,7 +170,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
       //}
     } else {
       if (_bringFriend && friendCountNum > maxSignupCount - 1) {
-        await _showLimitDialog('携带亲友人数已经达到上限\n请参与购酒享服务活动');
+        await _showLimitDialog('携带亲友人数已经达到上限\n请参与购酒享服务活动', true);
         return;
       }
     }
@@ -248,7 +248,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
     );
   }
 
-  Future<void> _showLimitDialog(String message) {
+  Future<void> _showLimitDialog(String message, bool showBuyWineServiceButton) {
     return showDialog<void>(
       context: context,
       barrierColor: Colors.black26,
@@ -267,8 +267,13 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close, size: 24, color: Color(0xFF333333)),
+                      onPressed: () => onPressed: () {
+                        Navigator.of(context).pop();
+                        if (!showBuyWineServiceButton) return;
+                        // 跳转到服务页第4个tab（购酒享服务）
+                        context.go(RouteNames.service, extra: {'initialTab': 'goujiu'});
+                      },
+                      icon: Icon(Icons.close, size: 24, color: Color(0xFF333333)),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     ),
@@ -293,7 +298,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
                       elevation: 0,
                     ),
-                    child: const Text('我知道了', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                    child: const Text(showBuyWineServiceButton ? '前往购酒享服务' : '我知道了', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
                   ),
                 ),
               ],

@@ -22,6 +22,16 @@ class ServicePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 从路由 extra 中读取初始 tab（用于从其他页面跳转时指定 tab）
+    final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
+    final initialTab = extra?['initialTab'] as String?;
+    if (initialTab != null) {
+      // 使用 addPostFrameCallback 避免在 build 阶段修改 provider
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(selectedTabProvider.notifier).update(initialTab);
+      });
+    }
+
     final selectedTab = ref.watch(selectedTabProvider);
 
     // 列表项点击 → 根据当前 Tab 跳转到对应详情页
