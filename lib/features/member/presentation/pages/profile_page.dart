@@ -37,6 +37,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       final profile = ref.read(userProfileProvider);
       if (profile.levelName == "未登录" && profile.nickname == "青轻用户_9527") {
         ref.read(userProfileProvider.notifier).load();
+      } else {
+        ref.read(userProfileProvider.notifier).refreshCouponCount();
       }
     });
   }

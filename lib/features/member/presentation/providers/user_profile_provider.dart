@@ -12,6 +12,8 @@ class UserProfileState {
   final String? avatarUrl;
   final String phoneMasked;
   final int points;
+
+  /// 已领取卡券总数（availablewelfarelist.keepcount）。
   final int couponCount;
   final int? expiringPoints;
   final DateTime? expiringDate;
@@ -80,6 +82,28 @@ class UserProfileState {
     this.tianyoudeValue = 0,
   });
 
+  UserProfileState withCouponCount(int couponCount) {
+    return UserProfileState(
+      nickname: nickname,
+      avatarUrl: avatarUrl,
+      phoneMasked: phoneMasked,
+      points: points,
+      couponCount: couponCount,
+      expiringPoints: expiringPoints,
+      expiringDate: expiringDate,
+      gender: gender,
+      genderName: genderName,
+      birthday: birthday,
+      address: address,
+      ranks: ranks,
+      memberLevel: memberLevel,
+      levelName: levelName,
+      unreadMessageCount: unreadMessageCount,
+      memberExpireDate: memberExpireDate,
+      tianyoudeValue: tianyoudeValue,
+    );
+  }
+
   /// 性别展示文本：1 / 2 直接映射男 / 女，其余取接口 gendername（如「未知」）
   String get genderText {
     switch (gender) {
@@ -112,6 +136,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
   ///   - 昵称 / 头像 / 手机号 / 当前等级 / 成长值：AuthRepository.getCurrentUser
   Future<void> load() async {
     final repository = ref.read(memberRepositoryProvider);
+    final couponCountFuture = _loadCouponCount();
     try {
       final ranksResp = await repository.getRankList();
       final ranks = (ranksResp.success ? ranksResp.data!.ranks : const <RankBaseInfo>[]).where((e) => e.userrid > 0).toList();
@@ -150,13 +175,14 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         levelName = currentRank.userridname;
         expireDate = currentRank.expireDate;
       }
+      final couponCount = await couponCountFuture ?? state.couponCount;
 
       state = UserProfileState(
         nickname: nickname,
         avatarUrl: avatarUrl,
         phoneMasked: phoneMasked,
         points: points,
-        couponCount: 0,
+        couponCount: couponCount,
         expiringPoints: expiringPoints,
         gender: gender,
         genderName: genderName,
@@ -171,6 +197,24 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
       );
     } catch (e) {
       debugPrint('[UserProfile] load error: $e');
+    }
+  }
+
+  Future<int?> _loadCouponCount() async {
+    try {
+      final response = await ref.read(memberRepositoryProvider).getAvailableWelfareList(cardOnly: true);
+      if (response.success && response.data != null) return response.data!.keepCount;
+    } catch (error) {
+      debugPrint('[UserProfile] coupon count error: $error');
+    }
+    return null;
+  }
+
+  /// 已加载用户资料后，进入「我的」页面时单独刷新卡券总数。
+  Future<void> refreshCouponCount() async {
+    final couponCount = await _loadCouponCount();
+    if (couponCount != null) {
+      state = state.withCouponCount(couponCount);
     }
   }
 

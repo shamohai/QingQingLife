@@ -1,6 +1,8 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/available_welfare_model.dart';
+import '../models/cash_coupon_model.dart';
 import '../models/coupon_group_model.dart';
 import '../models/service_coupon_model.dart';
 import '../../domain/repositories/member_repository.dart';
@@ -195,6 +197,21 @@ class MockMemberDataSource implements MemberRepository {
     );
     final coupons = status == CouponGroupStatus.transferring ? const <CouponGroupInfo>[] : [coupon];
     return ApiResponse.success(CouponGroupListResult(coupons: coupons, totalCount: coupons.length));
+  }
+
+  @override
+  Future<ApiResponse<CashCouponListResult>> getCashCouponList({required CashCouponStatus status, required int pageIndex, required int pageSize}) async {
+    return ApiResponse.success(const CashCouponListResult(coupons: [], totalCount: 0, hasMore: false));
+  }
+
+  @override
+  Future<ApiResponse<CashCouponDetailResult>> getCashCouponDetail({required String couponSn}) async {
+    return ApiResponse.success(const CashCouponDetailResult());
+  }
+
+  @override
+  Future<ApiResponse<AvailableWelfareListResult>> getAvailableWelfareList({required bool cardOnly}) async {
+    return ApiResponse.success(const AvailableWelfareListResult(welfareList: [], totalCount: 0, keepCount: 0));
   }
 
   @override

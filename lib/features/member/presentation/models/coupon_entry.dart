@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 /// 我的卡券页固定入口类型。
 ///
-/// 当前后端仅提供通用优惠券列表能力，尚无服务券、待解锁红包的独立列表接口；
-/// 页面先按产品要求固定展示三类入口，后续接入各自列表页时替换 [onTap] 行为。
+/// 三类入口分别进入优惠券、服务券与待解锁红包列表页。
 enum CouponEntryType { discount, service, lockedRedPacket }
 
 /// 三张卡券入口的纯展示配置。

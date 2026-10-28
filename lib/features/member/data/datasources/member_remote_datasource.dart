@@ -4,6 +4,8 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/providers.dart';
 import '../../domain/repositories/member_repository.dart';
+import '../models/available_welfare_model.dart';
+import '../models/cash_coupon_model.dart';
 import '../models/coupon_group_model.dart';
 import '../models/service_coupon_model.dart';
 import '../models/member_authority_model.dart';
@@ -220,6 +222,43 @@ class MemberRemoteDataSource {
       '/api/promotion/getcoupongrouplist',
       data: <String, dynamic>{'status': status.apiValue, 'groupid': 0, 'receivecrmcoupon': false, 'receivewelfare': false},
       fromJson: (dynamic json) => CouponGroupListResult.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  /// 获取用户待解锁红包列表。
+  ///
+  /// 接口：POST /api/promotion/getcashcouponlist
+  /// 请求体：{status, pageindex, pagesize}
+  /// 状态：1 有效 / 2 已使用 / 3 已过期。
+  Future<ApiResponse<CashCouponListResult>> getCashCouponList({required CashCouponStatus status, required int pageIndex, required int pageSize}) async {
+    return _apiClient.post<CashCouponListResult>(
+      '/api/promotion/getcashcouponlist',
+      data: <String, dynamic>{'status': status.apiValue, 'pageindex': pageIndex, 'pagesize': pageSize},
+      fromJson: (dynamic json) => CashCouponListResult.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  /// 获取用户待解锁红包详情。
+  ///
+  /// 接口：POST /api/promotion/getcashcoupondetail
+  /// 请求体：{couponsn}
+  Future<ApiResponse<CashCouponDetailResult>> getCashCouponDetail({required String couponSn}) async {
+    return _apiClient.post<CashCouponDetailResult>(
+      '/api/promotion/getcashcoupondetail',
+      data: <String, dynamic>{'couponsn': couponSn},
+      fromJson: (dynamic json) => CashCouponDetailResult.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  /// 获取可用福利列表。
+  ///
+  /// 接口：POST /api/promotion/availablewelfarelist
+  /// 请求体：{cardonly}
+  Future<ApiResponse<AvailableWelfareListResult>> getAvailableWelfareList({required bool cardOnly}) async {
+    return _apiClient.post<AvailableWelfareListResult>(
+      '/api/promotion/availablewelfarelist',
+      data: <String, dynamic>{'cardonly': cardOnly},
+      fromJson: (dynamic json) => AvailableWelfareListResult.fromJson(json as Map<String, dynamic>),
     );
   }
 

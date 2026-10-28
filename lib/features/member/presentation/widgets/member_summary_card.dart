@@ -123,17 +123,17 @@ class MemberSummaryCard extends ConsumerWidget {
                       else
                         const Spacer(),
                       const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () => context.push(RouteNames.memberSignIn),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                          decoration: const BoxDecoration(color: Color(0xFF0099FB), borderRadius: BorderRadius.all(Radius.circular(999))),
-                          child: const Text(
-                            '立即签到',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white, height: 1.2),
-                          ),
-                        ),
-                      ),
+                      // GestureDetector(
+                      //   onTap: () => context.push(RouteNames.memberSignIn),
+                      //   child: Container(
+                      //     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                      //     decoration: const BoxDecoration(color: Color(0xFF0099FB), borderRadius: BorderRadius.all(Radius.circular(999))),
+                      //     child: const Text(
+                      //       '立即签到',
+                      //       style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white, height: 1.2),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ],

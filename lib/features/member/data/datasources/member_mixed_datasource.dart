@@ -1,6 +1,8 @@
 import '../../../../core/network/api_response.dart';
 import '../../domain/repositories/member_repository.dart';
 import '../models/member_authority_model.dart';
+import '../models/available_welfare_model.dart';
+import '../models/cash_coupon_model.dart';
 import '../models/coupon_group_model.dart';
 import '../models/service_coupon_model.dart';
 import '../models/member_rank_models.dart';
@@ -14,6 +16,8 @@ import 'member_remote_datasource.dart';
 ///   - 等级权益明细（getRankDetail）：POST /api/sys/app/getrankdetail，已接真实接口。
 ///   - 用户地址列表（getAddresses）：POST /api/sys/getuseraddresslist，已接真实接口。
 ///   - 我的优惠券分组列表（getCouponGroupList）：POST /api/promotion/getcoupongrouplist，已接真实接口。
+///   - 待解锁红包列表与详情：POST /api/promotion/getcashcouponlist、getcashcoupondetail，已接真实接口。
+///   - 可用福利数量（getAvailableWelfareList）：POST /api/promotion/availablewelfarelist，已接真实接口。
 ///   - 地址删除、设为默认及其余会员能力（会员信息 / 等级权益 / 权益权限 / 通用优惠券 / 积分 / 客服）：
 ///     后端仍开发中，走 Mock。
 ///
@@ -60,6 +64,16 @@ class MemberMixedDataSource implements MemberRepository {
 
   @override
   Future<ApiResponse<CouponGroupListResult>> getCouponGroupList({required CouponGroupStatus status}) => remote.getCouponGroupList(status: status);
+
+  @override
+  Future<ApiResponse<CashCouponListResult>> getCashCouponList({required CashCouponStatus status, required int pageIndex, required int pageSize}) =>
+      remote.getCashCouponList(status: status, pageIndex: pageIndex, pageSize: pageSize);
+
+  @override
+  Future<ApiResponse<CashCouponDetailResult>> getCashCouponDetail({required String couponSn}) => remote.getCashCouponDetail(couponSn: couponSn);
+
+  @override
+  Future<ApiResponse<AvailableWelfareListResult>> getAvailableWelfareList({required bool cardOnly}) => remote.getAvailableWelfareList(cardOnly: cardOnly);
 
   @override
   Future<ApiResponse<ServiceCouponListResult>> getServiceCouponList({required ServiceCouponStatus status, bool selfSetOnly = false}) =>
