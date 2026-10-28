@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../app/theme/app_colors.dart';
-import '../../domain/repositories/points_repository.dart';
+import '../../data/models/points_credit_detail_models.dart';
 
 /// 积分记录条目卡片
 ///
 /// 渲染单条积分变动记录：图标 + 名称 + 订单号 + 积分金额 + 时间。
 class PointsRecordItem extends StatelessWidget {
-  final PointsExchangeRecord record;
+  final PointsCreditRecord record;
 
   const PointsRecordItem({super.key, required this.record});
 
   @override
   Widget build(BuildContext context) {
-    final isIncome = record.pointsDeducted > 0;
-    final amountText = isIncome ? '+${NumberFormat('####').format(record.pointsDeducted)}积分' : '${NumberFormat('####').format(record.pointsDeducted)}积分';
+    final isIncome = record.change > 0;
+    final amountText = record.change > 0 ? '+${NumberFormat('#,###').format(record.change)}积分' : '${NumberFormat('#,###').format(record.change)}积分';
     final amountColor = const Color(0xFFFF2105);
-    final timeText = DateFormat('yyyy-MM-dd  HH:mm:ss').format(record.createTime);
+    final timeText = record.actionTimeText;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -34,7 +34,7 @@ class PointsRecordItem extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      record.productName,
+                      record.title,
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface, height: 1.0),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -42,15 +42,8 @@ class PointsRecordItem extends StatelessWidget {
                   ),
                 ],
               ),
-              // 第二行：订单编号
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Text(
-                  '订单编号：${record.exchangeNo}',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97), height: 1.43),
-                ),
-              ),
-              // 第三行：发生时间
+              // 接口没有订单号或商品字段，因此只展示发生时间。
+              // 发生时间
               Padding(
                 padding: const EdgeInsets.only(top: 2),
                 child: Text(

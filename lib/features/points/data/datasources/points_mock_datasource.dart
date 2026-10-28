@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../points/domain/repositories/points_repository.dart';
+import '../../../points/data/models/points_credit_detail_models.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/providers.dart' show apiClientProvider;
@@ -230,6 +231,15 @@ class MockPointsDataSource implements PointsRepository {
         status: ExchangeStatus.pending,
       ),
     );
+  }
+
+  @override
+  Future<ApiResponse<PointsCreditListData>> getCreditList({required int page, required int pageSize, String? startDate, String? endDate}) async {
+    if (apiClient != null) {
+      final remote = PointsRemoteDataSource(apiClient: apiClient!);
+      return remote.getCreditList(page: page, pageSize: pageSize, startDate: startDate, endDate: endDate);
+    }
+    return ApiResponse.success(const PointsCreditListData(totalDecrease: 0, totalCredit: 0, totalIncrease: 0, totalRecords: 0, credits: []));
   }
 
   @override

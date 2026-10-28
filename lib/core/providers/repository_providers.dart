@@ -21,10 +21,21 @@ import '../../features/order/data/repositories/order_repository_impl.dart';
 import '../../features/order/domain/repositories/invoice_repository.dart';
 import '../../features/order/domain/repositories/order_repository.dart';
 import '../../features/points/data/datasources/points_mock_datasource.dart';
+import '../../features/points/data/datasources/points_remote_datasource.dart';
 import '../../features/points/domain/repositories/points_repository.dart';
 import '../../features/product/data/datasources/product_mixed_datasource.dart';
 import '../../features/product/domain/repositories/product_repository.dart';
-import '../../../../core/network/providers.dart' show apiClientProvider;
+import '../network/providers.dart' show apiClientProvider;
+import '../../features/points/data/models/points_credit_detail_models.dart';
+import '../../features/points_mall/data/models/points_mall_home_data.dart';
+import '../../features/points_mall/data/models/get_recommend_product_list_model.dart';
+import '../../features/points_mall/data/models/get_credit_product_list_model.dart';
+import '../../features/points_mall/data/models/credit_product_category_model.dart';
+import '../../features/points_mall/data/models/service_product_detail_model.dart';
+import '../../features/points_mall/data/models/pre_credit_order_info_model.dart';
+import '../../features/points_mall/data/models/points_submit_order_models.dart';
+import '../../features/points_mall/data/models/sign_in_result.dart';
+import '../../../../core/network/api_response.dart';
 
 part 'repository_providers.g.dart';
 
@@ -82,11 +93,89 @@ MemberSignInRepository memberSignInRepository(Ref ref) {
 
 /// Points Repository Provider
 ///
-/// 全量使用 Mock 数据源，其中 getRecommendProductList 会自动注入 apiClient
-/// 以调用真实推荐位接口（positioncode 由调用方指定）。
+/// 积分商城未对接的能力继续保留 Mock；积分明细通过独立 remote 数据源走真实接口。
 @riverpod
 PointsRepository pointsRepository(Ref ref) {
-  return MockPointsDataSource(apiClient: ref.read(apiClientProvider));
+  return PointsMixedDataSource(
+    remote: ref.read(pointsRemoteDataSourceProvider),
+    mock: MockPointsDataSource(apiClient: ref.read(apiClientProvider)),
+  );
+}
+
+/// 仅将已经确认的积分流水能力切换为远程实现，避免影响积分商城其他能力。
+class PointsMixedDataSource implements PointsRepository {
+  const PointsMixedDataSource({required this.remote, required this.mock});
+
+  final PointsRepository remote;
+  final PointsRepository mock;
+
+  @override
+  Future<ApiResponse<PointsCreditListData>> getCreditList({required int page, required int pageSize, String? startDate, String? endDate}) =>
+      remote.getCreditList(page: page, pageSize: pageSize, startDate: startDate, endDate: endDate);
+
+  @override
+  Future<ApiResponse<List<CreditMallProduct>>> getRecommendProductList({required String positionCode}) =>
+      mock.getRecommendProductList(positionCode: positionCode);
+
+  @override
+  Future<ApiResponse<CreditProductCategoryData>> getCreditProductCategory() => mock.getCreditProductCategory();
+
+  @override
+  Future<ApiResponse<CreditProductListData>> getCreditProductList({
+    required int page,
+    required int pageSize,
+    int? minIntegral,
+    int? maxIntegral,
+    bool? exchangeable,
+    int? categoryId,
+    int? sort,
+    bool? asc,
+  }) => mock.getCreditProductList(
+    page: page,
+    pageSize: pageSize,
+    minIntegral: minIntegral,
+    maxIntegral: maxIntegral,
+    exchangeable: exchangeable,
+    categoryId: categoryId,
+    sort: sort,
+    asc: asc,
+  );
+
+  @override
+  Future<ApiResponse<PointsMallHomeData>> getPointsMallHome() => mock.getPointsMallHome();
+  @override
+  Future<ApiResponse<PointsMallHomeData>> getProducts({required int page, required int pageSize, String? categoryId, String? keyword}) =>
+      mock.getProducts(page: page, pageSize: pageSize, categoryId: categoryId, keyword: keyword);
+  @override
+  Future<ApiResponse<PointsProductDetail>> getProductDetail(String productId) => mock.getProductDetail(productId);
+  @override
+  Future<ApiResponse<ServiceProductDetail>> getServiceProductDetail(String productId) => mock.getServiceProductDetail(productId);
+  @override
+  Future<ApiResponse<PointsExchangeResult>> exchangePointsProduct({
+    required String productId,
+    required int quantity,
+    required String addressId,
+    String? remark,
+  }) => mock.exchangePointsProduct(productId: productId, quantity: quantity, addressId: addressId, remark: remark);
+  @override
+  Future<ApiResponse<List<PointsExchangeRecord>>> getExchangeRecords({required int page, required int pageSize, ExchangeStatus? status}) =>
+      mock.getExchangeRecords(page: page, pageSize: pageSize, status: status);
+  @override
+  Future<ApiResponse<SignInResult>> signIn() => mock.signIn();
+  @override
+  Future<ApiResponse<SignInCalendarResult>> getSignInCalendar({required int year, required int month}) => mock.getSignInCalendar(year: year, month: month);
+  @override
+  Future<ApiResponse<String>> getPointsRule() => mock.getPointsRule();
+  @override
+  Future<ApiResponse<PreCreditOrderInfoModel>> getPreCreditOrderInfo({required int userServiceId, required String productId, required int quantity}) =>
+      mock.getPreCreditOrderInfo(userServiceId: userServiceId, productId: productId, quantity: quantity);
+  @override
+  Future<ApiResponse<SubmitCreditOrderResp>> submitCreditOrder(SubmitCreditOrderReq req) => mock.submitCreditOrder(req);
+  @override
+  Future<ApiResponse<SubmitServiceCouponIntegralOrderResp>> submitServiceCouponIntegralOrder(SubmitServiceCouponIntegralOrderReq req) =>
+      mock.submitServiceCouponIntegralOrder(req);
+  @override
+  Future<ApiResponse<SubmitBaiLiHuiOrderResp>> submitBaiLiHuiOrder(SubmitBaiLiHuiOrderReq req) => mock.submitBaiLiHuiOrder(req);
 }
 
 /// Notification Repository Provider

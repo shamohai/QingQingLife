@@ -1,4 +1,5 @@
 import '../../../../core/network/api_response.dart';
+import '../../data/models/points_credit_detail_models.dart';
 import '../../../points_mall/data/models/points_mall_home_data.dart';
 import '../../../points_mall/data/models/sign_in_result.dart';
 import '../../../points_mall/data/models/service_product_detail_model.dart';
@@ -30,8 +31,12 @@ abstract class PointsRepository {
     String? remark,
   });
 
-  /// 获取兑换记录（分页）
+  /// 获取兑换记录（分页）。积分流水使用 [getCreditList]，不复用此订单记录模型。
   Future<ApiResponse<List<PointsExchangeRecord>>> getExchangeRecords({required int page, required int pageSize, ExchangeStatus? status});
+
+  /// 获取积分账户余额及积分流水。
+  /// 接口：POST /api/promotion/getcreditlist
+  Future<ApiResponse<PointsCreditListData>> getCreditList({required int page, required int pageSize, String? startDate, String? endDate});
 
   /// 获取签到结果
   Future<ApiResponse<SignInResult>> signIn();
@@ -65,11 +70,7 @@ abstract class PointsRepository {
 
   /// 获取预下单积分订单信息
   /// 接口：POST /api/order/dealprecreditorderinfo
-  Future<ApiResponse<PreCreditOrderInfoModel>> getPreCreditOrderInfo({
-    required int userServiceId,
-    required String productId,
-    required int quantity,
-  });
+  Future<ApiResponse<PreCreditOrderInfoModel>> getPreCreditOrderInfo({required int userServiceId, required String productId, required int quantity});
 
   /// 提交青稞粒/自营积分订单 (OrderType == 2)
   /// 接口：POST /api/order/submitcreditorder

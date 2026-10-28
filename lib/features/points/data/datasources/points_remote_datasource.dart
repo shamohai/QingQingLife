@@ -4,6 +4,7 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/providers.dart';
 import '../../domain/repositories/points_repository.dart';
+import '../models/points_credit_detail_models.dart';
 import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
 import '../../../points_mall/data/models/points_mall_home_data.dart';
 import '../../../points_mall/data/models/sign_in_result.dart';
@@ -70,6 +71,24 @@ class PointsRemoteDataSource implements PointsRepository {
       '/api/product/getcreditproductlist',
       data: body,
       fromJson: (dynamic json) => CreditProductListData.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  /// 获取积分余额与流水。
+  ///
+  /// ApiClient 会将扁平 result/credits 响应交给 fromJson，业务层不绕过统一入口。
+  @override
+  Future<ApiResponse<PointsCreditListData>> getCreditList({required int page, required int pageSize, String? startDate, String? endDate}) async {
+    final body = <String, dynamic>{
+      'pageindex': page,
+      'pagesize': pageSize,
+      if (startDate != null && startDate.isNotEmpty) 'startdate': startDate,
+      if (endDate != null && endDate.isNotEmpty) 'enddate': endDate,
+    };
+    return _apiClient.post<PointsCreditListData>(
+      '/api/promotion/getcreditlist',
+      data: body,
+      fromJson: (dynamic json) => PointsCreditListData.fromJson(Map<String, dynamic>.from(json as Map)),
     );
   }
 
