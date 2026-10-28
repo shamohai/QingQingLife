@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/home/presentation/pages/home_page.dart';
-import '../../features/shop/presentation/pages/shop_page.dart';
 import '../../features/points_mall/presentation/pages/points_mall_page.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/member/presentation/pages/profile_page.dart';
@@ -241,7 +240,9 @@ final appRouter = Provider<GoRouter>((ref) {
             final url = s.uri.queryParameters['url'] ?? '';
             final uri = Uri.tryParse(url);
             if (uri == null || !(uri.scheme == 'http' || uri.scheme == 'https')) {
-              return const MaterialPage(child: Scaffold(body: Center(child: Text('无效的网页地址'))));
+              return const MaterialPage(
+                child: Scaffold(body: Center(child: Text('无效的网页地址'))),
+              );
             }
             return MaterialPage(child: WebViewPage(url: url));
           },

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/logging/app_logger.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../member/domain/repositories/member_repository.dart';
@@ -19,7 +20,7 @@ class PointsConfirmOrderArg {
       other is PointsConfirmOrderArg && runtimeType == other.runtimeType && productId == other.productId && userServiceId == other.userServiceId;
 
   @override
-  int get hashCode => productId.hashCode ^ userServiceId.hashCode;
+  int get hashCode => Object.hash(productId, userServiceId);
 }
 
 /// 确认订单页面本地与网络集成状态
@@ -82,7 +83,7 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
 
   @override
   PointsConfirmOrderState build() {
-    final isEditable = arg.userServiceId == 0;
+    final isEditable = arg.userServiceId <= 0;
     Future.microtask(() => _fetchPreOrderInfo());
     return PointsConfirmOrderState(
       productId: arg.productId,
@@ -106,7 +107,7 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
     if (response.success && response.data != null) {
       final preInfo = response.data!;
       final maxQuantity = preInfo.redeemableQuantity;
-      final nextQuantity = maxQuantity > 0 && state.quantity > maxQuantity ? maxQuantity : state.quantity;
+      final nextQuantity = maxQuantity > 0 ? state.quantity.clamp(1, maxQuantity) : state.quantity;
       state = state.copyWith(quantity: nextQuantity, preOrderInfoAsync: AsyncValue.data(preInfo));
 
       if (preInfo.recvrType == RecvrType.shipAddress) {
@@ -139,10 +140,32 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
   }
 
   void increment() {
-    if (!state.isQuantityEditable) return;
     final maxQuantity = state.preOrderInfoAsync.value?.redeemableQuantity ?? 0;
-    if (maxQuantity > 0 && state.quantity >= maxQuantity) return;
-    state = state.copyWith(quantity: state.quantity + 1);
+    AppLogger.info(
+      '积分确认页点击增加数量',
+      module: 'points_confirm_order',
+      event: 'quantity_increment',
+      data: <String, dynamic>{
+        'productId': state.productId,
+        'userServiceId': state.userServiceId,
+        'isQuantityEditable': state.isQuantityEditable,
+        'quantityBefore': state.quantity,
+        'maxQuantity': maxQuantity,
+      },
+    );
+
+    if (!state.isQuantityEditable) {
+      AppLogger.warning('增加数量被拦截：当前订单数量不可编辑', module: 'points_confirm_order');
+      return;
+    }
+    if (maxQuantity > 0 && state.quantity >= maxQuantity) {
+      AppLogger.warning('增加数量被拦截：已达到可兑换上限', module: 'points_confirm_order');
+      return;
+    }
+
+    final nextQuantity = state.quantity + 1;
+    state = state.copyWith(quantity: nextQuantity);
+    AppLogger.info('积分确认页数量已更新', module: 'points_confirm_order', event: 'quantity_changed', data: <String, dynamic>{'quantityAfter': nextQuantity});
     _fetchPreOrderInfo();
   }
 
@@ -153,8 +176,10 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
   }
 
   void setQuantity(int quantity) {
-    if (!state.isQuantityEditable || quantity <= 0) return;
-    state = state.copyWith(quantity: quantity);
+    if (!state.isQuantityEditable || quantity < 1) return;
+    final maxQuantity = state.preOrderInfoAsync.value?.redeemableQuantity ?? 0;
+    final nextQuantity = maxQuantity > 0 ? quantity.clamp(1, maxQuantity) : quantity;
+    state = state.copyWith(quantity: nextQuantity);
     _fetchPreOrderInfo();
   }
 

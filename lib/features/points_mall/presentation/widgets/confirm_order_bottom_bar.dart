@@ -58,12 +58,7 @@ class ConfirmOrderBottomBar extends ConsumerWidget {
                         Flexible(
                           child: Text(
                             '$totalPoints',
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFFFE273D),
-                              height: 1.1,
-                            ),
+                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500, color: Color(0xFFFE273D), height: 1.1),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -93,22 +88,11 @@ class ConfirmOrderBottomBar extends ConsumerWidget {
                     height: 47,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(999),
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [Color(0xFF3152AF), Color(0xFF213775)],
-                      ),
+                      gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3152AF), Color(0xFF213775)]),
                     ),
                     child: Center(
                       child: isSubmitting
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                           : const Text(
                               '提交订单',
                               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),

@@ -7,7 +7,9 @@ import 'package:qingqinglife/features/points_mall/presentation/widgets/points_fl
 import '../../../product/domain/repositories/product_repository.dart' as repo;
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_error.dart';
+
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../app/router/route_names.dart';
 import '../widgets/home_banner.dart' as home_widgets;
@@ -43,14 +45,10 @@ class _HomeActiveUserServiceIdNotifier extends Notifier<int> {
 }
 
 /// 首页每月权益领取中 ID 集合 Provider
-final homeClaimingIdsProvider = NotifierProvider.autoDispose<_HomeStringSetNotifier, Set<String>>(
-  _HomeStringSetNotifier.new,
-);
+final homeClaimingIdsProvider = NotifierProvider.autoDispose<_HomeStringSetNotifier, Set<String>>(_HomeStringSetNotifier.new);
 
 /// 首页当月激活的 userServiceId（>0 表示当月已成功领取）
-final homeActiveUserServiceIdProvider = NotifierProvider.autoDispose<_HomeActiveUserServiceIdNotifier, int>(
-  _HomeActiveUserServiceIdNotifier.new,
-);
+final homeActiveUserServiceIdProvider = NotifierProvider.autoDispose<_HomeActiveUserServiceIdNotifier, int>(_HomeActiveUserServiceIdNotifier.new);
 
 /// 首页静态数据 Provider（金刚区、新人礼、专题、每月权益、可用商品、活动模块）
 /// 轮播图由独立的 homeCarouselProvider 提供
@@ -213,9 +211,7 @@ class HomePage extends ConsumerWidget {
                                 final serviceIdInt = benefit.serviceId > 0 ? benefit.serviceId : (int.tryParse(benefit.id) ?? 0);
                                 if (serviceIdInt <= 0) {
                                   if (!context.mounted) return;
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('无效的权益ID')),
-                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('无效的权益ID')));
                                   return;
                                 }
 
@@ -228,16 +224,13 @@ class HomePage extends ConsumerWidget {
                                   final response = await ref.read(memberRepositoryProvider).receiveUserService(serviceId: serviceIdInt);
                                   if (!context.mounted) return;
                                   if (response.code == 107 || response.message.contains('请登录')) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('请先登录')),
-                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请先登录')));
                                     GoRouter.of(context).push(RouteNames.login);
                                     return;
                                   }
                                   if (!response.success || response.data == null) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(response.message.isNotEmpty ? response.message : '领取失败，请稍后重试')),
-                                    );
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(content: Text(response.message.isNotEmpty ? response.message : '领取失败，请稍后重试')));
                                     return;
                                   }
 
@@ -248,23 +241,17 @@ class HomePage extends ConsumerWidget {
                                     // 1. 更新本地激活状态（当月已领取，所有卡片变去兑换/按钮状态刷新）
                                     ref.read(homeActiveUserServiceIdProvider.notifier).set(newUserServiceId);
 
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('领取成功')),
-                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('领取成功')));
 
                                     // 2. 紧接着跳转到确认订单页
                                     final confirmPath = '${RouteNames.confirmOrder.replaceFirst(':id', benefit.id)}?userServiceId=$newUserServiceId';
                                     GoRouter.of(context).push(confirmPath);
                                   } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(result.isDuplicate ? '该权益当月已领取' : '领取失败，未获取到有效权益')),
-                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result.isDuplicate ? '该权益当月已领取' : '领取失败，未获取到有效权益')));
                                   }
                                 } catch (e) {
                                   if (!context.mounted) return;
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('领取异常: $e')),
-                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('领取异常: $e')));
                                 } finally {
                                   claimingNotifier.remove(benefit.id);
                                 }
