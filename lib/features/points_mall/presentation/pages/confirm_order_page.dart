@@ -36,12 +36,18 @@ class ConfirmOrderPage extends ConsumerWidget {
           child: AppError(message: '预下单信息加载失败: $error', onRetry: () => ref.invalidate(pointsConfirmOrderProvider(arg))),
         ),
         data: (preInfo) {
-          final product = preInfo.product ?? ServiceProductDetail.mock;
+          final product = preInfo.product;
+          if (product == null) {
+            return const Center(child: AppError(message: '订单商品信息缺失，请返回重试'));
+          }
           return _buildContent(context, ref, product, arg, orderState, preInfo);
         },
       ),
       bottomNavigationBar: orderState.preOrderInfoAsync.when(
-        data: (preInfo) => _buildBottomBar(ref, arg, preInfo.product ?? ServiceProductDetail.mock),
+        data: (preInfo) {
+          final product = preInfo.product;
+          return product == null ? const SizedBox(height: 56) : _buildBottomBar(ref, arg, product);
+        },
         loading: () => const SizedBox(height: 56),
         error: (_, _) => const SizedBox(height: 56),
       ),

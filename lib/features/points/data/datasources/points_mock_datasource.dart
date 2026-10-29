@@ -288,21 +288,8 @@ class MockPointsDataSource implements PointsRepository {
   }
 
   @override
-  Future<ApiResponse<ServiceProductDetail>> getServiceProductDetail(String productId) async {
-    final client = apiClient;
-    if (client != null) {
-      try {
-        final response = await client.post<ServiceProductDetail>(
-          '/api/product/getproductinfo',
-          data: <String, dynamic>{'pid': int.tryParse(productId) ?? 0},
-          fromJson: (dynamic json) => ServiceProductDetail.fromJson(json as Map<String, dynamic>),
-        );
-        return response;
-      } catch (e) {
-        // 异常降级至 Mock 数据
-      }
-    }
-    return ApiResponse.success(ServiceProductDetail.mock);
+  Future<ApiResponse<ServiceProductDetail>> getServiceProductDetail(String productId) {
+    throw UnimplementedError('Service product details require the remote data source');
   }
 
   @override

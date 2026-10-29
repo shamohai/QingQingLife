@@ -13,23 +13,13 @@ abstract class ProductRepository {
   Future<ApiResponse<ProductDetail>> getProductDetail(String productId);
 
   /// 获取商品列表（分页）
-  Future<ApiResponse<ProductListResult>> getProductList({
-    required int page,
-    required int pageSize,
-    String? categoryId,
-    String? keyword,
-    String? sortBy,
-  });
+  Future<ApiResponse<ProductListResult>> getProductList({required int page, required int pageSize, String? categoryId, String? keyword, String? sortBy});
 
   /// 获取商品分类
   Future<ApiResponse<List<ProductCategory>>> getCategories();
 
   /// 搜索商品
-  Future<ApiResponse<ProductListResult>> searchProducts({
-    required String keyword,
-    required int page,
-    required int pageSize,
-  });
+  Future<ApiResponse<ProductListResult>> searchProducts({required String keyword, required int page, required int pageSize});
 }
 
 /// 首页商品聚合数据
@@ -73,12 +63,7 @@ class HomeKingKongItem {
   final String? actionUrl;
   final JumpType jumpType;
 
-  const HomeKingKongItem({
-    required this.iconUrl,
-    required this.label,
-    this.actionUrl,
-    this.jumpType = JumpType.none,
-  });
+  const HomeKingKongItem({required this.iconUrl, required this.label, this.actionUrl, this.jumpType = JumpType.none});
 }
 
 /// 首页新人礼
@@ -138,7 +123,6 @@ class HomeMonthlyBenefit {
   }
 }
 
-
 /// 活动模块块（左一右二非对称布局）
 class HomeActivityBlock {
   final String id;
@@ -147,13 +131,7 @@ class HomeActivityBlock {
   final String title;
   final String? actionUrl;
 
-  const HomeActivityBlock({
-    required this.id,
-    this.imageUrl,
-    this.imageUrls,
-    required this.title,
-    this.actionUrl,
-  });
+  const HomeActivityBlock({required this.id, this.imageUrl, this.imageUrls, required this.title, this.actionUrl});
 }
 
 /// 商品专题活动块（含商品卡片）
@@ -164,13 +142,7 @@ class HomeTopicActivityBlock {
   final String? actionUrl;
   final ProductCard? product;
 
-  const HomeTopicActivityBlock({
-    required this.id,
-    this.imageUrl,
-    required this.title,
-    this.actionUrl,
-    this.product,
-  });
+  const HomeTopicActivityBlock({required this.id, this.imageUrl, required this.title, this.actionUrl, this.product});
 }
 
 /// 商品卡片（列表展示用）

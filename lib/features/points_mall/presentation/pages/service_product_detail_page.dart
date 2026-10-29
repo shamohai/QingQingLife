@@ -31,7 +31,7 @@ class ServiceProductDetailPage extends ConsumerWidget {
           productAsync.when(
             loading: () => const Center(child: AppLoading()),
             error: (error, stack) => Center(
-              child: AppError(message: '加载失败: ', onRetry: () => ref.invalidate(serviceProductDetailProvider(productId))),
+              child: AppError(message: '加载失败: $error', onRetry: () => ref.invalidate(serviceProductDetailProvider(productId))),
             ),
             data: (product) => _buildContent(context, ref, product),
           ),
@@ -70,7 +70,12 @@ class ServiceProductDetailPage extends ConsumerWidget {
           left: 0,
           right: 0,
           bottom: 0,
-          child: SafeArea(top: false, left: false, right: false, child: BottomActionBar(product: product, productId: productId)),
+          child: SafeArea(
+            top: false,
+            left: false,
+            right: false,
+            child: BottomActionBar(product: product, productId: productId),
+          ),
         ),
       ],
     );

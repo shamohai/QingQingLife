@@ -319,7 +319,7 @@ class ServiceProductDetail {
     final serviceCoupon = serviceCouponMap != null ? ServiceCouponInfo.fromJson(serviceCouponMap) : null;
 
     return ServiceProductDetail(
-      id: json['pid'] != null && json['pid'].toString().isNotEmpty ? json['pid'].toString() : 'service_001',
+      id: json['pid']?.toString() ?? '',
       heroImageUrl: heroImage.isEmpty ? null : heroImage,
       title: json['name'] as String? ?? '',
       tags: const [],
@@ -386,35 +386,4 @@ class ServiceProductDetail {
 
   /// 格式化市场价显示
   String get marketPriceDisplay => marketPrice > Decimal.zero ? '市场价:¥${marketPrice.toStringAsFixed(2)}' : '';
-
-  /// Mock 数据（开发/测试环境降级使用）
-  static final ServiceProductDetail mock = ServiceProductDetail(
-    id: 'service_001',
-    heroImageUrl: null,
-    title: '天佑德电商专供青海环线三日游旅游券（青海三日游）',
-    tags: ['旅游券', '三日游'],
-    points: 1000,
-    remainingStock: 100,
-    salesCount: 90000,
-    marketPrice: Decimal.parse('760.00'),
-    mainImageUrl: 'assets/images/service/service_product_main.png',
-    carouselImages: [
-      'assets/images/service/service_product_hero_bg.png',
-      'assets/images/service/service_product_hero_bg2.png',
-      'assets/images/service/service_product_hero_bg3.png',
-    ],
-    description: '持本旅游券即可兑换青海环线 3 天 2 晚跟团之旅，打卡青海经典核心美景，远离城市喧嚣，沉浸式感受青藏高原辽阔风光。行程轻松不赶路，适合朋友结伴、家庭出游，随团省心出行，不用费心规划路线。',
-    productId: 1,
-    priceCents: 76000,
-    shipFee: Decimal.zero,
-    productType: CreditProductType.serviceCouponIntegral,
-    isCredit: true,
-    productState: 0,
-    auth: true,
-    specs: [
-      CommonPara(id: 1, name: '行程天数', value: '3天2晚'),
-      CommonPara(id: 2, name: '出发地', value: '西宁'),
-      CommonPara(id: 3, name: '住宿标准', value: '四星酒店'),
-    ],
-  );
 }
