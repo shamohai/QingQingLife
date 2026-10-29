@@ -149,7 +149,7 @@ class PointsMixedDataSource implements PointsRepository {
   @override
   Future<ApiResponse<PointsProductDetail>> getProductDetail(String productId) => mock.getProductDetail(productId);
   @override
-  Future<ApiResponse<ServiceProductDetail>> getServiceProductDetail(String productId) => mock.getServiceProductDetail(productId);
+  Future<ApiResponse<ServiceProductDetail>> getServiceProductDetail(String productId) => remote.getServiceProductDetail(productId);
   @override
   Future<ApiResponse<PointsExchangeResult>> exchangePointsProduct({
     required String productId,

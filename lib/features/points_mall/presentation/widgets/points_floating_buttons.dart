@@ -1,11 +1,13 @@
+import 'package:fluwx/fluwx.dart' as fluwx;
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
-import '../../../../app/router/route_names.dart';
 
 /// 积分商城及首页右下角浮动操作按钮组（使用蓝湖切图）
 class PointsFloatingButtons extends StatelessWidget {
+  static const _miniProgramUsername = 'gh_c55d2ab30511';
+  static const _miniProgramPath = 'pages/group/join?from=app';
+
   final VoidCallback? onCartTap;
   final VoidCallback? onServiceTap;
 
@@ -19,18 +21,44 @@ class PointsFloatingButtons extends StatelessWidget {
         // _FloatingButton(
         //   asset: 'assets/images/points/icon-cart.png',
         //   label: '购物车',
-        //   iconSize: 32, // 购物车图本身比较小，稍微放大一点
+        //   iconSize: 32,
         //   onTap: onCartTap ?? () => context.push(RouteNames.cart),
         // ),
         const SizedBox(height: 12),
         _FloatingButton(
           asset: 'assets/images/points/icon-service.png',
           label: '管家服务',
-          iconSize: 20, // 管家服务图填充较大，稍小一点保持视觉平衡
-          onTap: onServiceTap ?? () => context.push(RouteNames.customerService),
+          iconSize: 20,
+          onTap: onServiceTap ?? () => _openButlerMiniProgram(context),
         ),
       ],
     );
+  }
+
+  Future<void> _openButlerMiniProgram(BuildContext context) async {
+    try {
+      final weChat = fluwx.Fluwx();
+      final isInstalled = await weChat.isWeChatInstalled;
+      if (!context.mounted) return;
+
+      if (!isInstalled) {
+        _showMessage(context, '请先安装微信后再使用管家服务');
+        return;
+      }
+
+      await weChat.open(
+        target: fluwx.MiniProgram(username: _miniProgramUsername, path: _miniProgramPath),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      _showMessage(context, '打开管家服务失败，请稍后重试');
+    }
+  }
+
+  void _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message), behavior: SnackBarBehavior.floating));
   }
 }
 
@@ -52,19 +80,14 @@ class _FloatingButton extends StatelessWidget {
         height: 56,
         decoration: BoxDecoration(
           color: AppColors.primary,
-          borderRadius: BorderRadius.circular(28), // 56/2 = 28，完美圆形
-          border: Border.all(
-            color: Colors.white,
-            width: 1, // 稍微加粗一点，白边更清晰
-          ),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: Colors.white, width: 1),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 图标
             asset != null ? Image.asset(asset!, width: iconSize, height: iconSize, color: Colors.white) : Icon(icon, color: Colors.white, size: iconSize),
             const SizedBox(height: 2),
-            // 文字
             Text(
               label,
               style: const TextStyle(fontSize: 9, color: Colors.white, height: 1.0, fontWeight: FontWeight.w500),

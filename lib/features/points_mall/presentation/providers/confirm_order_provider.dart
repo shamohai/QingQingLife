@@ -34,6 +34,8 @@ class PointsConfirmOrderState {
   final String note;
   final String redeemerPhone;
   final bool isSubmitting;
+  final bool isPreOrderValidating;
+  final String? quantityValidationError;
 
   const PointsConfirmOrderState({
     required this.productId,
@@ -45,6 +47,8 @@ class PointsConfirmOrderState {
     this.note = '',
     this.redeemerPhone = '',
     this.isSubmitting = false,
+    this.isPreOrderValidating = false,
+    this.quantityValidationError,
   });
 
   PointsConfirmOrderState copyWith({
@@ -57,6 +61,9 @@ class PointsConfirmOrderState {
     String? note,
     String? redeemerPhone,
     bool? isSubmitting,
+    bool? isPreOrderValidating,
+    String? quantityValidationError,
+    bool clearQuantityValidationError = false,
   }) {
     return PointsConfirmOrderState(
       productId: productId ?? this.productId,
@@ -68,6 +75,8 @@ class PointsConfirmOrderState {
       note: note ?? this.note,
       redeemerPhone: redeemerPhone ?? this.redeemerPhone,
       isSubmitting: isSubmitting ?? this.isSubmitting,
+      isPreOrderValidating: isPreOrderValidating ?? this.isPreOrderValidating,
+      quantityValidationError: clearQuantityValidationError ? null : quantityValidationError ?? this.quantityValidationError,
     );
   }
 }
@@ -80,7 +89,7 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
   @override
   PointsConfirmOrderState build() {
     final isEditable = arg.userServiceId <= 0;
-    Future.microtask(() => _fetchPreOrderInfo());
+    Future.microtask(() => _fetchPreOrderInfo(quantity: 1, initial: true));
     return PointsConfirmOrderState(
       productId: arg.productId,
       userServiceId: arg.userServiceId,
@@ -91,29 +100,51 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
     );
   }
 
-  Future<void> _fetchPreOrderInfo() async {
+  int _preOrderRequestId = 0;
+
+  Future<void> _fetchPreOrderInfo({required int quantity, bool initial = false}) async {
     if (!ref.mounted) return;
-    state = state.copyWith(preOrderInfoAsync: const AsyncValue.loading());
+    final requestId = ++_preOrderRequestId;
+    final hasCurrentPreOrder = state.preOrderInfoAsync.hasValue;
+    state = state.copyWith(
+      preOrderInfoAsync: initial && !hasCurrentPreOrder ? const AsyncValue.loading() : state.preOrderInfoAsync,
+      isPreOrderValidating: true,
+      clearQuantityValidationError: true,
+    );
 
-    final repository = ref.read(pointsRepositoryProvider);
-    final response = await repository.getPreCreditOrderInfo(userServiceId: state.userServiceId, productId: state.productId, quantity: state.quantity);
+    try {
+      final repository = ref.read(pointsRepositoryProvider);
+      final response = await repository.getPreCreditOrderInfo(userServiceId: state.userServiceId, productId: state.productId, quantity: quantity);
+      if (!ref.mounted || requestId != _preOrderRequestId) return;
 
-    if (!ref.mounted) return;
-
-    if (response.success && response.data != null) {
-      final preInfo = response.data!;
-      final maxQuantity = preInfo.redeemableQuantity;
-      final nextQuantity = maxQuantity > 0 ? state.quantity.clamp(1, maxQuantity) : state.quantity;
-      state = state.copyWith(quantity: nextQuantity, preOrderInfoAsync: AsyncValue.data(preInfo));
-
-      if (preInfo.recvrType == RecvrType.shipAddress) {
-        await refreshAddress();
+      if (response.success && response.data != null) {
+        final preInfo = response.data!;
+        if (preInfo.recvrType == RecvrType.shipAddress && (initial || state.addressAsync.value == null)) {
+          await refreshAddress();
+          if (!ref.mounted || requestId != _preOrderRequestId) return;
+        }
+        state = state.copyWith(
+          quantity: quantity,
+          preOrderInfoAsync: AsyncValue.data(preInfo),
+          isPreOrderValidating: false,
+          clearQuantityValidationError: true,
+          addressAsync: preInfo.recvrType == RecvrType.shipAddress ? state.addressAsync : const AsyncValue.data(null),
+        );
       } else {
-        state = state.copyWith(addressAsync: const AsyncValue.data(null));
+        _handlePreOrderFailure(requestId, response.message.isNotEmpty ? response.message : '获取订单预处理信息失败', initial: initial);
       }
-    } else {
-      state = state.copyWith(preOrderInfoAsync: AsyncValue.error(response.message.isNotEmpty ? response.message : '获取订单预处理信息失败', StackTrace.current));
+    } catch (error) {
+      _handlePreOrderFailure(requestId, '预处理订单失败：$error', initial: initial);
     }
+  }
+
+  void _handlePreOrderFailure(int requestId, String message, {required bool initial}) {
+    if (!ref.mounted || requestId != _preOrderRequestId) return;
+    state = state.copyWith(
+      preOrderInfoAsync: initial && !state.preOrderInfoAsync.hasValue ? AsyncValue.error(message, StackTrace.current) : state.preOrderInfoAsync,
+      isPreOrderValidating: false,
+      quantityValidationError: message,
+    );
   }
 
   Future<void> refreshAddress() async {
@@ -136,47 +167,30 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
   }
 
   void increment() {
-    final maxQuantity = state.preOrderInfoAsync.value?.redeemableQuantity ?? 0;
+    if (!state.isQuantityEditable || state.isPreOrderValidating) return;
+    final nextQuantity = state.quantity + 1;
     AppLogger.info(
-      '积分确认页点击增加数量',
+      '积分确认页校验增加数量',
       module: 'points_confirm_order',
       event: 'quantity_increment',
       data: <String, dynamic>{
         'productId': state.productId,
         'userServiceId': state.userServiceId,
-        'isQuantityEditable': state.isQuantityEditable,
         'quantityBefore': state.quantity,
-        'maxQuantity': maxQuantity,
+        'quantityCandidate': nextQuantity,
       },
     );
-
-    if (!state.isQuantityEditable) {
-      AppLogger.warning('增加数量被拦截：当前订单数量不可编辑', module: 'points_confirm_order');
-      return;
-    }
-    if (maxQuantity > 0 && state.quantity >= maxQuantity) {
-      AppLogger.warning('增加数量被拦截：已达到可兑换上限', module: 'points_confirm_order');
-      return;
-    }
-
-    final nextQuantity = state.quantity + 1;
-    state = state.copyWith(quantity: nextQuantity);
-    AppLogger.info('积分确认页数量已更新', module: 'points_confirm_order', event: 'quantity_changed', data: <String, dynamic>{'quantityAfter': nextQuantity});
-    _fetchPreOrderInfo();
+    _fetchPreOrderInfo(quantity: nextQuantity);
   }
 
   void decrement() {
-    if (!state.isQuantityEditable || state.quantity <= 1) return;
-    state = state.copyWith(quantity: state.quantity - 1);
-    _fetchPreOrderInfo();
+    if (!state.isQuantityEditable || state.isPreOrderValidating || state.quantity <= 1) return;
+    _fetchPreOrderInfo(quantity: state.quantity - 1);
   }
 
   void setQuantity(int quantity) {
-    if (!state.isQuantityEditable || quantity < 1) return;
-    final maxQuantity = state.preOrderInfoAsync.value?.redeemableQuantity ?? 0;
-    final nextQuantity = maxQuantity > 0 ? quantity.clamp(1, maxQuantity) : quantity;
-    state = state.copyWith(quantity: nextQuantity);
-    _fetchPreOrderInfo();
+    if (!state.isQuantityEditable || state.isPreOrderValidating || quantity < 1 || quantity == state.quantity) return;
+    _fetchPreOrderInfo(quantity: quantity);
   }
 
   void setNote(String note) => state = state.copyWith(note: note);
@@ -186,6 +200,9 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
   Future<ApiResponse<PointsOrderSubmitResult>> submitOrder() async {
     if (state.isSubmitting) {
       return ApiResponse.error('订单正在提交中，请勿重复操作');
+    }
+    if (state.isPreOrderValidating) {
+      return ApiResponse.error('订单信息校验中，请稍后再提交');
     }
 
     final preInfo = state.preOrderInfoAsync.value;

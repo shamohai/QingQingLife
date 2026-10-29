@@ -111,10 +111,14 @@ class PointsRemoteDataSource implements PointsRepository {
 
   @override
   Future<ApiResponse<ServiceProductDetail>> getServiceProductDetail(String productId) async {
+    final productIdValue = int.tryParse(productId);
+    if (productIdValue == null || productIdValue <= 0) {
+      return ApiResponse.error('无效的积分商品 ID');
+    }
     return _apiClient.post<ServiceProductDetail>(
       '/api/product/getproductinfo',
-      data: <String, dynamic>{'pid': int.tryParse(productId) ?? 0},
-      fromJson: (dynamic json) => ServiceProductDetail.fromJson(json as Map<String, dynamic>),
+      data: <String, dynamic>{'pid': productIdValue},
+      fromJson: (dynamic json) => ServiceProductDetail.fromJson(Map<String, dynamic>.from(json as Map), fallbackProductId: productIdValue),
     );
   }
 

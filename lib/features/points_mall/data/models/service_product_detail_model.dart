@@ -7,6 +7,18 @@ import 'package:decimal/decimal.dart';
 
 import 'get_recommend_product_list_model.dart';
 
+int _jsonInt(dynamic value) => value is num ? value.toInt() : int.tryParse(value?.toString() ?? '') ?? 0;
+
+double _jsonDouble(dynamic value) => _jsonDoubleOrNull(value) ?? 0.0;
+
+double? _jsonDoubleOrNull(dynamic value) {
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
+}
+
+bool _jsonBool(dynamic value) => value == true || value == 1 || value == '1' || value == 'true';
+
 // ── BaiLiHui 产品类型枚举 ────────────────────────────────────────────────────
 
 enum BaiLiHuiProductType {
@@ -19,8 +31,8 @@ enum BaiLiHuiProductType {
   final int value;
 
   factory BaiLiHuiProductType.fromJson(dynamic json) {
-    final int? v = json is int ? json : (json as int?)?.toInt();
-    return _byValue[v] ?? BaiLiHuiProductType.selfOperatedPhysical;
+    final value = _jsonInt(json);
+    return _byValue[value] ?? BaiLiHuiProductType.selfOperatedPhysical;
   }
 
   static final Map<int, BaiLiHuiProductType> _byValue = {for (final e in BaiLiHuiProductType.values) e.value: e};
@@ -55,14 +67,14 @@ class PromotionInfo {
   factory PromotionInfo.fromJson(Map<String, dynamic> json) {
     final giftpJson = json['giftpids'] as List<dynamic>? ?? [];
     return PromotionInfo(
-      promotionId: (json['promotionid'] as int?)?.toInt() ?? 0,
+      promotionId: _jsonInt(json['promotionid']),
       promotionTitle: json['promotiontitle'] as String? ?? '',
-      activityType: (json['activitytype'] as int?)?.toInt() ?? 0,
-      promotionType: (json['promotiontype'] as int?)?.toInt() ?? 0,
+      activityType: _jsonInt(json['activitytype']),
+      promotionType: _jsonInt(json['promotiontype']),
       descr: json['descr'] as String?,
-      discountValue: (json['discountvalue'] as double?)?.toDouble(),
-      discount: (json['discount'] as double?)?.toDouble(),
-      disAmount: (json['disamount'] as double?)?.toDouble(),
+      discountValue: _jsonDoubleOrNull(json['discountvalue']),
+      discount: _jsonDoubleOrNull(json['discount']),
+      disAmount: _jsonDoubleOrNull(json['disamount']),
       giftpIds: giftpJson.map((e) => PromotionGiftProduct.fromJson(e as Map<String, dynamic>)).toList(),
     );
   }
@@ -77,7 +89,7 @@ class PromotionGiftProduct {
   const PromotionGiftProduct({required this.pid, required this.pname, required this.num});
 
   factory PromotionGiftProduct.fromJson(Map<String, dynamic> json) {
-    return PromotionGiftProduct(pid: (json['pid'] as int?)?.toInt() ?? 0, pname: json['pname'] as String? ?? '', num: (json['num'] as int?)?.toInt() ?? 0);
+    return PromotionGiftProduct(pid: _jsonInt(json['pid']), pname: json['pname'] as String? ?? '', num: _jsonInt(json['num']));
   }
 }
 
@@ -109,14 +121,14 @@ class CouponItem {
 
   factory CouponItem.fromJson(Map<String, dynamic> json) {
     return CouponItem(
-      storeId: (json['storeid'] as int?)?.toInt() ?? 0,
-      couponTypeId: (json['coupontypeid'] as int?)?.toInt() ?? 0,
-      money: (json['money'] as double?)?.toDouble() ?? 0.0,
-      limitLowAmount: (json['limitlowamount'] as double?)?.toDouble() ?? 0.0,
+      storeId: _jsonInt(json['storeid']),
+      couponTypeId: _jsonInt(json['coupontypeid']),
+      money: _jsonDouble(json['money']),
+      limitLowAmount: _jsonDouble(json['limitlowamount']),
       startTime: _parseDateTime(json['starttime']),
       endTime: _parseDateTime(json['endtime']),
-      isReceive: json['isreceive'] == true || json['isreceive'] == 1,
-      allowMultTimes: json['allowmulttimes'] == true || json['allowmulttimes'] == 1,
+      isReceive: _jsonBool(json['isreceive']),
+      allowMultTimes: _jsonBool(json['allowmulttimes']),
       desc: json['desc'] as String?,
     );
   }
@@ -146,7 +158,7 @@ class CommonPara {
   const CommonPara({required this.id, required this.name, required this.value});
 
   factory CommonPara.fromJson(Map<String, dynamic> json) {
-    return CommonPara(id: (json['id'] as int?)?.toInt() ?? 0, name: json['name'] as String? ?? '', value: json['value'] as String? ?? '');
+    return CommonPara(id: _jsonInt(json['id']), name: json['name'] as String? ?? '', value: json['value']?.toString() ?? '');
   }
 }
 
@@ -163,10 +175,10 @@ class ServiceCouponInfo {
 
   factory ServiceCouponInfo.fromJson(Map<String, dynamic> json) {
     return ServiceCouponInfo(
-      couponConfigId: (json['couponconfigid'] as int?)?.toInt() ?? 0,
+      couponConfigId: _jsonInt(json['couponconfigid']),
       couponName: json['couponname'] as String?,
       descriptionHtml: json['descriptionhtml'] as String?,
-      surplusCount: (json['surpluscount'] as int?)?.toInt() ?? 0,
+      surplusCount: _jsonInt(json['surpluscount']),
     );
   }
 }
@@ -308,7 +320,7 @@ class ServiceProductDetail {
     this.serviceCoupon,
   });
 
-  factory ServiceProductDetail.fromJson(Map<String, dynamic> json) {
+  factory ServiceProductDetail.fromJson(Map<String, dynamic> json, {int? fallbackProductId}) {
     final carouselRaw = json['carouselimg'];
     final carouselimgs = carouselRaw is List ? carouselRaw : const <dynamic>[];
     final carouselImages = carouselimgs.map((e) => e.toString()).where((u) => u.isNotEmpty).toList();
@@ -317,35 +329,36 @@ class ServiceProductDetail {
 
     final serviceCouponMap = json['servicecoupon'] is Map ? Map<String, dynamic>.from(json['servicecoupon'] as Map) : null;
     final serviceCoupon = serviceCouponMap != null ? ServiceCouponInfo.fromJson(serviceCouponMap) : null;
+    final productId = json['pid'] == null ? (fallbackProductId ?? 0) : _jsonInt(json['pid']);
 
     return ServiceProductDetail(
-      id: json['pid'] != null && json['pid'].toString().isNotEmpty ? json['pid'].toString() : 'service_001',
+      id: productId == 0 ? '' : productId.toString(),
       heroImageUrl: heroImage.isEmpty ? null : heroImage,
       title: json['name'] as String? ?? '',
       tags: const [],
       //tags: _parseList(json['parameter'], CommonPara.fromJson).map((parameter) => parameter.value).where((value) => value.trim().isNotEmpty).toList(),
-      points: (json['price'] as int?)?.toInt() ?? 0, // 积分
-      remainingStock: serviceCoupon?.surplusCount ?? (json['stocknum'] as int?)?.toInt() ?? 0,
-      salesCount: (json['monthsale'] as int?)?.toInt() ?? 0,
+      points: _jsonInt(json['price']), // 积分
+      remainingStock: serviceCoupon?.surplusCount ?? _jsonInt(json['stocknum']),
+      salesCount: _jsonInt(json['monthsale']),
       marketPrice: _parseDecimal(json['marketprice']),
       mainImageUrl: mainImage,
       description: serviceCoupon?.descriptionHtml ?? '',
       carouselImages: carouselImages,
       // API 原始字段
-      productId: _toInt(json['pid']),
-      priceCents: _toInt(json['price']), // 积分
+      productId: productId,
+      priceCents: _jsonInt(json['price']), // 积分
       priceDesc: json['pricedesc']?.toString(),
-      isTemplate: json['istemplate'] == true || json['istemplate'] == 1,
-      isCredit: json['iscredit'] == true || json['iscredit'] == 1,
-      productState: _toInt(json['productstate']),
+      isTemplate: _jsonBool(json['istemplate']),
+      isCredit: _jsonBool(json['iscredit']),
+      productState: _jsonInt(json['productstate']),
       shipFee: _parseDecimal(json['shipfee']),
       saleUnit: json['saleunit']?.toString(),
-      creditCount: _toInt(json['creditcount']),
+      creditCount: _jsonInt(json['creditcount']),
       productType: CreditProductType.fromJson(json['producttype']),
       baiLiHuiType: json['baiLiHuiType'] != null ? BaiLiHuiProductType.fromJson(json['baiLiHuiType']) : null,
       fuluType: _nullableInt(json['fulutype']),
       templateType: _nullableInt(json['templatetype']),
-      auth: json['auth'] == true || json['auth'] == 1,
+      auth: _jsonBool(json['auth']),
       authTips: json['authtips']?.toString(),
       datatag: json['datatag']?.toString(),
       specs: _parseList(json['parameter'], CommonPara.fromJson),
@@ -358,9 +371,7 @@ class ServiceProductDetail {
     );
   }
 
-  static int _toInt(dynamic value) => value is num ? value.toInt() : int.tryParse(value?.toString() ?? '') ?? 0;
-
-  static int? _nullableInt(dynamic value) => value == null ? null : _toInt(value);
+  static int? _nullableInt(dynamic value) => value == null ? null : _jsonInt(value);
 
   /// 通用 Decimal 解析辅助
   static Decimal _parseDecimal(dynamic v) {
@@ -386,35 +397,4 @@ class ServiceProductDetail {
 
   /// 格式化市场价显示
   String get marketPriceDisplay => marketPrice > Decimal.zero ? '市场价:¥${marketPrice.toStringAsFixed(2)}' : '';
-
-  /// Mock 数据（开发/测试环境降级使用）
-  static final ServiceProductDetail mock = ServiceProductDetail(
-    id: 'service_001',
-    heroImageUrl: null,
-    title: '天佑德电商专供青海环线三日游旅游券（青海三日游）',
-    tags: ['旅游券', '三日游'],
-    points: 1000,
-    remainingStock: 100,
-    salesCount: 90000,
-    marketPrice: Decimal.parse('760.00'),
-    mainImageUrl: 'assets/images/service/service_product_main.png',
-    carouselImages: [
-      'assets/images/service/service_product_hero_bg.png',
-      'assets/images/service/service_product_hero_bg2.png',
-      'assets/images/service/service_product_hero_bg3.png',
-    ],
-    description: '持本旅游券即可兑换青海环线 3 天 2 晚跟团之旅，打卡青海经典核心美景，远离城市喧嚣，沉浸式感受青藏高原辽阔风光。行程轻松不赶路，适合朋友结伴、家庭出游，随团省心出行，不用费心规划路线。',
-    productId: 1,
-    priceCents: 76000,
-    shipFee: Decimal.zero,
-    productType: CreditProductType.serviceCouponIntegral,
-    isCredit: true,
-    productState: 0,
-    auth: true,
-    specs: [
-      CommonPara(id: 1, name: '行程天数', value: '3天2晚'),
-      CommonPara(id: 2, name: '出发地', value: '西宁'),
-      CommonPara(id: 3, name: '住宿标准', value: '四星酒店'),
-    ],
-  );
 }

@@ -75,7 +75,7 @@ class HomeMonthlyBenefits extends StatelessWidget {
             const Text('暂无权益', style: AppTextStyles.bodySmall)
           else
             SizedBox(
-              height: 80,
+              height: 100,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
@@ -129,10 +129,16 @@ class _BenefitSlot extends StatelessWidget {
     this.onClaimTap,
   });
 
+  Widget _buildPlaceholder() {
+    return Container(
+      color: const Color(0xFFFFF0ED),
+      child: const Center(child: Icon(Icons.stars, size: 24, color: Color(0xFFFB9126))),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final assetPath = 'assets/images/home/quanyi_${index % 6}.png';
-    final imageUrl = (benefit.imageUrl != null && benefit.imageUrl!.isNotEmpty) ? benefit.imageUrl! : assetPath;
+    final imageUrl = benefit.imageUrl;
 
     // 状态 1: !isClaimed (当月未领取) -> 按钮"领取"
     // 状态 2: isClaimed 且 !isSettlemented (当月已领取未兑换/未核销) -> 按钮"去兑换"
@@ -160,7 +166,7 @@ class _BenefitSlot extends StatelessWidget {
     }
 
     return SizedBox(
-      width: 52,
+      width: 70,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -170,26 +176,13 @@ class _BenefitSlot extends StatelessWidget {
             onTap: () => onImageTap?.call(benefit),
             behavior: HitTestBehavior.opaque,
             child: SizedBox(
-              width: 52,
-              height: 52,
+              width: 70,
+              height: 70,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: AppNetworkImage(
-                  url: imageUrl,
-                  width: 52,
-                  height: 52,
-                  fit: BoxFit.cover,
-                  errorWidget: Image.asset(
-                    assetPath,
-                    width: 52,
-                    height: 52,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: const Color(0xFFFFF0ED),
-                      child: const Center(child: Icon(Icons.stars, size: 24, color: Color(0xFFFB9126))),
-                    ),
-                  ),
-                ),
+                child: (imageUrl == null || imageUrl.isEmpty)
+                    ? _buildPlaceholder()
+                    : AppNetworkImage(url: imageUrl, width: 70, height: 70, fit: BoxFit.cover, errorWidget: _buildPlaceholder()),
               ),
             ),
           ),
@@ -199,13 +192,13 @@ class _BenefitSlot extends StatelessWidget {
             onTap: buttonDisabled ? null : () => onClaimTap?.call(benefit),
             behavior: HitTestBehavior.opaque,
             child: Container(
-              width: 50,
-              height: 20,
-              decoration: BoxDecoration(color: buttonBgColor, borderRadius: BorderRadius.circular(10)),
+              width: 68,
+              height: 24,
+              decoration: BoxDecoration(color: buttonBgColor, borderRadius: BorderRadius.circular(12)),
               child: Center(
                 child: Text(
                   buttonText,
-                  style: const TextStyle(fontSize: 9, color: Colors.white, fontWeight: FontWeight.w500),
+                  style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.w500),
                 ),
               ),
             ),
