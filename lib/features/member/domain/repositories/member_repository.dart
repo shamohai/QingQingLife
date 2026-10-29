@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../data/models/member_authority_model.dart';
 import '../../data/models/available_welfare_model.dart';
 import '../../data/models/cash_coupon_model.dart';
@@ -30,6 +32,9 @@ abstract class MemberRepository {
 
   /// 补充/修改用户个人资料。
   Future<ApiResponse<CompleteUserInfoResult>> completeUserInfo({required String username, required int gender, required DateTime birthday});
+
+  /// 更换当前用户头像（真实接口：POST /api/sys/changeuseravatar）。
+  Future<ApiResponse<void>> changeUserAvatar({required Uint8List buffer, required String ext});
 
   /// 获取会员权益权限（真实接口：POST /api/sys/v2/getmemberauthority）
   Future<ApiResponse<MemberAuthorityModel>> getMemberAuthority({required int level});

@@ -5,9 +5,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
-import '../../../../core/widgets/app_image.dart';
 import '../providers/user_profile_provider.dart';
 import '../widgets/account_security_card.dart';
+import '../widgets/user_avatar_image.dart';
 
 /// 账号安全页（/member/personal-info）
 ///
@@ -143,16 +143,12 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
 
   /// 大头像（设计稿无描边/徽章，直径 57px ≈ 80.7；无头像地址时展示占位人形图标）
   Widget _buildAvatar(UserProfileState state) {
-    final hasAvatar = state.avatarUrl != null && state.avatarUrl!.isNotEmpty;
-
     return CircleAvatar(
       radius: 40.35,
       backgroundColor: const Color(0xFFDDEAF6),
-      child: hasAvatar
-          ? ClipOval(
-              child: AppNetworkImage(url: state.avatarUrl!, width: 80.7, height: 80.7, fit: BoxFit.cover),
-            )
-          : const Icon(Icons.person_outline, size: 38, color: Color(0xFF8FA8BF)),
+      child: ClipOval(
+        child: UserAvatarImage(avatarUrl: state.avatarUrl, previewBytes: state.avatarPreviewBytes, size: 80.7, iconSize: 38),
+      ),
     );
   }
 

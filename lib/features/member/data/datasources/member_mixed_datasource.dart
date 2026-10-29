@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../../../core/network/api_response.dart';
 import '../../domain/repositories/member_repository.dart';
 import '../models/member_authority_model.dart';
@@ -44,6 +46,9 @@ class MemberMixedDataSource implements MemberRepository {
   @override
   Future<ApiResponse<CompleteUserInfoResult>> completeUserInfo({required String username, required int gender, required DateTime birthday}) =>
       remote.completeUserInfo(username: username, gender: gender, birthday: birthday);
+
+  @override
+  Future<ApiResponse<void>> changeUserAvatar({required Uint8List buffer, required String ext}) => remote.changeUserAvatar(buffer: buffer, ext: ext);
 
   // ── 已对接真实接口：用户收货地址 ───────────────────────────
   @override

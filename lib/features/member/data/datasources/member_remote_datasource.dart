@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/api_client.dart';
@@ -123,6 +126,15 @@ class MemberRemoteDataSource {
       },
       fromJson: (dynamic json) => CompleteUserInfoResult.fromJson(json as Map<String, dynamic>),
     );
+  }
+
+  /// 更换当前用户头像。
+  ///
+  /// 接口：POST /api/sys/changeuseravatar
+  /// 请求体：{"buffer": "<图片字节 base64>", "ext": "jpg"}
+  /// 响应：{"result": 0, "descr": "", "datatag": "..."}
+  Future<ApiResponse<void>> changeUserAvatar({required Uint8List buffer, required String ext}) async {
+    return _apiClient.post<void>('/api/sys/changeuseravatar', data: <String, dynamic>{'buffer': base64Encode(buffer), 'ext': ext});
   }
 
   /// 获取当前用户的收货地址列表。

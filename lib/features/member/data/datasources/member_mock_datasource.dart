@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -113,6 +115,11 @@ class MockMemberDataSource implements MemberRepository {
   @override
   Future<ApiResponse<CompleteUserInfoResult>> completeUserInfo({required String username, required int gender, required DateTime birthday}) async {
     return ApiResponse.error('用户资料接口未配置');
+  }
+
+  @override
+  Future<ApiResponse<void>> changeUserAvatar({required Uint8List buffer, required String ext}) async {
+    return const ApiResponse<void>(code: 0, message: 'success', data: null, success: true);
   }
 
   /// Mock 月度权益产品（对齐设计稿：399元券/大额神券/天佑德/视频会员等）

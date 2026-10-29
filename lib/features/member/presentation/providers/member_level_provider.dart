@@ -55,6 +55,9 @@ class MemberMonthlyCoupon {
   final String productName;
   final String serviceDescr;
   final bool isReceived;
+  final bool hasOwned;
+  final bool hasReceived;
+  final String instanceType;
   final String? receivedDate;
   final int productType;
   final int userServiceId;
@@ -68,6 +71,9 @@ class MemberMonthlyCoupon {
     this.productName = '',
     this.serviceDescr = '',
     this.isReceived = false,
+    this.hasOwned = false,
+    this.hasReceived = false,
+    this.instanceType = '',
     this.receivedDate,
     this.productType = 0,
     this.userServiceId = 0,
@@ -76,13 +82,16 @@ class MemberMonthlyCoupon {
     this.productImg,
   });
 
-  MemberMonthlyCoupon copyWith({bool? isReceived, int? userServiceId}) {
+  MemberMonthlyCoupon copyWith({bool? isReceived, bool? hasReceived, int? userServiceId}) {
     return MemberMonthlyCoupon(
       serviceId: serviceId,
       serviceCode: serviceCode,
       productName: productName,
       serviceDescr: serviceDescr,
       isReceived: isReceived ?? this.isReceived,
+      hasOwned: hasOwned,
+      hasReceived: hasReceived ?? this.hasReceived,
+      instanceType: instanceType,
       receivedDate: receivedDate,
       productType: productType,
       userServiceId: userServiceId ?? this.userServiceId,
@@ -106,25 +115,29 @@ class MemberBenefitAccess {
   final String instanceType;
   final int serviceId;
   final int userServiceId;
+  final int productId;
   final ServiceBindInfo? bindInfo;
 
-  const MemberBenefitAccess({required this.instanceType, required this.serviceId, required this.userServiceId, this.bindInfo});
+  const MemberBenefitAccess({required this.instanceType, required this.serviceId, required this.userServiceId, this.productId = 0, this.bindInfo});
 }
 
 /// 点击权益后的处理结果。
 class MemberBenefitUseResult {
   final bool success;
   final bool busy;
+  final bool ignored;
   final String? message;
   final MemberBenefitAccess? access;
 
-  const MemberBenefitUseResult._({required this.success, this.busy = false, this.message, this.access});
+  const MemberBenefitUseResult._({required this.success, this.busy = false, this.ignored = false, this.message, this.access});
 
   const MemberBenefitUseResult.success(MemberBenefitAccess access, {String? message}) : this._(success: true, message: message, access: access);
 
   const MemberBenefitUseResult.failure(String message) : this._(success: false, message: message);
 
   const MemberBenefitUseResult.busy() : this._(success: false, busy: true);
+
+  const MemberBenefitUseResult.ignored() : this._(success: true, ignored: true);
 }
 
 /// 会员详情页状态
@@ -261,9 +274,11 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
     await load();
   }
 
-  /// 进入月度权益前先确保拿到 userserviceid，再返回对应 instancetype 的分流信息。
+  /// 月度权益仅在 hasowned=true 时处理；未领取先领取，再返回 instancetype 分流信息。
   Future<MemberBenefitUseResult> useMonthlyCoupon(MemberMonthlyCoupon coupon) async {
     debugPrint('[MemberLevel] use monthly coupon: ${coupon.serviceId} (${coupon.productName})');
+    if (!coupon.hasOwned) return const MemberBenefitUseResult.ignored();
+
     final monthlyService = _findMonthlyService();
     final serviceId = coupon.serviceId > 0 ? coupon.serviceId : (state.detail?.monthlyserviceid ?? monthlyService?.serviceid ?? 0);
     if (serviceId <= 0) return const MemberBenefitUseResult.failure('权益信息无效，请刷新后重试');
@@ -272,7 +287,7 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
     var userServiceId = coupon.userServiceId > 0 ? coupon.userServiceId : (state.detail?.monthlyuserserviceid ?? monthlyService?.userserviceid ?? 0);
     String? message;
 
-    if (userServiceId <= 0) {
+    if (!coupon.hasReceived) {
       state = _copy(receivingServiceIds: {...state.receivingServiceIds, serviceId});
       try {
         final response = await ref.read(memberRepositoryProvider).receiveUserService(serviceId: serviceId);
@@ -298,18 +313,26 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
     }
 
     return MemberBenefitUseResult.success(
-      _buildBenefitAccess(serviceId: serviceId, userServiceId: userServiceId, service: monthlyService),
+      _buildBenefitAccess(
+        serviceId: serviceId,
+        userServiceId: userServiceId,
+        productId: coupon.pid > 0 ? coupon.pid : _productIdOf(monthlyService),
+        service: monthlyService,
+      ),
       message: message,
     );
   }
 
-  /// 进入权益前先确保拿到 userserviceid，再返回对应 instancetype 的分流信息。
+  /// 会员权益仅在 hasowned=true 时处理；未领取先领取，再返回 instancetype 分流信息。
   ///
   /// 接口文档：POST /api/sys/app/receiveuserservice
   /// 请求：{ serviceid }
   /// 响应：{ userserviceid, isdup, datatag }
   Future<MemberBenefitUseResult> useBenefit(MemberBenefitItem item) async {
     final service = item.service;
+    if (!service.hasowned) {
+      return const MemberBenefitUseResult.ignored();
+    }
     if (service.serviceid <= 0) {
       return const MemberBenefitUseResult.failure('权益信息无效，请刷新后重试');
     }
@@ -320,7 +343,7 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
     var userServiceId = service.userserviceid ?? 0;
     String? message;
 
-    if (userServiceId <= 0) {
+    if (!service.hasreceived) {
       state = _copy(receivingServiceIds: {...state.receivingServiceIds, service.serviceid});
       try {
         final response = await ref.read(memberRepositoryProvider).receiveUserService(serviceId: service.serviceid);
@@ -346,7 +369,7 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
     }
 
     return MemberBenefitUseResult.success(
-      _buildBenefitAccess(serviceId: service.serviceid, userServiceId: userServiceId, service: service),
+      _buildBenefitAccess(serviceId: service.serviceid, userServiceId: userServiceId, productId: _productIdOf(service), service: service),
       message: message,
     );
   }
@@ -400,7 +423,7 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
     if (detail == null) return;
 
     final updatedServices = detail.services
-        .map((service) => service.serviceid == serviceId ? service.copyWith(userserviceid: userServiceId, hasowned: true) : service)
+        .map((service) => service.serviceid == serviceId ? service.copyWith(userserviceid: userServiceId, hasowned: true, hasreceived: true) : service)
         .toList();
     final updatedDetail = detail.copyWith(services: updatedServices);
     state = _copy(detail: updatedDetail, benefitAuths: _mapBenefitAuths(updatedDetail));
@@ -411,11 +434,11 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
     if (detail == null) return;
 
     final updatedServices = detail.services
-        .map((service) => service.group == ServiceGroup.monthly ? service.copyWith(userserviceid: userServiceId, hasowned: true) : service)
+        .map((service) => service.group == ServiceGroup.monthly ? service.copyWith(userserviceid: userServiceId, hasowned: true, hasreceived: true) : service)
         .toList();
     final updatedDetail = detail.copyWith(monthlyuserserviceid: userServiceId, services: updatedServices);
     final updatedCoupons = state.monthlyCoupons
-        .map((item) => item.serviceId == serviceId ? item.copyWith(isReceived: true, userServiceId: userServiceId) : item)
+        .map((item) => item.serviceId == serviceId ? item.copyWith(isReceived: true, hasReceived: true, userServiceId: userServiceId) : item)
         .toList();
     state = _copy(detail: updatedDetail, monthlyCoupons: updatedCoupons);
   }
@@ -427,8 +450,19 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
     return null;
   }
 
-  MemberBenefitAccess _buildBenefitAccess({required int serviceId, required int userServiceId, required SysServiceItem? service}) {
-    return MemberBenefitAccess(instanceType: service?.instancetype ?? '', serviceId: serviceId, userServiceId: userServiceId, bindInfo: service?.bindinfo);
+  MemberBenefitAccess _buildBenefitAccess({required int serviceId, required int userServiceId, required int productId, required SysServiceItem? service}) {
+    return MemberBenefitAccess(
+      instanceType: service?.instancetype ?? '',
+      serviceId: serviceId,
+      userServiceId: userServiceId,
+      productId: productId,
+      bindInfo: service?.bindinfo,
+    );
+  }
+
+  int _productIdOf(SysServiceItem? service) {
+    final products = service?.bindinfo?.bindproductlist;
+    return products == null || products.isEmpty ? 0 : products.first.pid;
   }
 
   /// getrankdetail → 每月权益券（优先 monthlyproductlist，回退 group=MONTHLY 的 services）
@@ -437,6 +471,9 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
     final monthlyServiceId = detail.monthlyserviceid ?? monthlyService?.serviceid ?? 0;
     final monthlyUserServiceId = detail.monthlyuserserviceid ?? monthlyService?.userserviceid;
     final monthlyReceived = (monthlyUserServiceId ?? 0) > 0;
+    final monthlyHasOwned = monthlyService?.hasowned ?? false;
+    final monthlyHasReceived = monthlyService?.hasreceived ?? monthlyReceived;
+    final monthlyInstanceType = monthlyService?.instancetype ?? '';
 
     if (detail.monthlyproductlist.isNotEmpty) {
       return detail.monthlyproductlist
@@ -446,10 +483,13 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
               serviceCode: e.servicecode,
               productName: e.productname,
               serviceDescr: e.servicedescr,
-              isReceived: monthlyReceived || e.isreceived,
+              isReceived: monthlyHasReceived || e.isreceived,
+              hasOwned: monthlyHasOwned,
+              hasReceived: monthlyHasReceived || e.isreceived,
+              instanceType: monthlyInstanceType,
               receivedDate: e.receiveddate,
               productType: e.producttype,
-              userServiceId: monthlyUserServiceId ?? 0,
+              userServiceId: monthlyUserServiceId ?? e.userserviceid,
               bailihuiType: e.bailihuitype,
               pid: e.pid,
               productImg: e.productimg,
@@ -465,7 +505,10 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
             serviceCode: e.servicecode,
             productName: e.servicename,
             serviceDescr: e.description,
-            isReceived: monthlyReceived || e.hasowned,
+            isReceived: e.hasreceived,
+            hasOwned: e.hasowned,
+            hasReceived: e.hasreceived,
+            instanceType: e.instancetype,
             userServiceId: monthlyUserServiceId ?? e.userserviceid ?? 0,
           ),
         )

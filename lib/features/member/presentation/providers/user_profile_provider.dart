@@ -1,9 +1,13 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/models/member_rank_models.dart';
 
+import '../../../../core/network/api_response.dart';
+import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/domain/repositories/auth_repository.dart' show UserInfo;
 
@@ -55,6 +59,12 @@ class UserProfileState {
   /// 未读消息数（用于头部消息图标红点角标；后端暂未提供字段，默认 0 不显示）
   final int unreadMessageCount;
 
+  /// 头像上传成功后的本地预览字节。
+  ///
+  /// 头像接口不返回新地址，部分 CDN 还会继续命中旧 URL 的图片缓存；
+  /// 保留本次选择的图片可让所有已打开的头像区域立即显示新头像。
+  final Uint8List? avatarPreviewBytes;
+
   /// 会员等级到期时间（getranklist 的 expiredate，后端未返回时为 null）
   final DateTime? memberExpireDate;
 
@@ -78,17 +88,30 @@ class UserProfileState {
     this.memberLevel = 0,
     this.levelName = '未登录',
     this.unreadMessageCount = 0,
+    this.avatarPreviewBytes,
     this.memberExpireDate,
     this.tianyoudeValue = 0,
   });
 
   UserProfileState withCouponCount(int couponCount) {
+    return _copyWith(couponCount: couponCount);
+  }
+
+  UserProfileState withAvatarPreview(Uint8List bytes) {
+    return _copyWith(avatarPreviewBytes: bytes);
+  }
+
+  UserProfileState withAvatarUrl(String url) {
+    return _copyWith(avatarUrl: url);
+  }
+
+  UserProfileState _copyWith({int? couponCount, String? avatarUrl, Uint8List? avatarPreviewBytes}) {
     return UserProfileState(
       nickname: nickname,
-      avatarUrl: avatarUrl,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
       phoneMasked: phoneMasked,
       points: points,
-      couponCount: couponCount,
+      couponCount: couponCount ?? this.couponCount,
       expiringPoints: expiringPoints,
       expiringDate: expiringDate,
       gender: gender,
@@ -99,6 +122,7 @@ class UserProfileState {
       memberLevel: memberLevel,
       levelName: levelName,
       unreadMessageCount: unreadMessageCount,
+      avatarPreviewBytes: avatarPreviewBytes ?? this.avatarPreviewBytes,
       memberExpireDate: memberExpireDate,
       tianyoudeValue: tianyoudeValue,
     );
@@ -191,6 +215,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         ranks: ranks,
         memberLevel: memberLevel,
         levelName: levelName,
+        avatarPreviewBytes: state.avatarPreviewBytes,
         memberExpireDate: expireDate,
         // TODO(Mock): 天佑德值后端暂无对应字段，使用标记 Mock 值做 UI 还原
         tianyoudeValue: 1500,
@@ -206,6 +231,38 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
       if (response.success && response.data != null) return response.data!.keepCount;
     } catch (error) {
       debugPrint('[UserProfile] coupon count error: $error');
+    }
+    return null;
+  }
+
+  /// 上传新头像并在成功后刷新当前用户资料。
+  ///
+  /// 返回 null 表示上传成功；否则返回可直接展示给用户的错误文案。
+  Future<String?> changeAvatar({required Uint8List bytes, required String ext}) async {
+    final ApiResponse<void> response;
+    try {
+      response = await ref.read(memberRepositoryProvider).changeUserAvatar(buffer: bytes, ext: ext);
+    } on NetworkException catch (error) {
+      return error.toDisplayMessage(fallback: '头像更新失败，请稍后重试');
+    } catch (error) {
+      debugPrint('[UserProfile] change avatar error: $error');
+      return '头像更新失败，请稍后重试';
+    }
+
+    if (!response.success) {
+      final message = response.message.trim();
+      return message.isEmpty || message == 'unknown error' ? '头像更新失败，请稍后重试' : message;
+    }
+
+    state = state.withAvatarPreview(bytes);
+    try {
+      final authResponse = await ref.read(authProvider.notifier).getCurrentUser();
+      final avatarUrl = authResponse.data?.avatarUrl;
+      if (authResponse.success && avatarUrl != null) {
+        state = state.withAvatarUrl(avatarUrl);
+      }
+    } catch (error) {
+      debugPrint('[UserProfile] avatar uploaded but profile refresh failed: $error');
     }
     return null;
   }

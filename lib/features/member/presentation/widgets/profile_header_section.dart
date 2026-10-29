@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
-import '../../../../core/widgets/app_image.dart';
 import '../providers/user_profile_provider.dart';
+import 'user_avatar_image.dart';
 
 /// 用户信息头部区域（透明背景，由页面顶部渐变背景承载）
 ///
@@ -37,11 +37,9 @@ class ProfileHeaderSection extends ConsumerWidget {
                       child: CircleAvatar(
                         radius: 28,
                         backgroundColor: const Color(0xFFDDEAF6),
-                        child: state.avatarUrl != null && state.avatarUrl!.isNotEmpty
-                            ? ClipOval(
-                                child: AppNetworkImage(url: state.avatarUrl!, width: 56, height: 56, fit: BoxFit.cover),
-                              )
-                            : const Icon(Icons.person_outline, size: 30, color: Color(0xFF8FA8BF)),
+                        child: ClipOval(
+                          child: UserAvatarImage(avatarUrl: state.avatarUrl, previewBytes: state.avatarPreviewBytes, size: 56, iconSize: 30),
+                        ),
                       ),
                     ),
 
