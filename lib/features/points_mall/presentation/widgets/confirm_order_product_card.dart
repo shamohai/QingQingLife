@@ -9,6 +9,7 @@ class ConfirmOrderProductCard extends StatefulWidget {
   final ServiceProductDetail product;
   final int quantity;
   final bool isQuantityEditable;
+  final bool isQuantityValidating;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
   final ValueChanged<int> onQuantityChanged;
@@ -19,6 +20,7 @@ class ConfirmOrderProductCard extends StatefulWidget {
     required this.product,
     required this.quantity,
     this.isQuantityEditable = true,
+    this.isQuantityValidating = false,
     required this.onIncrement,
     required this.onDecrement,
     required this.onQuantityChanged,
@@ -45,6 +47,9 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
   @override
   void didUpdateWidget(covariant ConfirmOrderProductCard oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.isQuantityValidating && !widget.isQuantityValidating && oldWidget.quantity == widget.quantity) {
+      _qtyController.text = '${widget.quantity}';
+    }
     if (oldWidget.quantity != widget.quantity) {
       final newText = '${widget.quantity}';
       if (_qtyController.text != newText) {
@@ -170,12 +175,7 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    _QtyButton(
-                      label: '-',
-                      onTap: widget.isQuantityEditable ? widget.onDecrement : null,
-                      isMinus: true,
-                      enabled: widget.isQuantityEditable,
-                    ),
+                    _QtyButton(label: '-', onTap: widget.isQuantityEditable ? widget.onDecrement : null, isMinus: true, enabled: widget.isQuantityEditable),
                     Container(
                       width: 36,
                       height: 28,
@@ -187,7 +187,7 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
                       child: TextField(
                         controller: _qtyController,
                         focusNode: _focusNode,
-                        enabled: widget.isQuantityEditable,
+                        enabled: widget.isQuantityEditable && !widget.isQuantityValidating,
                         textAlign: TextAlign.center,
                         textAlignVertical: TextAlignVertical.center,
                         keyboardType: TextInputType.number,
@@ -215,12 +215,7 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
                         },
                       ),
                     ),
-                    _QtyButton(
-                      label: '+',
-                      onTap: widget.isQuantityEditable ? widget.onIncrement : null,
-                      isMinus: false,
-                      enabled: widget.isQuantityEditable,
-                    ),
+                    _QtyButton(label: '+', onTap: widget.isQuantityEditable ? widget.onIncrement : null, isMinus: false, enabled: widget.isQuantityEditable),
                   ],
                 ),
 
@@ -267,12 +262,7 @@ class _QtyButton extends StatelessWidget {
   final bool isMinus;
   final bool enabled;
 
-  const _QtyButton({
-    required this.label,
-    required this.onTap,
-    this.isMinus = false,
-    this.enabled = true,
-  });
+  const _QtyButton({required this.label, required this.onTap, this.isMinus = false, this.enabled = true});
 
   @override
   Widget build(BuildContext context) {
@@ -294,12 +284,7 @@ class _QtyButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w400,
-            color: enabled ? const Color(0xFF000000) : const Color(0xFFA0A0A0),
-            height: 1.0,
-          ),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w400, color: enabled ? const Color(0xFF000000) : const Color(0xFFA0A0A0), height: 1.0),
         ),
       ),
     );

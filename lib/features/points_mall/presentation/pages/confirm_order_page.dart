@@ -26,6 +26,11 @@ class ConfirmOrderPage extends ConsumerWidget {
     final effectiveUserServiceId = userServiceId ?? 0;
     final arg = PointsConfirmOrderArg(productId: productId, userServiceId: effectiveUserServiceId);
     final orderState = ref.watch(pointsConfirmOrderProvider(arg));
+    ref.listen(pointsConfirmOrderProvider(arg), (previous, next) {
+      if (previous?.isPreOrderValidating == true && !next.isPreOrderValidating && next.quantityValidationError != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.quantityValidationError!)));
+      }
+    });
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F7),
@@ -124,7 +129,8 @@ class ConfirmOrderPage extends ConsumerWidget {
                 child: ConfirmOrderProductCard(
                   product: product,
                   quantity: orderState.quantity,
-                  isQuantityEditable: orderState.isQuantityEditable,
+                  isQuantityEditable: orderState.isQuantityEditable && !orderState.isPreOrderValidating,
+                  isQuantityValidating: orderState.isPreOrderValidating,
                   onIncrement: () => ref.read(pointsConfirmOrderProvider(arg).notifier).increment(),
                   onDecrement: () => ref.read(pointsConfirmOrderProvider(arg).notifier).decrement(),
                   onQuantityChanged: (newQty) {
@@ -161,7 +167,7 @@ class ConfirmOrderPage extends ConsumerWidget {
         product: product,
         quantity: orderState.quantity,
         pointsBalance: preInfo.credit,
-        isSubmitting: orderState.isSubmitting,
+        isSubmitting: orderState.isSubmitting || orderState.isPreOrderValidating,
         onSubmit: () => _handleSubmit(ref.context, ref, arg),
       ),
       loading: () => const SizedBox(height: 56),
