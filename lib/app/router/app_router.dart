@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/providers/session_provider.dart';
+import 'auth_redirect.dart';
+
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/points_mall/presentation/pages/points_mall_page.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
@@ -54,9 +57,25 @@ import 'route_names.dart';
 
 final appRouter = Provider<GoRouter>((ref) {
   const devRoute = String.fromEnvironment('QINGQING_DEV_ROUTE');
-  return GoRouter(
+  final refreshListenable = _RouterRefreshListenable(ref);
+  ref.onDispose(refreshListenable.dispose);
+  final router = GoRouter(
     initialLocation: devRoute.isNotEmpty ? devRoute : RouteNames.home,
     debugLogDiagnostics: false,
+    refreshListenable: refreshListenable,
+    redirect: (context, state) async {
+      final sessionNotifier = ref.read(sessionProvider.notifier);
+      await sessionNotifier.ensureInitialized();
+      final sessionState = ref.read(sessionProvider);
+      if (sessionState == SessionState.authenticated) {
+        if (state.uri.path == RouteNames.login) {
+          return safeReturnTo(state.uri.queryParameters['from']) ?? RouteNames.profile;
+        }
+        return null;
+      }
+      if (!requiresAuthentication(state)) return null;
+      return loginLocationFor(state.uri.toString());
+    },
     routes: [
       GoRoute(
         path: RouteNames.login,
@@ -332,7 +351,17 @@ final appRouter = Provider<GoRouter>((ref) {
       ),
     ],
   );
+  ref.onDispose(router.dispose);
+  return router;
 });
+
+class _RouterRefreshListenable extends ChangeNotifier {
+  _RouterRefreshListenable(Ref ref) {
+    ref.listen<SessionState>(sessionProvider, (previous, next) {
+      if (previous != next) notifyListeners();
+    });
+  }
+}
 
 /// 底部 Tab 主框架
 class MainShell extends StatelessWidget {

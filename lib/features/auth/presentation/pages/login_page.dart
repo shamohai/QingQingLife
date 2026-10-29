@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/auth_redirect.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../providers/auth_provider.dart';
@@ -66,10 +67,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     ref.listen<AuthStatus>(authProvider, (previous, next) {
       if (previous == AuthStatus.loading && next == AuthStatus.wechatAuthenticated) {
-        if (mounted) context.push(RouteNames.phoneBind);
+        if (mounted) {
+          final from = GoRouterState.of(context).uri.queryParameters['from'];
+          final phoneBindLocation = from == null ? RouteNames.phoneBind : Uri(path: RouteNames.phoneBind, queryParameters: {'from': from}).toString();
+          context.push(phoneBindLocation);
+        }
       } else if (previous == AuthStatus.loading && next == AuthStatus.authenticated) {
         if (mounted) {
-          if (context.canPop()) {
+          final returnTo = safeReturnTo(GoRouterState.of(context).uri.queryParameters['from']);
+          if (returnTo != null) {
+            context.go(returnTo);
+          } else if (context.canPop()) {
             context.pop();
           } else {
             context.go(RouteNames.profile);
@@ -304,4 +312,3 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 }
-
