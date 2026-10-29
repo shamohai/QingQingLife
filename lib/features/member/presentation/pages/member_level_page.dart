@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_error.dart';
@@ -176,16 +177,18 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
 
   Future<void> _handleBenefitTap(BuildContext context, MemberBenefitItem item) async {
     final result = await ref.read(memberLevelProvider.notifier).useBenefit(item);
+    if (!context.mounted) return;
     _handleBenefitResult(context, result);
   }
 
   Future<void> _handleMonthlyCouponTap(BuildContext context, MemberMonthlyCoupon coupon) async {
     final result = await ref.read(memberLevelProvider.notifier).useMonthlyCoupon(coupon);
+    if (!context.mounted) return;
     _handleBenefitResult(context, result);
   }
 
   void _handleBenefitResult(BuildContext context, MemberBenefitUseResult result) {
-    if (!context.mounted || result.busy) return;
+    if (!context.mounted || result.busy || result.ignored) return;
 
     if (!result.success || result.access == null) {
       _showMessage(context, result.message ?? '权益处理失败，请稍后重试');
@@ -199,16 +202,25 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
     _openBenefitAccess(context, result.access!);
   }
 
-  /// 具体页面地址和参数尚未确认，四个 instancetype 分支集中在此处，便于后续替换。
   void _openBenefitAccess(BuildContext context, MemberBenefitAccess access) {
-    final label = switch (access.instanceType) {
-      ServiceInstanceType.serviceCoupon => '服务券',
-      ServiceInstanceType.products => '产品订单',
-      ServiceInstanceType.cashCouponShare => '红包分享',
-      ServiceInstanceType.shareCart => '权益商城',
-      _ => '该权益',
-    };
-    _showMessage(context, '$label入口地址及参数待确认');
+    switch (access.instanceType) {
+      case ServiceInstanceType.serviceCoupon:
+        context.push(RouteNames.serviceCouponList);
+        return;
+      case ServiceInstanceType.products:
+        if (access.userServiceId <= 0 || access.productId <= 0) {
+          _showMessage(context, '商品权益信息无效，请刷新后重试');
+          return;
+        }
+        final path = Uri(
+          path: RouteNames.confirmOrder.replaceFirst(':id', '${access.productId}'),
+          queryParameters: {'userServiceId': '${access.userServiceId}'},
+        ).toString();
+        context.push(path);
+        return;
+      default:
+        return;
+    }
   }
 
   void _showMessage(BuildContext context, String message) {

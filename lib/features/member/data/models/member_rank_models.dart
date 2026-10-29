@@ -316,6 +316,9 @@ class SysServiceItem {
   /// 用户是否已拥有此权益
   final bool hasowned;
 
+  /// 用户是否已领取此权益
+  final bool hasreceived;
+
   /// 用户权益绑定信息
   final ServiceBindInfo? bindinfo;
 
@@ -328,6 +331,7 @@ class SysServiceItem {
     this.group = '',
     this.icon,
     this.hasowned = false,
+    this.hasreceived = false,
     this.bindinfo,
   });
 
@@ -352,11 +356,12 @@ class SysServiceItem {
       group: (json['group'] as String?) ?? '',
       icon: json['icon'] as String?,
       hasowned: _asBool(json['hasowned']),
+      hasreceived: _asBool(json['hasreceived']),
       bindinfo: json['bindinfo'] == null ? null : ServiceBindInfo.fromJson(json['bindinfo'] as Map<String, dynamic>),
     );
   }
 
-  SysServiceItem copyWith({int? userserviceid, bool? hasowned, ServiceBindInfo? bindinfo}) {
+  SysServiceItem copyWith({int? userserviceid, bool? hasowned, bool? hasreceived, ServiceBindInfo? bindinfo}) {
     return SysServiceItem(
       serviceid: serviceid,
       servicecode: servicecode,
@@ -366,6 +371,7 @@ class SysServiceItem {
       group: group,
       icon: icon,
       hasowned: hasowned ?? this.hasowned,
+      hasreceived: hasreceived ?? this.hasreceived,
       bindinfo: bindinfo ?? this.bindinfo,
     );
   }

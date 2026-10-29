@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../app/theme/app_spacing.dart';
-import '../../../../core/widgets/app_image.dart';
 import '../../../../core/providers/repository_providers.dart';
+import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../providers/user_profile_provider.dart';
 import '../widgets/personal_info_form_card.dart';
+import '../widgets/user_avatar_image.dart';
 
 /// 个人信息编辑页（/member/personal-info/edit）
 ///
@@ -25,6 +27,8 @@ class PersonalInfoEditPage extends ConsumerStatefulWidget {
 }
 
 class _PersonalInfoEditPageState extends ConsumerState<PersonalInfoEditPage> {
+  bool _isUploadingAvatar = false;
+
   @override
   void initState() {
     super.initState();
@@ -154,8 +158,6 @@ class _PersonalInfoEditPageState extends ConsumerState<PersonalInfoEditPage> {
 
   /// 大头像（白描边）+ 右下角相机徽章
   Widget _buildAvatar(UserProfileState state) {
-    final hasAvatar = state.avatarUrl != null && state.avatarUrl!.isNotEmpty;
-
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -169,11 +171,9 @@ class _PersonalInfoEditPageState extends ConsumerState<PersonalInfoEditPage> {
             child: CircleAvatar(
               radius: 40,
               backgroundColor: const Color(0xFFDDEAF6),
-              child: hasAvatar
-                  ? ClipOval(
-                      child: AppNetworkImage(url: state.avatarUrl!, width: 80, height: 80, fit: BoxFit.cover),
-                    )
-                  : const Icon(Icons.person_outline, size: 40, color: Color(0xFF8FA8BF)),
+              child: ClipOval(
+                child: UserAvatarImage(avatarUrl: state.avatarUrl, previewBytes: state.avatarPreviewBytes, size: 80, iconSize: 40),
+              ),
             ),
           ),
         ),
@@ -181,7 +181,7 @@ class _PersonalInfoEditPageState extends ConsumerState<PersonalInfoEditPage> {
           right: 0,
           bottom: 0,
           child: GestureDetector(
-            onTap: _onAvatarTap,
+            onTap: _isUploadingAvatar ? null : _onAvatarTap,
             child: Container(
               width: 28,
               height: 28,
@@ -194,13 +194,105 @@ class _PersonalInfoEditPageState extends ConsumerState<PersonalInfoEditPage> {
             ),
           ),
         ),
+        if (_isUploadingAvatar)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Container(
+                decoration: const BoxDecoration(color: Color(0x66000000), shape: BoxShape.circle),
+                alignment: Alignment.center,
+                child: const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
+              ),
+            ),
+          ),
       ],
     );
   }
 
-  void _onAvatarTap() {
-    // TODO: 头像更换依赖图片上传接口，后端暂未提供，待接入后补充。
-    debugPrint('[PersonalInfoEditPage] 头像/相机徽章点击');
+  Future<void> _onAvatarTap() async {
+    if (_isUploadingAvatar) return;
+
+    final source = await AppBottomSheet.show<_AvatarSource>(
+      context: context,
+      title: '更换头像',
+      backgroundColor: Colors.white,
+      titleStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black),
+      child: const _AvatarSourcePicker(),
+    );
+    if (!mounted || source == null) return;
+
+    XFile? picked;
+    try {
+      picked = await ImagePicker().pickImage(
+        source: source == _AvatarSource.camera ? ImageSource.camera : ImageSource.gallery,
+        maxWidth: 1200,
+        maxHeight: 1200,
+        imageQuality: 85,
+        requestFullMetadata: false,
+      );
+    } on PlatformException catch (error) {
+      if (mounted) _showAvatarError(_avatarPickerErrorMessage(error.code));
+      return;
+    } catch (error) {
+      debugPrint('[PersonalInfoEditPage] pick avatar error: $error');
+      if (mounted) _showAvatarError('无法打开相机或相册，请稍后重试');
+      return;
+    }
+
+    if (picked == null || !mounted) return;
+
+    final bytes = await picked.readAsBytes();
+    if (!mounted) return;
+    if (bytes.isEmpty) {
+      _showAvatarError('读取图片失败，请重新选择');
+      return;
+    }
+
+    setState(() => _isUploadingAvatar = true);
+    final errorMessage = await ref.read(userProfileProvider.notifier).changeAvatar(bytes: bytes, ext: _avatarExtension(picked.name, bytes));
+    if (!mounted) return;
+
+    setState(() => _isUploadingAvatar = false);
+    if (errorMessage != null) {
+      _showAvatarError(errorMessage);
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('头像已更新'), behavior: SnackBarBehavior.floating));
+  }
+
+  String _avatarPickerErrorMessage(String code) {
+    return switch (code) {
+      'camera_access_denied' => '未获得相机权限，请在系统设置中允许访问相机',
+      'photo_access_denied' => '未获得相册权限，请在系统设置中允许访问照片',
+      _ => '无法打开相机或相册，请稍后重试',
+    };
+  }
+
+  void _showAvatarError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), behavior: SnackBarBehavior.floating));
+  }
+
+  String _avatarExtension(String fileName, Uint8List bytes) {
+    final dotIndex = fileName.lastIndexOf('.');
+    if (dotIndex >= 0 && dotIndex < fileName.length - 1) {
+      final extension = fileName.substring(dotIndex + 1).toLowerCase();
+      return extension == 'jpeg' ? 'jpg' : extension;
+    }
+
+    if (bytes.length >= 3 && bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF) return 'jpg';
+    if (bytes.length >= 8 && bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47) return 'png';
+    if (bytes.length >= 12 &&
+        bytes[0] == 0x52 &&
+        bytes[1] == 0x49 &&
+        bytes[2] == 0x46 &&
+        bytes[3] == 0x46 &&
+        bytes[8] == 0x57 &&
+        bytes[9] == 0x45 &&
+        bytes[10] == 0x42 &&
+        bytes[11] == 0x50) {
+      return 'webp';
+    }
+    return 'jpg';
   }
 
   Future<String?> _savePersonalInfo({required String nickname, required int gender, required DateTime birthday}) async {
@@ -213,5 +305,61 @@ class _PersonalInfoEditPageState extends ConsumerState<PersonalInfoEditPage> {
     await ref.read(userProfileProvider.notifier).load();
     if (mounted) context.pop();
     return null;
+  }
+}
+
+enum _AvatarSource { camera, gallery }
+
+class _AvatarSourcePicker extends StatelessWidget {
+  const _AvatarSourcePicker();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _AvatarSourceRow(icon: Icons.photo_camera_outlined, label: '拍照', onTap: () => Navigator.of(context).pop(_AvatarSource.camera)),
+        const Divider(height: 1, thickness: 1, color: Color(0xFFF0F0F0)),
+        _AvatarSourceRow(icon: Icons.photo_library_outlined, label: '相册', onTap: () => Navigator.of(context).pop(_AvatarSource.gallery)),
+        const Divider(height: 1, thickness: 1, color: Color(0xFFF0F0F0)),
+        _AvatarSourceRow(icon: Icons.close, label: '取消', onTap: () => Navigator.of(context).pop()),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+}
+
+class _AvatarSourceRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _AvatarSourceRow({required this.icon, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: SizedBox(
+        height: 54,
+        child: Center(
+          child: SizedBox(
+            width: 120,
+            child: Row(
+              children: [
+                SizedBox(width: 24, child: Icon(icon, size: 21, color: const Color(0xFF22418A))),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Color(0xFF1A1D1C)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

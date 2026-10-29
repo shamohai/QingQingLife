@@ -13,9 +13,6 @@ import '../providers/user_profile_provider.dart';
 class AccountSecurityCard extends ConsumerWidget {
   const AccountSecurityCard({super.key});
 
-  /// TODO(Mock): 版本号 —— 后端暂无该字段（是产品版本编号，非 App 版本号，故不用 PackageInfo），使用设计稿占位值。
-  static const String _mockVersion = 'TYD202602';
-
   static const Color _cardBg = Color(0xFFDFEBFF);
   static const Color _labelColor = Color(0xFF232F43);
   static const Color _valueColor = Color(0xFF8F9BB1);
