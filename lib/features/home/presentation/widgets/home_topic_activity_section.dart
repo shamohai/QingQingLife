@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
@@ -83,74 +85,81 @@ class _TopicCard extends StatelessWidget {
     const cardWidth = 118.0;
     const imageHeight = 162.0;
 
-    return Container(
-      width: cardWidth,
-      decoration: BoxDecoration(
-        color: Colors.white, // 和模块白色背景一致
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: block.id.isEmpty ? null : () => context.push(RouteNames.activityDetail.replaceFirst(':id', block.id)),
         borderRadius: BorderRadius.circular(4),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 完整图片 118×162
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-            child: SizedBox(
-              width: cardWidth,
-              height: imageHeight,
-              child: (block.imageUrl != null && block.imageUrl!.isNotEmpty)
-                  ? AppNetworkImage(
-                      url: block.imageUrl!,
-                      fit: BoxFit.cover,
-                      width: cardWidth,
-                      height: imageHeight,
-                      memCacheWidth: cardWidth.toInt(),
-                      memCacheHeight: imageHeight.toInt(),
-                    )
-                  : Container(width: cardWidth, height: imageHeight, color: AppColors.surfaceVariant),
-            ),
+        child: Container(
+          width: cardWidth,
+          decoration: BoxDecoration(
+            color: Colors.white, // 和模块白色背景一致
+            borderRadius: BorderRadius.circular(4),
           ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 完整图片 118×162
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                child: SizedBox(
+                  width: cardWidth,
+                  height: imageHeight,
+                  child: (block.imageUrl != null && block.imageUrl!.isNotEmpty)
+                      ? AppNetworkImage(
+                          url: block.imageUrl!,
+                          fit: BoxFit.cover,
+                          width: cardWidth,
+                          height: imageHeight,
+                          memCacheWidth: cardWidth.toInt(),
+                          memCacheHeight: imageHeight.toInt(),
+                        )
+                      : Container(width: cardWidth, height: imageHeight, color: AppColors.surfaceVariant),
+                ),
+              ),
 
-          // 文字 + 按钮（在图片下方）
-          Padding(
-            padding: const EdgeInsets.fromLTRB(4, 6, 4, 6),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 29,
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      block.title,
-                      style: const TextStyle(color: Color(0xFF333333), fontSize: 11, fontWeight: FontWeight.w600, height: 1.3),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+              // 文字 + 按钮（在图片下方）
+              Padding(
+                padding: const EdgeInsets.fromLTRB(4, 6, 4, 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 29,
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          block.title,
+                          style: const TextStyle(color: Color(0xFF333333), fontSize: 11, fontWeight: FontWeight.w600, height: 1.3),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 6),
+                    Center(
+                      child: Container(
+                        width: 68,
+                        height: 22,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: const Color(0xFFFF2105), width: 1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        alignment: Alignment.center,
+                        child: const Text(
+                          '立即参与',
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Color(0xFFFF2105)),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 6),
-                Center(
-                  child: Container(
-                    width: 68,
-                    height: 22,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: const Color(0xFFFF2105), width: 1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    alignment: Alignment.center,
-                    child: const Text(
-                      '立即参与',
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Color(0xFFFF2105)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -96,7 +96,7 @@ abstract final class RouteNames {
 
   // 积分规则页
   static const String pointsRules = '/points/rules';
-  static const String pointsRulesUrl = 'https://wx.mall.qkj.com.cn/mob/Account/CreditRule';
+  static const String pointsRulesUrl = 'https://wx.mall.qkj.com.cn/mob/Account/CreditRule?from=app';
 
   // 全部商品
   static const String allProducts = '/points/all-products';

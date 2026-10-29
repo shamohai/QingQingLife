@@ -118,7 +118,7 @@ class PointsRemoteDataSource implements PointsRepository {
     return _apiClient.post<ServiceProductDetail>(
       '/api/product/getproductinfo',
       data: <String, dynamic>{'pid': productIdValue},
-      fromJson: (dynamic json) => ServiceProductDetail.fromJson(json as Map<String, dynamic>),
+      fromJson: (dynamic json) => ServiceProductDetail.fromJson(Map<String, dynamic>.from(json as Map), fallbackProductId: productIdValue),
     );
   }
 
