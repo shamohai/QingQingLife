@@ -6,7 +6,6 @@ enum ServiceBookingSuccessSource { reservation, friendActivity, activity }
 class ServiceBookingSuccessData {
   final ServiceBookingSuccessSource source;
   final String sourceId;
-  final String sourceTitle;
 
-  const ServiceBookingSuccessData({required this.source, required this.sourceId, required this.sourceTitle});
+  const ServiceBookingSuccessData({required this.source, required this.sourceId});
 }

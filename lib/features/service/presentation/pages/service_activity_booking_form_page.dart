@@ -11,7 +11,6 @@ import '../../../../app/router/route_names.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
-import '../../domain/models/service_booking_success_data.dart';
 import '../providers/offline_activity_signup_provider.dart';
 import '../widgets/booking_form_field.dart';
 
@@ -155,10 +154,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
         _isSubmitting = false;
         _isAlreadyReserved = true;
       });
-      context.go(
-        RouteNames.serviceBookingSuccess,
-        extra: ServiceBookingSuccessData(source: ServiceBookingSuccessSource.activity, sourceId: widget.detail.activityId, sourceTitle: widget.detail.title),
-      );
+      context.go(RouteNames.serviceBookingSuccess, extra: {'id': widget.detail.activityId, 'type': 'activity'});
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);

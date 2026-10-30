@@ -10,7 +10,6 @@ import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/router/route_names.dart';
 import '../../domain/models/reservation_service_detail_model.dart';
-import '../../domain/models/service_booking_success_data.dart';
 import '../../data/datasources/service_remote_datasource.dart';
 import '../widgets/booking_form_field.dart';
 
@@ -347,14 +346,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
         _isSubmitting = false;
         _isAlreadyReserved = true; // 提交成功后设为已报名状态，表单变只读
       });
-      context.go(
-        RouteNames.serviceBookingSuccess,
-        extra: ServiceBookingSuccessData(
-          source: ServiceBookingSuccessSource.reservation,
-          sourceId: widget.detail.serviceId.toString(),
-          sourceTitle: widget.detail.serviceName
-        ),
-      );
+      context.go(RouteNames.serviceBookingSuccess, extra: {'id': widget.detail.serviceId, 'type': 'reservation'});
     } catch (_) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);

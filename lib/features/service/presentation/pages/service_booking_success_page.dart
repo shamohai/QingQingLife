@@ -16,7 +16,22 @@ class ServiceBookingSuccessPage extends StatelessWidget {
   const ServiceBookingSuccessPage({super.key, this.data});
 
   factory ServiceBookingSuccessPage.fromExtra(dynamic extra) {
-    return ServiceBookingSuccessPage(data: extra is ServiceBookingSuccessData ? extra : null);
+    if (extra is ServiceBookingSuccessData) {
+      return ServiceBookingSuccessPage(data: extra);
+    }
+
+    if (extra is Map) {
+      final source = switch (extra['type']) {
+        'reservation' => ServiceBookingSuccessSource.reservation,
+        'friendActivity' => ServiceBookingSuccessSource.friendActivity,
+        _ => ServiceBookingSuccessSource.activity,
+      };
+      return ServiceBookingSuccessPage(
+        data: ServiceBookingSuccessData(source: source, sourceId: extra['id']?.toString() ?? ''),
+      );
+    }
+
+    return const ServiceBookingSuccessPage();
   }
 
   @override
