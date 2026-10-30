@@ -9,17 +9,14 @@ import '../../domain/models/service_booking_success_data.dart';
 
 /// 服务预约、挚友会和活动报名共用的成功结果页。
 ///
-/// 页面只展示前置流程传入的本地结果上下文，不发起网络请求。
+/// 页面接收前置流程传入的上下文，不使用模拟业务数据。
 class ServiceBookingSuccessPage extends StatelessWidget {
-  final ServiceBookingSuccessData data;
+  final ServiceBookingSuccessData? data;
 
-  const ServiceBookingSuccessPage({super.key, required this.data});
+  const ServiceBookingSuccessPage({super.key, this.data});
 
   factory ServiceBookingSuccessPage.fromExtra(dynamic extra) {
-    if (extra is ServiceBookingSuccessData) {
-      return ServiceBookingSuccessPage(data: extra);
-    }
-    return const ServiceBookingSuccessPage(data: ServiceBookingSuccessData.activityMock());
+    return ServiceBookingSuccessPage(data: extra is ServiceBookingSuccessData ? extra : null);
   }
 
   @override
@@ -68,7 +65,7 @@ class ServiceBookingSuccessPage extends StatelessWidget {
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 68),
-                          _SuccessActionRow(data: data),
+                          const _SuccessActionRow(),
                         ],
                       ),
                     ),
@@ -84,9 +81,7 @@ class ServiceBookingSuccessPage extends StatelessWidget {
 }
 
 class _SuccessActionRow extends StatelessWidget {
-  final ServiceBookingSuccessData data;
-
-  const _SuccessActionRow({required this.data});
+  const _SuccessActionRow();
 
   @override
   Widget build(BuildContext context) {

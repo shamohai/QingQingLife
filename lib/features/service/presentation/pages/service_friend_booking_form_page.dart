@@ -200,8 +200,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
         extra: ServiceBookingSuccessData(
           source: ServiceBookingSuccessSource.friendActivity,
           sourceId: widget.detail!.activityId,
-          sourceTitle: widget.title,
-          recordTab: 'activity',
+          sourceTitle: widget.title
         ),
       );
     } on ApiException catch (e) {

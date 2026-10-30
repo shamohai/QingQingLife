@@ -352,8 +352,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
         extra: ServiceBookingSuccessData(
           source: ServiceBookingSuccessSource.reservation,
           sourceId: widget.detail.serviceId.toString(),
-          sourceTitle: widget.detail.serviceName,
-          recordTab: 'reservation',
+          sourceTitle: widget.detail.serviceName
         ),
       );
     } catch (_) {

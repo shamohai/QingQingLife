@@ -150,8 +150,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
         extra: ServiceBookingSuccessData(
           source: ServiceBookingSuccessSource.activity,
           sourceId: widget.activityId,
-          sourceTitle: widget.title,
-          recordTab: 'activity',
+          sourceTitle: widget.title
         ),
       );
     } on ApiException catch (e) {

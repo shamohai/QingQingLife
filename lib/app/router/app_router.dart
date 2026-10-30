@@ -35,7 +35,6 @@ import '../../features/service/presentation/pages/service_booking_record_detail_
 import '../../features/service/presentation/pages/service_template_detail_page.dart';
 import '../../features/service/presentation/pages/service_customer_contact_page.dart';
 import '../../features/service/domain/models/reservation_service_detail_model.dart';
-import '../../features/service/domain/models/service_booking_success_data.dart';
 import '../../features/product/presentation/pages/product_detail_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/phone_bind_page.dart';
@@ -122,7 +121,7 @@ final appRouter = Provider<GoRouter>((ref) {
                   ),
                   GoRoute(
                     path: 'booking-success',
-                    pageBuilder: (c, s) => MaterialPage(child: ServiceBookingSuccessPage.fromExtra(s.extra is ServiceBookingSuccessData ? s.extra : null)),
+                    pageBuilder: (c, s) => MaterialPage(child: ServiceBookingSuccessPage.fromExtra(s.extra)),
                   ),
                   GoRoute(
                     path: 'booking-record-detail',
