@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
-import '../../../../app/router/route_names.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/widgets/app_image.dart';
+import '../../domain/models/offline_activity_detail_model.dart';
+import '../../domain/models/service_booking_success_data.dart';
 import '../providers/offline_activity_signup_provider.dart';
+import 'service_booking_success_page.dart';
 import '../widgets/booking_form_field.dart';
 
 /// 活动报名填写信息页面
@@ -20,11 +21,9 @@ import '../widgets/booking_form_field.dart';
 ///
 /// 设计稿来源: 蓝湖 "活动报名-填写信息"
 class ServiceActivityBookingFormPage extends ConsumerStatefulWidget {
-  final String activityId;
-  final String title;
-  final String heroAsset;
+  final OfflineActivityDetail detail;
 
-  const ServiceActivityBookingFormPage({super.key, required this.activityId, required this.title, required this.heroAsset});
+  const ServiceActivityBookingFormPage({super.key, required this.detail});
 
   @override
   ConsumerState<ServiceActivityBookingFormPage> createState() => _ServiceActivityBookingFormPageState();
@@ -48,6 +47,17 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
     _idCtrl = TextEditingController();
     _partyCtrl = TextEditingController();
     _notesCtrl = TextEditingController();
+    _populateFromSignupInfo();
+  }
+
+  void _populateFromSignupInfo() {
+    final signupInfo = widget.detail.mySignupInfo;
+    if (signupInfo == null) return;
+    _nameCtrl.text = signupInfo.username;
+    _phoneCtrl.text = signupInfo.phone;
+    _idCtrl.text = signupInfo.idNo;
+    _partyCtrl.text = signupInfo.signupUserCount.toString();
+    _notesCtrl.text = signupInfo.remark;
   }
 
   @override
@@ -99,7 +109,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
 
   Future<void> _handleSubmit() async {
     // 检查 activityId 是否为空
-    if (widget.activityId.isEmpty) {
+    if (widget.detail.activityId.isEmpty) {
       _showError('活动 ID 为空，无法报名');
       return;
     }
@@ -129,7 +139,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
     setState(() => _isSubmitting = true);
 
     final params = <String, dynamic>{
-      'activityid': widget.activityId,
+      'activityid': widget.detail.activityId,
       'username': _nameCtrl.text.trim(),
       'phone': _phoneCtrl.text.trim(),
       'idno': _idCtrl.text.trim(),
@@ -144,7 +154,13 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
         _isSubmitting = false;
         _isAlreadyReserved = true;
       });
-      _showSuccessDialog();
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ServiceBookingSuccessPage(
+            data: ServiceBookingSuccessData(source: ServiceBookingSuccessSource.activity, sourceId: widget.detail.activityId),
+          ),
+        ),
+      );
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
@@ -154,48 +170,6 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
       setState(() => _isSubmitting = false);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('网络异常，请稍后重试'), behavior: SnackBarBehavior.floating));
     }
-  }
-
-  void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.check_circle, size: 48, color: AppColors.serviceTabActive),
-              const SizedBox(height: 16),
-              const Text(
-                '报名成功',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop(); // 关闭弹窗
-                    context.go(RouteNames.service);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.serviceTabActive,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
-                    elevation: 0,
-                  ),
-                  child: const Text('我知道了', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   // ─── UI helpers ─────────────────────────────────────────────────────────
@@ -229,17 +203,14 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
   }
 
   Widget _buildHeroImage() {
-    // heroAsset 可能是网络 URL，也可能是本地 asset（兼容旧 mock 路由）
-    final url = widget.heroAsset;
-    if (url.startsWith('http')) {
-      return AppNetworkImage(
-        url: url,
-        fit: BoxFit.cover,
-        placeholder: Container(color: AppColors.surfaceVariant),
-        errorWidget: Container(color: AppColors.surfaceVariant),
-      );
-    }
-    return Image.asset(url, fit: BoxFit.cover);
+    final postUrl = widget.detail.postUrl;
+    if (postUrl.isEmpty) return Container(color: AppColors.surfaceVariant);
+    return AppNetworkImage(
+      url: postUrl,
+      fit: BoxFit.cover,
+      placeholder: Container(color: AppColors.surfaceVariant),
+      errorWidget: Container(color: AppColors.surfaceVariant),
+    );
   }
 
   PreferredSizeWidget _buildAppBar() {
@@ -253,7 +224,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
         icon: Image.asset('assets/images/service/activity_detail_back.png', width: 24, height: 24),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      title: Text(widget.title, style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: Colors.black)),
+      title: Text(widget.detail.title, style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: Colors.black)),
       centerTitle: false,
     );
   }

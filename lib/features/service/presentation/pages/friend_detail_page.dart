@@ -51,11 +51,7 @@ class FriendDetailPage extends ConsumerWidget {
 
   void _onBookTap(BuildContext context, OfflineActivityDetail detail) {
     if (!detail.isSignup) return;
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ServiceFriendBookingFormPage(title: '挚友会报名', detail: detail),
-      ),
-    );
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => ServiceFriendBookingFormPage(detail: detail)));
   }
 
   Widget _buildBottomBar(BuildContext context, OfflineActivityDetail detail) {
@@ -91,12 +87,7 @@ class FriendDetailPage extends ConsumerWidget {
               child: Center(
                 child: Text(
                   detail.isSignup ? '立即报名' : detail.message,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                    height: 1.5,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white, height: 1.5),
                 ),
               ),
             ),

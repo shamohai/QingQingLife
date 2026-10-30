@@ -50,11 +50,7 @@ class ActivityDetailPage extends ConsumerWidget {
 
   void _onBookTap(BuildContext context, OfflineActivityDetail detail) {
     if (!detail.isSignup) return;
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ServiceActivityBookingFormPage(activityId: detail.activityId, title: detail.title, heroAsset: detail.postUrl),
-      ),
-    );
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => ServiceActivityBookingFormPage(detail: detail)));
   }
 
   /// 底部固定操作栏：已报名时按钮置灰显示"已报名"，可点击时跳转报名表单
@@ -84,18 +80,14 @@ class ActivityDetailPage extends ConsumerWidget {
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                         colors: [AppColors.serviceCtaGradStart, AppColors.serviceTabActive],
-                      ) : null,
+                      )
+                    : null,
                 color: detail.isSignup ? null : const Color(0xFFCCCCCC),
               ),
               child: Center(
                 child: Text(
                   detail.isSignup ? '立即报名' : detail.message,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                    height: 1.5,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white, height: 1.5),
                 ),
               ),
             ),
