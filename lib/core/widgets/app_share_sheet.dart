@@ -1,0 +1,126 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../app/theme/app_colors.dart';
+import '../../app/theme/app_spacing.dart';
+import '../share/share_payload.dart';
+import '../share/share_provider.dart';
+import '../share/share_service.dart';
+import 'app_bottom_sheet.dart';
+
+/// 全应用统一的分享面板；不具备真实网页 URL 时仅展示系统分享。
+abstract final class AppShareSheet {
+  static Future<void> show({required BuildContext context, required SharePayload payload}) {
+    return AppBottomSheet.show<void>(
+      context: context,
+      backgroundColor: Colors.white,
+      child: _ShareSheetContent(rootContext: context, payload: payload),
+    );
+  }
+}
+
+class _ShareSheetContent extends ConsumerWidget {
+  final BuildContext rootContext;
+  final SharePayload payload;
+
+  const _ShareSheetContent({required this.rootContext, required this.payload});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final channels = <(ShareChannel, String, IconData?, String?)>[
+      if (payload.hasShareableUrl) ...[
+        (ShareChannel.weChat, '微信好友', null, 'assets/icon/icon_wechat.png'),
+        (ShareChannel.weChatTimeline, '朋友圈', null, 'assets/icon/icon_group.png'),
+      ],
+      if (payload.hasShareableUrl) (ShareChannel.copyLink, '复制链接', null, 'assets/icon/icon_copy.png'),
+      (ShareChannel.system, '更多', Icons.more_horiz, null),
+    ];
+
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.xl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 56,
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: Text('分享到', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  ),
+                  IconButton(tooltip: '关闭', onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.close)),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              alignment: WrapAlignment.start,
+              spacing: AppSpacing.xl,
+              runSpacing: AppSpacing.lg,
+              children: [
+                for (final (channel, label, icon, asset) in channels)
+                  _ShareChannelButton(label: label, icon: icon, asset: asset, onTap: () => _share(context, ref, channel)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _share(BuildContext sheetContext, WidgetRef ref, ShareChannel channel) async {
+    final messenger = ScaffoldMessenger.maybeOf(rootContext);
+    final shareService = ref.read(shareServiceProvider);
+    Navigator.of(sheetContext).pop();
+    final result = await shareService.share(payload, channel);
+    if (!rootContext.mounted || messenger == null) return;
+    final message = switch (result.status) {
+      ShareActionStatus.success => channel == ShareChannel.copyLink ? '链接已复制' : null,
+      ShareActionStatus.dismissed => null,
+      ShareActionStatus.unavailable => result.message ?? '当前设备暂不支持此分享方式',
+      ShareActionStatus.failed => result.message ?? '分享失败，请稍后重试',
+    };
+    if (message != null) {
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(message), behavior: SnackBarBehavior.floating));
+    }
+  }
+}
+
+class _ShareChannelButton extends StatelessWidget {
+  final String label;
+  final IconData? icon;
+  final String? asset;
+  final VoidCallback onTap;
+
+  const _ShareChannelButton({required this.label, this.icon, this.asset, required this.onTap}) : assert(icon != null || asset != null);
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: SizedBox(
+          width: 68,
+          child: Column(
+            children: [
+              CircleAvatar(
+                radius: 25,
+                backgroundColor: AppColors.primaryContainer,
+                child: asset != null ? Image.asset(asset!, width: 50, height: 50, fit: BoxFit.contain) : Icon(icon, color: AppColors.primary),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(label, style: const TextStyle(fontSize: 12, color: AppColors.onSurface)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

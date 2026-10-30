@@ -16,22 +16,25 @@ class ShareActionResult {
 }
 
 /// 分享渠道的统一入口；平台 SDK 细节不泄漏到业务页面。
-class ShareService {
+abstract class ShareService {
+  Future<ShareActionResult> share(SharePayload payload, ShareChannel channel);
+}
+
+class FluwxShareService implements ShareService {
   final fluwx.Fluwx _wechat;
   final SharePlus _systemShare;
 
-  ShareService({required fluwx.Fluwx wechat, SharePlus? systemShare}) : _wechat = wechat, _systemShare = systemShare ?? SharePlus.instance;
+  FluwxShareService({required this._wechat, SharePlus? systemShare}) : _systemShare = systemShare ?? SharePlus.instance;
 
+  @override
   Future<ShareActionResult> share(SharePayload payload, ShareChannel channel) async {
     try {
       switch (channel) {
         case ShareChannel.weChat:
         case ShareChannel.weChatTimeline:
-          return _shareToWeChat(payload, channel);
+          return await _shareToWeChat(payload, channel);
         case ShareChannel.system:
-          final result = await _systemShare.share(
-            ShareParams(text: payload.plainText, subject: payload.title),
-          );
+          final result = await _systemShare.share(ShareParams(text: payload.plainText, subject: payload.title));
           return switch (result.status) {
             ShareResultStatus.success => const ShareActionResult(ShareActionStatus.success),
             ShareResultStatus.dismissed => const ShareActionResult(ShareActionStatus.dismissed),
@@ -60,7 +63,7 @@ class ShareService {
       fluwx.WeChatShareWebPageModel(
         payload.url!.trim(),
         title: payload.title,
-        description: payload.description,
+        description: payload.plainDescription,
         scene: channel == ShareChannel.weChat ? fluwx.WeChatScene.session : fluwx.WeChatScene.timeline,
       ),
     );

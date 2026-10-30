@@ -25,6 +25,16 @@
 							<string>wx64999b13fa01a983</string>
 					</array>
 			</dict>
+			<dict>
+					<key>CFBundleTypeRole</key>
+					<string>Editor</string>
+					<key>CFBundleURLName</key>
+					<string>qingqinglife</string>
+					<key>CFBundleURLSchemes</key>
+					<array>
+							<string>qingqinglife</string>
+					</array>
+			</dict>
 	</array>
 	<key>CFBundleDisplayName</key>
 	<string>青轻生活</string>

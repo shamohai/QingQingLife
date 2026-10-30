@@ -9,6 +9,20 @@ class SharePayload {
 
   const SharePayload({required this.title, this.description, this.url, this.imageUrl});
 
+  /// 构造商城 H5 openapp 包装链接，appUrl 必须是 App 已注册的真实 Schema URI。
+  static Uri buildOpenAppUrl({required String appUrl, String baseUrl = 'https://m.mall.qkj.com.cn/mob/common/openapp'}) {
+    final uri = Uri.tryParse(appUrl);
+    if (uri == null || uri.scheme.isEmpty) {
+      throw ArgumentError.value(appUrl, 'appUrl', '必须是带 Scheme 的 App Deep Link URI');
+    }
+    return Uri.parse(baseUrl).replace(queryParameters: {'appurl': uri.toString()});
+  }
+
+  String? get plainDescription {
+    final value = description?.replaceAll(RegExp(r'<[^>]*>'), ' ').replaceAll(RegExp(r'\s+'), ' ').trim();
+    return value == null || value.isEmpty ? null : value;
+  }
+
   bool get hasShareableUrl {
     final value = url?.trim();
     if (value == null || value.isEmpty) return false;
@@ -17,11 +31,7 @@ class SharePayload {
   }
 
   String get plainText {
-    final parts = <String>[
-      title.trim(),
-      if (description?.trim().isNotEmpty == true) description!.trim(),
-      if (hasShareableUrl) url!.trim(),
-    ].where((part) => part.isNotEmpty);
+    final parts = <String>[title.trim(), ?plainDescription, if (hasShareableUrl) url!.trim()].where((part) => part.isNotEmpty);
     return parts.join('\n');
   }
 }
