@@ -57,7 +57,7 @@ class ReservationServiceDetailBottomBar extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  hasReserved ? '已报名' : '立即预约',
+                  hasReserved ? '已预约' : '立即预约',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
