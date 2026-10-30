@@ -87,6 +87,9 @@ class _ConfirmOrderRedeemerFormState extends State<ConfirmOrderRedeemerForm> {
         focusNode: focusNode,
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
+        minLines: null,
+        maxLines: null,
+        expands: true,
         textAlignVertical: TextAlignVertical.center,
         style: const TextStyle(fontSize: 16, color: Color(0xFF1F2024)),
         decoration: InputDecoration(

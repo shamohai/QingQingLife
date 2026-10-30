@@ -51,7 +51,8 @@ class AuthNotifier extends Notifier<AuthStatus> {
 
   /// Web / 测试环境专用：直接写入测试 token，跳过微信授权。
   Future<void> webLogin() async {
-    const token = '223281';
+    const token = '134219';
+    //const token = '223281';
     await _session.login(token);
     await _onLoginSuccess();
   }

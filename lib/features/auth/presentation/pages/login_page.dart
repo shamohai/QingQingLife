@@ -288,7 +288,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 onPressed: _doWebTestLogin,
 
                 child: const Text(
-                  'Web 测试登录',
+                  'Web 登录',
                   style: TextStyle(fontSize: 12, color: Color(0x990088FF), decoration: TextDecoration.underline),
                 ),
               ),
