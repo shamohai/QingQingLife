@@ -10,6 +10,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/widgets/app_image.dart';
+import '../../domain/models/service_booking_success_data.dart';
 import '../providers/offline_activity_signup_provider.dart';
 import '../widgets/booking_form_field.dart';
 
@@ -144,7 +145,15 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
         _isSubmitting = false;
         _isAlreadyReserved = true;
       });
-      _showSuccessDialog();
+      context.go(
+        RouteNames.serviceBookingSuccess,
+        extra: ServiceBookingSuccessData(
+          source: ServiceBookingSuccessSource.activity,
+          sourceId: widget.activityId,
+          sourceTitle: widget.title,
+          recordTab: 'activity',
+        ),
+      );
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);
@@ -154,48 +163,6 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
       setState(() => _isSubmitting = false);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('网络异常，请稍后重试'), behavior: SnackBarBehavior.floating));
     }
-  }
-
-  void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.check_circle, size: 48, color: AppColors.serviceTabActive),
-              const SizedBox(height: 16),
-              const Text(
-                '报名成功',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop(); // 关闭弹窗
-                    context.go(RouteNames.service);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.serviceTabActive,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
-                    elevation: 0,
-                  ),
-                  child: const Text('我知道了', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   // ─── UI helpers ─────────────────────────────────────────────────────────

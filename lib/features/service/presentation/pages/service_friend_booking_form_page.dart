@@ -10,6 +10,7 @@ import '../../../../app/router/route_names.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
+import '../../domain/models/service_booking_success_data.dart';
 import '../providers/offline_activity_signup_provider.dart';
 
 /// 挚友会独立报名页，不复用服务预约表单。
@@ -157,11 +158,11 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
     final friendCountNum = int.tryParse(_friendCountController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
 
     if (maxSignupCount == 0) {
-          await _showLimitDialog('暂无挚友会权益，无法报名', showBuyWineServiceButton: false);
+      await _showLimitDialog('暂无挚友会权益，无法报名', showBuyWineServiceButton: false);
       return;
     } else if (maxSignupCount == 1) {
       if (_bringFriend || friendCountNum > 0) {
-            await _showLimitDialog('该活动仅限本人参加，不可携带亲友', showBuyWineServiceButton: false);
+        await _showLimitDialog('该活动仅限本人参加，不可携带亲友', showBuyWineServiceButton: false);
         return;
       }
       //if (count > 1) {
@@ -170,7 +171,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
       //}
     } else {
       if (_bringFriend && friendCountNum > maxSignupCount - 1) {
-            await _showLimitDialog('携带亲友人数已经达到上限\n请参与购酒享服务活动', showBuyWineServiceButton: true);
+        await _showLimitDialog('携带亲友人数已经达到上限\n请参与购酒享服务活动', showBuyWineServiceButton: true);
         return;
       }
     }
@@ -194,7 +195,15 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
         _submitting = false;
         _isAlreadyReserved = true;
       });
-      _showSuccessDialog();
+      context.go(
+        RouteNames.serviceBookingSuccess,
+        extra: ServiceBookingSuccessData(
+          source: ServiceBookingSuccessSource.friendActivity,
+          sourceId: widget.detail!.activityId,
+          sourceTitle: widget.title,
+          recordTab: 'activity',
+        ),
+      );
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _submitting = false);
@@ -204,48 +213,6 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
       setState(() => _submitting = false);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('网络异常，请重试'), behavior: SnackBarBehavior.floating));
     }
-  }
-
-  void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.check_circle, size: 48, color: AppColors.serviceTabActive),
-              const SizedBox(height: 16),
-              const Text(
-                '报名成功',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    context.go(RouteNames.service);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.serviceTabActive,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
-                    elevation: 0,
-                  ),
-                  child: const Text('我知道了', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   Future<void> _showLimitDialog(String message, {bool showBuyWineServiceButton = false}) {
@@ -267,51 +234,48 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: Icon(Icons.close, size: 24, color: Color(0xFF333333)),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                    ],
-                  ),
-                  // 提示文案
-                  Text(
-                    message,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black, height: 1.4),
-                  ),
-                  const SizedBox(height: 32),
-                  // 确认按钮
-                  SizedBox(
-                    width: double.infinity,
-                    height: 54,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        if (showBuyWineServiceButton) {
-                          // 跳转到服务页第4个tab（购酒享服务）
-                          context.go(RouteNames.service, extra: {'initialTab': 'goujiu'});
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.serviceTabActive,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        showBuyWineServiceButton ? '前往购酒享服务' : '我知道了',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icon(Icons.close, size: 24, color: Color(0xFF333333)),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
+                  ],
+                ),
+                // 提示文案
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black, height: 1.4),
+                ),
+                const SizedBox(height: 32),
+                // 确认按钮
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      if (showBuyWineServiceButton) {
+                        // 跳转到服务页第4个tab（购酒享服务）
+                        context.go(RouteNames.service, extra: {'initialTab': 'goujiu'});
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.serviceTabActive,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
+                      elevation: 0,
+                    ),
+                    child: Text(showBuyWineServiceButton ? '前往购酒享服务' : '我知道了', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          );
-        },
-      );
-    }
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

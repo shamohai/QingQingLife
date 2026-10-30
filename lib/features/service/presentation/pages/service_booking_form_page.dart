@@ -10,6 +10,7 @@ import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/router/route_names.dart';
 import '../../domain/models/reservation_service_detail_model.dart';
+import '../../domain/models/service_booking_success_data.dart';
 import '../../data/datasources/service_remote_datasource.dart';
 import '../widgets/booking_form_field.dart';
 
@@ -140,67 +141,62 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
     final calendar = widget.detail.calendar;
     if (calendar == null) return;
 
-      try {
-        final dateKey = DateFormat('yyyy-MM-dd').format(date);
-        List<Map<String, dynamic>> slotObjects = [];
+    try {
+      final dateKey = DateFormat('yyyy-MM-dd').format(date);
+      List<Map<String, dynamic>> slotObjects = [];
 
-        if (calendar is List) {
-          for (final item in calendar) {
-            if (item is Map) {
-              final itemDate = item['date'] as String?;
-              if (itemDate == dateKey) {
-                final timeslots = item['timeslots'] as List<dynamic>? ?? [];
-                for (final slot in timeslots) {
-                  if (slot is Map) {
-                    final start = slot['starttime'] as String? ?? '';
-                    final end = slot['endtime'] as String? ?? '';
-                    final fullStart = slot['fullstarttime'] as String? ?? '';
-                    final timedescr = slot['timedescr'] as String? ?? '';
-                    if (start.isNotEmpty && end.isNotEmpty) {
-                      slotObjects.add({
-                        'timedescr': timedescr,
-                        'starttime': start,
-                        'endtime': end,
-                        'fullstarttime': fullStart,
-                      });
-                    }
+      if (calendar is List) {
+        for (final item in calendar) {
+          if (item is Map) {
+            final itemDate = item['date'] as String?;
+            if (itemDate == dateKey) {
+              final timeslots = item['timeslots'] as List<dynamic>? ?? [];
+              for (final slot in timeslots) {
+                if (slot is Map) {
+                  final start = slot['starttime'] as String? ?? '';
+                  final end = slot['endtime'] as String? ?? '';
+                  final fullStart = slot['fullstarttime'] as String? ?? '';
+                  final timedescr = slot['timedescr'] as String? ?? '';
+                  if (start.isNotEmpty && end.isNotEmpty) {
+                    slotObjects.add({'timedescr': timedescr, 'starttime': start, 'endtime': end, 'fullstarttime': fullStart});
                   }
                 }
-                break; // 找到匹配日期后停止
               }
-            }
-          }
-        } else if (calendar is Map) {
-          // 兼容 Map 格式
-          final dates = calendar['dates'] as List<dynamic>? ?? [];
-          for (final dateStr in dates) {
-            if (dateStr == dateKey) {
-              final slotsMap = calendar['slots'] as Map<String, dynamic>? ?? {};
-              final daySlots = slotsMap[dateKey] as List<dynamic>? ?? [];
-              for (final slot in daySlots) {
-                if (slot is String) {
-                  slotObjects.add({'timedescr': slot});
-                }
-              }
-              break;
+              break; // 找到匹配日期后停止
             }
           }
         }
+      } else if (calendar is Map) {
+        // 兼容 Map 格式
+        final dates = calendar['dates'] as List<dynamic>? ?? [];
+        for (final dateStr in dates) {
+          if (dateStr == dateKey) {
+            final slotsMap = calendar['slots'] as Map<String, dynamic>? ?? {};
+            final daySlots = slotsMap[dateKey] as List<dynamic>? ?? [];
+            for (final slot in daySlots) {
+              if (slot is String) {
+                slotObjects.add({'timedescr': slot});
+              }
+            }
+            break;
+          }
+        }
+      }
 
-        if (mounted) {
-          setState(() {
-            _availableTimeSlotObjects = slotObjects;
-            // 如果当前选中的时段不在新列表中，清空选择
-            if (_selectedTimeSlotObj != null) {
-              final stillExists = slotObjects.any((s) => s['timedescr'] == _selectedTimeSlotObj!['timedescr']);
-              if (!stillExists) {
-                _selectedTimeSlotObj = null;
-              }
+      if (mounted) {
+        setState(() {
+          _availableTimeSlotObjects = slotObjects;
+          // 如果当前选中的时段不在新列表中，清空选择
+          if (_selectedTimeSlotObj != null) {
+            final stillExists = slotObjects.any((s) => s['timedescr'] == _selectedTimeSlotObj!['timedescr']);
+            if (!stillExists) {
+              _selectedTimeSlotObj = null;
             }
-          });
-        }
-      } catch (_) {}
-    }
+          }
+        });
+      }
+    } catch (_) {}
+  }
 
   // ─── 验证 ────────────────────────────────────────────────────────────
 
@@ -334,49 +330,38 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
     final reservationDateTime = fullStartTime.isNotEmpty ? fullStartTime : DateFormat('yyyy-MM-dd').format(_selectedDate!);
 
     try {
-          final dataSource = ref.read(serviceRemoteDataSourceProvider);
-          final response = await dataSource.submitReservation(
-            serviceId: widget.detail.serviceId,
-            contactName: _nameCtrl.text.trim(),
-            contactPhoneNumber: _phoneCtrl.text.trim(),
-            reservationDateTime: reservationDateTime,
-            idNo: _idCtrl.text.trim(),
-            userCount: int.parse(_partyCtrl.text.trim()),
-            remark: _notesCtrl.text.trim(),
-          );
-          response.requireData;
+      final dataSource = ref.read(serviceRemoteDataSourceProvider);
+      final response = await dataSource.submitReservation(
+        serviceId: widget.detail.serviceId,
+        contactName: _nameCtrl.text.trim(),
+        contactPhoneNumber: _phoneCtrl.text.trim(),
+        reservationDateTime: reservationDateTime,
+        idNo: _idCtrl.text.trim(),
+        userCount: int.parse(_partyCtrl.text.trim()),
+        remark: _notesCtrl.text.trim(),
+      );
+      response.requireData;
 
-          if (!mounted) return;
-          setState(() {
-            _isSubmitting = false;
-            _isAlreadyReserved = true; // 提交成功后设为已报名状态，表单变只读
-          });
-
-          // 显示成功弹窗
-          await showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (ctx) => AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: const Text('报名成功', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-              content: const Text('您的报名信息已提交成功', style: TextStyle(fontSize: 14, color: Color(0xFF333333))),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop(); // 关闭弹窗
-                    context.go(RouteNames.service); // 跳转到服务预约列表页
-                  },
-                  child: const Text('确定', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceTabActive)),
-                ),
-              ],
-            ),
-          );
-        } catch (_) {
-          if (!mounted) return;
-          setState(() => _isSubmitting = false);
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('提交失败，请稍后重试'), behavior: SnackBarBehavior.floating));
-        }
-      }
+      if (!mounted) return;
+      setState(() {
+        _isSubmitting = false;
+        _isAlreadyReserved = true; // 提交成功后设为已报名状态，表单变只读
+      });
+      context.go(
+        RouteNames.serviceBookingSuccess,
+        extra: ServiceBookingSuccessData(
+          source: ServiceBookingSuccessSource.reservation,
+          sourceId: widget.detail.serviceId.toString(),
+          sourceTitle: widget.detail.serviceName,
+          recordTab: 'reservation',
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isSubmitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('提交失败，请稍后重试'), behavior: SnackBarBehavior.floating));
+    }
+  }
 
   // ─── UI ──────────────────────────────────────────────────────────────
 
@@ -509,7 +494,13 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                               BookingFormField(
                                 label: '联系电话',
                                 imageAsset: 'assets/images/service/service_booking_phone.png',
-                                valueWidget: _buildTextField(_phoneCtrl, keyboardType: TextInputType.phone, maxLength: 11, hintText: '请输入联系电话', enabled: !_isAlreadyReserved),
+                                valueWidget: _buildTextField(
+                                  _phoneCtrl,
+                                  keyboardType: TextInputType.phone,
+                                  maxLength: 11,
+                                  hintText: '请输入联系电话',
+                                  enabled: !_isAlreadyReserved,
+                                ),
                               ),
 
                               // Field 3: 身份证号码
@@ -523,7 +514,13 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                               BookingFormField(
                                 label: '预约人数',
                                 imageAsset: 'assets/images/service/service_booking_count.png',
-                                valueWidget: _buildTextField(_partyCtrl, keyboardType: TextInputType.number, maxLength: 3, hintText: '请输入预约人数', enabled: !_isAlreadyReserved),
+                                valueWidget: _buildTextField(
+                                  _partyCtrl,
+                                  keyboardType: TextInputType.number,
+                                  maxLength: 3,
+                                  hintText: '请输入预约人数',
+                                  enabled: !_isAlreadyReserved,
+                                ),
                               ),
 
                               // Field 5: 预约日期
