@@ -22,17 +22,17 @@ class ServiceBookingRecordDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isReservation = type == 'reservation';
-    final serviceId = int.tryParse(id);
+    final reservationId = int.tryParse(id);
 
     final Widget detailContent;
     if (isReservation) {
-      if (serviceId == null || serviceId <= 0) {
+      if (reservationId == null || reservationId <= 0) {
         detailContent = const AppError(message: '预约服务编号无效');
       } else {
-        final detailAsync = ref.watch(reservationBookingRecordDetailProvider(serviceId));
+        final detailAsync = ref.watch(reservationBookingRecordDetailProvider(reservationId));
         detailContent = detailAsync.when(
           loading: () => const AppLoading(),
-          error: (error, stackTrace) => AppError(message: '加载失败，请稍后重试', onRetry: () => ref.invalidate(reservationBookingRecordDetailProvider(serviceId))),
+          error: (error, stackTrace) => AppError(message: '加载失败，请稍后重试', onRetry: () => ref.invalidate(reservationBookingRecordDetailProvider(reservationId))),
           data: (detail) => SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.only(bottom: 24),

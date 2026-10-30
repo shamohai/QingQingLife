@@ -339,7 +339,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
         userCount: int.parse(_partyCtrl.text.trim()),
         remark: _notesCtrl.text.trim(),
       );
-      response.requireData;
+      final reservationId = response.requireData;
 
       if (!mounted) return;
       setState(() {
@@ -349,7 +349,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
       await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => ServiceBookingSuccessPage(
-            data: ServiceBookingSuccessData(source: ServiceBookingSuccessSource.reservation, sourceId: widget.detail.serviceId.toString()),
+            data: ServiceBookingSuccessData(source: ServiceBookingSuccessSource.reservation, sourceId: reservationId.toString()),
           ),
         ),
       );

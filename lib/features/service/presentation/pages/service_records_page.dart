@@ -142,7 +142,7 @@ class ServiceRecordsPage extends ConsumerWidget {
                 onViewTap: () => context.push(
                   Uri(
                     path: RouteNames.serviceBookingRecordDetail,
-                    queryParameters: {'id': items[index].serviceId.toString(), 'type': 'reservation'},
+                    queryParameters: {'id': items[index].reservationId.toString(), 'type': 'reservation'},
                   ).toString(),
                 ),
               ),
