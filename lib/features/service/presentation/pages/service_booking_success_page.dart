@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
@@ -6,11 +7,12 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../domain/models/service_booking_success_data.dart';
+import '../providers/service_provider.dart';
 
 /// 服务预约、挚友会和活动报名共用的成功结果页。
 ///
 /// 页面接收前置流程传入的上下文，不使用模拟业务数据。
-class ServiceBookingSuccessPage extends StatelessWidget {
+class ServiceBookingSuccessPage extends ConsumerWidget {
   final ServiceBookingSuccessData? data;
 
   const ServiceBookingSuccessPage({super.key, this.data});
@@ -18,7 +20,7 @@ class ServiceBookingSuccessPage extends StatelessWidget {
   factory ServiceBookingSuccessPage.fromExtra(Object? extra) => ServiceBookingSuccessPage(data: extra is ServiceBookingSuccessData ? extra : null);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isReservation = data?.source == ServiceBookingSuccessSource.reservation;
     final serviceTab = switch (data?.source) {
       ServiceBookingSuccessSource.reservation => 'fuwu',
@@ -80,7 +82,7 @@ class ServiceBookingSuccessPage extends StatelessWidget {
   }
 }
 
-class _SuccessActionRow extends StatelessWidget {
+class _SuccessActionRow extends ConsumerWidget {
   final bool isReservation;
   final String serviceTab;
   final String recordId;
@@ -88,7 +90,7 @@ class _SuccessActionRow extends StatelessWidget {
   const _SuccessActionRow({required this.isReservation, required this.serviceTab, required this.recordId});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final gap = constraints.maxWidth < 308 ? 12.0 : 40.0;
@@ -97,7 +99,10 @@ class _SuccessActionRow extends StatelessWidget {
           children: [
             _SuccessActionButton(
               label: isReservation ? '更多预约' : '更多活动',
-              onPressed: () => context.go(RouteNames.service, extra: {'initialTab': serviceTab}),
+              onPressed: () {
+                ref.read(selectedTabProvider.notifier).update(serviceTab);
+                context.go(RouteNames.service);
+              },
             ),
             SizedBox(width: gap),
             _SuccessActionButton(

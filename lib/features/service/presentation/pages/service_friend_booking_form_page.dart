@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_image.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
 import '../../domain/models/service_booking_success_data.dart';
 import '../providers/offline_activity_signup_provider.dart';
+import '../providers/service_provider.dart';
 import 'service_booking_success_page.dart';
 
 /// 挚友会独立报名页，不复用服务预约表单。
@@ -249,8 +250,8 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
                     onPressed: () {
                       Navigator.of(context).pop();
                       if (showBuyWineServiceButton) {
-                        // 跳转到服务页第4个tab（购酒享服务）
-                        context.go(RouteNames.service, extra: {'initialTab': 'goujiu'});
+                        ref.read(selectedTabProvider.notifier).update('goujiu');
+                        context.go(RouteNames.service);
                       }
                     },
                     style: ElevatedButton.styleFrom(
