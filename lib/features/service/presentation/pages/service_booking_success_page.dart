@@ -19,6 +19,13 @@ class ServiceBookingSuccessPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isReservation = data?.source == ServiceBookingSuccessSource.reservation;
+    final serviceTab = switch (data?.source) {
+      ServiceBookingSuccessSource.reservation => 'fuwu',
+      ServiceBookingSuccessSource.friendActivity => 'zhiyouhui',
+      ServiceBookingSuccessSource.activity || null => 'huodong',
+    };
+
     return Scaffold(
       backgroundColor: AppColors.servicePageBackground,
       body: SafeArea(
@@ -57,13 +64,13 @@ class ServiceBookingSuccessPage extends StatelessWidget {
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 43),
-                          const Text(
-                            '你已成功提交报名，祝你活动愉快！',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black, height: 1),
+                          Text(
+                            isReservation ? '你已成功提交预约，祝你活动愉快！' : '你已成功提交报名，祝你活动愉快！',
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black, height: 1),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 68),
-                          const _SuccessActionRow(),
+                          _SuccessActionRow(isReservation: isReservation, serviceTab: serviceTab),
                         ],
                       ),
                     ),
@@ -79,7 +86,10 @@ class ServiceBookingSuccessPage extends StatelessWidget {
 }
 
 class _SuccessActionRow extends StatelessWidget {
-  const _SuccessActionRow();
+  final bool isReservation;
+  final String serviceTab;
+
+  const _SuccessActionRow({required this.isReservation, required this.serviceTab});
 
   @override
   Widget build(BuildContext context) {
@@ -89,9 +99,16 @@ class _SuccessActionRow extends StatelessWidget {
         return Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _SuccessActionButton(label: '返回首页', onPressed: () => context.go(RouteNames.home)),
+            _SuccessActionButton(
+              label: isReservation ? '更多预约' : '更多活动',
+              onPressed: () => context.go(RouteNames.service, extra: {'initialTab': serviceTab}),
+            ),
             SizedBox(width: gap),
-            _SuccessActionButton(label: '预约记录', onPressed: () => context.push(RouteNames.serviceBookingRecordDetail)),
+            _SuccessActionButton(
+              label: isReservation ? '预约记录' : '活动记录',
+              onPressed: () =>
+                  context.push(Uri(path: RouteNames.serviceRecords, queryParameters: {'activeTab': isReservation ? 'reservation' : 'activity'}).toString()),
+            ),
           ],
         );
       },
