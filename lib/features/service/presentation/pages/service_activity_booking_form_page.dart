@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
-import '../../../../app/router/route_names.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
+import '../../domain/models/service_booking_success_data.dart';
 import '../providers/offline_activity_signup_provider.dart';
+import 'service_booking_success_page.dart';
 import '../widgets/booking_form_field.dart';
 
 /// 活动报名填写信息页面
@@ -154,7 +154,13 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
         _isSubmitting = false;
         _isAlreadyReserved = true;
       });
-      context.go(RouteNames.serviceBookingSuccess, extra: {'id': widget.detail.activityId, 'type': 'activity'});
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ServiceBookingSuccessPage(
+            data: ServiceBookingSuccessData(source: ServiceBookingSuccessSource.activity, sourceId: widget.detail.activityId),
+          ),
+        ),
+      );
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _isSubmitting = false);

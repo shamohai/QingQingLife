@@ -10,7 +10,9 @@ import '../../../../app/router/route_names.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
+import '../../domain/models/service_booking_success_data.dart';
 import '../providers/offline_activity_signup_provider.dart';
+import 'service_booking_success_page.dart';
 
 /// 挚友会独立报名页，不复用服务预约表单。
 ///
@@ -188,7 +190,13 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
         _submitting = false;
         _isAlreadyReserved = true;
       });
-      context.go(RouteNames.serviceBookingSuccess, extra: {'id': widget.detail.activityId, 'type': 'friendActivity'});
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ServiceBookingSuccessPage(
+            data: ServiceBookingSuccessData(source: ServiceBookingSuccessSource.friendActivity, sourceId: widget.detail.activityId),
+          ),
+        ),
+      );
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _submitting = false);
