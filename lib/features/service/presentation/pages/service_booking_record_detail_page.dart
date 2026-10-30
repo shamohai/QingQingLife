@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../../../core/widgets/app_loading.dart';
@@ -29,10 +30,18 @@ class ServiceBookingRecordDetailPage extends ConsumerWidget {
       if (reservationId == null || reservationId <= 0) {
         detailContent = const AppError(message: '预约服务编号无效');
       } else {
-        final detailAsync = ref.watch(reservationBookingRecordDetailProvider(reservationId));
+        final provider = reservationBookingRecordDetailProvider(reservationId);
+        ref.listen(provider, (previous, next) {
+          final error = next.error;
+          if (error is ApiException) {
+            _showApiException(context, error);
+          }
+        });
+        final detailAsync = ref.watch(provider);
         detailContent = detailAsync.when(
           loading: () => const AppLoading(),
-          error: (error, stackTrace) => AppError(message: '加载失败，请稍后重试', onRetry: () => ref.invalidate(reservationBookingRecordDetailProvider(reservationId))),
+          error: (error, stackTrace) =>
+              error is ApiException ? const SizedBox.shrink() : AppError(message: _detailLoadErrorMessage(error), onRetry: () => ref.invalidate(provider)),
           data: (detail) => SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.only(bottom: 24),
@@ -43,10 +52,18 @@ class ServiceBookingRecordDetailPage extends ConsumerWidget {
     } else if (id.isEmpty) {
       detailContent = const AppError(message: '活动编号无效');
     } else {
-      final detailAsync = ref.watch(offlineActivityBookingRecordDetailProvider(id));
+      final provider = offlineActivityBookingRecordDetailProvider(id);
+      ref.listen(provider, (previous, next) {
+        final error = next.error;
+        if (error is ApiException) {
+          _showApiException(context, error);
+        }
+      });
+      final detailAsync = ref.watch(provider);
       detailContent = detailAsync.when(
         loading: () => const AppLoading(),
-        error: (error, stackTrace) => AppError(message: '加载失败，请稍后重试', onRetry: () => ref.invalidate(offlineActivityBookingRecordDetailProvider(id))),
+        error: (error, stackTrace) =>
+            error is ApiException ? const SizedBox.shrink() : AppError(message: _detailLoadErrorMessage(error), onRetry: () => ref.invalidate(provider)),
         data: (detail) => SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.only(bottom: 24),
@@ -77,6 +94,21 @@ class ServiceBookingRecordDetailPage extends ConsumerWidget {
       ),
     );
   }
+}
+
+void _showApiException(BuildContext context, ApiException exception) {
+  final message = exception.toDisplayMessage(fallback: '加载失败，请稍后重试');
+  final messenger = ScaffoldMessenger.of(context);
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
+}
+
+String _detailLoadErrorMessage(Object error) {
+  if (error is NetworkException) {
+    return error.toDisplayMessage(fallback: '加载失败，请稍后重试');
+  }
+  return '加载失败，请稍后重试';
 }
 
 class _DetailHeader extends StatelessWidget {

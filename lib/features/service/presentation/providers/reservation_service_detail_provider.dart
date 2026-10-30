@@ -18,4 +18,4 @@ final reservationBookingRecordDetailProvider = FutureProvider.family.autoDispose
   final dataSource = ref.read(serviceRemoteDataSourceProvider);
   final response = await dataSource.getReservationServiceDetail(serviceId);
   return response.requireData;
-});
+}, retry: (_, _) => null);

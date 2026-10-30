@@ -18,4 +18,4 @@ final offlineActivityBookingRecordDetailProvider = FutureProvider.family.autoDis
   final dataSource = ref.read(serviceRemoteDataSourceProvider);
   final response = await dataSource.getOfflineActivityDetail(activityId);
   return response.requireData;
-});
+}, retry: (_, _) => null);
