@@ -9,7 +9,7 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/widgets/app_image.dart';
-import '../../domain/models/service_project_detail_model.dart';
+import '../../domain/models/offline_activity_detail_model.dart';
 import '../../domain/models/service_booking_success_data.dart';
 import '../providers/offline_activity_signup_provider.dart';
 
@@ -18,7 +18,7 @@ import '../providers/offline_activity_signup_provider.dart';
 /// 如果传入 [detail] 且 [detail.mySignupInfo] 不为空，则展示已有报名信息（回显模式）；
 /// 否则为空表单（新报名模式）。
 class ServiceFriendBookingFormPage extends ConsumerStatefulWidget {
-  final ServiceProjectDetail detail;
+  final OfflineActivityDetail detail;
 
   const ServiceFriendBookingFormPage({super.key, required this.detail});
 
@@ -70,7 +70,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
   }
 
   Widget _buildHeroImage() {
-    final postUrl = widget.detail.heroAsset;
+    final postUrl = widget.detail.postUrl;
     if (postUrl.isNotEmpty) {
       return AppNetworkImage(
         url: postUrl,
@@ -121,7 +121,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
 
   Future<void> _handleSubmit() async {
     // 检查 activityId 是否为空
-    if (widget.detail.id.isEmpty) {
+    if (widget.detail.activityId.isEmpty) {
       _showError('活动 ID 为空，无法报名');
       return;
     }
@@ -147,7 +147,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
       return;
     }
 
-    final maxSignupCount = widget.detail.limitCount ?? 0;
+    final maxSignupCount = widget.detail.maxSignupCount;
     //final count = int.tryParse(_countController.text.trim()) ?? 0;
     final friendCountNum = int.tryParse(_friendCountController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
 
@@ -174,7 +174,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
     setState(() => _submitting = true);
 
     final params = <String, dynamic>{
-      'activityid': widget.detail.id,
+      'activityid': widget.detail.activityId,
       'username': _nameController.text.trim(),
       'phone': _phoneController.text.trim(),
       'idno': '',
@@ -191,7 +191,11 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
       });
       context.go(
         RouteNames.serviceBookingSuccess,
-        extra: ServiceBookingSuccessData(source: ServiceBookingSuccessSource.friendActivity, sourceId: widget.detail.id, sourceTitle: widget.detail.title),
+        extra: ServiceBookingSuccessData(
+          source: ServiceBookingSuccessSource.friendActivity,
+          sourceId: widget.detail.activityId,
+          sourceTitle: widget.detail.title,
+        ),
       );
     } on ApiException catch (e) {
       if (!mounted) return;

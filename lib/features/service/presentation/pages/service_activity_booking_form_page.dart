@@ -10,7 +10,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/widgets/app_image.dart';
-import '../../domain/models/service_project_detail_model.dart';
+import '../../domain/models/offline_activity_detail_model.dart';
 import '../../domain/models/service_booking_success_data.dart';
 import '../providers/offline_activity_signup_provider.dart';
 import '../widgets/booking_form_field.dart';
@@ -22,7 +22,7 @@ import '../widgets/booking_form_field.dart';
 ///
 /// 设计稿来源: 蓝湖 "活动报名-填写信息"
 class ServiceActivityBookingFormPage extends ConsumerStatefulWidget {
-  final ServiceProjectDetail detail;
+  final OfflineActivityDetail detail;
 
   const ServiceActivityBookingFormPage({super.key, required this.detail});
 
@@ -110,7 +110,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
 
   Future<void> _handleSubmit() async {
     // 检查 activityId 是否为空
-    if (widget.detail.id.isEmpty) {
+    if (widget.detail.activityId.isEmpty) {
       _showError('活动 ID 为空，无法报名');
       return;
     }
@@ -140,7 +140,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
     setState(() => _isSubmitting = true);
 
     final params = <String, dynamic>{
-      'activityid': widget.detail.id,
+      'activityid': widget.detail.activityId,
       'username': _nameCtrl.text.trim(),
       'phone': _phoneCtrl.text.trim(),
       'idno': _idCtrl.text.trim(),
@@ -157,7 +157,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
       });
       context.go(
         RouteNames.serviceBookingSuccess,
-        extra: ServiceBookingSuccessData(source: ServiceBookingSuccessSource.activity, sourceId: widget.detail.id, sourceTitle: widget.detail.title),
+        extra: ServiceBookingSuccessData(source: ServiceBookingSuccessSource.activity, sourceId: widget.detail.activityId, sourceTitle: widget.detail.title),
       );
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -201,7 +201,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
   }
 
   Widget _buildHeroImage() {
-    final postUrl = widget.detail.heroAsset;
+    final postUrl = widget.detail.postUrl;
     if (postUrl.isEmpty) return Container(color: AppColors.surfaceVariant);
     return AppNetworkImage(
       url: postUrl,
