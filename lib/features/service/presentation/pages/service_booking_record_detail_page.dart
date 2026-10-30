@@ -9,8 +9,8 @@ import '../../../../core/widgets/app_image.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
 import '../../domain/models/reservation_service_detail_model.dart';
-import '../providers/offline_activity_detail_provider.dart';
-import '../providers/reservation_service_detail_provider.dart';
+import '../providers/offline_activity_booking_record_detail_provider.dart';
+import '../providers/reservation_booking_record_detail_provider.dart';
 
 /// 服务预约/活动报名记录详情页面。
 class ServiceBookingRecordDetailPage extends ConsumerWidget {
@@ -29,10 +29,10 @@ class ServiceBookingRecordDetailPage extends ConsumerWidget {
       if (serviceId == null || serviceId <= 0) {
         detailContent = const AppError(message: '预约服务编号无效');
       } else {
-        final detailAsync = ref.watch(reservationServiceDetailProvider(serviceId));
+        final detailAsync = ref.watch(reservationBookingRecordDetailProvider(serviceId));
         detailContent = detailAsync.when(
           loading: () => const AppLoading(),
-          error: (error, stackTrace) => AppError(message: '加载失败，请稍后重试', onRetry: () => ref.invalidate(reservationServiceDetailProvider(serviceId))),
+          error: (error, stackTrace) => AppError(message: '加载失败，请稍后重试', onRetry: () => ref.invalidate(reservationBookingRecordDetailProvider(serviceId))),
           data: (detail) => SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.only(bottom: 24),
@@ -43,10 +43,10 @@ class ServiceBookingRecordDetailPage extends ConsumerWidget {
     } else if (id.isEmpty) {
       detailContent = const AppError(message: '活动编号无效');
     } else {
-      final detailAsync = ref.watch(offlineActivityDetailProvider(id));
+      final detailAsync = ref.watch(offlineActivityBookingRecordDetailProvider(id));
       detailContent = detailAsync.when(
         loading: () => const AppLoading(),
-        error: (error, stackTrace) => AppError(message: '加载失败，请稍后重试', onRetry: () => ref.invalidate(offlineActivityDetailProvider(id))),
+        error: (error, stackTrace) => AppError(message: '加载失败，请稍后重试', onRetry: () => ref.invalidate(offlineActivityBookingRecordDetailProvider(id))),
         data: (detail) => SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.only(bottom: 24),
@@ -261,7 +261,7 @@ class _DetailRow extends StatelessWidget {
           ),
           Flexible(
             child: Text(
-              value.isEmpty ? '—' : value,
+              value.isEmpty ? '' : value,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.right,
