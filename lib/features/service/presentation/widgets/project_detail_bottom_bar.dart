@@ -10,7 +10,7 @@ import '../../domain/models/service_project_detail_model.dart';
 /// 预约项目详情 — 底部固定操作栏
 ///
 /// 固定高度 80dp，白色背景，顶部阴影。
-/// 居中放置深蓝色渐变胶囊按钮，点击跳转到填写信息页（携带项目 id、title、heroAsset）。
+/// 居中放置深蓝色渐变胶囊按钮，报名页只接收当前详情对象。
 class ProjectDetailBottomBar extends StatelessWidget {
   final ServiceProjectDetail product;
 
@@ -34,19 +34,11 @@ class ProjectDetailBottomBar extends StatelessWidget {
           child: GestureDetector(
             onTap: () {
               if (product.type == ServiceProjectDetailType.friend) {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => ServiceFriendBookingFormPage(title: '挚友会报名', heroAsset: product.heroAsset),
-                  ),
-                );
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => ServiceFriendBookingFormPage(detail: product)));
                 return;
               }
               if (product.type == ServiceProjectDetailType.activity) {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => ServiceActivityBookingFormPage(activityId: product.id, title: product.title, heroAsset: product.heroAsset),
-                  ),
-                );
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => ServiceActivityBookingFormPage(detail: product)));
                 return;
               }
               context.pushNamed(

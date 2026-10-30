@@ -10,6 +10,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/widgets/app_image.dart';
+import '../../domain/models/service_project_detail_model.dart';
 import '../../domain/models/service_booking_success_data.dart';
 import '../providers/offline_activity_signup_provider.dart';
 import '../widgets/booking_form_field.dart';
@@ -21,11 +22,9 @@ import '../widgets/booking_form_field.dart';
 ///
 /// 设计稿来源: 蓝湖 "活动报名-填写信息"
 class ServiceActivityBookingFormPage extends ConsumerStatefulWidget {
-  final String activityId;
-  final String title;
-  final String heroAsset;
+  final ServiceProjectDetail detail;
 
-  const ServiceActivityBookingFormPage({super.key, required this.activityId, required this.title, required this.heroAsset});
+  const ServiceActivityBookingFormPage({super.key, required this.detail});
 
   @override
   ConsumerState<ServiceActivityBookingFormPage> createState() => _ServiceActivityBookingFormPageState();
@@ -49,6 +48,17 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
     _idCtrl = TextEditingController();
     _partyCtrl = TextEditingController();
     _notesCtrl = TextEditingController();
+    _populateFromSignupInfo();
+  }
+
+  void _populateFromSignupInfo() {
+    final signupInfo = widget.detail.mySignupInfo;
+    if (signupInfo == null) return;
+    _nameCtrl.text = signupInfo.username;
+    _phoneCtrl.text = signupInfo.phone;
+    _idCtrl.text = signupInfo.idNo;
+    _partyCtrl.text = signupInfo.signupUserCount.toString();
+    _notesCtrl.text = signupInfo.remark;
   }
 
   @override
@@ -100,7 +110,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
 
   Future<void> _handleSubmit() async {
     // 检查 activityId 是否为空
-    if (widget.activityId.isEmpty) {
+    if (widget.detail.id.isEmpty) {
       _showError('活动 ID 为空，无法报名');
       return;
     }
@@ -130,7 +140,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
     setState(() => _isSubmitting = true);
 
     final params = <String, dynamic>{
-      'activityid': widget.activityId,
+      'activityid': widget.detail.id,
       'username': _nameCtrl.text.trim(),
       'phone': _phoneCtrl.text.trim(),
       'idno': _idCtrl.text.trim(),
@@ -147,11 +157,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
       });
       context.go(
         RouteNames.serviceBookingSuccess,
-        extra: ServiceBookingSuccessData(
-          source: ServiceBookingSuccessSource.activity,
-          sourceId: widget.activityId,
-          sourceTitle: widget.title
-        ),
+        extra: ServiceBookingSuccessData(source: ServiceBookingSuccessSource.activity, sourceId: widget.detail.id, sourceTitle: widget.detail.title),
       );
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -195,17 +201,14 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
   }
 
   Widget _buildHeroImage() {
-    // heroAsset 可能是网络 URL，也可能是本地 asset（兼容旧 mock 路由）
-    final url = widget.heroAsset;
-    if (url.startsWith('http')) {
-      return AppNetworkImage(
-        url: url,
-        fit: BoxFit.cover,
-        placeholder: Container(color: AppColors.surfaceVariant),
-        errorWidget: Container(color: AppColors.surfaceVariant),
-      );
-    }
-    return Image.asset(url, fit: BoxFit.cover);
+    final postUrl = widget.detail.heroAsset;
+    if (postUrl.isEmpty) return Container(color: AppColors.surfaceVariant);
+    return AppNetworkImage(
+      url: postUrl,
+      fit: BoxFit.cover,
+      placeholder: Container(color: AppColors.surfaceVariant),
+      errorWidget: Container(color: AppColors.surfaceVariant),
+    );
   }
 
   PreferredSizeWidget _buildAppBar() {
@@ -219,7 +222,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
         icon: Image.asset('assets/images/service/activity_detail_back.png', width: 24, height: 24),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      title: Text(widget.title, style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: Colors.black)),
+      title: Text(widget.detail.title, style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: Colors.black)),
       centerTitle: false,
     );
   }
