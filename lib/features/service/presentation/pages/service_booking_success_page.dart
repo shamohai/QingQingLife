@@ -98,13 +98,7 @@ class _SuccessActionRow extends StatelessWidget {
           children: [
             _SuccessActionButton(label: '返回首页', onPressed: () => context.go(RouteNames.home)),
             SizedBox(width: gap),
-            _SuccessActionButton(
-              label: '预约记录',
-              onPressed: () {
-                final uri = Uri(path: RouteNames.serviceRecords, queryParameters: {'activeTab': data.recordTab});
-                context.push(uri.toString());
-              },
-            ),
+            _SuccessActionButton(label: '预约记录', onPressed: () => context.push(RouteNames.serviceBookingRecordDetail)),
           ],
         );
       },
