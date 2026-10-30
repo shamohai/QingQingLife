@@ -125,7 +125,9 @@ final appRouter = Provider<GoRouter>((ref) {
                   ),
                   GoRoute(
                     path: 'booking-record-detail',
-                    pageBuilder: (c, s) => const MaterialPage(child: ServiceBookingRecordDetailPage()),
+                    pageBuilder: (c, s) => MaterialPage(
+                      child: ServiceBookingRecordDetailPage(id: s.uri.queryParameters['id'] ?? '', type: s.uri.queryParameters['type'] ?? ''),
+                    ),
                   ),
                   GoRoute(
                     path: 'reservation/:id',

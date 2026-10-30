@@ -70,7 +70,7 @@ class ServiceBookingSuccessPage extends StatelessWidget {
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 68),
-                          _SuccessActionRow(isReservation: isReservation, serviceTab: serviceTab),
+                          _SuccessActionRow(isReservation: isReservation, serviceTab: serviceTab, recordId: data?.sourceId ?? ''),
                         ],
                       ),
                     ),
@@ -88,8 +88,9 @@ class ServiceBookingSuccessPage extends StatelessWidget {
 class _SuccessActionRow extends StatelessWidget {
   final bool isReservation;
   final String serviceTab;
+  final String recordId;
 
-  const _SuccessActionRow({required this.isReservation, required this.serviceTab});
+  const _SuccessActionRow({required this.isReservation, required this.serviceTab, required this.recordId});
 
   @override
   Widget build(BuildContext context) {
@@ -106,8 +107,12 @@ class _SuccessActionRow extends StatelessWidget {
             SizedBox(width: gap),
             _SuccessActionButton(
               label: isReservation ? '预约记录' : '活动记录',
-              onPressed: () =>
-                  context.push(Uri(path: RouteNames.serviceRecords, queryParameters: {'activeTab': isReservation ? 'reservation' : 'activity'}).toString()),
+              onPressed: () => context.push(
+                Uri(
+                  path: RouteNames.serviceBookingRecordDetail,
+                  queryParameters: {'id': recordId, 'type': isReservation ? 'reservation' : 'activity'},
+                ).toString(),
+              ),
             ),
           ],
         );
