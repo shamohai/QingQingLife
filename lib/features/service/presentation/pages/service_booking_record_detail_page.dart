@@ -9,8 +9,8 @@ import '../../../../core/widgets/app_image.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
 import '../../domain/models/reservation_service_detail_model.dart';
-import '../providers/offline_activity_booking_record_detail_provider.dart';
-import '../providers/reservation_booking_record_detail_provider.dart';
+import '../providers/offline_activity_detail_provider.dart';
+import '../providers/reservation_service_detail_provider.dart';
 
 /// 服务预约/活动报名记录详情页面。
 class ServiceBookingRecordDetailPage extends ConsumerWidget {
@@ -59,11 +59,7 @@ class ServiceBookingRecordDetailPage extends ConsumerWidget {
       backgroundColor: AppColors.servicePageBackground,
       body: Stack(
         children: [
-          const Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: 480,
+          const Positioned.fill(
             child: IgnorePointer(
               child: Image(image: AssetImage('assets/images/service/service_record_bg.png'), fit: BoxFit.cover),
             ),
@@ -146,57 +142,63 @@ class _DetailCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(width: 100, height: 100, child: AppNetworkImage(url: imageUrl, width: 100, height: 100, radius: 14)),
-              const Spacer(),
+              const SizedBox(width: 5),
               Flexible(
                 fit: FlexFit.loose,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 198),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 100,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black, height: 1.5),
+                child: SizedBox(
+                  height: 100,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 198),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black, height: 1.5),
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              width: 58,
+                              height: 17,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: AppColors.serviceButtonRed),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                badge,
+                                maxLines: 1,
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400, color: AppColors.serviceButtonRed, height: 1.5),
+                              ),
+                            ),
+                            if (identifier != null) ...[
+                              const SizedBox(height: 8),
+                              Text(
+                                '${identifier.$1}：${identifier.$2}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xFF8E8E93), height: 1.2),
+                              ),
+                            ],
+                          ],
                         ),
-                        const SizedBox(height: 4),
-                        Container(
-                          width: 58,
-                          height: 17,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.serviceButtonRed),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            badge,
-                            maxLines: 1,
-                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400, color: AppColors.serviceButtonRed, height: 1.5),
-                          ),
-                        ),
-                        if (identifier != null) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            '${identifier.$1}：${identifier.$2}',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xFF8E8E93), height: 1.2),
-                          ),
-                        ],
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 23),
+          const SizedBox(height: 12),
           const Divider(height: 1, color: Color(0xFFE1E4E8)),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
           ...rows.map(
             (row) => Padding(
               padding: const EdgeInsets.only(bottom: 10),

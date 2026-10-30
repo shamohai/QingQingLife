@@ -33,14 +33,9 @@ class ServiceBookingSuccessPage extends StatelessWidget {
           builder: (context, constraints) {
             return Stack(
               children: [
-                const IgnorePointer(
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 480,
-                      child: Image(image: AssetImage('assets/images/service/service_record_bg.png'), fit: BoxFit.cover),
-                    ),
+                const Positioned.fill(
+                  child: IgnorePointer(
+                    child: Image(image: AssetImage('assets/images/service/service_record_bg.png'), fit: BoxFit.cover),
                   ),
                 ),
                 SingleChildScrollView(

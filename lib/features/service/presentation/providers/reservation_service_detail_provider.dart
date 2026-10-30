@@ -12,3 +12,10 @@ final reservationServiceDetailProvider = FutureProvider.family.autoDispose<Reser
   final response = await dataSource.getReservationServiceDetail(serviceId);
   return response.requireData;
 });
+
+/// 独立于预约详情页缓存的预约记录详情请求。
+final reservationBookingRecordDetailProvider = FutureProvider.family.autoDispose<ReservationServiceDetail, int>((ref, serviceId) async {
+  final dataSource = ref.read(serviceRemoteDataSourceProvider);
+  final response = await dataSource.getReservationServiceDetail(serviceId);
+  return response.requireData;
+});
