@@ -13,12 +13,7 @@ class PointsProductRow extends StatelessWidget {
   final VoidCallback? onExchange;
   final VoidCallback? onServiceTap;
 
-  const PointsProductRow({
-    super.key,
-    required this.product,
-    this.onExchange,
-    this.onServiceTap,
-  });
+  const PointsProductRow({super.key, required this.product, this.onExchange, this.onServiceTap});
 
   @override
   Widget build(BuildContext context) {
@@ -40,12 +35,7 @@ class PointsProductRow extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: AppNetworkImage(
-                  url: product.imageUrl,
-                  width: 100,
-                  height: 100,
-                  fit: BoxFit.cover,
-                ),
+                child: AppNetworkImage(url: product.imageUrl, width: 100, height: 100, fit: BoxFit.cover),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -71,10 +61,7 @@ class PointsProductRow extends StatelessWidget {
                             Container(
                               margin: const EdgeInsets.only(left: 4),
                               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: const Color(0x1AFF2105),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
+                              decoration: BoxDecoration(color: const Color(0x1AFF2105), borderRadius: BorderRadius.circular(4)),
                               child: const Text(
                                 '服务',
                                 style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Color(0xFFFF2105)),

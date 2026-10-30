@@ -69,9 +69,8 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
   Widget _buildProductCard(BuildContext context, CreditProductItem item) {
     final isService = item.isService;
     return GestureDetector(
-      onTap: () => GoRouter.of(context).push(
-        (isService ? RouteNames.serviceProductDetail : RouteNames.productDetail).replaceFirst(':id', item.productId.toString()),
-      ),
+      onTap: () =>
+          GoRouter.of(context).push((isService ? RouteNames.serviceProductDetail : RouteNames.productDetail).replaceFirst(':id', item.productId.toString())),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -113,16 +112,16 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if (isService)
-                          Container(
-                            margin: const EdgeInsets.only(left: 4),
-                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                            decoration: BoxDecoration(color: const Color(0x1AFF2105), borderRadius: BorderRadius.circular(4)),
-                            child: const Text(
-                              '服务',
-                              style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Color(0xFFFF2105)),
-                            ),
-                          ),
+                        // if (isService)
+                        //   Container(
+                        //     margin: const EdgeInsets.only(left: 4),
+                        //     padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        //     decoration: BoxDecoration(color: const Color(0x1AFF2105), borderRadius: BorderRadius.circular(4)),
+                        //     child: const Text(
+                        //       '服务',
+                        //       style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Color(0xFFFF2105)),
+                        //     ),
+                        //   ),
                       ],
                     ),
                     // 积分 + 按钮
