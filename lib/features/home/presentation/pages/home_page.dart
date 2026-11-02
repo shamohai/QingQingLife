@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:qingqinglife/app/theme/app_spacing.dart';
-import 'package:qingqinglife/features/points_mall/presentation/widgets/points_floating_buttons.dart';
+import 'package:qingqinglife/features/points/mall/presentation/widgets/points_floating_buttons.dart';
 
 import '../../../product/domain/repositories/product_repository.dart' as repo;
 import '../../../../core/widgets/app_loading.dart';

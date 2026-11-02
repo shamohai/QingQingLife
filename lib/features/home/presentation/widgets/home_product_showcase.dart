@@ -27,13 +27,7 @@ class HomeProductShowcase extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))],
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: Image.asset(
@@ -43,7 +37,9 @@ class HomeProductShowcase extends StatelessWidget {
                       errorBuilder: (context, error, stackTrace) => Container(
                         height: 248,
                         color: const Color(0xFFF5F5F5),
-                        child: const Center(child: Text('元宝专区', style: TextStyle(fontSize: 12, color: Colors.grey))),
+                        child: const Center(
+                          child: Text('元宝专区', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        ),
                       ),
                     ),
                   ),
@@ -83,15 +79,7 @@ class HomeProductShowcase extends StatelessWidget {
                 errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
               ),
               const SizedBox(height: 4),
-              SizedBox(
-                width: 12,
-                height: 7,
-                child: const Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 12,
-                  color: Colors.white,
-                ),
-              ),
+              SizedBox(width: 12, height: 7, child: const Icon(Icons.keyboard_arrow_down, size: 12, color: Colors.white)),
             ],
           ),
         ),
@@ -109,13 +97,7 @@ class _ProductCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))],
       ),
       padding: const EdgeInsets.all(8),
       child: Column(
@@ -163,11 +145,7 @@ class _ProductCard extends StatelessWidget {
                 ),
                 const TextSpan(
                   text: '天佑德电商专供青稞酒特别版本42度500ml',
-                  style: TextStyle(
-                    color: Color(0xFF000000),
-                    fontSize: 11,
-                    height: 1.25,
-                  ),
+                  style: TextStyle(color: Color(0xFF000000), fontSize: 11, height: 1.25),
                 ),
               ],
             ),
@@ -184,13 +162,7 @@ class _ProductCard extends StatelessWidget {
                   border: Border.all(color: const Color(0xFFD9D9D9), width: 0.5),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text(
-                  '52%vol',
-                  style: TextStyle(
-                    color: Color(0xFF8E8E93),
-                    fontSize: 9,
-                  ),
-                ),
+                child: const Text('52%vol', style: TextStyle(color: Color(0xFF8E8E93), fontSize: 9)),
               ),
               const SizedBox(width: 4),
               Container(
@@ -199,13 +171,7 @@ class _ProductCard extends StatelessWidget {
                   border: Border.all(color: const Color(0xFFD9D9D9), width: 0.5),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text(
-                  '清香型',
-                  style: TextStyle(
-                    color: Color(0xFF8E8E93),
-                    fontSize: 9,
-                  ),
-                ),
+                child: const Text('清香型', style: TextStyle(color: Color(0xFF8E8E93), fontSize: 9)),
               ),
             ],
           ),
@@ -221,28 +187,16 @@ class _ProductCard extends StatelessWidget {
                 children: [
                   const Text(
                     '￥',
-                    style: TextStyle(
-                      color: Color(0xFFFF2105),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: TextStyle(color: Color(0xFFFF2105), fontSize: 10, fontWeight: FontWeight.w500),
                   ),
                   const Text(
                     '800',
-                    style: TextStyle(
-                      color: Color(0xFFFF2105),
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(color: Color(0xFFFF2105), fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(width: 4),
                   Text(
                     '¥985',
-                    style: TextStyle(
-                      color: Color(0xFF8E8E93),
-                      fontSize: 9,
-                      decoration: TextDecoration.lineThrough,
-                    ),
+                    style: TextStyle(color: Color(0xFF8E8E93), fontSize: 9, decoration: TextDecoration.lineThrough),
                   ),
                 ],
               ),
@@ -251,11 +205,7 @@ class _ProductCard extends StatelessWidget {
                 width: 16,
                 height: 16,
                 fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) => const Icon(
-                  Icons.shopping_cart,
-                  size: 16,
-                  color: Color(0xFFFF2105),
-                ),
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.shopping_cart, size: 16, color: Color(0xFFFF2105)),
               ),
             ],
           ),

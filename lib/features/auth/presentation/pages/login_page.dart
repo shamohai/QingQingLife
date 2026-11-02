@@ -68,19 +68,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     ref.listen<AuthStatus>(authProvider, (previous, next) {
       if (previous == AuthStatus.loading && next == AuthStatus.wechatAuthenticated) {
         if (mounted) {
-          final from = GoRouterState.of(context).uri.queryParameters['from'];
+          final from = safeReturnTo(GoRouterState.of(context).uri.queryParameters['from']);
           final phoneBindLocation = from == null ? RouteNames.phoneBind : Uri(path: RouteNames.phoneBind, queryParameters: {'from': from}).toString();
           context.push(phoneBindLocation);
         }
       } else if (previous == AuthStatus.loading && next == AuthStatus.authenticated) {
         if (mounted) {
           final returnTo = safeReturnTo(GoRouterState.of(context).uri.queryParameters['from']);
-          if (returnTo != null) {
-            context.go(returnTo);
-          } else if (context.canPop()) {
+          final strategy = loginReturnStrategy(hasValidReturnTo: returnTo != null, canPop: context.canPop());
+          if (strategy == LoginReturnStrategy.pop) {
             context.pop();
           } else {
-            context.go(RouteNames.profile);
+            context.go(returnTo ?? RouteNames.profile);
           }
         }
       } else if (next == AuthStatus.unauthenticated) {

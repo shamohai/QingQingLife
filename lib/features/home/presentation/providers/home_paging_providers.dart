@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../product/domain/repositories/product_repository.dart';
-import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
-import '../../../points_mall/data/models/get_credit_product_list_model.dart';
+import '../../../points/mall/data/models/get_recommend_product_list_model.dart';
+import '../../../points/mall/data/models/get_credit_product_list_model.dart';
 import '../../../../core/presentation/paging/paging_controller_mixin.dart';
 import '../../../../core/presentation/paging/paging_list_view.dart';
 import '../../../../core/providers/repository_providers.dart';
@@ -30,9 +30,7 @@ class HomeHotProductsNotifier extends PagingNotifier<CreditMallProduct> {
   }
 }
 
-final homeHotProductsProvider = NotifierProvider.autoDispose<HomeHotProductsNotifier, PagingData<CreditMallProduct>>(
-  HomeHotProductsNotifier.new,
-);
+final homeHotProductsProvider = NotifierProvider.autoDispose<HomeHotProductsNotifier, PagingData<CreditMallProduct>>(HomeHotProductsNotifier.new);
 
 /// 首页商品网格分页 Notifier
 class HomeProductGridNotifier extends PagingNotifier<ProductCard> {
@@ -47,18 +45,11 @@ class HomeProductGridNotifier extends PagingNotifier<ProductCard> {
       throw Exception(response.message);
     }
     final result = response.data!;
-    return PagingResult<ProductCard>(
-      items: result.products,
-      hasMore: result.hasMore,
-      totalItems: result.total,
-      totalPages: (result.total / pageSize).ceil(),
-    );
+    return PagingResult<ProductCard>(items: result.products, hasMore: result.hasMore, totalItems: result.total, totalPages: (result.total / pageSize).ceil());
   }
 }
 
-final homeProductGridProvider = NotifierProvider.autoDispose<HomeProductGridNotifier, PagingData<ProductCard>>(
-  HomeProductGridNotifier.new,
-);
+final homeProductGridProvider = NotifierProvider.autoDispose<HomeProductGridNotifier, PagingData<ProductCard>>(HomeProductGridNotifier.new);
 
 /// 首页底部推荐商品分页 Notifier（调用 GetCreditProductList 接口）
 /// 接口：POST /api/product/getcreditproductlist，sort=1, asc=false
@@ -69,12 +60,7 @@ class HomeRecommendCreditProductsNotifier extends PagingNotifier<CreditProductIt
   @override
   Future<PagingResult<CreditProductItem>> fetchPage(int page, int pageSize) async {
     final repository = ref.read(pointsRepositoryProvider);
-    final response = await repository.getCreditProductList(
-      page: page,
-      pageSize: pageSize,
-      sort: 1,
-      asc: false,
-    );
+    final response = await repository.getCreditProductList(page: page, pageSize: pageSize, sort: 1, asc: false);
     if (!response.success || response.data == null) {
       throw Exception(response.message);
     }
@@ -88,7 +74,6 @@ class HomeRecommendCreditProductsNotifier extends PagingNotifier<CreditProductIt
   }
 }
 
-final homeRecommendCreditProductsProvider =
-    NotifierProvider.autoDispose<HomeRecommendCreditProductsNotifier, PagingData<CreditProductItem>>(
+final homeRecommendCreditProductsProvider = NotifierProvider.autoDispose<HomeRecommendCreditProductsNotifier, PagingData<CreditProductItem>>(
   HomeRecommendCreditProductsNotifier.new,
 );

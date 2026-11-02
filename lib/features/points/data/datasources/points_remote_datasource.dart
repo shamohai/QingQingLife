@@ -5,14 +5,13 @@ import '../../../../core/network/api_response.dart';
 import '../../../../core/network/providers.dart';
 import '../../domain/repositories/points_repository.dart';
 import '../models/points_credit_detail_models.dart';
-import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
-import '../../../points_mall/data/models/points_mall_home_data.dart';
-import '../../../points_mall/data/models/sign_in_result.dart';
-import '../../../points_mall/data/models/service_product_detail_model.dart';
-import '../../../points_mall/data/models/get_credit_product_list_model.dart';
-import '../../../points_mall/data/models/credit_product_category_model.dart';
-import '../../../points_mall/data/models/pre_credit_order_info_model.dart';
-import '../../../points_mall/data/models/points_submit_order_models.dart';
+import '../../mall/data/models/get_recommend_product_list_model.dart';
+import '../../mall/data/models/points_mall_home_data.dart';
+import '../../mall/data/models/sign_in_result.dart';
+import '../../mall/data/models/get_credit_product_list_model.dart';
+import '../../mall/data/models/credit_product_category_model.dart';
+import '../../mall/data/models/pre_credit_order_info_model.dart';
+import '../../mall/data/models/points_submit_order_models.dart';
 
 /// 积分商城远程数据源
 ///
@@ -92,35 +91,17 @@ class PointsRemoteDataSource implements PointsRepository {
     );
   }
 
-  // ── 以下方法保留为占位，待对应接口就绪后实现 ──────────────────────────
+  // ── 以下商城/账户操作尚无已确认的 API 定义，不在客户端臆造请求。
 
   @override
-  Future<ApiResponse<PointsMallHomeData>> getPointsMallHome() async {
-    throw UnimplementedError('getPointsMallHome not implemented in PointsRemoteDataSource');
-  }
+  Future<ApiResponse<PointsMallHomeData>> getPointsMallHome() async => ApiResponse.error('积分商城首页数据源不可用');
 
   @override
-  Future<ApiResponse<PointsMallHomeData>> getProducts({required int page, required int pageSize, String? categoryId, String? keyword}) async {
-    throw UnimplementedError('getProducts not implemented in PointsRemoteDataSource');
-  }
+  Future<ApiResponse<PointsMallHomeData>> getProducts({required int page, required int pageSize, String? categoryId, String? keyword}) async =>
+      ApiResponse.error('积分商品列表数据源不可用');
 
   @override
-  Future<ApiResponse<PointsProductDetail>> getProductDetail(String productId) async {
-    throw UnimplementedError('getProductDetail not implemented in PointsRemoteDataSource');
-  }
-
-  @override
-  Future<ApiResponse<ServiceProductDetail>> getServiceProductDetail(String productId) async {
-    final productIdValue = int.tryParse(productId);
-    if (productIdValue == null || productIdValue <= 0) {
-      return ApiResponse.error('无效的积分商品 ID');
-    }
-    return _apiClient.post<ServiceProductDetail>(
-      '/api/product/getproductinfo',
-      data: <String, dynamic>{'pid': productIdValue},
-      fromJson: (dynamic json) => ServiceProductDetail.fromJson(Map<String, dynamic>.from(json as Map), fallbackProductId: productIdValue),
-    );
-  }
+  Future<ApiResponse<PointsProductDetail>> getProductDetail(String productId) async => ApiResponse.error('积分商品详情数据源不可用');
 
   @override
   Future<ApiResponse<PreCreditOrderInfoModel>> getPreCreditOrderInfo({required int userServiceId, required String productId, required int quantity}) async {
@@ -191,29 +172,20 @@ class PointsRemoteDataSource implements PointsRepository {
     required int quantity,
     required String addressId,
     String? remark,
-  }) async {
-    throw UnimplementedError('exchangePointsProduct not implemented in PointsRemoteDataSource');
-  }
+  }) async => ApiResponse.error('积分兑换接口尚未确认');
 
   @override
-  Future<ApiResponse<List<PointsExchangeRecord>>> getExchangeRecords({required int page, required int pageSize, ExchangeStatus? status}) async {
-    throw UnimplementedError('getExchangeRecords not implemented in PointsRemoteDataSource');
-  }
+  Future<ApiResponse<List<PointsExchangeRecord>>> getExchangeRecords({required int page, required int pageSize, ExchangeStatus? status}) async =>
+      ApiResponse.error('积分兑换记录接口尚未确认');
 
   @override
-  Future<ApiResponse<SignInResult>> signIn() async {
-    throw UnimplementedError('signIn not implemented in PointsRemoteDataSource');
-  }
+  Future<ApiResponse<SignInResult>> signIn() async => ApiResponse.error('积分签到接口尚未确认');
 
   @override
-  Future<ApiResponse<SignInCalendarResult>> getSignInCalendar({required int year, required int month}) async {
-    throw UnimplementedError('getSignInCalendar not implemented in PointsRemoteDataSource');
-  }
+  Future<ApiResponse<SignInCalendarResult>> getSignInCalendar({required int year, required int month}) async => ApiResponse.error('积分签到日历接口尚未确认');
 
   @override
-  Future<ApiResponse<String>> getPointsRule() async {
-    throw UnimplementedError('getPointsRule not implemented in PointsRemoteDataSource');
-  }
+  Future<ApiResponse<String>> getPointsRule() async => ApiResponse.error('积分规则接口尚未确认');
 }
 
 final pointsRemoteDataSourceProvider = Provider<PointsRemoteDataSource>((ref) {

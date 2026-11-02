@@ -8,9 +8,19 @@ import 'route_names.dart';
 /// ```dart
 /// context.push(loginLocationFor(GoRouterState.of(context).uri.toString()));
 /// ```
-/// 登录成功后使用 [safeReturnTo] 校验 `from`，再跳回原页面。
+/// 登录成功后使用 [safeReturnTo] 校验 `from`，再恢复原有路由栈。
 String loginLocationFor(String returnTo) {
   return Uri(path: RouteNames.login, queryParameters: {'from': returnTo}).toString();
+}
+
+/// 选择登录完成后的路由恢复策略。
+///
+/// 当登录页是从公开页面 push 进入时，登录页及可能的手机号绑定页都位于
+/// 原页面之上，因此应 pop 回原栈，避免 go 重建目标页并丢失它的前置页面。
+enum LoginReturnStrategy { pop, navigate }
+
+LoginReturnStrategy loginReturnStrategy({required bool hasValidReturnTo, required bool canPop}) {
+  return hasValidReturnTo || canPop ? LoginReturnStrategy.pop : LoginReturnStrategy.navigate;
 }
 
 /// 校验登录后的回跳地址，只允许应用内的绝对路径。
@@ -18,7 +28,7 @@ String loginLocationFor(String returnTo) {
 /// 外部 URL、协议相对地址、空值以及登录/绑定手机号页面都会被拒绝，
 /// 避免开放重定向和登录页之间循环跳转。失败时调用方应使用默认页面。
 /// 页面登录成功时读取 `GoRouterState.of(context).uri.queryParameters['from']`，
-/// 传入本方法；结果非空再 `context.go(result)`。
+/// 传入本方法校验；对于 push 登录应优先 pop 恢复原导航栈。
 String? safeReturnTo(String? candidate) {
   if (candidate == null || candidate.isEmpty) return null;
 

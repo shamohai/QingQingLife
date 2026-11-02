@@ -11,7 +11,7 @@ import '../../../../core/widgets/app_image.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../member/domain/repositories/member_repository.dart';
 import '../../../member/presentation/providers/member_addresses_provider.dart';
-import '../../../points_mall/presentation/widgets/confirm_order_header.dart';
+import '../../../points/mall/presentation/widgets/confirm_order_header.dart';
 import '../../domain/entities/service_coupon_order.dart';
 import '../providers/service_coupon_order_provider.dart';
 import 'mall_payment_success_page.dart';

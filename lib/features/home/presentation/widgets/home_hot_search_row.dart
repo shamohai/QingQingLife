@@ -28,10 +28,7 @@ class HomeHotSearchRow extends StatelessWidget {
           final keyword = keywords[index - 1];
           return Padding(
             padding: const EdgeInsets.only(left: AppSpacing.sm),
-            child: _HotKeywordChip(
-              label: keyword,
-              onTap: () => onKeywordTap?.call(keyword),
-            ),
+            child: _HotKeywordChip(label: keyword, onTap: () => onKeywordTap?.call(keyword)),
           );
         },
       ),
@@ -52,16 +49,8 @@ class _HotKeywordChip extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-        decoration: BoxDecoration(
-          color: isBadge ? const Color(0xFFE53935) : AppColors.surfaceVariant,
-          borderRadius: BorderRadius.circular(AppRadius.round),
-        ),
-        child: Text(
-          label,
-          style: AppTextStyles.labelSmall.copyWith(
-            color: isBadge ? AppColors.onPrimary : AppColors.onSurfaceVariant,
-          ),
-        ),
+        decoration: BoxDecoration(color: isBadge ? const Color(0xFFE53935) : AppColors.surfaceVariant, borderRadius: BorderRadius.circular(AppRadius.round)),
+        child: Text(label, style: AppTextStyles.labelSmall.copyWith(color: isBadge ? AppColors.onPrimary : AppColors.onSurfaceVariant)),
       ),
     );
   }

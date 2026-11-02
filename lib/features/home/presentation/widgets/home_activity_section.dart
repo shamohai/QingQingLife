@@ -160,137 +160,137 @@ class _ActivityCardState extends State<_ActivityCard> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14), // 设计稿 14px 圆角
         child: SizedBox(
-        height: widget.height,
-        child: Stack(
-          children: [
-            // 背景图 / 轮播图
-            SizedBox(
-              width: double.infinity,
-              height: widget.height,
-              child: images.isEmpty
-                  ? Container(color: AppColors.surfaceVariant, width: double.infinity, height: widget.height)
-                  : images.length == 1
-                  ? AppNetworkImage(url: images.first, fit: BoxFit.cover, width: double.infinity, height: widget.height)
-                  : Listener(
-                      onPointerDown: (_) {
-                        _isInteracting = true;
-                        _timer?.cancel();
-                      },
-                      onPointerUp: (_) {
-                        _isInteracting = false;
-                        _startAutoPlay();
-                      },
-                      onPointerCancel: (_) {
-                        _isInteracting = false;
-                        _startAutoPlay();
-                      },
-                      child: PageView.builder(
-                        controller: _pageController,
-                        onPageChanged: (index) {
-                          if (images.length < 2) return;
-                          setState(() {
-                            _currentIndex = index % images.length;
-                          });
+          height: widget.height,
+          child: Stack(
+            children: [
+              // 背景图 / 轮播图
+              SizedBox(
+                width: double.infinity,
+                height: widget.height,
+                child: images.isEmpty
+                    ? Container(color: AppColors.surfaceVariant, width: double.infinity, height: widget.height)
+                    : images.length == 1
+                    ? AppNetworkImage(url: images.first, fit: BoxFit.cover, width: double.infinity, height: widget.height)
+                    : Listener(
+                        onPointerDown: (_) {
+                          _isInteracting = true;
+                          _timer?.cancel();
+                        },
+                        onPointerUp: (_) {
+                          _isInteracting = false;
                           _startAutoPlay();
                         },
-                        itemBuilder: (context, index) {
-                          return AppNetworkImage(url: images[index % images.length], fit: BoxFit.cover, width: double.infinity, height: widget.height);
+                        onPointerCancel: (_) {
+                          _isInteracting = false;
+                          _startAutoPlay();
                         },
+                        child: PageView.builder(
+                          controller: _pageController,
+                          onPageChanged: (index) {
+                            if (images.length < 2) return;
+                            setState(() {
+                              _currentIndex = index % images.length;
+                            });
+                            _startAutoPlay();
+                          },
+                          itemBuilder: (context, index) {
+                            return AppNetworkImage(url: images[index % images.length], fit: BoxFit.cover, width: double.infinity, height: widget.height);
+                          },
+                        ),
                       ),
+              ),
+              // 渐变蒙层：从中间50%位置到图片底部
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    gradient: const LinearGradient(
+                      begin: Alignment(0.0, 0.0), // 中间 50% 位置
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0x0D9D9D9D), Color(0xFF213775)],
                     ),
-            ),
-            // 渐变蒙层：从中间50%位置到图片底部
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
-                  gradient: const LinearGradient(
-                    begin: Alignment(0.0, 0.0), // 中间 50% 位置
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0x0D9D9D9D), Color(0xFF213775)],
                   ),
                 ),
               ),
-            ),
-            // 自定义指示器：右上角，图片数量 > 1 时显示
-            if (images.length > 1)
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: List.generate(images.length, (index) {
-                    final isSelected = index == _currentIndex;
-                    return Container(
-                      width: 8,
-                      height: 4,
-                      margin: const EdgeInsets.only(left: 2),
-                      decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFF0088FF) : Colors.white,
-                        borderRadius: BorderRadius.zero, // 直角 (0dp 圆角)
-                      ),
-                    );
-                  }),
+              // 自定义指示器：右上角，图片数量 > 1 时显示
+              if (images.length > 1)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(images.length, (index) {
+                      final isSelected = index == _currentIndex;
+                      return Container(
+                        width: 8,
+                        height: 4,
+                        margin: const EdgeInsets.only(left: 2),
+                        decoration: BoxDecoration(
+                          color: isSelected ? const Color(0xFF0088FF) : Colors.white,
+                          borderRadius: BorderRadius.zero, // 直角 (0dp 圆角)
+                        ),
+                      );
+                    }),
+                  ),
                 ),
-              ),
-            // 底部内容
-            Positioned(
-              bottom: isTall ? 16 : 10,
-              left: isTall ? 14 : 8,
-              right: isTall ? 14 : 8,
-              child: isTall
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          widget.block.title,
-                          style: const TextStyle(color: Color(0xFFFFFFFF), fontSize: 11, fontWeight: FontWeight.w500),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 10),
-                        // "立即参与" 按钮样式 (71x24, 圆角 67, 白色背景, 文字 #213775 11sp)
-                        Container(
-                          width: 71,
-                          height: 24,
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(67)),
-                          child: const Center(
-                            child: Text(
-                              '立即参与',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF213775)),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
+              // 底部内容
+              Positioned(
+                bottom: isTall ? 16 : 10,
+                left: isTall ? 14 : 8,
+                right: isTall ? 14 : 8,
+                child: isTall
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
                             widget.block.title,
-                            style: const TextStyle(color: Color(0xFFFFFFFF), fontSize: 9, fontWeight: FontWeight.w500, height: 1.2),
-                            maxLines: 2,
+                            style: const TextStyle(color: Color(0xFFFFFFFF), fontSize: 11, fontWeight: FontWeight.w500),
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        const SizedBox(width: 4),
-                        // 右侧 16x16 白色圆形带箭头按钮
-                        Container(
-                          width: 16,
-                          height: 16,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle, // 圆形按钮
+                          const SizedBox(height: 10),
+                          // "立即参与" 按钮样式 (71x24, 圆角 67, 白色背景, 文字 #213775 11sp)
+                          Container(
+                            width: 71,
+                            height: 24,
+                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(67)),
+                            child: const Center(
+                              child: Text(
+                                '立即参与',
+                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF213775)),
+                              ),
+                            ),
                           ),
-                          child: const Center(child: Icon(Icons.chevron_right, size: 10, color: Color(0xFF213775))),
-                        ),
-                      ],
-                    ),
-            ),
-          ],
-        ),
+                        ],
+                      )
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.block.title,
+                              style: const TextStyle(color: Color(0xFFFFFFFF), fontSize: 9, fontWeight: FontWeight.w500, height: 1.2),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          // 右侧 16x16 白色圆形带箭头按钮
+                          Container(
+                            width: 16,
+                            height: 16,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle, // 圆形按钮
+                            ),
+                            child: const Center(child: Icon(Icons.chevron_right, size: 10, color: Color(0xFF213775))),
+                          ),
+                        ],
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );

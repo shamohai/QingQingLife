@@ -1,13 +1,12 @@
 import '../../../../core/network/api_response.dart';
 import '../../data/models/points_credit_detail_models.dart';
-import '../../../points_mall/data/models/points_mall_home_data.dart';
-import '../../../points_mall/data/models/sign_in_result.dart';
-import '../../../points_mall/data/models/service_product_detail_model.dart';
-import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
-import '../../../points_mall/data/models/get_credit_product_list_model.dart';
-import '../../../points_mall/data/models/credit_product_category_model.dart';
-import '../../../points_mall/data/models/pre_credit_order_info_model.dart';
-import '../../../points_mall/data/models/points_submit_order_models.dart';
+import '../../mall/data/models/points_mall_home_data.dart';
+import '../../mall/data/models/sign_in_result.dart';
+import '../../mall/data/models/get_recommend_product_list_model.dart';
+import '../../mall/data/models/get_credit_product_list_model.dart';
+import '../../mall/data/models/credit_product_category_model.dart';
+import '../../mall/data/models/pre_credit_order_info_model.dart';
+import '../../mall/data/models/points_submit_order_models.dart';
 
 /// 积分商城仓库接口
 abstract class PointsRepository {
@@ -19,9 +18,6 @@ abstract class PointsRepository {
 
   /// 获取积分商品详情
   Future<ApiResponse<PointsProductDetail>> getProductDetail(String productId);
-
-  /// 获取积分商城服务商品详情
-  Future<ApiResponse<ServiceProductDetail>> getServiceProductDetail(String productId);
 
   /// 积分兑换下单
   Future<ApiResponse<PointsExchangeResult>> exchangePointsProduct({
