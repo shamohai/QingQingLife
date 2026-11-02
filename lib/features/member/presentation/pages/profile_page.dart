@@ -7,7 +7,7 @@ import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/providers/session_provider.dart';
 import '../../../../core/widgets/app_loading.dart';
-import '../../../points_mall/presentation/widgets/points_floating_buttons.dart';
+import '../../../points/mall/presentation/widgets/points_floating_buttons.dart';
 import '../providers/user_profile_provider.dart';
 import '../widgets/profile_butler_banner.dart';
 import '../widgets/profile_feature_grid.dart';
