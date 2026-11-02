@@ -73,6 +73,7 @@ class UserInfo {
   final int nextLevelStart;
   final int nextLevelEnd;
   final String levelName;
+  final String levelIconUrl; // rankinfo.iconurl
   final DateTime? levelExpireDate;
   final int gender; // 0 未知 / 1 男 / 2 女
   final String genderName; // gendername
@@ -91,6 +92,7 @@ class UserInfo {
     this.nextLevelStart = 0,
     this.nextLevelEnd = 0,
     this.levelName = '',
+    this.levelIconUrl = '',
     this.levelExpireDate,
     this.gender = 0,
     this.genderName = '',
@@ -118,6 +120,7 @@ class UserInfo {
       nextLevelStart: _int(rankSource['nextrankstart']),
       nextLevelEnd: _int(rankSource['nextrankend']),
       levelName: _string(rankSource['userridname'] ?? rankSource['nextrankname']),
+      levelIconUrl: _string(rankSource['iconurl'] ?? json['iconurl']).trim(),
       levelExpireDate: _dateTime(rankSource['expiredate']),
       gender: _int(source['gender']),
       genderName: _string(source['gendername']),

@@ -17,7 +17,7 @@ import '../providers/member_addresses_provider.dart';
 ///   所在地区 / 详细地址 / 设置为默认地址 / 确认提交）→ 底部湖泊背景图。
 /// 数据：
 /// - 提交调用 MemberRepository.saveAddress（真实接口：POST /api/sys/setuseraddress）；
-/// - 省市区为本地 Mock 数据（后端暂无地区数据接口），见 _RegionPickerSheet。
+/// - 省市区调用 MemberRepository.getAreaList（真实接口：POST /api/common/getarealist）。
 class AddressFormPage extends ConsumerStatefulWidget {
   /// 编辑模式带入的初始地址；为 null 时为新增模式
   final MemberAddress? initial;
@@ -40,6 +40,7 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
   String? _province;
   String? _city;
   String? _district;
+  int? _areaId;
 
   bool _isDefault = false;
   bool _submitting = false;
@@ -56,6 +57,7 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
     _province = initial?.province;
     _city = initial?.city;
     _district = initial?.district;
+    _areaId = initial?.areaId;
     _isDefault = initial?.isDefault ?? false;
   }
 
@@ -348,16 +350,18 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
 
   /// 打开省市区选择弹层
   Future<void> _pickRegion() async {
-    final result = await AppBottomSheet.show<List<String>>(
+    final result = await AppBottomSheet.show<_RegionSelection>(
       context: context,
       isScrollControlled: true,
-      child: _RegionPickerSheet(initial: _province == null ? null : [_province!, _city!, _district!]),
+      backgroundColor: Colors.white,
+      child: _RegionPickerSheet(initial: _province == null ? null : [_province!, _city ?? '', _district ?? '']),
     );
     if (result != null && mounted) {
       setState(() {
-        _province = result[0];
-        _city = result[1];
-        _district = result[2];
+        _province = result.province.name;
+        _city = result.city.name;
+        _district = result.district.name;
+        _areaId = result.district.id;
       });
     }
   }
@@ -391,6 +395,7 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
         .saveAddress(
           MemberAddress(
             id: widget.initial?.id,
+            areaId: _areaId,
             name: name,
             phone: phone,
             province: _province!,
@@ -476,135 +481,290 @@ class _ToggleSwitch extends StatelessWidget {
 
 /// 省 / 市 / 区选择弹层（三列联动）
 ///
-/// TODO(Mock): 省市区数据后端暂未提供接口，先用本地少量数据演示联动选择，
-/// 接口就绪后改为从服务端获取；当前仅保证 Mock 数据源可用。
-class _RegionPickerSheet extends StatefulWidget {
+/// 数据来自 getarealist：parentid=0 获取省级，选中后按 parentid + level
+/// 逐级加载市、区，避免一次性请求并渲染全部地区数据。
+class _RegionPickerSheet extends ConsumerStatefulWidget {
   /// 已选 [省, 市, 区]（编辑模式带入）
   final List<String>? initial;
 
   const _RegionPickerSheet({this.initial});
 
   @override
-  State<_RegionPickerSheet> createState() => _RegionPickerSheetState();
+  ConsumerState<_RegionPickerSheet> createState() => _RegionPickerSheetState();
 }
 
-class _RegionPickerSheetState extends State<_RegionPickerSheet> {
-  /// TODO(Mock): 本地演示数据（含 Mock 地址使用的甘肃省兰州市七里河区）
-  static const Map<String, Map<String, List<String>>> _regions = {
-    '甘肃省': {
-      '兰州市': ['七里河区', '城关区', '安宁区', '西固区'],
-      '天水市': ['秦州区', '麦积区'],
-    },
-    '北京市': {
-      '北京市': ['朝阳区', '海淀区', '东城区', '西城区'],
-    },
-    '上海市': {
-      '上海市': ['浦东新区', '徐汇区', '静安区', '黄浦区'],
-    },
-    '广东省': {
-      '广州市': ['天河区', '越秀区', '海珠区'],
-      '深圳市': ['南山区', '福田区', '宝安区'],
-    },
-    '浙江省': {
-      '杭州市': ['西湖区', '拱墅区', '滨江区'],
-      '宁波市': ['海曙区', '鄞州区', '江北区'],
-    },
-    '四川省': {
-      '成都市': ['武侯区', '锦江区', '高新区'],
-    },
-  };
+class _RegionPickerSheetState extends ConsumerState<_RegionPickerSheet> {
+  static const Color _titleColor = Color(0xFF1A1D1C);
+  static const Color _optionColor = Color(0xFF666666);
+  static const Color _dividerColor = Color(0xFFEFF1F4);
 
-  late String _province;
-  late String _city;
-  late String _district;
+  List<MemberArea> _provinces = const [];
+  List<MemberArea> _cities = const [];
+  List<MemberArea> _districts = const [];
+  MemberArea? _province;
+  MemberArea? _city;
+  MemberArea? _district;
+  bool _loading = true;
+  String? _error;
+  int _requestGeneration = 0;
 
   @override
   void initState() {
     super.initState();
-    final initial = widget.initial;
-    _province = initial != null && _regions.containsKey(initial[0]) ? initial[0] : _regions.keys.first;
-    final cities = _regions[_province]!;
-    _city = initial != null && cities.containsKey(initial[1]) ? initial[1] : cities.keys.first;
-    final districts = cities[_city]!;
-    _district = initial != null && districts.contains(initial[2]) ? initial[2] : districts.first;
+    _loadInitial();
+  }
+
+  @override
+  void dispose() {
+    _requestGeneration++;
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 18, bottom: 12),
-            child: Text(
-              '选择所在地区',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1A1D1C)),
+    return ColoredBox(
+      color: Colors.white,
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(top: 18, bottom: 12),
+              child: Text(
+                '选择所在地区',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: _titleColor),
+              ),
             ),
-          ),
-          SizedBox(
-            height: 264,
-            child: Row(
-              children: [
-                Expanded(child: _buildColumn(_regions.keys.toList(), _province, _onProvinceChanged)),
-                const VerticalDivider(width: 0.5, thickness: 0.5, color: Color(0xFFEFF1F4)),
-                Expanded(child: _buildColumn(_regions[_province]!.keys.toList(), _city, _onCityChanged)),
-                const VerticalDivider(width: 0.5, thickness: 0.5, color: Color(0xFFEFF1F4)),
-                Expanded(child: _buildColumn(_regions[_province]![_city]!, _district, (value) => setState(() => _district = value))),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => Navigator.of(context).pop([_province, _city, _district]),
-              child: Container(
-                height: 44,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(22),
-                  gradient: const LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [_Palette.buttonStart, _Palette.buttonEnd]),
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.only(top: 2),
-                  child: Text(
-                    '确定',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white, height: 1.2),
+            _buildRegionContent(),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _canConfirm ? _confirm : null,
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 150),
+                  opacity: _canConfirm ? 1 : 0.45,
+                  child: Container(
+                    height: 44,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(22),
+                      gradient: const LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [_Palette.buttonStart, _Palette.buttonEnd],
+                      ),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.only(top: 2),
+                      child: Text(
+                        '确定',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white, height: 1.2),
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool get _canConfirm => !_loading && _error == null && _province != null && _city != null && _district != null;
+
+  Widget _buildRegionContent() {
+    if (_loading) {
+      return const SizedBox(
+        height: 264,
+        child: Center(
+          child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary)),
+        ),
+      );
+    }
+    if (_error != null) {
+      return SizedBox(
+        height: 264,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _error!,
+                style: const TextStyle(fontSize: 14, color: _optionColor),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: _loadInitial,
+                child: const Text(
+                  '重试',
+                  style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
           ),
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 264,
+      child: Row(
+        children: [
+          Expanded(child: _buildColumn(_provinces, _province, _onProvinceChanged)),
+          const VerticalDivider(width: 0.5, thickness: 0.5, color: _dividerColor),
+          Expanded(child: _buildColumn(_cities, _city, _onCityChanged)),
+          const VerticalDivider(width: 0.5, thickness: 0.5, color: _dividerColor),
+          Expanded(child: _buildColumn(_districts, _district, (value) => setState(() => _district = value))),
         ],
       ),
     );
   }
 
-  void _onProvinceChanged(String value) {
-    setState(() {
-      _province = value;
-      _city = _regions[value]!.keys.first;
-      _district = _regions[value]![_city]!.first;
-    });
+  Future<void> _loadInitial() async {
+    final generation = ++_requestGeneration;
+    if (mounted) {
+      setState(() {
+        _loading = true;
+        _error = null;
+      });
+    }
+    try {
+      final provinces = await _fetchAreas(parentId: 0, level: 1);
+      if (!mounted || generation != _requestGeneration) return;
+      if (provinces.isEmpty) throw const _RegionLoadError('暂无省份数据');
+
+      final province = _matchName(provinces, _initialAt(0)) ?? provinces.first;
+      final cities = await _fetchAreas(parentId: province.id, level: 2);
+      if (!mounted || generation != _requestGeneration) return;
+      final city = _matchName(cities, _initialAt(1)) ?? (cities.isEmpty ? null : cities.first);
+      final districts = city == null ? const <MemberArea>[] : await _fetchAreas(parentId: city.id, level: 3);
+      if (!mounted || generation != _requestGeneration) return;
+
+      setState(() {
+        _provinces = provinces;
+        _cities = cities;
+        _districts = districts;
+        _province = province;
+        _city = city;
+        _district = _matchName(districts, _initialAt(2)) ?? (districts.isEmpty ? null : districts.first);
+        _loading = false;
+      });
+    } catch (error) {
+      if (!mounted || generation != _requestGeneration) return;
+      setState(() {
+        _loading = false;
+        _error = _errorText(error);
+      });
+    }
   }
 
-  void _onCityChanged(String value) {
+  Future<void> _onProvinceChanged(MemberArea province) async {
+    final generation = ++_requestGeneration;
     setState(() {
-      _city = value;
-      _district = _regions[_province]![value]!.first;
+      _province = province;
+      _city = null;
+      _district = null;
+      _cities = const [];
+      _districts = const [];
+      _loading = true;
+      _error = null;
     });
+    try {
+      final cities = await _fetchAreas(parentId: province.id, level: 2);
+      if (!mounted || generation != _requestGeneration) return;
+      final city = cities.isEmpty ? null : cities.first;
+      final districts = city == null ? const <MemberArea>[] : await _fetchAreas(parentId: city.id, level: 3);
+      if (!mounted || generation != _requestGeneration) return;
+      setState(() {
+        _cities = cities;
+        _districts = districts;
+        _city = city;
+        _district = districts.isEmpty ? null : districts.first;
+        _loading = false;
+      });
+    } catch (error) {
+      if (!mounted || generation != _requestGeneration) return;
+      setState(() {
+        _loading = false;
+        _error = _errorText(error);
+      });
+    }
   }
 
-  /// 单列选项列表（选中项主题蓝加粗）
-  Widget _buildColumn(List<String> options, String selected, ValueChanged<String> onSelect) {
+  Future<void> _onCityChanged(MemberArea city) async {
+    final generation = ++_requestGeneration;
+    setState(() {
+      _city = city;
+      _district = null;
+      _districts = const [];
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final districts = await _fetchAreas(parentId: city.id, level: 3);
+      if (!mounted || generation != _requestGeneration) return;
+      setState(() {
+        _districts = districts;
+        _district = districts.isEmpty ? null : districts.first;
+        _loading = false;
+      });
+    } catch (error) {
+      if (!mounted || generation != _requestGeneration) return;
+      setState(() {
+        _loading = false;
+        _error = _errorText(error);
+      });
+    }
+  }
+
+  Future<List<MemberArea>> _fetchAreas({required int parentId, required int level}) async {
+    final response = await ref.read(memberRepositoryProvider).getAreaList(parentId: parentId, level: level);
+    if (!response.success) {
+      final message = response.message.trim();
+      throw _RegionLoadError(message.isEmpty || message == 'unknown error' ? '省市区加载失败，请稍后重试' : message);
+    }
+    return response.data ?? const <MemberArea>[];
+  }
+
+  String? _initialAt(int index) {
+    final values = widget.initial;
+    return values != null && values.length > index && values[index].isNotEmpty ? values[index] : null;
+  }
+
+  MemberArea? _matchName(List<MemberArea> areas, String? name) {
+    if (name == null) return null;
+    for (final area in areas) {
+      if (area.name == name) return area;
+    }
+    return null;
+  }
+
+  String _errorText(Object error) {
+    return error is _RegionLoadError ? error.message : '省市区加载失败，请稍后重试';
+  }
+
+  void _confirm() {
+    if (!_canConfirm) return;
+    Navigator.of(context).pop(_RegionSelection(province: _province!, city: _city!, district: _district!));
+  }
+
+  /// 单列选项列表（选中项主题蓝加粗，白色背景配深色文字）
+  Widget _buildColumn(List<MemberArea> options, MemberArea? selected, ValueChanged<MemberArea> onSelect) {
+    if (options.isEmpty) {
+      return const Center(
+        child: Text('暂无数据', style: TextStyle(fontSize: 13, color: _optionColor)),
+      );
+    }
     return ListView.builder(
       padding: EdgeInsets.zero,
       itemCount: options.length,
       itemBuilder: (context, index) {
         final option = options[index];
-        final isSelected = option == selected;
+        final isSelected = option.id == selected?.id;
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => onSelect(option),
@@ -612,13 +772,13 @@ class _RegionPickerSheetState extends State<_RegionPickerSheet> {
             height: 44,
             alignment: Alignment.center,
             child: Text(
-              option,
+              option.name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected ? AppColors.primary : AppColors.onSurfaceVariant,
+                color: isSelected ? AppColors.primary : _optionColor,
                 height: 1.2,
               ),
             ),
@@ -627,6 +787,21 @@ class _RegionPickerSheetState extends State<_RegionPickerSheet> {
       },
     );
   }
+}
+
+/// 省市区选择结果；district.id 用于提交地址的 areaid。
+class _RegionSelection {
+  final MemberArea province;
+  final MemberArea city;
+  final MemberArea district;
+
+  const _RegionSelection({required this.province, required this.city, required this.district});
+}
+
+class _RegionLoadError implements Exception {
+  final String message;
+
+  const _RegionLoadError(this.message);
 }
 
 /// 新增 / 编辑收货地址页局部色板（来源：设计稿采样；项目 AppColors 暂无对应 Token）

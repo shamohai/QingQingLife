@@ -51,8 +51,8 @@ class AuthNotifier extends Notifier<AuthStatus> {
 
   /// Web / 测试环境专用：直接写入测试 token，跳过微信授权。
   Future<void> webLogin() async {
-    const token = '134219';
-    //const token = '223281';
+    //const token = '134219';
+    const token = '223281';
     await _session.login(token);
     await _onLoginSuccess();
   }
@@ -128,16 +128,26 @@ class AuthNotifier extends Notifier<AuthStatus> {
   // ── 登出 / 注销 ─────────────────────────────────────────────────────
 
   Future<void> logout() async {
+    if (state == AuthStatus.loading) return;
     state = AuthStatus.loading;
     _authSubscriber?.cancel();
     _authSubscriber = null;
-    // 无论服务端是否成功，均清除本地 Token，避免用户卡在登录态
-    final response = await _repository.logout();
-    if (!response.success) {
-      AppLogger.warning('Server logout failed: code=${response.code} msg=${response.message}', module: 'auth', event: 'logout_server_failed');
+    try {
+      // 无论服务端是否成功，均清除本地 Token，避免用户卡在登录态
+      final response = await _repository.logout();
+      if (!response.success) {
+        AppLogger.warning('Server logout failed: code=${response.code} msg=${response.message}', module: 'auth', event: 'logout_server_failed');
+      }
+    } catch (error) {
+      AppLogger.warning('Server logout error: $error', module: 'auth', event: 'logout_server_error');
+    } finally {
+      _clearUserProfile();
+      try {
+        await _session.logout();
+      } finally {
+        state = AuthStatus.unauthenticated;
+      }
     }
-    _clearUserProfile();
-    await _session.logout();
   }
 
   /// 注销账号：调用 /api/sys/deluser，成功后清除本地 Session。
@@ -146,7 +156,11 @@ class AuthNotifier extends Notifier<AuthStatus> {
     final response = await _repository.deleteAccount();
     if (response.success) {
       _clearUserProfile();
-      await _session.logout();
+      try {
+        await _session.logout();
+      } finally {
+        state = AuthStatus.unauthenticated;
+      }
     } else {
       AppLogger.warning('Delete account failed: code=${response.code} msg=${response.message}', module: 'auth', event: 'delete_account_failed');
       state = AuthStatus.authenticated;

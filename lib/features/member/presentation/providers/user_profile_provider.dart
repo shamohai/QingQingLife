@@ -9,6 +9,7 @@ import '../../data/models/member_rank_models.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/providers/repository_providers.dart';
+import '../../../../core/providers/session_provider.dart';
 import '../../../../core/domain/repositories/auth_repository.dart' show UserInfo;
 
 class UserProfileState {
@@ -50,6 +51,9 @@ class UserProfileState {
   /// 会员等级名称
   final String levelName;
 
+  /// 当前会员等级图标（getmyprofile rankinfo.iconurl）
+  final String levelIconUrl;
+
   /// 成长值（等级列表中的起始积分）
   int get growthValue => currentRank?.currentrankstart ?? 0;
 
@@ -72,6 +76,17 @@ class UserProfileState {
   /// 当前使用标记 Mock 值用于 UI 还原，接入真实字段后替换。
   final int tianyoudeValue;
 
+  /// 资料是否正在加载。
+  ///
+  /// 不能再用 `levelName == '未登录'` 判断加载态：退出登录后资料也会被清空，
+  /// 两者混用会让页面在退出后一直转圈。
+  final bool isLoading;
+
+  /// 是否已经完成过一次加载（成功或失败）。
+  ///
+  /// 首屏只有在真正请求资料时才展示加载态；未登录时应直接展示空态页面。
+  final bool hasLoaded;
+
   const UserProfileState({
     this.nickname = '青轻用户_9527',
     this.avatarUrl,
@@ -87,10 +102,13 @@ class UserProfileState {
     this.ranks = const [],
     this.memberLevel = 0,
     this.levelName = '未登录',
+    this.levelIconUrl = '',
     this.unreadMessageCount = 0,
     this.avatarPreviewBytes,
     this.memberExpireDate,
     this.tianyoudeValue = 0,
+    this.isLoading = false,
+    this.hasLoaded = false,
   });
 
   UserProfileState withCouponCount(int couponCount) {
@@ -105,7 +123,15 @@ class UserProfileState {
     return _copyWith(avatarUrl: url);
   }
 
-  UserProfileState _copyWith({int? couponCount, String? avatarUrl, Uint8List? avatarPreviewBytes}) {
+  UserProfileState withLoading(bool isLoading) {
+    return _copyWith(isLoading: isLoading);
+  }
+
+  UserProfileState withLoadFinished() {
+    return _copyWith(isLoading: false, hasLoaded: true);
+  }
+
+  UserProfileState _copyWith({int? couponCount, String? avatarUrl, Uint8List? avatarPreviewBytes, bool? isLoading, bool? hasLoaded}) {
     return UserProfileState(
       nickname: nickname,
       avatarUrl: avatarUrl ?? this.avatarUrl,
@@ -121,10 +147,13 @@ class UserProfileState {
       ranks: ranks,
       memberLevel: memberLevel,
       levelName: levelName,
+      levelIconUrl: levelIconUrl,
       unreadMessageCount: unreadMessageCount,
       avatarPreviewBytes: avatarPreviewBytes ?? this.avatarPreviewBytes,
       memberExpireDate: memberExpireDate,
       tianyoudeValue: tianyoudeValue,
+      isLoading: isLoading ?? this.isLoading,
+      hasLoaded: hasLoaded ?? this.hasLoaded,
     );
   }
 
@@ -150,6 +179,8 @@ final memberUidProvider = FutureProvider<String>((ref) async {
 });
 
 class UserProfileNotifier extends Notifier<UserProfileState> {
+  int _loadGeneration = 0;
+
   @override
   UserProfileState build() {
     return const UserProfileState(points: 0, couponCount: 0);
@@ -159,6 +190,14 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
   ///   - 等级页签 / 成长值 / 等级名 / 到期时间：getRankList → POST /api/sys/app/getranklist
   ///   - 昵称 / 头像 / 手机号 / 当前等级 / 成长值：AuthRepository.getCurrentUser
   Future<void> load() async {
+    if (!_isAuthenticated) {
+      clear();
+      return;
+    }
+    if (state.isLoading) return;
+
+    final generation = ++_loadGeneration;
+    state = state.withLoading(true);
     final repository = ref.read(memberRepositoryProvider);
     final couponCountFuture = _loadCouponCount();
     try {
@@ -172,6 +211,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
       String phoneMasked = state.phoneMasked;
       int memberLevel = state.memberLevel;
       String levelName = state.levelName;
+      String levelIconUrl = state.levelIconUrl;
       int points = state.points;
       int? expiringPoints = state.expiringPoints;
       int gender = state.gender;
@@ -186,6 +226,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         avatarUrl = u.avatarUrl ?? avatarUrl;
         phoneMasked = _maskPhone(u.phone);
         memberLevel = u.memberLevel;
+        levelIconUrl = u.levelIconUrl.isNotEmpty ? u.levelIconUrl : levelIconUrl;
         points = u.points;
         expiringPoints = u.expiringPoints;
         gender = u.gender;
@@ -201,6 +242,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
       }
       final couponCount = await couponCountFuture ?? state.couponCount;
 
+      if (!_isCurrentLoad(generation)) return;
       state = UserProfileState(
         nickname: nickname,
         avatarUrl: avatarUrl,
@@ -215,13 +257,18 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         ranks: ranks,
         memberLevel: memberLevel,
         levelName: levelName,
+        levelIconUrl: levelIconUrl,
         avatarPreviewBytes: state.avatarPreviewBytes,
         memberExpireDate: expireDate,
         // TODO(Mock): 天佑德值后端暂无对应字段，使用标记 Mock 值做 UI 还原
         tianyoudeValue: 1500,
+        hasLoaded: true,
       );
     } catch (e) {
       debugPrint('[UserProfile] load error: $e');
+      if (_isCurrentLoad(generation)) {
+        state = state.withLoadFinished();
+      }
     }
   }
 
@@ -269,15 +316,25 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
 
   /// 已加载用户资料后，进入「我的」页面时单独刷新卡券总数。
   Future<void> refreshCouponCount() async {
+    if (!_isAuthenticated) return;
+    final generation = _loadGeneration;
     final couponCount = await _loadCouponCount();
-    if (couponCount != null) {
+    if (couponCount != null && _isCurrentLoad(generation)) {
       state = state.withCouponCount(couponCount);
     }
   }
 
   /// 登出 / 注销时调用：重置为初始空状态，清除页面上的个人信息。
   void clear() {
+    // 使仍在途的资料请求失效，避免退出后旧响应又把个人信息写回来。
+    _loadGeneration++;
     state = const UserProfileState(points: 0, couponCount: 0);
+  }
+
+  bool get _isAuthenticated => ref.read(sessionProvider) == SessionState.authenticated;
+
+  bool _isCurrentLoad(int generation) {
+    return ref.mounted && generation == _loadGeneration && _isAuthenticated;
   }
 
   /// 手机号脱敏：130****9527

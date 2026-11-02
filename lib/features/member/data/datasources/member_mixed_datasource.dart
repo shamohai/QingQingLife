@@ -17,6 +17,7 @@ import 'member_remote_datasource.dart';
 ///   - 会员等级列表（getRankList）：POST /api/sys/app/getranklist，已接真实接口。
 ///   - 等级权益明细（getRankDetail）：POST /api/sys/app/getrankdetail，已接真实接口。
 ///   - 用户地址列表（getAddresses）：POST /api/sys/getuseraddresslist，已接真实接口。
+///   - 省市区列表（getAreaList）：POST /api/common/getarealist，已接真实接口。
 ///   - 我的优惠券分组列表（getCouponGroupList）：POST /api/promotion/getcoupongrouplist，已接真实接口。
 ///   - 待解锁红包列表与详情：POST /api/promotion/getcashcouponlist、getcashcoupondetail，已接真实接口。
 ///   - 可用福利数量（getAvailableWelfareList）：POST /api/promotion/availablewelfarelist，已接真实接口。
@@ -53,6 +54,9 @@ class MemberMixedDataSource implements MemberRepository {
   // ── 已对接真实接口：用户收货地址 ───────────────────────────
   @override
   Future<ApiResponse<List<MemberAddress>>> getAddresses({int addressId = 0}) => remote.getAddresses(addressId: addressId);
+
+  @override
+  Future<ApiResponse<List<MemberArea>>> getAreaList({int parentId = 0, int? level}) => remote.getAreaList(parentId: parentId, level: level);
 
   @override
   Future<ApiResponse<MemberAddress>> saveAddress(MemberAddress address) => remote.saveAddress(address);

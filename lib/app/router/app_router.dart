@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/providers/session_provider.dart';
 import 'auth_redirect.dart';
+import 'main_shell_scope.dart';
 
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/points_mall/presentation/pages/points_mall_page.dart';
@@ -401,7 +402,7 @@ class MainShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final idx = navigationShell.currentIndex;
     return Scaffold(
-      body: navigationShell,
+      body: MainShellScope(hasBottomNavigation: true, child: navigationShell),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: Colors.white,

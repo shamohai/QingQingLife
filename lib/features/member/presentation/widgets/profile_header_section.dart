@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/auth_redirect.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/providers/session_provider.dart';
 import '../providers/user_profile_provider.dart';
 import 'user_avatar_image.dart';
 
@@ -16,6 +18,7 @@ class ProfileHeaderSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(userProfileProvider);
+    final isAuthenticated = ref.watch(sessionProvider) == SessionState.authenticated;
 
     return Padding(
       padding: const EdgeInsets.only(left: AppSpacing.lg, right: AppSpacing.lg, top: AppSpacing.sm, bottom: AppSpacing.md),
@@ -27,7 +30,13 @@ class ProfileHeaderSection extends ConsumerWidget {
             Expanded(
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => context.push(RouteNames.personalInfo),
+                onTap: () {
+                  if (isAuthenticated) {
+                    context.push(RouteNames.personalInfo);
+                  } else {
+                    context.push(loginLocationFor(RouteNames.profile));
+                  }
+                },
                 child: Row(
                   children: [
                     // ── 头像（白色描边圆）──────────────────────────────
@@ -52,15 +61,17 @@ class ProfileHeaderSection extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            state.nickname,
+                            isAuthenticated ? state.nickname : '点击登录',
                             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Color(0xFF1A1D1C), height: 1.2),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            state.phoneMasked,
+                            isAuthenticated ? state.phoneMasked : '登录后享会员权益',
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF4A5568)),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
@@ -71,8 +82,7 @@ class ProfileHeaderSection extends ConsumerWidget {
             ),
 
             // ── 客服入口 ──────────────────────────────────────────────
-            _HeaderIconButton(icon: Icons.headset_mic_outlined, onTap: () => debugPrint('[ProfileHeader] 客服入口点击')),
-
+            //_HeaderIconButton(icon: Icons.headset_mic_outlined, onTap: () => debugPrint('[ProfileHeader] 客服入口点击')),
             const SizedBox(width: AppSpacing.sm),
 
             // ── 消息入口（未读数 > 0 时显示红色角标）──────────────────

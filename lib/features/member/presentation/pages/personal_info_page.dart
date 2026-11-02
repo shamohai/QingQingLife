@@ -16,10 +16,10 @@ import '../widgets/user_avatar_image.dart';
 ///   顶部 bg-top350 插画背景（底部渐隐衔接页面淡蓝底色）
 ///   → 透明返回栏「账号安全」→ 大头像
 ///   → 账号信息卡片（UID / 昵称 / 性别 / 出生日期 / 手机号 / 版本号 / 我的地址）
-///   → 底部固定操作栏（注销账号 / 修改个人信息）
+///   → 底部固定操作栏（修改个人信息）
 /// 「修改个人信息」跳转旧版表单页（/member/personal-info/edit）。
 /// 数据：账号信息取 userProfileProvider / memberAddressesProvider；
-/// 注销账号、修改绑定手机号接口后端暂未提供，相关交互标记 TODO，待接口就绪后接入。
+/// 注销账号入口按需求隐藏；修改绑定手机号接口后端暂未提供，相关交互标记 TODO。
 class PersonalInfoPage extends ConsumerStatefulWidget {
   const PersonalInfoPage({super.key});
 
@@ -152,7 +152,7 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
     );
   }
 
-  /// 底部操作栏：注销账号（描边） / 修改个人信息（渐变）
+  /// 底部操作栏：修改个人信息（渐变）
   Widget _buildBottomBar(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
@@ -163,41 +163,21 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
         top: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(13, 11, 13, 23),
-          child: Row(
-            children: [
-              Expanded(child: _buildLogoutButton(context)),
-              const SizedBox(width: 8),
-              Expanded(flex: 2, child: _buildEditInfoButton(context)),
-            ],
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 240),
+              child: SizedBox(width: double.infinity, child: _buildEditInfoButton(context)),
+            ),
           ),
         ),
       ),
     );
   }
 
-  /// 左按钮「注销账号」（描边）→ 注销协议页
-  Widget _buildLogoutButton(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => context.push(RouteNames.accountDeletion),
-      child: Container(
-        height: 44,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: const Color(0xFFA8B9DD)),
-        ),
-        child: const Text(
-          '注销账号',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xFF2B4990), height: 1.2),
-        ),
-      ),
-    );
-  }
-
-  /// 右按钮「修改个人信息」→ 旧版表单页（/member/personal-info/edit）
+  /// 「修改个人信息」→ 旧版表单页（/member/personal-info/edit）
   Widget _buildEditInfoButton(BuildContext context) {
     return GestureDetector(
+      key: const Key('personal_info_edit_button'),
       behavior: HitTestBehavior.opaque,
       onTap: () => context.push(RouteNames.personalInfoEdit),
       child: Container(

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../../app/router/route_names.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../providers/member_level_provider.dart';
 import '../providers/user_profile_provider.dart';
@@ -48,7 +46,7 @@ class MemberSummaryCard extends ConsumerWidget {
         : '$effectiveGrowthValue/${effectiveLevel.growthThreshold}升级';
     final benefitsText = profileMode ? '尊享多项会员权益，立即解锁' : '可尊享${_cnNum(effectiveLevel.cardBenefitsCount)}项会员权益';
     final statusText = profileMode ? _formatExpireDate(profileState.memberExpireDate) : (reached ? '已达到该等级，继续保持！' : '暂未达到该等级，怎能轻易认输！');
-    final levelIconUrl = level?.iconUrl.trim() ?? '';
+    final levelIconUrl = (level?.iconUrl ?? profileState?.levelIconUrl ?? '').trim();
 
     return GestureDetector(
       onTap: onTap,
@@ -142,7 +140,7 @@ class MemberSummaryCard extends ConsumerWidget {
 
             const SizedBox(width: 8),
 
-            // ── 右侧等级徽章：详情页使用接口 iconurl，我的页保留本地默认图 ──
+            // ── 右侧等级徽章：我的页取 getmyprofile rankinfo.iconurl，详情页取等级详情图标 ──
             if (levelIconUrl.isNotEmpty)
               SizedBox(
                 width: 84,

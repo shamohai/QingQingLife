@@ -280,7 +280,7 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
   /// 月度权益仅在 hasowned=true 时处理；未领取先领取，再返回 instancetype 分流信息。
   Future<MemberBenefitUseResult> useMonthlyCoupon(MemberMonthlyCoupon coupon) async {
     debugPrint('[MemberLevel] use monthly coupon: ${coupon.serviceId} (${coupon.productName})');
-    if (!coupon.hasOwned) return const MemberBenefitUseResult.ignored();
+    if (!coupon.hasOwned) return const MemberBenefitUseResult.failure('暂无权限');
 
     final monthlyService = _findMonthlyService();
     final serviceId = coupon.serviceId > 0 ? coupon.serviceId : (state.detail?.monthlyserviceid ?? monthlyService?.serviceid ?? 0);
@@ -334,7 +334,7 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
   Future<MemberBenefitUseResult> useBenefit(MemberBenefitItem item) async {
     final service = item.service;
     if (!service.hasowned) {
-      return const MemberBenefitUseResult.ignored();
+      return const MemberBenefitUseResult.failure('暂无权限');
     }
     if (service.serviceid <= 0) {
       return const MemberBenefitUseResult.failure('权益信息无效，请刷新后重试');

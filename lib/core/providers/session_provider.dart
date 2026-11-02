@@ -50,8 +50,12 @@ class SessionNotifier extends Notifier<SessionState> {
   Future<void> logout() async {
     _operationGeneration++;
     state = SessionState.loading;
-    await _storage.clearTokens();
-    state = SessionState.unauthenticated;
+    try {
+      await _storage.clearTokens();
+    } finally {
+      // 即使本地存储清理失败，也要让界面退出登录态，避免页面一直停在 loading。
+      state = SessionState.unauthenticated;
+    }
   }
 
   Future<void> savePendingWechatCode(String code) async {

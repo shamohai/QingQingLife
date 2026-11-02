@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/providers/session_provider.dart';
 import '../../../../features/auth/presentation/providers/auth_provider.dart';
 
 /// 页脚：退出登录按钮（白色圆角通栏 + 退出图标）
@@ -11,6 +12,9 @@ class ProfileFooter extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isAuthenticated = ref.watch(sessionProvider) == SessionState.authenticated;
+    if (!isAuthenticated) return const SizedBox.shrink();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xl),
       child: GestureDetector(

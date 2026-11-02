@@ -84,6 +84,11 @@ abstract class MemberRepository {
   /// 获取收货地址列表
   Future<ApiResponse<List<MemberAddress>>> getAddresses({int addressId = 0});
 
+  /// 获取省市区列表（真实接口：POST /api/common/getarealist）
+  ///
+  /// [parentId] 为 0 时获取省/直辖市；[level] 为 1 省、2 市、3 区。
+  Future<ApiResponse<List<MemberArea>>> getAreaList({int parentId = 0, int? level});
+
   /// 新增/编辑收货地址
   Future<ApiResponse<MemberAddress>> saveAddress(MemberAddress address);
 
@@ -434,6 +439,34 @@ class MemberAddress {
       detail: detail ?? this.detail,
       isDefault: isDefault ?? this.isDefault,
       label: label ?? this.label,
+    );
+  }
+}
+
+/// 省市区区域项（getarealist.arealist[]）
+class MemberArea {
+  final int id;
+  final String name;
+
+  /// 1 省/直辖市，2 市，3 区/县
+  final int level;
+
+  /// 上级区域 id，省级为 0。
+  final int parentId;
+
+  const MemberArea({required this.id, required this.name, required this.level, required this.parentId});
+
+  factory MemberArea.fromJson(Map<dynamic, dynamic> json) {
+    int intValue(dynamic value) {
+      if (value is num) return value.toInt();
+      return int.tryParse(value?.toString() ?? '') ?? 0;
+    }
+
+    return MemberArea(
+      id: intValue(json['id']),
+      name: (json['name'] ?? '').toString().trim(),
+      level: intValue(json['level']),
+      parentId: intValue(json['parentid']),
     );
   }
 }

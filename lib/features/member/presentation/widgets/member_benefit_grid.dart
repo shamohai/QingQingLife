@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_image.dart';
 import '../providers/member_level_provider.dart';
+import 'member_benefit_lock_badge.dart';
 
 /// 会员详情页 - 会员权益宫格（米橙色圆角卡片，3 列）
 ///
 /// 设计稿：标题「会员享 18+ 项权益，立享尊贵」+ 副标 +
 /// 3 列宫格（棕色圆形图标 + 权益名 + 灰色括号说明）。
+/// hasowned=false 的权益在图标底部展示锁标识，点击只提示暂无权限。
 ///
-/// TODO: 宫格图标当前使用 Material 图标近似还原，设计切图就绪后替换为真实图标资源。
+/// 图标优先取 getrankdetail 的 services[].icon，接口未提供或加载失败时回退 Material 图标。
 class MemberBenefitGrid extends StatelessWidget {
   final List<MemberBenefitItem> benefits;
   final Set<int> receivingServiceIds;
@@ -124,14 +127,17 @@ class _BenefitCell extends StatelessWidget {
         opacity: receiving ? 0.55 : 1,
         child: Column(
           children: [
-            Container(
-              width: 46,
-              height: 46,
-              decoration: const BoxDecoration(color: MemberBenefitGrid._iconBg, shape: BoxShape.circle),
-              alignment: Alignment.center,
-              child: receiving
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : Icon(MemberBenefitGrid._benefitIcons[auth.authname] ?? Icons.diamond_outlined, color: Colors.white, size: 22),
+            SizedBox(
+              width: 54,
+              height: 54,
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  _BenefitIcon(item: item, receiving: receiving),
+                  if (!auth.isown) const Positioned(bottom: 0, child: MemberBenefitLockBadge()),
+                ],
+              ),
             ),
             const SizedBox(height: 6),
             Text(
@@ -155,6 +161,34 @@ class _BenefitCell extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// 权益图标：优先使用 getrankdetail 的 services[].icon，缺图时回退本地图标。
+class _BenefitIcon extends StatelessWidget {
+  final MemberBenefitItem item;
+  final bool receiving;
+
+  const _BenefitIcon({required this.item, required this.receiving});
+
+  @override
+  Widget build(BuildContext context) {
+    final iconUrl = item.service.icon?.trim() ?? '';
+    final fallback = Container(
+      width: 46,
+      height: 46,
+      decoration: const BoxDecoration(color: MemberBenefitGrid._iconBg, shape: BoxShape.circle),
+      alignment: Alignment.center,
+      child: receiving
+          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+          : Icon(MemberBenefitGrid._benefitIcons[item.auth.authname] ?? Icons.diamond_outlined, color: Colors.white, size: 22),
+    );
+
+    if (iconUrl.isEmpty) return fallback;
+
+    return ClipOval(
+      child: AppNetworkImage(url: iconUrl, width: 46, height: 46, fit: BoxFit.cover, memCacheWidth: 92, memCacheHeight: 92, errorWidget: fallback),
     );
   }
 }

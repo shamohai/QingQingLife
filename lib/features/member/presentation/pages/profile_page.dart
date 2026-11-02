@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/main_shell_scope.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/providers/session_provider.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../points_mall/presentation/widgets/points_floating_buttons.dart';
 import '../providers/user_profile_provider.dart';
 import '../widgets/profile_butler_banner.dart';
 import '../widgets/profile_feature_grid.dart';
@@ -32,30 +35,54 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       // 登录后 AuthNotifier._onLoginSuccess() 已触发 load()，
-      // 仅在尚未加载（初始空态）时才补充一次拉取，避免重复请求。
-      final profile = ref.read(userProfileProvider);
-      if (profile.levelName == "未登录" && profile.nickname == "青轻用户_9527") {
-        ref.read(userProfileProvider.notifier).load();
-      } else {
-        ref.read(userProfileProvider.notifier).refreshCouponCount();
+      // 仅在尚未加载时才补充一次拉取，避免重复请求。
+      if (ref.read(sessionProvider) == SessionState.authenticated) {
+        final profile = ref.read(userProfileProvider);
+        if (!profile.hasLoaded) {
+          ref.read(userProfileProvider.notifier).load();
+        } else {
+          ref.read(userProfileProvider.notifier).refreshCouponCount();
+        }
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<SessionState>(sessionProvider, (previous, next) {
+      if (next == SessionState.authenticated && !ref.read(userProfileProvider).hasLoaded) {
+        ref.read(userProfileProvider.notifier).load();
+      } else if (next == SessionState.unauthenticated) {
+        final profile = ref.read(userProfileProvider);
+        if (profile.hasLoaded || profile.isLoading) {
+          ref.read(userProfileProvider.notifier).clear();
+        }
+      }
+    });
+
+    final sessionState = ref.watch(sessionProvider);
     final profileState = ref.watch(userProfileProvider);
+    final isAuthenticated = sessionState == SessionState.authenticated;
+    final isLoading = sessionState == SessionState.loading || (isAuthenticated && !profileState.hasLoaded);
+    // 主 Tab 内的底部导航已经处理系统安全区；独立页面才需要额外预留。
+    final hasBottomNavigation = MainShellScope.hasBottomNavigationOf(context);
+    final bottomSafeInset = hasBottomNavigation ? 0.0 : MediaQuery.viewPaddingOf(context).bottom;
 
     return Scaffold(
       // 页面底色与设计稿浅蓝背景一致
       backgroundColor: const Color(0xFFD6E8F7),
-      body: profileState.levelName == '未登录'
+      body: isLoading
           ? const Center(child: AppLoading())
           : Stack(
               children: [
                 RefreshIndicator(
-                  onRefresh: () async => ref.read(userProfileProvider.notifier).load(),
+                  onRefresh: () async {
+                    if (ref.read(sessionProvider) == SessionState.authenticated) {
+                      await ref.read(userProfileProvider.notifier).load();
+                    }
+                  },
                   child: SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: EdgeInsets.zero,
@@ -71,15 +98,21 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               colors: [Color(0xFF8FB7FD), Color(0xFFA9DEFA), Color(0xFFD6E8F7)],
                             ),
                           ),
-                          child: Column(
-                            children: [
-                              const ProfileHeaderSection(),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                                child: MemberSummaryCard(onTap: () => context.push(RouteNames.memberLevel)),
-                              ),
-                              const SizedBox(height: AppSpacing.md),
-                            ],
+                          // 背景保持通栏，内容避让状态栏、刘海和摄像头挖孔。
+                          child: SafeArea(
+                            top: true,
+                            bottom: false,
+                            child: Column(
+                              children: [
+                                const ProfileHeaderSection(),
+                                if (isAuthenticated)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                                    child: MemberSummaryCard(onTap: () => context.push(RouteNames.memberLevel)),
+                                  ),
+                                const SizedBox(height: AppSpacing.md),
+                              ],
+                            ),
                           ),
                         ),
 
@@ -114,25 +147,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         const ProfileFooter(),
 
                         // 底部留白，避免内容贴底
-                        const SizedBox(height: AppSpacing.xxl),
+                        SizedBox(height: AppSpacing.xxl + bottomSafeInset),
                       ],
                     ),
                   ),
                 ),
 
-                // ── 浮动客服按钮 ────────────────────────────────────────
+                // ── 首页同款管家服务悬浮按钮 ─────────────────────────────
                 Positioned(
                   right: AppSpacing.lg,
-                  bottom: AppSpacing.xl,
-                  child: GestureDetector(
-                    onTap: () => context.push(RouteNames.customerService),
-                    child: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: const BoxDecoration(color: Color(0xFF2456A6), shape: BoxShape.circle),
-                      child: const Icon(Icons.headset_mic, size: 24, color: Colors.white),
-                    ),
-                  ),
+                  bottom: AppSpacing.xl + bottomSafeInset,
+                  child: SizedBox(key: const Key('profile_customer_service_button'), child: const PointsFloatingButtons()),
                 ),
               ],
             ),
