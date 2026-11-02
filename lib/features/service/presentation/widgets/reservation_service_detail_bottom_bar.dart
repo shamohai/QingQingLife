@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/auth_redirect.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
+import '../../../../core/providers/session_provider.dart';
 import '../../domain/models/reservation_service_detail_model.dart';
 
 /// 预约服务详情 — 底部固定操作栏（服务预约 tab 真实 API 数据）
 ///
 /// 固定高度 80dp，白色背景，顶部阴影。
 /// - myReservationInfo 为 null：显示「立即预约」渐变按钮，可点击跳转报名页
-/// - myReservationInfo 不为 null：显示「已报名」灰色按钮，不可点击
-class ReservationServiceDetailBottomBar extends StatelessWidget {
+/// - myReservationInfo 不为 null：显示「已预约」灰色按钮，不可点击
+class ReservationServiceDetailBottomBar extends ConsumerWidget {
   final ReservationServiceDetail detail;
 
   const ReservationServiceDetailBottomBar({super.key, required this.detail});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final btnWidth = screenWidth - 60;
     final hasReserved = detail.myReservationInfo != null;
@@ -32,15 +35,7 @@ class ReservationServiceDetailBottomBar extends StatelessWidget {
         bottom: true,
         child: Center(
           child: GestureDetector(
-            onTap: hasReserved
-                ? null
-                : () {
-                    context.pushNamed(
-                      'serviceBookingForm',
-                      pathParameters: {'id': detail.serviceId.toString()},
-                      extra: detail, // 传递完整的 detail 对象
-                    );
-                  },
+            onTap: hasReserved ? null : () => _handleBookTap(context, ref),
             child: Container(
               width: btnWidth,
               height: 51,
@@ -70,6 +65,30 @@ class ReservationServiceDetailBottomBar extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _handleBookTap(BuildContext context, WidgetRef ref) async {
+    // 检查登录状态
+    final session = ref.read(sessionProvider.notifier);
+    await session.ensureInitialized();
+    final isLoggedIn = ref.read(sessionProvider) == SessionState.authenticated;
+
+    if (!context.mounted) return;
+
+    if (!isLoggedIn) {
+      // 未登录：跳转登录页，登录后返回当前页面
+      final returnTo = GoRouterState.of(context).uri.toString();
+      GoRouter.of(context).push(loginLocationFor(returnTo));
+      return;
+    }
+
+    // 已登录：跳转预约表单页
+    if (!context.mounted) return;
+    context.pushNamed(
+      'serviceBookingForm',
+      pathParameters: {'id': detail.serviceId.toString()},
+      extra: detail, // 传递完整的 detail 对象
     );
   }
 }

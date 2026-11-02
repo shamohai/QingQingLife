@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/auth_redirect.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../core/providers/session_provider.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../app/theme/app_radius.dart';
@@ -43,18 +46,35 @@ class ActivityDetailPage extends ConsumerWidget {
       bottomNavigationBar: detailAsync.when(
         loading: () => const SizedBox.shrink(),
         error: (_, _) => const SizedBox.shrink(),
-        data: (detail) => _buildBottomBar(context, detail),
+        data: (detail) => _buildBottomBar(context, ref, detail),
       ),
     );
   }
 
-  void _onBookTap(BuildContext context, OfflineActivityDetail detail) {
+  Future<void> _onBookTap(BuildContext context, WidgetRef ref, OfflineActivityDetail detail) async {
     if (!detail.isSignup) return;
+
+    // 检查登录状态
+    final session = ref.read(sessionProvider.notifier);
+    await session.ensureInitialized();
+    final isLoggedIn = ref.read(sessionProvider) == SessionState.authenticated;
+
+    if (!context.mounted) return;
+
+    if (!isLoggedIn) {
+      // 未登录：跳转登录页，登录后返回当前页面
+      final returnTo = GoRouterState.of(context).uri.toString();
+      GoRouter.of(context).push(loginLocationFor(returnTo));
+      return;
+    }
+
+    // 已登录：跳转报名表单页
+    if (!context.mounted) return;
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => ServiceActivityBookingFormPage(detail: detail)));
   }
 
   /// 底部固定操作栏：已报名时按钮置灰显示"已报名"，可点击时跳转报名表单
-  Widget _buildBottomBar(BuildContext context, OfflineActivityDetail detail) {
+  Widget _buildBottomBar(BuildContext context, WidgetRef ref, OfflineActivityDetail detail) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final btnWidth = screenWidth - 60;
 
@@ -69,7 +89,7 @@ class ActivityDetailPage extends ConsumerWidget {
         bottom: true,
         child: Center(
           child: GestureDetector(
-            onTap: detail.isSignup ? () => _onBookTap(context, detail) : null,
+            onTap: detail.isSignup ? () => _onBookTap(context, ref, detail) : null,
             child: Container(
               width: btnWidth,
               height: 51,
