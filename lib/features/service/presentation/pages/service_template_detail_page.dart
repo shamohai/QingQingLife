@@ -14,8 +14,8 @@ import '../providers/share_cart_template_detail_provider.dart';
 
 /// 购酒享服务模板详情页面
 ///
-/// 路由: /service/template/:id
-/// 进入方式: 从服务中心「购酒享服务」列表页点击跳转（传递 templateId）
+/// 路由: /service/template/:id/:userServiceId
+/// 进入方式: 从服务中心「购酒享服务」列表页点击跳转（传递 templateId 和 userServiceId）
 ///
 /// 数据来源：接口 POST /api/groupMall/shareCart/gettemplatedetail
 ///
@@ -28,13 +28,9 @@ import '../providers/share_cart_template_detail_provider.dart';
 ///   - 底部固定栏：渐变胶囊按钮「立即加购」→ 跳转 /service/cart?templateId=xxx
 class ServiceTemplateDetailPage extends ConsumerStatefulWidget {
   final int templateId;
+  final int userServiceId;
 
-  /// 会员权益商城权益对应的用户权益 id。
-  ///
-  /// 从「我的权益」进入时由路由带入；普通模板详情入口为 null。
-  final int? userServiceId;
-
-  const ServiceTemplateDetailPage({super.key, required this.templateId, this.userServiceId});
+  const ServiceTemplateDetailPage({super.key, required this.templateId, required this.userServiceId});
 
   @override
   ConsumerState<ServiceTemplateDetailPage> createState() => _ServiceTemplateDetailPageState();
@@ -235,9 +231,9 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
         child: Center(
           child: GestureDetector(
             onTap: () {
-              // 跳转到购物车页面，携带 templateId、headImg、cartId 参数
+              // 跳转到购物车页面，携带 templateId、userServiceId、headImg、cartId 参数
               final encodedHeadImg = Uri.encodeComponent(headImg);
-              final uri = '/service/cart?templateId=${widget.templateId}&headImg=$encodedHeadImg&cartId=$cartId';
+              final uri = '/service/cart?templateId=${widget.templateId}&userServiceId=${widget.userServiceId}&headImg=$encodedHeadImg&cartId=$cartId';
               context.push(uri);
             },
             child: Container(

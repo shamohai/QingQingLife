@@ -21,7 +21,7 @@ import '../widgets/service_cart_address_sheet.dart';
 /// 购酒享服务购物车页面
 ///
 /// 数据来源：
-///  - 路由参数：templateId, headImg, cartId
+///  - 路由参数：templateId, headImg, cartId, userServiceId
 ///  - cartId == 0 时自动调用 createShareCart 获取 shareCartId
 ///  - 并行拉取 getShareCartProductList + getCandidateProductList
 ///
@@ -30,8 +30,9 @@ class ServiceCartPage extends ConsumerStatefulWidget {
   final int templateId;
   final String headImg;
   final int cartId;
+  final int userServiceId;
 
-  const ServiceCartPage({super.key, required this.templateId, String? headImg, required this.cartId}) : headImg = headImg ?? '';
+  const ServiceCartPage({super.key, required this.templateId, String? headImg, required this.cartId, required this.userServiceId}) : headImg = headImg ?? '';
 
   @override
   ConsumerState<ServiceCartPage> createState() => _ServiceCartPageState();
@@ -44,7 +45,12 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
 
   @override
   Widget build(BuildContext context) {
-    final params = ServiceCartInitialParams(templateId: widget.templateId, headImg: widget.headImg, existingCartId: widget.cartId);
+    final params = ServiceCartInitialParams(
+      templateId: widget.templateId,
+      headImg: widget.headImg,
+      existingCartId: widget.cartId,
+      userServiceId: widget.userServiceId,
+    );
     final asyncState = ref.watch(serviceCartProvider(params));
 
     // 监听 cartError，非空时弹出错误提示框
@@ -408,7 +414,7 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
 
     setState(() => _isSubmittingOrder = true);
     try {
-      final result = await ref.read(serviceCartProvider(params).notifier).submitOrder(addressId);
+      final result = await ref.read(serviceCartProvider(params).notifier).submitOrder(addressId, widget.userServiceId);
       if (!context.mounted) return;
       if (result.result != 0) {
         final message = result.descr.isNotEmpty

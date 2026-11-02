@@ -9,7 +9,7 @@ import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
-import '../../domain/models/reservation_service_detail_model.dart';
+import '../../domain/models/reservation_record_detail.dart';
 import '../providers/offline_activity_detail_provider.dart';
 import '../providers/reservation_service_detail_provider.dart';
 
@@ -144,10 +144,10 @@ class _DetailHeader extends StatelessWidget {
 }
 
 class _DetailCard extends StatelessWidget {
-  final ReservationServiceDetail? _reservationDetail;
+  final ReservationRecordDetail? _reservationDetail;
   final OfflineActivityDetail? _activityDetail;
 
-  const _DetailCard.forReservation({required ReservationServiceDetail detail}) : _reservationDetail = detail, _activityDetail = null;
+  const _DetailCard.forReservation({required ReservationRecordDetail detail}) : _reservationDetail = detail, _activityDetail = null;
 
   const _DetailCard.forActivity({required OfflineActivityDetail detail}) : _reservationDetail = null, _activityDetail = detail;
 
@@ -158,11 +158,11 @@ class _DetailCard extends StatelessWidget {
     final title = reservation?.serviceName ?? activity!.title;
     final imageUrl = reservation?.headImgUrl ?? activity!.postUrl;
     final badge = reservation != null ? '服务预约' : '活动报名';
-    final info = reservation?.myReservationInfo;
+    final statusName = reservation?.statusName ?? '';
     final signupInfo = activity?.mySignupInfo;
     final signupId = signupInfo?.signupId ?? '';
     final identifier = signupId.isNotEmpty ? ('报名编号', signupId) : null;
-    final rows = reservation != null ? _reservationRows(reservation, info) : _activityRows(activity!, signupInfo);
+    final rows = reservation != null ? _reservationRows(reservation) : _activityRows(activity!, signupInfo);
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.fromLTRB(13, 0, 13, 24),
@@ -174,7 +174,7 @@ class _DetailCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(width: 100, height: 100, child: AppNetworkImage(url: imageUrl, width: 100, height: 100, radius: 14)),
-              const SizedBox(width: 5),
+              const SizedBox(width: 10),
               Flexible(
                 fit: FlexFit.loose,
                 child: SizedBox(
@@ -210,6 +210,15 @@ class _DetailCard extends StatelessWidget {
                                 style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400, color: AppColors.serviceButtonRed, height: 1.5),
                               ),
                             ),
+                            if (statusName != null && statusName.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              Text(
+                                statusName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xFF8E8E93), height: 1.2),
+                              ),
+                            ],
                             if (identifier != null) ...[
                               const SizedBox(height: 8),
                               Text(
@@ -242,18 +251,18 @@ class _DetailCard extends StatelessWidget {
     );
   }
 
-  static List<({String label, String value})> _reservationRows(ReservationServiceDetail detail, Map<String, dynamic>? info) {
-    final date = _readValue(info, 'reservationdate');
-    final time = _readValue(info, 'reservationtime');
-    final dateTime = [date, time].where((value) => value.isNotEmpty).join('  ');
+  static List<({String label, String value})> _reservationRows(ReservationRecordDetail detail) {
+    final dateTime = detail.reservationDateTime.isNotEmpty
+        ? detail.reservationDateTime
+        : [detail.reservationDate, detail.reservationTime].where((value) => value.isNotEmpty).join('  ');
 
     return [
       (label: '预约时间', value: dateTime),
-      (label: '联系人', value: _readValue(info, 'contactname')),
-      (label: '联系电话', value: _readValue(info, 'contactphonenumber')),
-      if (detail.showIdNo) (label: '身份证号码', value: _readValue(info, 'idno')),
-      (label: '预约人数', value: _readValue(info, 'usercount')),
-      (label: '备注', value: _readValue(info, 'remark')),
+      (label: '联系人', value: detail.contactName),
+      (label: '联系电话', value: detail.contactPhoneNumber),
+      (label: '身份证号码', value: detail.idNo),
+      (label: '预约人数', value: detail.userCount.toString()),
+      (label: '备注', value: detail.remark),
     ];
   }
 
@@ -267,12 +276,6 @@ class _DetailCard extends StatelessWidget {
       (label: '报名人数', value: signupInfo?.signupUserCount.toString() ?? ''),
       (label: '备注', value: signupInfo?.remark ?? ''),
     ];
-  }
-
-  static String _readValue(Map<String, dynamic>? values, String key) {
-    final value = values?[key];
-    if (value is String) return value;
-    return value?.toString() ?? '';
   }
 }
 

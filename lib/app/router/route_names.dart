@@ -95,7 +95,7 @@ abstract final class RouteNames {
   static const String serviceBookingForm = '/service/project/:id/book';
 
   // 购酒享服务模板详情
-  static const String serviceTemplateDetail = '/service/template/:id';
+  static const String serviceTemplateDetail = '/service/template/:id/:userServiceId';
 
   // 我的权益 - 权益商城模板详情（顶层入口，避免从 shell 外 push 分支内路由）
   static const String memberServiceTemplateDetail = '/member/service-template/:id';

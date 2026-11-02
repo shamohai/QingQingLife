@@ -4,6 +4,7 @@ import '../models/offline_activity_detail_model.dart';
 import '../models/reservation_service_item.dart';
 import '../models/reservation_service_detail_model.dart';
 import '../models/reservation_record_item.dart';
+import '../models/reservation_record_detail.dart';
 import '../models/offline_activity_record_item.dart';
 import '../models/share_cart_template_model.dart';
 import '../models/share_cart_template_detail_model.dart';
@@ -39,6 +40,11 @@ abstract class ServiceRepository {
   /// reservationlisttype: 0=全部, 1=已预约, 2=已完成
   Future<ApiResponse<List<ReservationRecordItem>>> getMyReservationList({required int reservationListType, int pageIndex = 1, int pageSize = 20});
 
+  /// 获取我的预约记录详情
+  /// 请求：{reservationid: int}
+  /// 响应：{info: {...}}
+  Future<ApiResponse<ReservationRecordDetail>> getMyReservationDetail(int reservationId);
+
   /// 获取我的活动报名记录列表（分页）
   /// 请求：{pageindex: int, pagesize: int}
   /// 响应：{activitylist: [...]}，每项含 activityid / title / activitytypename /
@@ -72,7 +78,7 @@ abstract class ServiceRepository {
   /// 提交权益团购订单
   /// 请求 body：{sharecartid: int, addressid: int}
   /// 响应包含 cansubmit / verifymsg，成功后包含 orderId
-  Future<ApiResponse<ServiceSubmitOrderResult>> submitGroupOrder(int shareCartId, int addressId);
+  Future<ApiResponse<ServiceSubmitOrderResult>> submitGroupOrder(int shareCartId, int addressId, int userServiceId);
 
   /// 获取线下活动列表（挚友会 / 活动报名共用）
   /// 请求：{typdsfriends: bool, authtoken: 0, pageindex: int, pagesize: int}
