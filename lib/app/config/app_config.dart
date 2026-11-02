@@ -21,4 +21,10 @@ abstract final class AppConfig {
 
   /// 微信 AppID（中酒批APP）
   static const String wechatAppId = 'wx64999b13fa01a983';
+
+  /// App 内部导航使用的 Deep Link Scheme。
+  static const String appScheme = 'qingqinglife';
+
+  /// 商城 H5 通用拉起 App 页面。
+  static const String openAppUrl = 'https://m.mall.qkj.com.cn/mob/common/openapp';
 }

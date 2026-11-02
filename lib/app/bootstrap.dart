@@ -8,8 +8,6 @@ import 'config/app_config.dart';
 import 'app.dart';
 
 import '../core/update/shiply/shiply_initializer.dart';
-import '../core/logging/app_logger.dart';
-import '../core/logging/logging_initializer.dart';
 
 /// 应用启动前的引导初始化过程
 ///
@@ -41,16 +39,8 @@ Future<void> bootstrap() async {
 // 异步注册微信 SDK，不阻塞启动流程
 Future<void> _registerWeChatAsync() async {
   try {
-    if (LoggingInitializer.isInitialized) {
-      AppLogger.info('Registering WeChat appId=${AppConfig.wechatAppId}', module: 'wechat', event: 'register_start');
-    }
-    final registered = await fluwx.Fluwx().registerApi(appId: AppConfig.wechatAppId);
-    if (LoggingInitializer.isInitialized) {
-      AppLogger.info('registerApi returned=$registered', module: 'wechat', event: 'register_result');
-    }
-  } catch (e, stackTrace) {
-    if (LoggingInitializer.isInitialized) {
-      AppLogger.error('registerApi failed', module: 'wechat', event: 'register_error', error: e, stackTrace: stackTrace);
-    }
+    await fluwx.Fluwx().registerApi(appId: AppConfig.wechatAppId);
+  } catch (_) {
+    // 微信注册失败不阻塞 App 启动。
   }
 }

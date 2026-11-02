@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/providers/session_provider.dart';
+import 'auth_redirect.dart';
+
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/points_mall/presentation/pages/points_mall_page.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
@@ -30,6 +33,8 @@ import '../../features/service/presentation/pages/reservation_service_detail_pag
 import '../../features/service/presentation/pages/friend_detail_page.dart';
 import '../../features/service/presentation/pages/activity_detail_page.dart';
 import '../../features/service/presentation/pages/service_booking_form_page.dart';
+import '../../features/service/presentation/pages/service_booking_success_page.dart';
+import '../../features/service/presentation/pages/service_booking_record_detail_page.dart';
 import '../../features/service/presentation/pages/service_template_detail_page.dart';
 import '../../features/service/presentation/pages/service_customer_contact_page.dart';
 import '../../features/service/domain/models/reservation_service_detail_model.dart';
@@ -54,9 +59,25 @@ import 'route_names.dart';
 
 final appRouter = Provider<GoRouter>((ref) {
   const devRoute = String.fromEnvironment('QINGQING_DEV_ROUTE');
-  return GoRouter(
+  final refreshListenable = _RouterRefreshListenable(ref);
+  ref.onDispose(refreshListenable.dispose);
+  final router = GoRouter(
     initialLocation: devRoute.isNotEmpty ? devRoute : RouteNames.home,
     debugLogDiagnostics: false,
+    refreshListenable: refreshListenable,
+    redirect: (context, state) async {
+      final sessionNotifier = ref.read(sessionProvider.notifier);
+      await sessionNotifier.ensureInitialized();
+      final sessionState = ref.read(sessionProvider);
+      if (sessionState == SessionState.authenticated) {
+        if (state.uri.path == RouteNames.login) {
+          return safeReturnTo(state.uri.queryParameters['from']) ?? RouteNames.profile;
+        }
+        return null;
+      }
+      if (!requiresAuthentication(state)) return null;
+      return loginLocationFor(state.uri.toString());
+    },
     routes: [
       GoRoute(
         path: RouteNames.login,
@@ -116,6 +137,16 @@ final appRouter = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'records',
                     pageBuilder: (c, s) => MaterialPage(child: ServiceRecordsPage(activeTab: s.uri.queryParameters['activeTab'] ?? 'reservation')),
+                  ),
+                  GoRoute(
+                    path: 'booking-success',
+                    pageBuilder: (c, s) => MaterialPage(child: ServiceBookingSuccessPage.fromExtra(s.extra)),
+                  ),
+                  GoRoute(
+                    path: 'booking-record-detail',
+                    pageBuilder: (c, s) => MaterialPage(
+                      child: ServiceBookingRecordDetailPage(id: s.uri.queryParameters['id'] ?? '', type: s.uri.queryParameters['type'] ?? ''),
+                    ),
                   ),
                   GoRoute(
                     path: 'reservation/:id',
@@ -336,7 +367,17 @@ final appRouter = Provider<GoRouter>((ref) {
       ),
     ],
   );
+  ref.onDispose(router.dispose);
+  return router;
 });
+
+class _RouterRefreshListenable extends ChangeNotifier {
+  _RouterRefreshListenable(Ref ref) {
+    ref.listen<SessionState>(sessionProvider, (previous, next) {
+      if (previous != next) notifyListeners();
+    });
+  }
+}
 
 /// 底部 Tab 主框架
 Widget _buildServiceTemplateDetailPage(GoRouterState state) {

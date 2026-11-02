@@ -2,8 +2,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/auth_redirect.dart';
 import '../../../../app/router/route_names.dart';
-import '../../../../features/auth/presentation/providers/auth_provider.dart';
+import '../../../../core/providers/session_provider.dart';
 import '../../data/models/get_recommend_product_list_model.dart';
 import '../../data/models/service_product_detail_model.dart';
 import 'exchange_confirm_dialog.dart';
@@ -54,13 +55,17 @@ class BottomActionBar extends ConsumerWidget {
   }
 
   Future<void> _handleExchange(BuildContext context, WidgetRef ref) async {
-    // 1. 判断当前用户有没有登录
-    final isLoggedIn = await ref.read(authProvider.notifier).isLoggedIn();
+    // 详情页允许访客浏览；仅在点击兑换时校验登录，并把登录后的目标设为当前详情页。
+    // 登录成功后不自动重放兑换，避免未经用户再次确认就发起兑换流程。
+    final session = ref.read(sessionProvider.notifier);
+    await session.ensureInitialized();
+    final isLoggedIn = ref.read(sessionProvider) == SessionState.authenticated;
 
     if (!context.mounted) return;
 
     if (!isLoggedIn) {
-      GoRouter.of(context).push(RouteNames.login);
+      final returnTo = GoRouterState.of(context).uri.toString();
+      GoRouter.of(context).push(loginLocationFor(returnTo));
       return;
     }
 

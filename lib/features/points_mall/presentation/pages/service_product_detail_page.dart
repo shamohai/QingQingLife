@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../app/config/app_config.dart';
+import '../../../../../app/router/route_names.dart';
 import '../../../../../core/widgets/app_loading.dart';
 import '../../../../../core/widgets/app_error.dart';
+import '../../../../../core/share/share_payload.dart';
+import '../../../../../core/widgets/app_share_sheet.dart';
 import '../providers/service_product_detail_provider.dart';
 import '../widgets/bottom_action_bar.dart';
 import '../widgets/hero_section.dart';
@@ -49,7 +53,22 @@ class ServiceProductDetailPage extends ConsumerWidget {
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(
-              child: HeroSection(product: product, onBack: () => context.pop()),
+              child: HeroSection(
+                product: product,
+                onBack: () => context.pop(),
+                onShare: () => AppShareSheet.show(
+                  context: context,
+                  payload: SharePayload(
+                    title: product.title,
+                    description: product.description,
+                    url: SharePayload.buildOpenAppUrl(
+                      appUrl: '${AppConfig.appScheme}://${RouteNames.serviceProductDetail.replaceFirst(':id', Uri.encodeComponent(productId))}',
+                      baseUrl: AppConfig.openAppUrl,
+                    ).toString(),
+                    imageUrl: product.mainImageUrl.isEmpty ? null : product.mainImageUrl,
+                  ),
+                ),
+              ),
             ),
             SliverToBoxAdapter(
               child: Container(

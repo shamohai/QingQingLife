@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -136,8 +137,15 @@ class ServiceRecordsPage extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
               itemCount: items.length,
               separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
-              itemBuilder: (context, index) =>
-                  ReservationRecordCard(item: items[index], onViewTap: () => context.push('/service/reservation/${items[index].serviceId}')),
+              itemBuilder: (context, index) => ReservationRecordCard(
+                item: items[index],
+                onViewTap: () => context.push(
+                  Uri(
+                    path: RouteNames.serviceBookingRecordDetail,
+                    queryParameters: {'id': items[index].reservationId.toString(), 'type': 'reservation'},
+                  ).toString(),
+                ),
+              ),
             ),
     );
   }
@@ -151,7 +159,11 @@ class ServiceRecordsPage extends ConsumerWidget {
       emptyWidget: const SizedBox(height: 200, child: AppEmpty(message: '暂无记录')),
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
       separatorBuilder: const SizedBox(height: AppSpacing.sm),
-      itemBuilder: (context, item, index) => OfflineActivityRecordCard(item: item, onViewTap: () => context.push('/service/activity/${item.activityId}')),
+      itemBuilder: (context, item, index) => OfflineActivityRecordCard(
+        item: item,
+        onViewTap: () =>
+            context.push(Uri(path: RouteNames.serviceBookingRecordDetail, queryParameters: {'id': item.activityId, 'type': 'activity'}).toString()),
+      ),
     );
   }
 }

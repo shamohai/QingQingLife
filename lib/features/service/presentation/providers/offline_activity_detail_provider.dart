@@ -12,3 +12,10 @@ final offlineActivityDetailProvider = FutureProvider.family.autoDispose<OfflineA
   final response = await dataSource.getOfflineActivityDetail(activityId);
   return response.requireData;
 });
+
+/// 独立于活动详情页缓存的报名记录详情请求。
+final offlineActivityBookingRecordDetailProvider = FutureProvider.family.autoDispose<OfflineActivityDetail, String>((ref, activityId) async {
+  final dataSource = ref.read(serviceRemoteDataSourceProvider);
+  final response = await dataSource.getOfflineActivityDetail(activityId);
+  return response.requireData;
+}, retry: (_, _) => null);

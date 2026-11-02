@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/widgets/app_image.dart';
 import '../../data/models/service_product_detail_model.dart';
@@ -13,8 +12,9 @@ import '../../data/models/service_product_detail_model.dart';
 class HeroSection extends StatefulWidget {
   final ServiceProductDetail product;
   final VoidCallback onBack;
+  final VoidCallback onShare;
 
-  const HeroSection({super.key, required this.product, required this.onBack});
+  const HeroSection({super.key, required this.product, required this.onBack, required this.onShare});
 
   @override
   State<HeroSection> createState() => _HeroSectionState();
@@ -109,7 +109,7 @@ class _HeroSectionState extends State<HeroSection> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24),
-                  onPressed: () => context.pop(),
+                  onPressed: widget.onBack,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                 ),
@@ -125,7 +125,23 @@ class _HeroSectionState extends State<HeroSection> {
           ),
         ),
 
-        // 3. 底部渐变遮罩：平滑过渡到白色卡片区域
+        // 3. 右上角分享按钮，与返回胶囊保持相同的顶部安全区偏移。
+        Positioned(
+          top: statusBarHeight + 2,
+          right: 16,
+          child: Material(
+            color: const Color(0x4D000000),
+            borderRadius: BorderRadius.circular(6),
+            child: IconButton(
+              tooltip: '分享',
+              onPressed: widget.onShare,
+              icon: const Icon(Icons.share_outlined, color: Colors.white, size: 22),
+              constraints: const BoxConstraints(minWidth: 44, minHeight: 40),
+            ),
+          ),
+        ),
+
+        // 4. 底部渐变遮罩：平滑过渡到白色卡片区域
         // Positioned(
         //   left: 0,
         //   right: 0,
@@ -142,7 +158,7 @@ class _HeroSectionState extends State<HeroSection> {
         //   ),
         // ),
 
-        // 4. 指示器（锚点）- 移动到顶层以确保不被遮罩覆盖（多于1张图时才显示）
+        // 5. 指示器（锚点）- 移动到顶层以确保不被遮罩覆盖（多于1张图时才显示）
         if (images.length > 1)
           Positioned(
             bottom: 18,

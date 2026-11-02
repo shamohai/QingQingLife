@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/auth_redirect.dart';
 import '../../../../app/router/route_names.dart';
 import '../providers/auth_provider.dart';
 
@@ -130,7 +131,10 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
   Widget build(BuildContext context) {
     ref.listen<AuthStatus>(authProvider, (previous, next) {
       if (next == AuthStatus.authenticated && previous != AuthStatus.authenticated) {
-        if (mounted) context.go(RouteNames.profile);
+        if (mounted) {
+          final returnTo = safeReturnTo(GoRouterState.of(context).uri.queryParameters['from']);
+          context.go(returnTo ?? RouteNames.profile);
+        }
       }
     });
 
