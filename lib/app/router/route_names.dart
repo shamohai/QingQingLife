@@ -94,6 +94,24 @@ abstract final class RouteNames {
   // 购酒享服务模板详情
   static const String serviceTemplateDetail = '/service/template/:id';
 
+  // 我的权益 - 权益商城模板详情（顶层入口，避免从 shell 外 push 分支内路由）
+  static const String memberServiceTemplateDetail = '/member/service-template/:id';
+
+  static String serviceTemplateDetailPath({required int templateId, int? userServiceId}) {
+    return _serviceTemplateDetailPath(serviceTemplateDetail, templateId: templateId, userServiceId: userServiceId);
+  }
+
+  static String memberServiceTemplateDetailPath({required int templateId, int? userServiceId}) {
+    return _serviceTemplateDetailPath(memberServiceTemplateDetail, templateId: templateId, userServiceId: userServiceId);
+  }
+
+  static String _serviceTemplateDetailPath(String path, {required int templateId, int? userServiceId}) {
+    return Uri(
+      path: path.replaceFirst(':id', '$templateId'),
+      queryParameters: userServiceId != null && userServiceId > 0 ? {'userServiceId': '$userServiceId'} : null,
+    ).toString();
+  }
+
   // 积分规则页
   static const String pointsRules = '/points/rules';
   static const String pointsRulesUrl = 'https://wx.mall.qkj.com.cn/mob/Account/CreditRule?from=app';

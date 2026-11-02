@@ -218,6 +218,13 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
         ).toString();
         context.push(path);
         return;
+      case ServiceInstanceType.shareCart:
+        if (access.userServiceId <= 0 || access.shareCartTemplateId <= 0) {
+          _showMessage(context, '权益商城信息无效，请刷新后重试');
+          return;
+        }
+        context.push(RouteNames.memberServiceTemplateDetailPath(templateId: access.shareCartTemplateId, userServiceId: access.userServiceId));
+        return;
       default:
         return;
     }

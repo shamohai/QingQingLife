@@ -119,6 +119,9 @@ class MemberBenefitAccess {
   final ServiceBindInfo? bindInfo;
 
   const MemberBenefitAccess({required this.instanceType, required this.serviceId, required this.userServiceId, this.productId = 0, this.bindInfo});
+
+  /// 权益商城权益对应的模板 id，来自权益详情 bindinfo.bindsharecartinfo。
+  int get shareCartTemplateId => bindInfo?.bindsharecartinfo?.sharecarttemplateid ?? 0;
 }
 
 /// 点击权益后的处理结果。

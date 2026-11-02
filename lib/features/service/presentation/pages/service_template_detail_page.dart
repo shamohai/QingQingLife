@@ -29,7 +29,12 @@ import '../providers/share_cart_template_detail_provider.dart';
 class ServiceTemplateDetailPage extends ConsumerStatefulWidget {
   final int templateId;
 
-  const ServiceTemplateDetailPage({super.key, required this.templateId});
+  /// 会员权益商城权益对应的用户权益 id。
+  ///
+  /// 从「我的权益」进入时由路由带入；普通模板详情入口为 null。
+  final int? userServiceId;
+
+  const ServiceTemplateDetailPage({super.key, required this.templateId, this.userServiceId});
 
   @override
   ConsumerState<ServiceTemplateDetailPage> createState() => _ServiceTemplateDetailPageState();

@@ -139,7 +139,7 @@ final appRouter = Provider<GoRouter>((ref) {
                   ),
                   GoRoute(
                     path: 'template/:id',
-                    pageBuilder: (c, s) => MaterialPage(child: ServiceTemplateDetailPage(templateId: int.tryParse(s.pathParameters['id']!) ?? 0)),
+                    pageBuilder: (c, s) => MaterialPage(child: _buildServiceTemplateDetailPage(s)),
                   ),
                 ],
               ),
@@ -158,6 +158,10 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.memberLevel,
         pageBuilder: (c, s) => MaterialPage(child: const MemberLevelPage()),
+      ),
+      GoRoute(
+        path: RouteNames.memberServiceTemplateDetail,
+        pageBuilder: (c, s) => MaterialPage(child: _buildServiceTemplateDetailPage(s)),
       ),
       GoRoute(
         path: RouteNames.memberSignIn,
@@ -335,6 +339,12 @@ final appRouter = Provider<GoRouter>((ref) {
 });
 
 /// 底部 Tab 主框架
+Widget _buildServiceTemplateDetailPage(GoRouterState state) {
+  final templateId = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+  final userServiceId = int.tryParse(state.uri.queryParameters['userServiceId'] ?? '');
+  return ServiceTemplateDetailPage(templateId: templateId, userServiceId: userServiceId);
+}
+
 class MainShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
   const MainShell({super.key, required this.navigationShell});

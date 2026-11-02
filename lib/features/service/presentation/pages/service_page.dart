@@ -234,7 +234,7 @@ class ServicePage extends ConsumerWidget {
                       padding: const EdgeInsets.only(top: 14, bottom: 14),
                       child: ShareCartTemplateItem(
                         template: templates[0],
-                        onTap: () => context.push(RouteNames.serviceTemplateDetail.replaceFirst(':id', templates[0].templateId.toString())),
+                        onTap: () => context.push(RouteNames.serviceTemplateDetailPath(templateId: templates[0].templateId)),
                       ),
                     ),
                     for (int i = 1; i < templates.length; i++)
@@ -245,7 +245,7 @@ class ServicePage extends ConsumerWidget {
                             padding: const EdgeInsets.only(top: 14, bottom: 14),
                             child: ShareCartTemplateItem(
                               template: templates[i],
-                              onTap: () => context.push(RouteNames.serviceTemplateDetail.replaceFirst(':id', templates[i].templateId.toString())),
+                              onTap: () => context.push(RouteNames.serviceTemplateDetailPath(templateId: templates[i].templateId)),
                             ),
                           ),
                         ],
