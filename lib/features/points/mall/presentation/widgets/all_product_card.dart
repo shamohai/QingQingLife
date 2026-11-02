@@ -17,11 +17,14 @@ class AllProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isService = item.isService;
 
-    return Container(
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           // 商品图片：正方形，顶部圆角与卡片一致
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
@@ -82,7 +85,8 @@ class AllProductCard extends StatelessWidget {
               ],
             ),
           ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -6,7 +6,9 @@ import '../../../../../core/presentation/paging/paging_controller_mixin.dart';
 import '../../../../../core/widgets/app_empty.dart';
 import '../../../../../core/widgets/app_error.dart';
 import '../../../../../core/widgets/app_loading.dart';
+import '../../../../../app/theme/app_colors.dart';
 import '../providers/credit_product_list_provider.dart';
+import '../../../../../app/router/route_names.dart';
 import '../widgets/all_product_card.dart';
 import '../widgets/all_products_search_bar.dart';
 import '../widgets/responsive_product_grid_delegate.dart';
@@ -40,11 +42,8 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
   }
 
   void _onProductTap(BuildContext context, CreditProductItem item) {
-    if (item.isService) {
-      GoRouter.of(context).push('/points/service/${item.productId}');
-    } else {
-      GoRouter.of(context).push('/product/${item.productId}');
-    }
+    final route = item.isService ? RouteNames.serviceProductDetail : RouteNames.productDetail;
+    GoRouter.of(context).push(route.replaceFirst(':id', item.productId.toString()));
   }
 
   @override
@@ -75,15 +74,17 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
                   top: true,
                   bottom: false,
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 14, right: 14, top: 8, bottom: 12),
+                    padding: const EdgeInsets.only(left: 0, right: 14, top: 8, bottom: 12),
                     child: Row(
                       children: [
                         // 返回按钮
-                        GestureDetector(
-                          onTap: () => context.pop(),
-                          child: const Icon(Icons.arrow_back, size: 24, color: Color(0xFF1F2024)),
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 22),
+                          onPressed: () => context.pop(),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 24, minHeight: 40),
                         ),
-                        const SizedBox(width: 4),
+                        //const SizedBox(width: 4),
                         // 标题
                         const Text(
                           '全部商品',
