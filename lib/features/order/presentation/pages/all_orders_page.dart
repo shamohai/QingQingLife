@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -77,54 +78,65 @@ class _AllOrdersPageState extends ConsumerState<AllOrdersPage> {
     final state = ref.watch(allOrdersProvider);
     final notifier = ref.read(allOrdersProvider.notifier);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF3F5F7),
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: notifier.loadOrders,
-          child: CustomScrollView(
-            controller: _scrollController,
-            physics: const AlwaysScrollableScrollPhysics(),
-            slivers: [
-              // 白色头部区域（包含顶部导航栏与二级 Tab 导航栏）
-              SliverToBoxAdapter(
-                child: _HeaderSection(controller: _searchController, onSearch: _search),
-              ),
-              if (state.isLoading && state.orders.isNotEmpty) const SliverToBoxAdapter(child: LinearProgressIndicator()),
-              // 订单列表（灰色背景滚动区域）
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(14, AppSpacing.md, 14, AppSpacing.xxl),
-                sliver: state.isLoading && state.orders.isEmpty
-                    ? const SliverToBoxAdapter(child: Center(child: AppLoading()))
-                    : state.orders.isEmpty && state.error != null
-                    ? SliverToBoxAdapter(
-                        child: AppError(message: state.error!, onRetry: notifier.loadOrders),
-                      )
-                    : state.orders.isEmpty
-                    ? const SliverToBoxAdapter(child: AppEmpty(message: '暂无订单'))
-                    : SliverList.builder(
-                        itemCount: state.orders.length,
-                        itemBuilder: (context, index) =>
-                            OrderCard(item: state.orders[index], onCancelOrder: notifier.cancelOrder, onConfirmReceived: notifier.confirmReceived),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(statusBarColor: Colors.white, statusBarIconBrightness: Brightness.dark, statusBarBrightness: Brightness.light),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF3F5F7),
+        body: Column(
+          children: [
+            Container(height: MediaQuery.paddingOf(context).top, color: Colors.white),
+            Expanded(
+              child: SafeArea(
+                top: false,
+                child: RefreshIndicator(
+                  onRefresh: notifier.loadOrders,
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      // 白色头部区域（包含顶部导航栏与二级 Tab 导航栏）
+                      SliverToBoxAdapter(
+                        child: _HeaderSection(controller: _searchController, onSearch: _search),
                       ),
-              ),
-              if (state.orders.isNotEmpty)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
-                    child: state.error != null
-                        ? AppError(message: state.error!, onRetry: state.failedToLoadMore ? notifier.loadMore : notifier.loadOrders)
-                        : state.isLoadingMore
-                        ? const Center(child: AppLoading())
-                        : Center(
-                            child: state.hasMore
-                                ? TextButton(onPressed: notifier.loadMore, child: const Text('加载更多'))
-                                : const Text('没有更多订单了', style: TextStyle(color: AppColors.onSurfaceVariant)),
+                      if (state.isLoading && state.orders.isNotEmpty) const SliverToBoxAdapter(child: LinearProgressIndicator()),
+                      // 订单列表（灰色背景滚动区域）
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(14, AppSpacing.md, 14, AppSpacing.xxl),
+                        sliver: state.isLoading && state.orders.isEmpty
+                            ? const SliverToBoxAdapter(child: Center(child: AppLoading()))
+                            : state.orders.isEmpty && state.error != null
+                            ? SliverToBoxAdapter(
+                                child: AppError(message: state.error!, onRetry: notifier.loadOrders),
+                              )
+                            : state.orders.isEmpty
+                            ? const SliverToBoxAdapter(child: AppEmpty(message: '暂无订单'))
+                            : SliverList.builder(
+                                itemCount: state.orders.length,
+                                itemBuilder: (context, index) =>
+                                    OrderCard(item: state.orders[index], onCancelOrder: notifier.cancelOrder, onConfirmReceived: notifier.confirmReceived),
+                              ),
+                      ),
+                      if (state.orders.isNotEmpty)
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
+                            child: state.error != null
+                                ? AppError(message: state.error!, onRetry: state.failedToLoadMore ? notifier.loadMore : notifier.loadOrders)
+                                : state.isLoadingMore
+                                ? const Center(child: AppLoading())
+                                : Center(
+                                    child: state.hasMore
+                                        ? TextButton(onPressed: notifier.loadMore, child: const Text('加载更多'))
+                                        : const Text('没有更多订单了', style: TextStyle(color: AppColors.onSurfaceVariant)),
+                                  ),
                           ),
+                        ),
+                    ],
                   ),
                 ),
-            ],
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -168,7 +180,7 @@ class _TopNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.only(right: 0),
       child: Row(
         children: [
           IconButton(
@@ -177,7 +189,6 @@ class _TopNavBar extends StatelessWidget {
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 24, minHeight: 40),
           ),
-          const SizedBox(width: 8),
           const Text(
             '全部订单',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
@@ -248,14 +259,14 @@ class _TopNavBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 8),
-          IconButton(
-            tooltip: '筛选订单',
-            onPressed: () {},
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 28, minHeight: 40),
-            icon: Image.asset('assets/images/order/icon_filter.png', width: 28, height: 22),
-          ),
+          const SizedBox(width: 12),
+          // IconButton(
+          //   tooltip: '筛选订单',
+          //   onPressed: () {},
+          //   padding: EdgeInsets.zero,
+          //   constraints: const BoxConstraints(minWidth: 28, minHeight: 40),
+          //   icon: Image.asset('assets/images/order/icon_filter.png', width: 28, height: 22),
+          // ),
         ],
       ),
     );

@@ -1,12 +1,13 @@
 import 'package:fluwx/fluwx.dart' as fluwx;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../app/theme/app_colors.dart';
+import '../providers/butler_mini_program_provider.dart';
 
 /// 积分商城及首页右下角浮动操作按钮组（使用蓝湖切图）
-class PointsFloatingButtons extends StatelessWidget {
+class PointsFloatingButtons extends ConsumerWidget {
   static const _miniProgramUsername = 'gh_c55d2ab30511';
-  static const _miniProgramPath = 'pages/group/join?from=app';
 
   final VoidCallback? onCartTap;
   final VoidCallback? onServiceTap;
@@ -14,7 +15,7 @@ class PointsFloatingButtons extends StatelessWidget {
   const PointsFloatingButtons({super.key, this.onCartTap, this.onServiceTap});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -29,14 +30,22 @@ class PointsFloatingButtons extends StatelessWidget {
           asset: 'assets/images/points/icon-service.png',
           label: '管家服务',
           iconSize: 20,
-          onTap: onServiceTap ?? () => _openButlerMiniProgram(context),
+          onTap: onServiceTap ?? () => _openButlerMiniProgram(context, ref),
         ),
       ],
     );
   }
 
-  Future<void> _openButlerMiniProgram(BuildContext context) async {
+  Future<void> _openButlerMiniProgram(BuildContext context, WidgetRef ref) async {
     try {
+      final info = await ref.read(butlerMiniProgramInfoProvider.future);
+      if (!context.mounted) return;
+      final path = info?.workwxmppath.trim() ?? '';
+      if (path.isEmpty) {
+        _showMessage(context, '暂无法获取管家服务入口，请稍后重试');
+        return;
+      }
+
       final weChat = fluwx.Fluwx();
       final isInstalled = await weChat.isWeChatInstalled;
       if (!context.mounted) return;
@@ -47,7 +56,7 @@ class PointsFloatingButtons extends StatelessWidget {
       }
 
       await weChat.open(
-        target: fluwx.MiniProgram(username: _miniProgramUsername, path: _miniProgramPath),
+        target: fluwx.MiniProgram(username: _miniProgramUsername, path: path),
       );
     } catch (_) {
       if (!context.mounted) return;
