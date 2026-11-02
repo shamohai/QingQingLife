@@ -163,7 +163,7 @@ class _LockedRedPacketListPageState extends ConsumerState<LockedRedPacketListPag
       },
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xxxl),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, AppSpacing.xxxl),
         itemCount: state.coupons.length + (state.hasMore || state.loadingMore ? 1 : 0),
         separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
         itemBuilder: (context, index) {

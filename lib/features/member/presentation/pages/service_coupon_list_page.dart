@@ -160,7 +160,7 @@ class _ServiceCouponListPageState extends ConsumerState<ServiceCouponListPage> {
 
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xxxl),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, AppSpacing.xxxl),
       itemCount: state.coupons.length,
       separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.lg),
       itemBuilder: (context, index) {
