@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -39,18 +39,11 @@ class ServiceCheckoutPage extends ConsumerWidget {
       body: asyncState.when(
         loading: () => const Center(child: AppLoading()),
         error: (error, _) => Center(
-          child: AppError(
-            message: '加载失败，请稍后重试',
-            onRetry: () => ref.read(serviceCartProvider(params).notifier).retry(),
-          ),
+          child: AppError(message: '加载失败，请稍后重试', onRetry: () => ref.read(serviceCartProvider(params).notifier).retry()),
         ),
         data: (state) => _buildContent(context, ref, state),
       ),
-      bottomNavigationBar: asyncState.when<Widget?>(
-        loading: () => null,
-        error: (_, _) => null,
-        data: (state) => _buildBottomBar(context, state, ref),
-      ),
+      bottomNavigationBar: asyncState.when<Widget?>(loading: () => null, error: (_, _) => null, data: (state) => _buildBottomBar(context, state, ref)),
     );
   }
 
@@ -69,27 +62,23 @@ class ServiceCheckoutPage extends ConsumerWidget {
                   children: [
                     const Icon(Icons.location_on, size: 18, color: AppColors.onSurface),
                     const SizedBox(width: AppSpacing.xs),
-                    const Text(
-                      '天佑德营销中心',
-                      style: AppTextStyles.bodyMedium,
-                    ),
+                    const Text('天佑德营销中心', style: AppTextStyles.bodyMedium),
                     const Spacer(),
                     const Icon(Icons.expand_more, size: 18, color: AppColors.onSurfaceVariant),
                   ],
                 ),
                 const Divider(height: 24),
-                const Text('商品明细', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface)),
+                const Text(
+                  '商品明细',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.onSurface),
+                ),
                 const SizedBox(height: AppSpacing.sm),
                 ...state.cartProducts.map((p) => _ProductRow(product: p)),
                 const SizedBox(height: AppSpacing.md),
                 _SummaryRow(label: '商品合计', amount: state.selectedTotalFormatted),
                 _SummaryRow(label: '运费', amount: '¥0.00'),
                 const Divider(height: 24),
-                _SummaryRow(
-                  label: '应付总额',
-                  amount: state.selectedTotalFormatted,
-                  isTotal: true,
-                ),
+                _SummaryRow(label: '应付总额', amount: state.selectedTotalFormatted, isTotal: true),
               ],
             ),
           ),
@@ -136,15 +125,9 @@ class ServiceCheckoutPage extends ConsumerWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
                   elevation: 0,
                 ),
-                onPressed: (state.canSubmit && !submitting)
-                    ? () => _submitOrder(context, ref, state, notifier)
-                    : null,
+                onPressed: (state.canSubmit && !submitting) ? () => _submitOrder(context, ref, state, notifier, params) : null,
                 child: submitting
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : const Text(
                         '提交订单',
                         style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
@@ -157,35 +140,24 @@ class ServiceCheckoutPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _submitOrder(
-    BuildContext context,
-    WidgetRef ref,
-    ServiceCartState state,
-    ServiceCartNotifier notifier,
-  ) async {
+  Future<void> _submitOrder(BuildContext context, WidgetRef ref, ServiceCartState state, ServiceCartNotifier notifier, ServiceCartInitialParams params) async {
     // 临时 mock 地址 ID，待地址选择功能上线后替换
     const mockAddressId = 1;
 
     try {
-      final resultObj = await notifier.submitOrder(mockAddressId);
+      final resultObj = await notifier.submitOrder(mockAddressId, params.userServiceId);
       if (!context.mounted) return;
 
       if (resultObj.result == 0) {
         // 提交成功，返回购物车页并提示
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('订单提交成功')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('订单提交成功')));
         context.pop();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('提交失败：${resultObj.descr}')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('提交失败：${resultObj.descr}')));
       }
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('提交失败：$e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('提交失败：$e')));
     }
   }
 }
@@ -222,10 +194,7 @@ class _ProductRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
-          Text(
-            'x${product.count}',
-            style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant),
-          ),
+          Text('x${product.count}', style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
           const SizedBox(width: AppSpacing.sm),
           Text(
             product.fullPrice.isNotEmpty ? product.fullPrice : '¥${product.price.toStringAsFixed(2)}',

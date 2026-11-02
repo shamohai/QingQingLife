@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/auth_redirect.dart';
 import '../../../../app/config/app_config.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/providers/session_provider.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../../../core/widgets/app_loading.dart';
@@ -212,6 +214,29 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
     return HtmlWidget(html, baseUrl: Uri.parse(AppConfig.baseUrl));
   }
 
+  /// 点击「立即加购」前校验登录状态
+  Future<void> _onAddToCartTap(BuildContext context, WidgetRef ref, String headImg, int cartId) async {
+    // 检查登录状态
+    final session = ref.read(sessionProvider.notifier);
+    await session.ensureInitialized();
+    final isLoggedIn = ref.read(sessionProvider) == SessionState.authenticated;
+    
+    if (!context.mounted) return;
+
+    if (!isLoggedIn) {
+      // 未登录：跳转登录页，登录后返回当前页面
+      final returnTo = GoRouterState.of(context).uri.toString();
+      GoRouter.of(context).push(loginLocationFor(returnTo));
+      return;
+    }
+
+    // 已登录：跳转购物车页面
+    if (!context.mounted) return;
+    final encodedHeadImg = Uri.encodeComponent(headImg);
+    final uri = '/service/cart?templateId=${widget.templateId}&userServiceId=${widget.userServiceId}&headImg=$encodedHeadImg&cartId=$cartId';
+    context.push(uri);
+  }
+
   /// 底部固定操作栏：白色背景 + 向上阴影 + 渐变胶囊按钮
   Widget _buildBottomBar(BuildContext context, dynamic detail) {
     final screenWidth = MediaQuery.sizeOf(context).width;
@@ -230,12 +255,7 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
         ),
         child: Center(
           child: GestureDetector(
-            onTap: () {
-              // 跳转到购物车页面，携带 templateId、userServiceId、headImg、cartId 参数
-              final encodedHeadImg = Uri.encodeComponent(headImg);
-              final uri = '/service/cart?templateId=${widget.templateId}&userServiceId=${widget.userServiceId}&headImg=$encodedHeadImg&cartId=$cartId';
-              context.push(uri);
-            },
+            onTap: () => _onAddToCartTap(context, ref, headImg, cartId),
             child: Container(
               width: btnWidth,
               height: 51,
