@@ -78,7 +78,7 @@ abstract class ServiceRepository {
   /// 提交权益团购订单
   /// 请求 body：{sharecartid: int, addressid: int}
   /// 响应包含 cansubmit / verifymsg，成功后包含 orderId
-  Future<ApiResponse<ServiceSubmitOrderResult>> submitGroupOrder(int shareCartId, int addressId);
+  Future<ApiResponse<ServiceSubmitOrderResult>> submitGroupOrder(int shareCartId, int addressId, int userServiceId);
 
   /// 获取线下活动列表（挚友会 / 活动报名共用）
   /// 请求：{typdsfriends: bool, authtoken: 0, pageindex: int, pagesize: int}

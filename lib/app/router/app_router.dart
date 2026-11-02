@@ -169,8 +169,13 @@ final appRouter = Provider<GoRouter>((ref) {
                     },
                   ),
                   GoRoute(
-                    path: 'template/:id',
-                    pageBuilder: (c, s) => MaterialPage(child: ServiceTemplateDetailPage(templateId: int.tryParse(s.pathParameters['id']!) ?? 0)),
+                    path: 'template/:id/:userServiceId',
+                    pageBuilder: (c, s) => MaterialPage(
+                      child: ServiceTemplateDetailPage(
+                        templateId: int.tryParse(s.pathParameters['id']!) ?? 0,
+                        userServiceId: int.tryParse(s.pathParameters['userServiceId']!) ?? 0,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -328,8 +333,9 @@ final appRouter = Provider<GoRouter>((ref) {
           final templateId = int.tryParse(s.uri.queryParameters['templateId'] ?? '') ?? 0;
           final cartId = int.tryParse(s.uri.queryParameters['cartId'] ?? '') ?? 0;
           final headImg = s.uri.queryParameters['headImg'];
+          final userServiceId = int.tryParse(s.uri.queryParameters['userServiceId'] ?? '') ?? 0;
           return MaterialPage(
-            child: ServiceCartPage(templateId: templateId, cartId: cartId, headImg: headImg),
+            child: ServiceCartPage(templateId: templateId, cartId: cartId, headImg: headImg, userServiceId: userServiceId),
           );
         },
       ),

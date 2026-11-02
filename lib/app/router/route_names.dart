@@ -94,7 +94,7 @@ abstract final class RouteNames {
   static const String serviceBookingForm = '/service/project/:id/book';
 
   // 购酒享服务模板详情
-  static const String serviceTemplateDetail = '/service/template/:id';
+  static const String serviceTemplateDetail = '/service/template/:id/:userServiceId';
 
   // 积分规则页
   static const String pointsRules = '/points/rules';

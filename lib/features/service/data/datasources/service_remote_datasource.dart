@@ -180,10 +180,10 @@ class ServiceRemoteDataSource implements ServiceRepository {
   }
 
   @override
-  Future<ApiResponse<ServiceSubmitOrderResult>> submitGroupOrder(int shareCartId, int addressId) async {
+  Future<ApiResponse<ServiceSubmitOrderResult>> submitGroupOrder(int shareCartId, int addressId, int userServiceId) async {
     return apiClient.post<ServiceSubmitOrderResult>(
       '/api/groupMall/order/submitgrouporder',
-      data: <String, dynamic>{'sharecartid': shareCartId, 'addressid': addressId},
+      data: <String, dynamic>{'sharecartid': shareCartId, 'addressid': addressId, 'userserviceid': userServiceId},
       fromJson: (dynamic json) => ServiceSubmitOrderResult.fromJson(json as Map<String, dynamic>),
     );
   }

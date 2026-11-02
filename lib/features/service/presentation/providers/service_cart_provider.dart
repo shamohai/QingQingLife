@@ -103,20 +103,25 @@ class ServiceCartState {
 class ServiceCartInitialParams {
   final int templateId;
   final String headImg;
+  final int userServiceId;
 
   /// 0 表示购物车尚未创建，需要调用 createShareCart
   final int existingCartId;
 
-  const ServiceCartInitialParams({required this.templateId, required this.headImg, this.existingCartId = 0});
+  const ServiceCartInitialParams({required this.templateId, required this.headImg, required this.userServiceId, this.existingCartId = 0});
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is ServiceCartInitialParams && other.templateId == templateId && other.headImg == headImg && other.existingCartId == existingCartId;
+        other is ServiceCartInitialParams &&
+            other.templateId == templateId &&
+            other.headImg == headImg &&
+            other.userServiceId == userServiceId &&
+            other.existingCartId == existingCartId;
   }
 
   @override
-  int get hashCode => Object.hash(templateId, headImg, existingCartId);
+  int get hashCode => Object.hash(templateId, headImg, userServiceId, existingCartId);
 }
 
 /// 服务购物车 Provider（family，按参数对象隔离）
@@ -290,7 +295,7 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
 
   /// 使用当前购物车和页面传入的收货地址提交权益团购订单。
   /// 失败时抛出 [ApiException]，由调用方（页面）捕获并弹框提示。
-  Future<ServiceSubmitOrderResult> submitOrder(int addressId) async {
+  Future<ServiceSubmitOrderResult> submitOrder(int addressId, int userServiceId) async {
     final current = state.value;
     if (current == null || current.shareCartId == 0 || current.cartUpdateInProgress) {
       return const ServiceSubmitOrderResult(guidetext: '购物车未就绪', orderId: 0, result: -1, descr: '');
@@ -298,7 +303,7 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
     state = AsyncData(current.copyWith(isUpdatingCart: true, cartError: ''));
     try {
       final ds = ref.read(serviceRemoteDataSourceProvider);
-      final resp = await ds.submitGroupOrder(current.shareCartId, addressId);
+      final resp = await ds.submitGroupOrder(current.shareCartId, addressId, userServiceId);
       if (!resp.success) {
         final latest = state.value ?? current;
         state = AsyncData(latest.copyWith(isUpdatingCart: false, cartError: resp.displayMessage));
