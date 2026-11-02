@@ -14,6 +14,7 @@ import '../../domain/models/offline_activity_detail_model.dart';
 import '../../domain/models/reservation_service_item.dart';
 import '../../domain/models/reservation_service_detail_model.dart';
 import '../../domain/models/reservation_record_item.dart';
+import '../../domain/models/reservation_record_detail.dart';
 import '../../domain/models/offline_activity_record_item.dart';
 
 /// 服务中心远程数据源
@@ -87,6 +88,15 @@ class ServiceRemoteDataSource implements ServiceRepository {
         final listJson = source['list'] as List<dynamic>? ?? const <dynamic>[];
         return listJson.map((e) => ReservationRecordItem.fromJson(e as Map<String, dynamic>)).toList();
       },
+    );
+  }
+
+  @override
+  Future<ApiResponse<ReservationRecordDetail>> getMyReservationDetail(int reservationId) async {
+    return apiClient.post<ReservationRecordDetail>(
+      '/api/sys/app/getmyreservationdetail',
+      data: <String, dynamic>{'reservationid': reservationId},
+      fromJson: (dynamic json) => ReservationRecordDetail.fromJson(json as Map<String, dynamic>),
     );
   }
 
