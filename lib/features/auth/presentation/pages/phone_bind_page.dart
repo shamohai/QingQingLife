@@ -133,7 +133,12 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
       if (next == AuthStatus.authenticated && previous != AuthStatus.authenticated) {
         if (mounted) {
           final returnTo = safeReturnTo(GoRouterState.of(context).uri.queryParameters['from']);
-          context.go(returnTo ?? RouteNames.profile);
+          final strategy = loginReturnStrategy(hasValidReturnTo: returnTo != null, canPop: context.canPop());
+          if (strategy == LoginReturnStrategy.pop) {
+            context.pop();
+          } else {
+            context.go(returnTo ?? RouteNames.profile);
+          }
         }
       }
     });
