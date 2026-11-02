@@ -476,6 +476,7 @@ class MockPointsDataSource implements PointsRepository {
     int? maxIntegral,
     bool? exchangeable,
     int? categoryId,
+    String? keywords,
     int? sort,
     bool? asc,
   }) async {
@@ -488,6 +489,7 @@ class MockPointsDataSource implements PointsRepository {
           'minintegral': minIntegral ?? 0,
           'maxintegral': maxIntegral ?? 0,
           'categoryid': categoryId ?? 0,
+          if (keywords != null && keywords.trim().isNotEmpty) 'keywords': keywords.trim(),
         };
         if (exchangeable != null) body['exchangeable'] = exchangeable;
         if (sort != null) body['sort'] = sort;
@@ -504,6 +506,10 @@ class MockPointsDataSource implements PointsRepository {
     }
 
     var products = List<Map<String, dynamic>>.from(_mockCreditProducts);
+    final normalizedKeyword = keywords?.trim().toLowerCase();
+    if (normalizedKeyword != null && normalizedKeyword.isNotEmpty) {
+      products = products.where((product) => (product['productName'] as String? ?? '').toLowerCase().contains(normalizedKeyword)).toList();
+    }
     // 积分段筛选（0 表示不限制）
     if (minIntegral != null && minIntegral > 0) {
       products = products.where((p) => (p['creditPrice'] as int) >= minIntegral).toList();

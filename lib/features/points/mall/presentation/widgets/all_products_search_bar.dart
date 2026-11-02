@@ -6,7 +6,7 @@
 /// 左侧蓝色圆点指示器（16×16px），placeholder "搜索心仪好物"，右侧"搜索"文字
 class AllProductsSearchBar extends StatelessWidget {
   final TextEditingController? searchController;
-  final VoidCallback? onSearch;
+  final ValueChanged<String>? onSearch;
 
   const AllProductsSearchBar({super.key, this.searchController, this.onSearch});
 
@@ -29,11 +29,12 @@ class AllProductsSearchBar extends StatelessWidget {
             child: TextField(
               controller: searchController,
               style: const TextStyle(fontSize: 14),
+              textAlignVertical: TextAlignVertical.center,
               decoration: const InputDecoration(
                 hintText: '搜索心仪好物',
                 hintStyle: TextStyle(fontSize: 14, color: Color(0xFF949599)),
                 isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 12),
+                contentPadding: EdgeInsets.symmetric(vertical: 0),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
@@ -42,13 +43,13 @@ class AllProductsSearchBar extends StatelessWidget {
                 fillColor: Colors.white,
                 filled: true,
               ),
-              onSubmitted: (_) => onSearch?.call(),
+              onSubmitted: (value) => onSearch?.call(value),
             ),
           ),
           const SizedBox(width: 4),
           // 搜索按钮
           GestureDetector(
-            onTap: onSearch,
+            onTap: () => onSearch?.call(searchController?.text ?? ''),
             child: const Padding(
               padding: EdgeInsets.only(right: 16),
               child: Text(

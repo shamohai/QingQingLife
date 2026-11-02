@@ -53,6 +53,7 @@ class PointsRemoteDataSource implements PointsRepository {
     int? maxIntegral,
     bool? exchangeable,
     int? categoryId,
+    String? keywords,
     int? sort,
     bool? asc,
   }) async {
@@ -62,6 +63,7 @@ class PointsRemoteDataSource implements PointsRepository {
       'minintegral': minIntegral ?? 0,
       'maxintegral': maxIntegral ?? 0,
       'categoryid': categoryId ?? 0,
+      if (keywords != null && keywords.trim().isNotEmpty) 'keywords': keywords.trim(),
     };
     if (exchangeable != null) body['exchangeable'] = exchangeable;
     if (sort != null) body['sort'] = sort;

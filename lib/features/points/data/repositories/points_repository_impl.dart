@@ -69,6 +69,7 @@ class PointsRepositoryImpl implements PointsRepository {
     int? maxIntegral,
     bool? exchangeable,
     int? categoryId,
+    String? keywords,
     int? sort,
     bool? asc,
   }) => remote.getCreditProductList(
@@ -78,6 +79,7 @@ class PointsRepositoryImpl implements PointsRepository {
     maxIntegral: maxIntegral,
     exchangeable: exchangeable,
     categoryId: categoryId,
+    keywords: keywords,
     sort: sort,
     asc: asc,
   );

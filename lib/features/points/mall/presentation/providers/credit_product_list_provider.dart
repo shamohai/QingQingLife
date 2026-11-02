@@ -37,6 +37,7 @@ import '../../data/models/get_credit_product_list_model.dart';
 class CreditProductListNotifier extends PagingNotifier<CreditProductItem> {
   String? _activeRangeLabel;
   int? _activeCategoryId;
+  String? _activeKeyword;
 
   /// 切换积分段，刷新列表
   void setIntegralRange(String rangeLabel) {
@@ -48,6 +49,13 @@ class CreditProductListNotifier extends PagingNotifier<CreditProductItem> {
   /// [categoryId] 为 0 表示全部分类
   void setCategoryId(int categoryId) {
     _activeCategoryId = categoryId;
+    loadFirstPage();
+  }
+
+  /// 设置关键词并从第一页重新加载。
+  void setKeyword(String keyword) {
+    final normalizedKeyword = keyword.trim();
+    _activeKeyword = normalizedKeyword.isEmpty ? null : normalizedKeyword;
     loadFirstPage();
   }
 
@@ -65,6 +73,7 @@ class CreditProductListNotifier extends PagingNotifier<CreditProductItem> {
       maxIntegral: max,
       exchangeable: exchangeable,
       categoryId: _activeCategoryId,
+      keywords: _activeKeyword,
     );
     if (!response.success || response.data == null) {
       throw Exception(response.message);

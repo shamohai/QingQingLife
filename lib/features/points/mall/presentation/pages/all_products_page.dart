@@ -7,6 +7,7 @@ import '../../../../../core/widgets/app_empty.dart';
 import '../../../../../core/widgets/app_error.dart';
 import '../../../../../core/widgets/app_loading.dart';
 import '../../../../../app/theme/app_colors.dart';
+import '../../../../../app/theme/app_spacing.dart';
 import '../providers/credit_product_list_provider.dart';
 import '../../../../../app/router/route_names.dart';
 import '../widgets/all_product_card.dart';
@@ -74,7 +75,7 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
                   top: true,
                   bottom: false,
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 0, right: 14, top: 8, bottom: 12),
+                    padding: const EdgeInsets.only(left: 0, right: AppSpacing.md, top: 8, bottom: 4),
                     child: Row(
                       children: [
                         // 返回按钮
@@ -92,7 +93,15 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
                         ),
                         const SizedBox(width: 12),
                         // 搜索栏自适应剩余空间
-                        Expanded(child: AllProductsSearchBar(searchController: _searchController)),
+                        Expanded(
+                          child: AllProductsSearchBar(
+                            searchController: _searchController,
+                            onSearch: (keyword) {
+                              FocusScope.of(context).unfocus();
+                              ref.read(creditProductListProvider.notifier).setKeyword(keyword);
+                            },
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -116,7 +125,7 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
                 )
               else ...[
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.md, 8, AppSpacing.md, AppSpacing.md),
                   sliver: SliverGrid(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) => AllProductCard(item: pagingData.items[index], onTap: () => _onProductTap(context, pagingData.items[index])),
@@ -127,7 +136,7 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(14, 8, 14, 24 + MediaQuery.viewPaddingOf(context).bottom),
+                    padding: EdgeInsets.fromLTRB(AppSpacing.md, 8, AppSpacing.md, AppSpacing.md + MediaQuery.viewPaddingOf(context).bottom),
                     child: _buildFooter(context, ref, pagingData),
                   ),
                 ),
@@ -142,13 +151,13 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
   Widget _buildFooter(BuildContext context, WidgetRef ref, PagingData<CreditProductItem> pagingData) {
     if (pagingData.isLoading && pagingData.items.isNotEmpty) {
       return const Padding(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(AppSpacing.md),
         child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
       );
     }
     if (pagingData.status == PagingStatus.error && pagingData.items.isNotEmpty) {
       return Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.md),
         child: Center(
           child: InkWell(
             onTap: () => ref.read(creditProductListProvider.notifier).loadMore(),
@@ -159,7 +168,7 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
     }
     if (!pagingData.hasMore && pagingData.items.isNotEmpty) {
       return const Padding(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(AppSpacing.md),
         child: Center(
           child: Text('没有更多数据了', style: TextStyle(fontSize: 12, color: Colors.grey)),
         ),

@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../providers/product_detail_provider.dart';
@@ -47,7 +48,7 @@ class ProductDetailPage extends ConsumerWidget {
                         child: ProductHero(key: const ValueKey('product-hero'), images: data.product.images, onBack: () => _back(context)),
                       ),
                       SliverPadding(
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.all(AppSpacing.md),
                         sliver: SliverList.list(
                           children: [
                             PriceBenefits(key: const ValueKey('product-price-benefits'), detail: data, onCoupon: () => _message(context, '优惠券领取')),
