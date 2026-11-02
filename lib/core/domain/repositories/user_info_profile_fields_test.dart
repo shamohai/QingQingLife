@@ -3,7 +3,7 @@ import 'package:qingqinglife/core/domain/repositories/auth_repository.dart';
 
 void main() {
   group('UserInfo 解析 getmyprofile 新增字段', () {
-    test('gender / gendername / birthday 取自 baseprofile，address 取自顶层', () {
+    test('gender / birthday 取自 baseprofile，address 与等级图标按接口层级解析', () {
       final user = UserInfo.fromJson(const <String, dynamic>{
         'baseprofile': <String, dynamic>{
           'nickname': '锐',
@@ -14,7 +14,7 @@ void main() {
           'gendername': '女',
           'birthday': '1997-10-01 00:00:00',
         },
-        'rankinfo': <String, dynamic>{'userrid': 10, 'userridname': '普通会员'},
+        'rankinfo': <String, dynamic>{'userrid': 10, 'userridname': '普通会员', 'iconurl': ' https://static.crm.qkj.com.cn/rank.png '},
         'address': '北京市北京市丰台区1123111',
       });
 
@@ -22,6 +22,7 @@ void main() {
       expect(user.genderName, '女');
       expect(user.birthday, DateTime(1997, 10, 1));
       expect(user.address, '北京市北京市丰台区1123111');
+      expect(user.levelIconUrl, 'https://static.crm.qkj.com.cn/rank.png');
     });
 
     test('未完善资料时 gender 为 0、birthday 与 address 为空', () {

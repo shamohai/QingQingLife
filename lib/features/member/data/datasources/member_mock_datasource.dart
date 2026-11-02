@@ -344,6 +344,59 @@ class MockMemberDataSource implements MemberRepository {
     return ApiResponse.success(List.of(_addresses));
   }
 
+  static const List<MemberArea> _mockAreas = [
+    MemberArea(id: 1, name: '甘肃省', level: 1, parentId: 0),
+    MemberArea(id: 2, name: '兰州市', level: 2, parentId: 1),
+    MemberArea(id: 3, name: '天水市', level: 2, parentId: 1),
+    MemberArea(id: 4, name: '七里河区', level: 3, parentId: 2),
+    MemberArea(id: 5, name: '城关区', level: 3, parentId: 2),
+    MemberArea(id: 6, name: '安宁区', level: 3, parentId: 2),
+    MemberArea(id: 7, name: '西固区', level: 3, parentId: 2),
+    MemberArea(id: 8, name: '秦州区', level: 3, parentId: 3),
+    MemberArea(id: 9, name: '麦积区', level: 3, parentId: 3),
+    MemberArea(id: 10, name: '北京市', level: 1, parentId: 0),
+    MemberArea(id: 11, name: '北京市', level: 2, parentId: 10),
+    MemberArea(id: 12, name: '朝阳区', level: 3, parentId: 11),
+    MemberArea(id: 13, name: '海淀区', level: 3, parentId: 11),
+    MemberArea(id: 14, name: '东城区', level: 3, parentId: 11),
+    MemberArea(id: 15, name: '西城区', level: 3, parentId: 11),
+    MemberArea(id: 16, name: '上海市', level: 1, parentId: 0),
+    MemberArea(id: 17, name: '上海市', level: 2, parentId: 16),
+    MemberArea(id: 18, name: '浦东新区', level: 3, parentId: 17),
+    MemberArea(id: 19, name: '徐汇区', level: 3, parentId: 17),
+    MemberArea(id: 20, name: '静安区', level: 3, parentId: 17),
+    MemberArea(id: 21, name: '黄浦区', level: 3, parentId: 17),
+    MemberArea(id: 22, name: '广东省', level: 1, parentId: 0),
+    MemberArea(id: 23, name: '广州市', level: 2, parentId: 22),
+    MemberArea(id: 24, name: '深圳市', level: 2, parentId: 22),
+    MemberArea(id: 25, name: '天河区', level: 3, parentId: 23),
+    MemberArea(id: 26, name: '越秀区', level: 3, parentId: 23),
+    MemberArea(id: 27, name: '海珠区', level: 3, parentId: 23),
+    MemberArea(id: 28, name: '南山区', level: 3, parentId: 24),
+    MemberArea(id: 29, name: '福田区', level: 3, parentId: 24),
+    MemberArea(id: 30, name: '宝安区', level: 3, parentId: 24),
+    MemberArea(id: 31, name: '浙江省', level: 1, parentId: 0),
+    MemberArea(id: 32, name: '杭州市', level: 2, parentId: 31),
+    MemberArea(id: 33, name: '宁波市', level: 2, parentId: 31),
+    MemberArea(id: 34, name: '西湖区', level: 3, parentId: 32),
+    MemberArea(id: 35, name: '拱墅区', level: 3, parentId: 32),
+    MemberArea(id: 36, name: '滨江区', level: 3, parentId: 32),
+    MemberArea(id: 37, name: '海曙区', level: 3, parentId: 33),
+    MemberArea(id: 38, name: '鄞州区', level: 3, parentId: 33),
+    MemberArea(id: 39, name: '江北区', level: 3, parentId: 33),
+    MemberArea(id: 40, name: '四川省', level: 1, parentId: 0),
+    MemberArea(id: 41, name: '成都市', level: 2, parentId: 40),
+    MemberArea(id: 42, name: '武侯区', level: 3, parentId: 41),
+    MemberArea(id: 43, name: '锦江区', level: 3, parentId: 41),
+    MemberArea(id: 44, name: '高新区', level: 3, parentId: 41),
+  ];
+
+  @override
+  Future<ApiResponse<List<MemberArea>>> getAreaList({int parentId = 0, int? level}) async {
+    final areas = _mockAreas.where((area) => area.parentId == parentId && (level == null || area.level == level)).toList(growable: false);
+    return ApiResponse.success(areas);
+  }
+
   @override
   Future<ApiResponse<MemberAddress>> saveAddress(MemberAddress address) async {
     if (address.id == null) {

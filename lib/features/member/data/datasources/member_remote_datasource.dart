@@ -143,7 +143,6 @@ class MemberRemoteDataSource {
   /// 请求体：{"addressid": 0}（0 表示返回全部地址，-1 默认返回 1 条/默认地址）
   /// 响应：{addresslist: [{id, consignee, provincename, cityname,
   /// countyname, address, isdefult, phone, mobile, ...}], datatag}
-  @override
   Future<ApiResponse<List<MemberAddress>>> getAddresses({int addressId = 0}) async {
     return _apiClient.post<List<MemberAddress>>(
       '/api/sys/getuseraddresslist',
@@ -153,6 +152,24 @@ class MemberRemoteDataSource {
         final rawList = map['addresslist'];
         if (rawList is! List) return const <MemberAddress>[];
         return rawList.whereType<Map>().map(MemberAddress.fromApiJson).toList(growable: false);
+      },
+    );
+  }
+
+  /// 获取省市区列表。
+  ///
+  /// 接口：POST /api/common/getarealist
+  /// 请求体：{"parentid": 0, "level": 1}（parentid=0 默认获取全部）
+  /// 响应：{arealist: [{id, name, level, parentid}], datatag}
+  Future<ApiResponse<List<MemberArea>>> getAreaList({int parentId = 0, int? level}) async {
+    return _apiClient.post<List<MemberArea>>(
+      '/api/common/getarealist',
+      data: <String, dynamic>{'parentid': parentId, 'level': level},
+      fromJson: (dynamic json) {
+        final map = json is Map<String, dynamic> ? json : const <String, dynamic>{};
+        final rawList = map['arealist'];
+        if (rawList is! List) return const <MemberArea>[];
+        return rawList.whereType<Map>().map(MemberArea.fromJson).where((area) => area.id > 0 && area.name.isNotEmpty).toList(growable: false);
       },
     );
   }
