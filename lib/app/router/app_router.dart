@@ -389,7 +389,7 @@ class _RouterRefreshListenable extends ChangeNotifier {
 /// 底部 Tab 主框架
 Widget _buildServiceTemplateDetailPage(GoRouterState state) {
   final templateId = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
-  final userServiceId = int.tryParse(state.uri.queryParameters['userServiceId'] ?? '');
+  final userServiceId = int.tryParse(state.uri.queryParameters['userServiceId'] ?? '') ?? 0;
   return ServiceTemplateDetailPage(templateId: templateId, userServiceId: userServiceId);
 }
 
