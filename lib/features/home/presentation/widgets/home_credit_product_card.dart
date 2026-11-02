@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_image.dart';
-import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
+import '../../../points/mall/data/models/get_recommend_product_list_model.dart';
 
 /// 首页热卖商品卡片（compact 模式，95px 宽）
 /// 数据源：CreditMallProduct（推荐位接口）

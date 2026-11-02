@@ -11,7 +11,7 @@ import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../providers/points_detail_provider.dart';
 import '../widgets/points_record_item.dart';
-import '../../../../../app/router/route_names.dart';
+import '../../../../app/router/route_names.dart';
 
 /// 积分明细页面
 class PointsDetailPage extends ConsumerStatefulWidget {

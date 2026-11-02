@@ -13,7 +13,10 @@ class HomeBrandingFooter extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('天佑德，天生与众不同', style: TextStyle(fontSize: 13, color: AppColors.onSurfaceVariant, fontWeight: FontWeight.w400, letterSpacing: 1)),
+            const Text(
+              '天佑德，天生与众不同',
+              style: TextStyle(fontSize: 13, color: AppColors.onSurfaceVariant, fontWeight: FontWeight.w400, letterSpacing: 1),
+            ),
             const SizedBox(width: 4),
             const Icon(Icons.keyboard_arrow_down, size: 16, color: AppColors.onSurfaceVariant),
           ],

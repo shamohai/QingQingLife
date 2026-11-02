@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../core/presentation/paging/paging_controller_mixin.dart';
 import '../../../../core/widgets/app_image.dart';
-import '../../../points_mall/data/models/get_credit_product_list_model.dart';
+import '../../../points/mall/data/models/get_credit_product_list_model.dart';
 import '../providers/home_paging_providers.dart';
 
 /// 首页底部推荐展示区（模块 1 元宝卡片 + 动态青稞粒商品错落列表 + 底部 bottom.png）
@@ -48,10 +48,7 @@ class HomeBottomRecommendSection extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  for (int i = 0; i < leftCards.length; i++) ...[
-                    if (i > 0) const SizedBox(height: 12),
-                    leftCards[i],
-                  ],
+                  for (int i = 0; i < leftCards.length; i++) ...[if (i > 0) const SizedBox(height: 12), leftCards[i]],
                 ],
               ),
             ),

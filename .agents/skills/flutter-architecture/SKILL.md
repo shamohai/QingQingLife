@@ -53,8 +53,7 @@ features/
 - order
 - member
 - coupon
-- points
-- points_mall
+- points (账户、流水、规则与积分商城/兑换子领域)
 - service
 - benefit
 - activity

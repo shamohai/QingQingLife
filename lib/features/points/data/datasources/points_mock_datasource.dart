@@ -1,24 +1,21 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../points/domain/repositories/points_repository.dart';
-import '../../../points/data/models/points_credit_detail_models.dart';
+import '../../domain/repositories/points_repository.dart';
+import '../models/points_credit_detail_models.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_response.dart';
-import '../../../../core/network/providers.dart' show apiClientProvider;
-import '../../../points_mall/data/models/points_mall_home_data.dart';
-import '../../../points_mall/data/models/sign_in_result.dart';
-import '../../../points_mall/data/models/service_product_detail_model.dart';
-import '../../../points_mall/data/models/get_recommend_product_list_model.dart';
-import '../../../points_mall/data/models/get_credit_product_list_model.dart';
-import '../../../points_mall/data/models/credit_product_category_model.dart';
-import '../../../points_mall/data/models/pre_credit_order_info_model.dart';
-import '../../../points_mall/data/models/points_submit_order_models.dart';
+import '../../mall/data/models/points_mall_home_data.dart';
+import '../../mall/data/models/sign_in_result.dart';
+import '../../mall/data/models/get_recommend_product_list_model.dart';
+import '../../mall/data/models/get_credit_product_list_model.dart';
+import '../../mall/data/models/credit_product_category_model.dart';
+import '../../mall/data/models/pre_credit_order_info_model.dart';
+import '../../mall/data/models/points_submit_order_models.dart';
 import 'points_remote_datasource.dart';
 
-/// Mock 积分商城数据源 - 开发/测试环境使用
+/// 积分功能混合数据源 - 开发/测试环境使用。
 ///
-/// 除 getCreditMallHotProducts（热门兑换商品）对接真实 API 外，其余方法走 Mock 数据。
+/// 已确认可用的积分 API 委托给 remote，其余尚未确认对应真实接口的能力保留显式 Mock 数据。
 class MockPointsDataSource implements PointsRepository {
   MockPointsDataSource({this.apiClient});
   final ApiClient? apiClient;
@@ -285,11 +282,6 @@ class MockPointsDataSource implements PointsRepository {
         consecutiveDays: 5,
       ),
     );
-  }
-
-  @override
-  Future<ApiResponse<ServiceProductDetail>> getServiceProductDetail(String productId) {
-    throw UnimplementedError('Service product details require the remote data source');
   }
 
   @override
@@ -586,8 +578,3 @@ class MockPointsDataSource implements PointsRepository {
     return ApiResponse.success(const SubmitBaiLiHuiOrderResp(result: 0, descr: '提交成功(Mock)', orderId: 88003));
   }
 }
-
-/// Mock Repository Provider - 开发环境使用
-///
-/// 注入 apiClientProvider 使 getRecommendProductList 可调用真实 API。
-final mockPointsRepositoryProvider = Provider<PointsRepository>((ref) => MockPointsDataSource(apiClient: ref.read(apiClientProvider)));

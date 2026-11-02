@@ -26,6 +26,7 @@ abstract final class RouteNames {
   // 发票申请记录详情
   static const String invoiceDetail = '/orders/invoices/detail/:id';
 
+  // 积分功能路由位于统一 points feature 下；URL 对外保持不变。
   // 会员相关
   static const String memberLevel = '/member/level';
   static const String memberSignIn = '/member/sign-in';

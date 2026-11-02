@@ -160,10 +160,7 @@ class _HomeBannerState extends State<HomeBanner> {
                   },
                   itemBuilder: (context, index) {
                     final banner = banners[index % banners.length];
-                    return GestureDetector(
-                      onTap: () => _handleTap(index % banners.length),
-                      child: _buildImage(banner),
-                    );
+                    return GestureDetector(onTap: () => _handleTap(index % banners.length), child: _buildImage(banner));
                   },
                 ),
               ),
@@ -184,10 +181,7 @@ class _HomeBannerState extends State<HomeBanner> {
                           width: 30,
                           height: 3,
                           margin: const EdgeInsets.symmetric(horizontal: 4),
-                          decoration: BoxDecoration(
-                            color: isActive ? const Color(0xFF0088FF) : Colors.white.withAlpha(200),
-                            borderRadius: BorderRadius.zero,
-                          ),
+                          decoration: BoxDecoration(color: isActive ? const Color(0xFF0088FF) : Colors.white.withAlpha(200), borderRadius: BorderRadius.zero),
                         );
                       }),
                     ),

@@ -1,4 +1,4 @@
-﻿import 'package:json_annotation/json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 part 'product_card_model.g.dart';
 
@@ -22,8 +22,7 @@ class ProductCardModel {
     this.salesCount,
   });
 
-  factory ProductCardModel.fromJson(Map<String, dynamic> json) =>
-      _$ProductCardModelFromJson(json);
+  factory ProductCardModel.fromJson(Map<String, dynamic> json) => _$ProductCardModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProductCardModelToJson(this);
 }

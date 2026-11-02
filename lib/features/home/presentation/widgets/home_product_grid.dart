@@ -32,10 +32,7 @@ class HomeProductGrid extends ConsumerWidget {
             children: [
               const Text('加载失败'),
               const SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: () => ref.read(homeProductGridProvider.notifier).refresh(),
-                child: const Text('重试'),
-              ),
+              ElevatedButton(onPressed: () => ref.read(homeProductGridProvider.notifier).refresh(), child: const Text('重试')),
             ],
           ),
         ),
@@ -53,14 +50,9 @@ class HomeProductGrid extends ConsumerWidget {
               mainAxisSpacing: AppSpacing.md,
               childAspectRatio: 0.75,
             ),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) => HomeProductCard(product: pagingData.items[index]),
-              childCount: pagingData.items.length,
-            ),
+            delegate: SliverChildBuilderDelegate((context, index) => HomeProductCard(product: pagingData.items[index]), childCount: pagingData.items.length),
           ),
-          SliverToBoxAdapter(
-            child: _buildFooter(context, ref, pagingData),
-          ),
+          SliverToBoxAdapter(child: _buildFooter(context, ref, pagingData)),
         ],
       ),
     );
@@ -78,10 +70,7 @@ class HomeProductGrid extends ConsumerWidget {
       return Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Center(
-          child: ElevatedButton(
-            onPressed: () => ref.read(homeProductGridProvider.notifier).loadMore(),
-            child: const Text('加载更多'),
-          ),
+          child: ElevatedButton(onPressed: () => ref.read(homeProductGridProvider.notifier).loadMore(), child: const Text('加载更多')),
         ),
       );
     }
