@@ -1,21 +1,26 @@
+import 'package:fluwx/fluwx.dart' as fluwx;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/router/route_names.dart';
+import '../../../../../features/points/mall/presentation/providers/butler_mini_program_provider.dart';
 
 /// 服务中心右下角悬浮按钮组
 ///
 /// - 左下角：「预约记录」40x40 蓝色圆角按钮，点击跳转服务记录页
-/// - 右下角：购物车 29x30 + 客服 29x30，竖向排列
-class ServiceFloatingButtons extends StatelessWidget {
+/// - 右下角：管家服务，点击打开微信小程序
+class ServiceFloatingButtons extends ConsumerWidget {
+  static const _miniProgramUsername = 'gh_c55d2ab30511';
+
   final VoidCallback? onServiceTap;
 
   const ServiceFloatingButtons({super.key, this.onServiceTap});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final bottomInset = MediaQuery.of(context).padding.bottom;
     return Stack(
       children: [
@@ -25,24 +30,53 @@ class ServiceFloatingButtons extends StatelessWidget {
           bottom: bottomInset + AppSpacing.lg,
           child: _FloatButton(label: '预约\n记录', onTap: () => context.push(RouteNames.serviceRecords)),
         ),
-        // 右下：购物车 + 客服 29x30
+        // 右下：管家服务
         Positioned(
           right: AppSpacing.lg,
           bottom: bottomInset + AppSpacing.lg,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _FloatIconButton(
-                asset: 'assets/images/points/icon-service.png',
-                label: '管家服务',
-                iconSize: 18, // 管家服务图填充较大，稍小一点保持视觉平衡
-                onTap: onServiceTap ?? () => context.push(RouteNames.customerService),
-              ),
-            ],
+          child: _FloatIconButton(
+            asset: 'assets/images/points/icon-service.png',
+            label: '管家服务',
+            iconSize: 18, // 管家服务图填充较大，稍小一点保持视觉平衡
+            onTap: onServiceTap ?? () => _openButlerMiniProgram(context, ref),
           ),
         ),
       ],
     );
+  }
+
+  Future<void> _openButlerMiniProgram(BuildContext context, WidgetRef ref) async {
+    try {
+      final info = await ref.read(butlerMiniProgramInfoProvider.future);
+      if (!context.mounted) return;
+      final path = info?.workwxmppath.trim() ?? '';
+      if (path.isEmpty) {
+        _showMessage(context, '暂无法获取管家服务入口，请稍后重试');
+        return;
+      }
+
+      final weChat = fluwx.Fluwx();
+      final isInstalled = await weChat.isWeChatInstalled;
+      if (!context.mounted) return;
+
+      if (!isInstalled) {
+        _showMessage(context, '请先安装微信后再使用管家服务');
+        return;
+      }
+
+      await weChat.open(
+        target: fluwx.MiniProgram(username: _miniProgramUsername, path: path),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      _showMessage(context, '打开管家服务失败，请稍后重试');
+    }
+  }
+
+  void _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message), behavior: SnackBarBehavior.floating));
   }
 }
 
