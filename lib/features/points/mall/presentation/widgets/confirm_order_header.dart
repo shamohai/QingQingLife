@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 
+import '../../../../../app/theme/app_colors.dart';
 import '../../../../../app/theme/app_spacing.dart';
 import '../../../../member/domain/repositories/member_repository.dart';
 
@@ -21,11 +22,17 @@ class ConfirmOrderNavBar extends StatelessWidget implements PreferredSizeWidget 
       centerTitle: false,
       titleSpacing: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF1F2024)),
+        icon: Icon( 
+          Icons.arrow_back_ios_new,
+          color: AppColors.onSurface,
+          size: 22,
+        ),
         onPressed: onBack ?? () => Navigator.of(context).pop(),
-      ),
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+        ),
       title: const Text(
-        '确认订单',
+        '确认订单', 
         style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Color(0xFF1F2024)),
       ),
     );

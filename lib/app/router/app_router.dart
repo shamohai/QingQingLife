@@ -296,7 +296,10 @@ final appRouter = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.allProducts,
-        pageBuilder: (c, s) => const MaterialPage(child: AllProductsPage()),
+        pageBuilder: (c, s) {
+          final categoryId = int.tryParse(s.uri.queryParameters['categoryid'] ?? '') ?? 0;
+          return MaterialPage(child: AllProductsPage(categoryId: categoryId));
+        },
       ),
       if (!kIsWeb)
         GoRoute(

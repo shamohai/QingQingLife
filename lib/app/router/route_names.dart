@@ -122,7 +122,7 @@ abstract final class RouteNames {
   static const String pointsRules = '/points/rules';
   static const String pointsRulesUrl = 'https://wx.mall.qkj.com.cn/mob/Account/CreditRule?from=app';
 
-  // 全部商品
+  // 全部商品（categoryid 通过 query 参数传递，默认 0）
   static const String allProducts = '/points/all-products';
 
   // App 内 H5 页面

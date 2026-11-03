@@ -19,7 +19,9 @@ import '../../data/models/get_credit_product_list_model.dart';
 ///
 /// 入口：积分商城 → 热门兑换商品 → 查看全部
 class AllProductsPage extends ConsumerStatefulWidget {
-  const AllProductsPage({super.key});
+  final int categoryId;
+
+  const AllProductsPage({super.key, this.categoryId = 0});
 
   @override
   ConsumerState<AllProductsPage> createState() => _AllProductsPageState();
@@ -32,7 +34,7 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(creditProductListProvider.notifier).setCategoryId(0);
+      ref.read(creditProductListProvider.notifier).setCategoryId(widget.categoryId);
     });
   }
 
@@ -75,7 +77,7 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
                   top: true,
                   bottom: false,
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 0, right: AppSpacing.md, top: 8, bottom: 4),
+                    padding: const EdgeInsets.only(left: 0, right: AppSpacing.md, top: 4, bottom: 4),
                     child: Row(
                       children: [
                         // 返回按钮
@@ -83,7 +85,7 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
                           icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 22),
                           onPressed: () => context.pop(),
                           padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(minWidth: 24, minHeight: 40),
+                          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                         ),
                         //const SizedBox(width: 4),
                         // 标题
