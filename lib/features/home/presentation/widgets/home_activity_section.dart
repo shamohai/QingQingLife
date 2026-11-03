@@ -308,7 +308,7 @@ class _ActivityCardState extends State<_ActivityCard> {
       return;
     }
 
-    final route = Uri(path: RouteNames.webView, queryParameters: {'url': uri.toString()});
+    final route = Uri(path: RouteNames.activityWebView, queryParameters: {'url': uri.toString()});
     context.push(route.toString());
   }
 }

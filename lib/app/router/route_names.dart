@@ -125,6 +125,7 @@ abstract final class RouteNames {
   // 全部商品（categoryid 通过 query 参数传递，默认 0）
   static const String allProducts = '/points/all-products';
 
-  // App 内 H5 页面
+  // App 内 H5 页面：常规页面与活动页面保持独立路由和行为。
   static const String webView = '/webview';
+  static const String activityWebView = '/activity/webview';
 }

@@ -47,6 +47,7 @@ import '../../features/points/mall/presentation/pages/service_product_detail_pag
 import '../../features/points/mall/presentation/pages/confirm_order_page.dart';
 import '../../features/points/mall/presentation/pages/all_products_page.dart';
 import '../../features/points/mall/presentation/pages/points_payment_success_page.dart';
+import '../../core/presentation/pages/activity_webview_page.dart';
 import '../../core/presentation/pages/webview_page.dart';
 import '../../features/order/presentation/pages/service_coupon_confirm_order_page.dart';
 import '../../features/points/presentation/pages/points_detail_page.dart';
@@ -301,7 +302,7 @@ final appRouter = Provider<GoRouter>((ref) {
           return MaterialPage(child: AllProductsPage(categoryId: categoryId));
         },
       ),
-      if (!kIsWeb)
+      if (!kIsWeb) ...[
         GoRoute(
           path: RouteNames.webView,
           pageBuilder: (c, s) {
@@ -315,6 +316,20 @@ final appRouter = Provider<GoRouter>((ref) {
             return MaterialPage(child: WebViewPage(url: url));
           },
         ),
+        GoRoute(
+          path: RouteNames.activityWebView,
+          pageBuilder: (c, s) {
+            final url = s.uri.queryParameters['url'] ?? '';
+            final uri = Uri.tryParse(url);
+            if (uri == null || !(uri.scheme == 'http' || uri.scheme == 'https')) {
+              return const MaterialPage(
+                child: Scaffold(body: Center(child: Text('无效的网页地址'))),
+              );
+            }
+            return MaterialPage(child: ActivityWebViewPage(url: url));
+          },
+        ),
+      ],
       GoRoute(
         path: RouteNames.paymentResult,
         pageBuilder: (c, s) => MaterialPage(child: PointsPaymentSuccessPage.fromExtra(s.extra)),
