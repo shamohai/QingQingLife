@@ -89,10 +89,13 @@ abstract final class RouteNames {
   // 活动详情（活动 tab - Mock）
   static const String activityDetail = '/service/activity/:id';
 
-  // 预约项目填写信息
+  // 活动报名填写信息
   static const String serviceActivityBookingForm = '/service/activity/:id/book';
   // 预约项目填写信息
   static const String serviceBookingForm = '/service/project/:id/book';
+
+  // 挚友报名填写信息
+  static const String serviceFriendBookingForm = '/service/friend/:id/book';
 
   // 购酒享服务模板详情
   static const String serviceTemplateDetail = '/service/template/:id/:userServiceId';
