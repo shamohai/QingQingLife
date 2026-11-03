@@ -80,7 +80,6 @@ bool isProtectedPath(String path) {
     RouteNames.serviceBookingForm,
     RouteNames.serviceActivityBookingForm, // 活动报名填写信息
     RouteNames.serviceFriendBookingForm, // 挚友报名填写信息
-    RouteNames.serviceBookingRecordDetail, // 预约记录详情
     RouteNames.customerService, // 客服联系页
     RouteNames.pointsDetail,
     RouteNames.notifications,
