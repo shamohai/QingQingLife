@@ -100,18 +100,18 @@ class _HeroSectionState extends State<HeroSection> {
 
         // 2. 返回胶囊按钮（设计稿：margin-top=50, margin-left=24）
         Positioned(
-          top: statusBarHeight + 2,
+          top: statusBarHeight + 4,
           child: Container(
-            height: 40,
+            height: 44,
             decoration: BoxDecoration(color: const Color(0x4D000000), borderRadius: BorderRadius.circular(6)),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24),
+                  icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 22),
                   onPressed: widget.onBack,
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                 ),
                 const Padding(
                   padding: EdgeInsets.only(right: 10),

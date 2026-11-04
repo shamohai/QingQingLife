@@ -300,7 +300,9 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
           );
 
           final resp = await repository.submitBaiLiHuiOrder(req);
-          if (resp.success && resp.data != null && resp.data!.result == 0) {
+          // ApiResponse.fromJson consumes the flattened `result` field to set resp.success,
+          // and strips it before passing the remaining payload (including `orderid`) to the model.
+          if (resp.success && resp.data != null) {
             final orderIdStr = resp.data!.orderId?.toString() ?? '';
             if (orderIdStr.isEmpty) {
               return ApiResponse.error('提交订单成功，但未返回订单号');

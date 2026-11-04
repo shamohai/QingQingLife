@@ -138,7 +138,7 @@ class _ProductCard extends StatelessWidget {
           children: [
             // 商品图片，圆角 9dp
             ClipRRect(
-              borderRadius: BorderRadius.circular(9),
+              borderRadius: BorderRadius.circular(4),
               child: AppNetworkImage(
                 url: product.imgUrl,
                 width: double.infinity,

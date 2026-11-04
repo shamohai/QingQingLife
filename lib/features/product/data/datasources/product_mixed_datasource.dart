@@ -11,6 +11,7 @@ import '../../../../core/network/api_response.dart';
 import '../../../../core/network/providers.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../../../home/data/models/carousel_model.dart';
+import '../../../home/data/models/weimeng_activity_location.dart';
 import 'product_mock_datasource.dart';
 import 'product_remote_datasource.dart';
 
@@ -19,9 +20,7 @@ class ProductMixedDataSource implements ProductRepository {
   final ProductRemoteDataSource _remote;
   final MockProductDataSource _mock;
 
-  ProductMixedDataSource({required ApiClient apiClient})
-      : _remote = ProductRemoteDataSource(apiClient: apiClient),
-        _mock = MockProductDataSource();
+  ProductMixedDataSource({required ApiClient apiClient}) : _remote = ProductRemoteDataSource(apiClient: apiClient), _mock = MockProductDataSource();
 
   @override
   Future<ApiResponse<List<CarouselBanner>>> getCarouselList({required CarouselType type}) async {
@@ -35,27 +34,22 @@ class ProductMixedDataSource implements ProductRepository {
   }
 
   @override
+  Future<ApiResponse<WeimengActivityLocation>> getWeimengActivityLocation() {
+    return _remote.getWeimengActivityLocation();
+  }
+
+  @override
   Future<ApiResponse<ProductDetail>> getProductDetail(String productId) => _mock.getProductDetail(productId);
 
   @override
-  Future<ApiResponse<ProductListResult>> getProductList({
-    required int page,
-    required int pageSize,
-    String? categoryId,
-    String? keyword,
-    String? sortBy,
-  }) =>
+  Future<ApiResponse<ProductListResult>> getProductList({required int page, required int pageSize, String? categoryId, String? keyword, String? sortBy}) =>
       _mock.getProductList(page: page, pageSize: pageSize, categoryId: categoryId, keyword: keyword, sortBy: sortBy);
 
   @override
   Future<ApiResponse<List<ProductCategory>>> getCategories() => _mock.getCategories();
 
   @override
-  Future<ApiResponse<ProductListResult>> searchProducts({
-    required String keyword,
-    required int page,
-    required int pageSize,
-  }) =>
+  Future<ApiResponse<ProductListResult>> searchProducts({required String keyword, required int page, required int pageSize}) =>
       _mock.searchProducts(keyword: keyword, page: page, pageSize: pageSize);
 }
 

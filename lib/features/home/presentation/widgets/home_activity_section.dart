@@ -1,20 +1,21 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/router/route_names.dart';
-
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../product/domain/repositories/product_repository.dart';
+import '../../data/models/weimeng_activity_location.dart' show buildWeimengActivityUri;
+import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/widgets/app_image.dart';
 
-/// 线上活动模块（对齐蓝湖设计稿）
-/// 设计稿：白色卡片，"线上活动" + 副标题，左侧 1 张大卡片 (294)，右侧上下 2 张小卡片 (142+142)
+/// 首页线上活动模块：固定两列，卡片按图片原始比例自适应高度。
 class HomeActivitySection extends StatelessWidget {
   final List<HomeActivityBlock> blocks;
   const HomeActivitySection({super.key, required this.blocks});
@@ -60,7 +61,6 @@ class HomeActivitySection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          // 左右布局：左侧 1 张大卡片，右侧上下 2 张小卡片
           _buildGrid(context, blocks),
         ],
       ),
@@ -68,47 +68,44 @@ class HomeActivitySection extends StatelessWidget {
   }
 
   Widget _buildGrid(BuildContext context, List<HomeActivityBlock> blocks) {
-    final leftBlock = blocks.isNotEmpty ? blocks[0] : null;
-    final topRightBlock = blocks.length > 1 ? blocks[1] : null;
-    final bottomRightBlock = blocks.length > 2 ? blocks[2] : null;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 左侧大卡片 (高度 294)
-        Expanded(
-          child: leftBlock != null ? _ActivityCard(block: leftBlock, height: 294) : Container(height: 294, color: Colors.grey[200]),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        // 右侧上下两张卡片 (总高 294, 中间间距 10, 每张高 142)
-        Expanded(
-          child: Column(
-            children: [
-              topRightBlock != null ? _ActivityCard(block: topRightBlock, height: 142) : Container(height: 142, color: Colors.grey[200]),
-              const SizedBox(height: 10),
-              bottomRightBlock != null ? _ActivityCard(block: bottomRightBlock, height: 142) : Container(height: 142, color: Colors.grey[200]),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final itemWidth = (constraints.maxWidth - AppSpacing.sm) / 2;
+        final visibleBlocks = blocks.take(2).toList();
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (var index = 0; index < visibleBlocks.length; index++) ...[
+              if (index > 0) const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: _ActivityCard(block: visibleBlocks[index], width: itemWidth),
+              ),
             ],
-          ),
-        ),
-      ],
+            if (visibleBlocks.length == 1) SizedBox(width: itemWidth),
+          ],
+        );
+      },
     );
   }
 }
 
-class _ActivityCard extends StatefulWidget {
+class _ActivityCard extends ConsumerStatefulWidget {
   final HomeActivityBlock block;
-  final double height;
-  const _ActivityCard({required this.block, this.height = 294});
+  final double width;
+  const _ActivityCard({required this.block, required this.width});
 
   @override
-  State<_ActivityCard> createState() => _ActivityCardState();
+  ConsumerState<_ActivityCard> createState() => _ActivityCardState();
 }
 
-class _ActivityCardState extends State<_ActivityCard> {
+class _ActivityCardState extends ConsumerState<_ActivityCard> {
+  static final Map<String, double> _resolvedAspectRatios = <String, double>{};
+
   late final PageController _pageController;
   int _currentIndex = 0;
   Timer? _timer;
   bool _isInteracting = false;
+  bool _isOpeningActivity = false;
 
   List<String> get _images {
     if (widget.block.imageUrls != null && widget.block.imageUrls!.isNotEmpty) {
@@ -152,25 +149,30 @@ class _ActivityCardState extends State<_ActivityCard> {
   @override
   Widget build(BuildContext context) {
     final images = _images;
-    final isTall = widget.height > 200;
+    final imageUrl = images.isNotEmpty ? images.first : null;
+    if (imageUrl != null) _resolveImageAspectRatio(imageUrl);
+    final aspectRatio = imageUrl == null ? 1.0 : (_resolvedAspectRatios[imageUrl] ?? 1.0);
+    final height = widget.width / aspectRatio;
+    final isTall = height > 200;
 
     return InkWell(
       onTap: () => _openActivity(context),
       borderRadius: BorderRadius.circular(14),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(14), // 设计稿 14px 圆角
+        borderRadius: BorderRadius.circular(14),
         child: SizedBox(
-          height: widget.height,
+          width: widget.width,
+          height: height,
           child: Stack(
             children: [
-              // 背景图 / 轮播图
+              // 按图片固有宽高比布局，避免固定高度裁切活动图。
               SizedBox(
-                width: double.infinity,
-                height: widget.height,
+                width: widget.width,
+                height: height,
                 child: images.isEmpty
-                    ? Container(color: AppColors.surfaceVariant, width: double.infinity, height: widget.height)
+                    ? Container(color: AppColors.surfaceVariant, width: widget.width, height: height)
                     : images.length == 1
-                    ? AppNetworkImage(url: images.first, fit: BoxFit.cover, width: double.infinity, height: widget.height)
+                    ? AppNetworkImage(url: images.first, fit: BoxFit.fill, width: widget.width, height: height)
                     : Listener(
                         onPointerDown: (_) {
                           _isInteracting = true;
@@ -194,7 +196,7 @@ class _ActivityCardState extends State<_ActivityCard> {
                             _startAutoPlay();
                           },
                           itemBuilder: (context, index) {
-                            return AppNetworkImage(url: images[index % images.length], fit: BoxFit.cover, width: double.infinity, height: widget.height);
+                            return AppNetworkImage(url: images[index % images.length], fit: BoxFit.fill, width: widget.width, height: height);
                           },
                         ),
                       ),
@@ -296,19 +298,73 @@ class _ActivityCardState extends State<_ActivityCard> {
     );
   }
 
-  void _openActivity(BuildContext context) {
+  void _resolveImageAspectRatio(String url) {
+    if (_resolvedAspectRatios.containsKey(url)) return;
+
+    final ImageProvider imageProvider = url.startsWith('assets/') ? AssetImage(url) : NetworkImage(url);
+    final stream = imageProvider.resolve(const ImageConfiguration());
+    late final ImageStreamListener listener;
+    listener = ImageStreamListener(
+      (imageInfo, synchronousCall) {
+        final image = imageInfo.image;
+        if (image.height > 0) {
+          _resolvedAspectRatios[url] = image.width / image.height;
+          if (mounted) setState(() {});
+        }
+        stream.removeListener(listener);
+        imageInfo.dispose();
+      },
+      onError: (error, stackTrace) {
+        stream.removeListener(listener);
+      },
+    );
+    stream.addListener(listener);
+  }
+
+  Future<void> _openActivity(BuildContext context) async {
+    if (_isOpeningActivity) return;
     final path = widget.block.actionUrl?.trim() ?? '';
     if (path.isEmpty) return;
 
-    final uri = Uri.tryParse(path);
-    if (uri == null || !(uri.scheme == 'http' || uri.scheme == 'https')) return;
+    final baseUri = Uri.tryParse(path);
+    if (baseUri == null || (baseUri.scheme != 'http' && baseUri.scheme != 'https') || baseUri.host.isEmpty) return;
 
+    final isDrinkMap = widget.block.id == 'drinkmapactivity';
+    final isDrinkRank = widget.block.id == 'drinkrankactivity';
+    final isWeimengActivity = isDrinkMap || isDrinkRank;
+
+    var activityUri = baseUri;
+    if (isWeimengActivity) {
+      setState(() => _isOpeningActivity = true);
+      try {
+        final response = await ref.read(productRepositoryProvider).getWeimengActivityLocation();
+        if (!mounted) return;
+        if (!response.success || response.data == null) {
+          _showActivityError(response.message);
+          return;
+        }
+        activityUri = buildWeimengActivityUri(baseUri, response.data!, includeArea: isDrinkMap);
+      } on Exception {
+        if (mounted) _showActivityError();
+        return;
+      } finally {
+        if (mounted) setState(() => _isOpeningActivity = false);
+      }
+    }
+
+    if (!mounted) return;
+    debugPrint('线上活动拼接后的 WebView URL: $activityUri');
     if (kIsWeb) {
-      launchUrl(uri, webOnlyWindowName: '_blank');
+      await launchUrl(activityUri, webOnlyWindowName: '_blank');
       return;
     }
 
-    final route = Uri(path: RouteNames.webView, queryParameters: {'url': uri.toString()});
-    context.push(route.toString());
+    final route = Uri(path: RouteNames.activityWebView, queryParameters: {'url': activityUri.toString()});
+    this.context.push(route.toString());
+  }
+
+  void _showActivityError([String message = '活动暂时无法打开，请稍后重试']) {
+    final displayMessage = message.trim().isEmpty ? '活动暂时无法打开，请稍后重试' : message;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(displayMessage)));
   }
 }

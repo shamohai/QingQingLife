@@ -32,24 +32,33 @@ class FluwxShareService implements ShareService {
       switch (channel) {
         case ShareChannel.weChat:
         case ShareChannel.weChatTimeline:
-          return await _shareToWeChat(payload, channel);
+          final result = await _shareToWeChat(payload, channel);
+          return _completeDrinkShare(payload, result);
         case ShareChannel.system:
           final result = await _systemShare.share(ShareParams(text: payload.plainText, subject: payload.title));
-          return switch (result.status) {
+          return _completeDrinkShare(payload, switch (result.status) {
             ShareResultStatus.success => const ShareActionResult(ShareActionStatus.success),
             ShareResultStatus.dismissed => const ShareActionResult(ShareActionStatus.dismissed),
             ShareResultStatus.unavailable => const ShareActionResult(ShareActionStatus.unavailable),
-          };
+          });
         case ShareChannel.copyLink:
           if (!payload.hasShareableUrl) {
             return const ShareActionResult(ShareActionStatus.unavailable, message: '暂无可复制的分享链接');
           }
           await Clipboard.setData(ClipboardData(text: payload.url!.trim()));
-          return const ShareActionResult(ShareActionStatus.success);
+          return _completeDrinkShare(payload, const ShareActionResult(ShareActionStatus.success));
       }
     } catch (_) {
       return const ShareActionResult(ShareActionStatus.failed, message: '分享失败，请稍后重试');
     }
+  }
+
+  ShareActionResult _completeDrinkShare(SharePayload payload, ShareActionResult result) {
+    final returnUrl = payload.shareSuccessReturnUrl;
+    if (result.status == ShareActionStatus.success && returnUrl != null) {
+      payload.onDrinkShareSucceeded?.call(returnUrl);
+    }
+    return result;
   }
 
   Future<ShareActionResult> _shareToWeChat(SharePayload payload, ShareChannel channel) async {
@@ -61,7 +70,7 @@ class FluwxShareService implements ShareService {
     }
     final accepted = await _wechat.share(
       fluwx.WeChatShareWebPageModel(
-        payload.url!.trim(),
+        payload.shareUrlForSharing.toString(),
         title: payload.title,
         description: payload.plainDescription,
         scene: channel == ShareChannel.weChat ? fluwx.WeChatScene.session : fluwx.WeChatScene.timeline,
