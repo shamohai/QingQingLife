@@ -9,6 +9,7 @@ abstract final class RouteNames {
 
   // 商品相关
   static const String productDetail = '/product/:id';
+  static const String homeProductDetail = '/home/product/:id';
 
   // 购物车与结算
   static const String cart = '/cart';
@@ -41,6 +42,10 @@ abstract final class RouteNames {
   static const String lockedRedPacketList = '/coupons/red-packet';
   static const String serviceCouponList = '/coupons/service';
   static const String serviceCouponUse = '/coupons/service/use';
+  static const String serviceCouponReceive = '/coupons/service/receive';
+
+  /// App 内统一链接接收页：读取 `route` 与其余参数后跳转到目标页面。
+  static const String linkReceive = '/link/receive';
   static const String pointsPage = '/points';
   static const String pointsMall = '/points/mall';
 
@@ -62,6 +67,10 @@ abstract final class RouteNames {
   static const String serviceBookingRecordDetail = '/service/booking-record-detail';
   // 积分商城服务商品详情
   static const String serviceProductDetail = '/points/service/:id';
+
+  static String serviceProductDetailPath({required String productId}) {
+    return serviceProductDetail.replaceFirst(':id', Uri.encodeComponent(productId));
+  }
 
   // 积分商城服务商品确认订单
   static const String confirmOrder = '/points/service/:id/confirm';
@@ -127,4 +136,48 @@ abstract final class RouteNames {
 
   // App 内 H5 页面
   static const String webView = '/webview';
+
+  /// 允许通过分享 Schema 打开的页面。
+  ///
+  /// 只收录可以仅凭路径和 query 参数恢复的页面；依赖 `extra` 对象的路由
+  /// 不能加入，否则外部链接直达时会缺少页面数据。
+  static const Set<String> deepLinkRoutes = {
+    home,
+    points,
+    service,
+    profile,
+    productDetail,
+    homeProductDetail,
+    serviceProductDetail,
+    reservationServiceDetail,
+    friendDetail,
+    activityDetail,
+    serviceTemplateDetail,
+    memberServiceTemplateDetail,
+    pointsDetail,
+    allProducts,
+    orders,
+    orderDetail,
+    memberLevel,
+    coupons,
+    couponList,
+    serviceCouponList,
+    serviceCouponReceive,
+    linkReceive,
+    notifications,
+    customerService,
+    cart,
+    serviceCart,
+    address,
+    addressAdd,
+    addressEdit,
+    aboutUs,
+    invoiceCenter,
+    invoiceDetail,
+    serviceRecords,
+    serviceBookingRecordDetail,
+  };
+
+  /// 即使可能被动态路由模板匹配，也不允许从外部链接直达的页面。
+  static const Set<String> deepLinkBlockedPaths = {mallPaymentSuccess, paymentResult, serviceBookingSuccess, serviceCouponUse};
 }

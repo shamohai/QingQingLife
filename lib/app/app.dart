@@ -5,8 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/theme_provider.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
-import '../core/update/providers/version_check_provider.dart';
-import '../core/update/widgets/update_dialog.dart';
+import '../core/deeplink/deep_link_receiver.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -21,35 +20,38 @@ class App extends StatelessWidget {
         // // 触发启动时版本检查（仅执行一次）
         // ref.read(autoVersionCheckProvider);
 
-        return MaterialApp.router(
-          title: '青轻生活',
-          debugShowCheckedModeBanner: false,
-          themeMode: themeMode,
-          theme: AppTheme.themeData,
-          darkTheme: AppTheme.darkThemeData,
-          routerConfig: router,
-          localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
-          supportedLocales: const [Locale('zh', 'CN'), Locale('en', 'US')],
-          builder: (context, child) {
-            // // 检查是否需要显示更新弹窗，测试时关闭
-            // if (versionCheckState.state == VersionCheckState.checked && versionCheckState.info != null && versionCheckState.info!.shouldShowDialog) {
-            //   WidgetsBinding.instance.addPostFrameCallback((_) {
-            //     if (!context.mounted) return;
-            //     final info = versionCheckState.info!;
-            //     showDialog(
-            //       context: context,
-            //       barrierDismissible: !info.isForceUpdate,
-            //       builder: (dialogContext) => UpdateDialog(
-            //         info: info,
-            //         onConfirm: () {
-            //           // TODO: 触发实际更新逻辑
-            //         },
-            //       ),
-            //     );
-            //   });
-            // }
-            return child ?? const SizedBox.shrink();
-          },
+        return DeepLinkReceiver(
+          onLocation: router.go,
+          child: MaterialApp.router(
+            title: '青轻生活',
+            debugShowCheckedModeBanner: false,
+            themeMode: themeMode,
+            theme: AppTheme.themeData,
+            darkTheme: AppTheme.darkThemeData,
+            routerConfig: router,
+            localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
+            supportedLocales: const [Locale('zh', 'CN'), Locale('en', 'US')],
+            builder: (context, child) {
+              // // 检查是否需要显示更新弹窗，测试时关闭
+              // if (versionCheckState.state == VersionCheckState.checked && versionCheckState.info != null && versionCheckState.info!.shouldShowDialog) {
+              //   WidgetsBinding.instance.addPostFrameCallback((_) {
+              //     if (!context.mounted) return;
+              //     final info = versionCheckState.info!;
+              //     showDialog(
+              //       context: context,
+              //       barrierDismissible: !info.isForceUpdate,
+              //       builder: (dialogContext) => UpdateDialog(
+              //         info: info,
+              //         onConfirm: () {
+              //           // TODO: 触发实际更新逻辑
+              //         },
+              //       ),
+              //     );
+              //   });
+              // }
+              return child ?? const SizedBox.shrink();
+            },
+          ),
         );
       },
     );

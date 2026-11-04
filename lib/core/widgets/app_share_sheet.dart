@@ -17,6 +17,17 @@ abstract final class AppShareSheet {
       child: _ShareSheetContent(rootContext: context, payload: payload),
     );
   }
+
+  /// 分享当前 App 页面。
+  ///
+  /// [location] 是应用内绝对路由，可携带 query 参数。分享出去的链接会通过
+  /// openapp 包装携带 Schema，用户点击后由深链接收器打开对应页面。
+  static Future<void> showAppPage({required BuildContext context, required String title, required String location, String? description, String? imageUrl}) {
+    return show(
+      context: context,
+      payload: SharePayload.appPage(title: title, location: location, description: description, imageUrl: imageUrl),
+    );
+  }
 }
 
 class _ShareSheetContent extends ConsumerWidget {

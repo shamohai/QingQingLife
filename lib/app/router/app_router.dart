@@ -23,6 +23,8 @@ import '../../features/member/presentation/pages/my_coupons_page.dart';
 import '../../features/member/presentation/pages/coupon_list_page.dart';
 import '../../features/member/presentation/pages/locked_red_packet_list_page.dart';
 import '../../features/member/presentation/pages/service_coupon_list_page.dart';
+import '../../features/member/presentation/pages/service_coupon_receive_page.dart';
+import '../../core/deeplink/link_receive_page.dart';
 import '../../features/member/presentation/pages/service_coupon_use_page.dart';
 import '../../features/member/data/models/service_coupon_model.dart';
 import '../../features/member/domain/repositories/member_repository.dart';
@@ -241,6 +243,25 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.serviceCouponUse,
         pageBuilder: (c, s) => MaterialPage(child: ServiceCouponUsePage(coupon: s.extra as ServiceCouponInfo)),
+      ),
+      GoRoute(
+        path: RouteNames.serviceCouponReceive,
+        pageBuilder: (c, s) {
+          final query = s.uri.queryParameters;
+          return MaterialPage(
+            child: ServiceCouponReceivePage(
+              shareGroupId: query['sharegroupid'] ?? '',
+              serviceCouponId: int.tryParse(query['serviceconponid'] ?? '') ?? 0,
+              couponName: query['couponname'] ?? '',
+              endTime: DateTime.tryParse(query['endtime'] ?? ''),
+              count: int.tryParse(query['count'] ?? '') ?? 1,
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: RouteNames.linkReceive,
+        pageBuilder: (c, s) => MaterialPage(child: LinkReceivePage(queryParameters: s.uri.queryParameters)),
       ),
       GoRoute(
         path: RouteNames.address,
