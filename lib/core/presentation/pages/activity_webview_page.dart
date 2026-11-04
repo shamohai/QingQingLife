@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -27,13 +29,20 @@ class _ActivityWebViewPageState extends State<ActivityWebViewPage> {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..addJavaScriptChannel('AppShare', onMessageReceived: (message) => _handleShareMessage(message.message))
+      ..addJavaScriptChannel('drinkShare', onMessageReceived: (message) => _handleDrinkShareMessage(message.message))
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (progress) {
             if (mounted) setState(() => _loadingProgress = progress);
           },
           onPageStarted: (_) {
-            if (mounted) setState(() => _errorMessage = null);
+            if (mounted) {
+              setState(() => _errorMessage = null);
+              _injectDrinkShareShim();
+            }
+          },
+          onPageFinished: (_) {
+            if (mounted) _injectDrinkShareShim();
           },
           onWebResourceError: (error) {
             if (mounted && error.isForMainFrame == true) {
@@ -41,8 +50,35 @@ class _ActivityWebViewPageState extends State<ActivityWebViewPage> {
             }
           },
         ),
-      )
-      ..loadRequest(Uri.parse(widget.url));
+      );
+
+    _setupUserAgentAndLoad();
+  }
+
+  Future<void> _setupUserAgentAndLoad() async {
+    try {
+      final defaultUA = await _controller.getUserAgent();
+      final customUA = (defaultUA != null && defaultUA.isNotEmpty) ? '$defaultUA QingQingLife/1.0.0 qqshApp/1.0.0' : 'QingQingLife/1.0.0 qqshApp/1.0.0';
+      await _controller.setUserAgent(customUA);
+    } catch (_) {
+      await _controller.setUserAgent('QingQingLife/1.0.0 qqshApp/1.0.0');
+    }
+    if (mounted) {
+      await _controller.loadRequest(Uri.parse(widget.url));
+    }
+  }
+
+  void _injectDrinkShareShim() {
+    _controller.runJavaScript('''
+      (function() {
+        window.qqshApp = window.qqshApp || {};
+        window.qqshApp.drinkShare = function(data) {
+          if (window.drinkShare && window.drinkShare.postMessage) {
+            window.drinkShare.postMessage(typeof data === 'string' ? data : JSON.stringify(data));
+          }
+        };
+      })();
+    ''');
   }
 
   Future<void> _handleShareMessage(String message) async {
@@ -54,12 +90,46 @@ class _ActivityWebViewPageState extends State<ActivityWebViewPage> {
     try {
       final currentUrl = await _controller.currentUrl();
       if (!mounted) return;
-      final payload = shareMessage.toSharePayload(fallbackTitle: widget.title, fallbackUrl: currentUrl);
+      final payload = shareMessage.toSharePayload(
+        fallbackTitle: widget.title,
+        fallbackUrl: currentUrl,
+        onDrinkShareSucceeded: (returnUrl) {
+          if (mounted) _controller.runJavaScript("window.location.href = ${_encodeJsString(returnUrl.toString())};");
+        },
+      );
       await AppShareSheet.show(context: context, payload: payload);
     } finally {
       _isShareSheetOpen = false;
     }
   }
+
+  Future<void> _handleDrinkShareMessage(String message) async {
+    if (!mounted || _isShareSheetOpen) return;
+    final decoded = ActivityShareMessage.tryParse(message);
+    if (decoded == null ||
+        !decoded.useDrinkMapOpenAppUrl ||
+        decoded.drinkShareUrl == null ||
+        !ActivityShareMessage.isValidWebUrl(decoded.drinkShareUrl) ||
+        !ActivityShareMessage.isValidWebUrl(decoded.returnUrl)) {
+      return;
+    }
+
+    _isShareSheetOpen = true;
+    try {
+      final payload = decoded.toSharePayload(
+        fallbackTitle: widget.title,
+        fallbackUrl: null,
+        onDrinkShareSucceeded: (returnUrl) {
+          if (mounted) _controller.runJavaScript("window.location.href = ${_encodeJsString(returnUrl.toString())};");
+        },
+      );
+      await AppShareSheet.show(context: context, payload: payload);
+    } finally {
+      _isShareSheetOpen = false;
+    }
+  }
+
+  String _encodeJsString(String value) => jsonEncode(value);
 
   Future<void> _reload() async {
     setState(() => _errorMessage = null);

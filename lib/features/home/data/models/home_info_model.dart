@@ -16,7 +16,7 @@ class HomeInfoModel {
 
   factory HomeInfoModel.fromJson(Map<String, dynamic> json) {
     // 1. navlist (金刚区)
-    final navRaw = json['navlist'] ?? json['nav_list'] ?? json['navs'];
+    final navRaw = json['navlist'];
     final navList = <HomeNavListModel>[];
     if (navRaw is List) {
       for (final item in navRaw) {
@@ -27,23 +27,24 @@ class HomeInfoModel {
     }
 
     // 2. monthlyserviceinfo (每月权益)
-    final monthlyRaw = json['monthlyserviceinfo'] ?? json['monthly_service_info'];
+    final monthlyRaw = json['monthlyserviceinfo'];
     HomeMonthlyServiceInfoModel? monthlyServiceInfo;
     if (monthlyRaw is Map<String, dynamic>) {
       monthlyServiceInfo = HomeMonthlyServiceInfoModel.fromJson(monthlyRaw);
-    } else if (monthlyRaw is List) {
-      monthlyServiceInfo = HomeMonthlyServiceInfoModel.fromJson(monthlyRaw.isNotEmpty ? monthlyRaw.first as Map<String, dynamic> : {});
     }
 
-    // 3. onlineactivityinfo (线上活动)
-    final onlineRaw = json['onlineactivityinfo'] ?? json['online_activity_info'];
-    HomeOnlineActivityInfoModel? onlineActivityInfo;
-    if (onlineRaw != null) {
-      onlineActivityInfo = HomeOnlineActivityInfoModel.fromJson(onlineRaw);
+    // 3. 新接口在线活动字段在根对象下分别返回。
+    final activityBlocks = <HomeActivityBlockModel>[];
+    for (final entry in const <String>['drinkmapactivity', 'drinkrankactivity']) {
+      final activity = json[entry];
+      if (activity is Map) {
+        activityBlocks.add(HomeActivityBlockModel.fromJson(Map<String, dynamic>.from(activity), id: entry));
+      }
     }
+    final onlineActivityInfo = activityBlocks.isEmpty ? null : HomeOnlineActivityInfoModel(title: '线上活动', blocks: activityBlocks);
 
     // 4. offlineactivityinfo (线下活动)
-    final offlineRaw = json['offlineactivityinfo'] ?? json['offline_activity_info'];
+    final offlineRaw = json['offlineactivityinfo'];
     HomeOfflineActivityInfoModel? offlineActivityInfo;
     if (offlineRaw != null) {
       offlineActivityInfo = HomeOfflineActivityInfoModel.fromJson(offlineRaw);
@@ -86,11 +87,11 @@ class HomeNavListModel {
 
   factory HomeNavListModel.fromJson(Map<String, dynamic> json) {
     return HomeNavListModel(
-      id: (json['id'] ?? json['navid'] ?? '').toString(),
-      title: (json['title'] ?? json['name'] ?? json['navname'] ?? json['label'] ?? '').toString(),
-      iconUrl: (json['coverurl'] ?? json['imgurl'] ?? json['iconurl'] ?? json['icon'] ?? json['imageurl'] ?? '').toString().replaceAll('&amp;', '&'),
-      actionUrl: (json['path'] ?? json['viewurl'] ?? json['actionurl'] ?? json['url'] ?? json['link'] ?? '').toString(),
-      jumpType: JumpType.fromJson(json['jumptype'] ?? json['jump_type']),
+      id: '',
+      title: (json['title'] ?? '').toString(),
+      iconUrl: (json['icon'] ?? '').toString().replaceAll('&amp;', '&'),
+      actionUrl: (json['link'] ?? '').toString(),
+      jumpType: JumpType.fromJson(json['jumptype']),
     );
   }
 
@@ -120,19 +121,19 @@ class HomeMonthlyServiceInfoModel {
   });
 
   factory HomeMonthlyServiceInfoModel.fromJson(Map<String, dynamic> json) {
-    final serviceIdVal = json['serviceid'] ?? json['id'] ?? 0;
+    final serviceIdVal = json['serviceid'] ?? 0;
     final parentServiceId = serviceIdVal is num ? serviceIdVal.toInt() : int.tryParse('$serviceIdVal') ?? 0;
 
-    final isReceivedVal = json['isreceived'] ?? json['is_received'] ?? json['isclaimed'] ?? json['is_claimed'] ?? false;
+    final isReceivedVal = json['isreceived'] ?? false;
     final parsedIsReceived = isReceivedVal is bool ? isReceivedVal : (isReceivedVal == 1 || isReceivedVal == '1' || isReceivedVal == 'true');
 
-    final settlementedVal = json['settlemented'] ?? json['is_settlemented'] ?? json['issettlemented'] ?? json['settlement'] ?? false;
+    final settlementedVal = json['settlemented'] ?? false;
     final parsedSettlemented = settlementedVal is bool ? settlementedVal : (settlementedVal == 1 || settlementedVal == '1' || settlementedVal == 'true');
 
-    final userServiceIdVal = json['userserviceid'] ?? json['user_service_id'] ?? 0;
+    final userServiceIdVal = json['userserviceid'] ?? 0;
     final parsedUserServiceId = userServiceIdVal is num ? userServiceIdVal.toInt() : int.tryParse('$userServiceIdVal') ?? 0;
 
-    final rawList = json['productlist'] ?? json['product_list'] ?? json['list'] ?? json['products'];
+    final rawList = json['productlist'];
     final items = <HomeMonthlyProductModel>[];
     if (rawList is List) {
       for (final item in rawList) {
@@ -151,7 +152,7 @@ class HomeMonthlyServiceInfoModel {
     }
     return HomeMonthlyServiceInfoModel(
       serviceId: parentServiceId,
-      title: (json['title'] ?? json['name'] ?? '每月权益').toString(),
+      title: (json['title'] ?? '每月权益').toString(),
       subtitle: (json['subtitle'] ?? '').toString(),
       isReceived: parsedIsReceived,
       settlemented: parsedSettlemented,
@@ -195,27 +196,27 @@ class HomeMonthlyProductModel {
     bool? parentSettlemented,
   }) {
     // 优先识别 pid 作为权益项商品 ID，如无则回退到 parentServiceId / id
-    final itemId = json['pid'] ?? json['serviceid'] ?? json['id'] ?? json['productid'] ?? parentServiceId ?? '';
+    final itemId = json['pid'] ?? parentServiceId ?? '';
 
     // 优先识别 productname 作为权益标题，回退到 title / name
-    final titleVal = json['productname'] ?? json['title'] ?? json['name'] ?? '';
+    final titleVal = json['productname'] ?? '';
 
     // 优先识别 productimg 作为商品图片，回退到 coverurl / imgurl / imageurl
-    final imageVal = json['productimg'] ?? json['coverurl'] ?? json['imgurl'] ?? json['imageurl'] ?? '';
+    final imageVal = json['productimg'] ?? '';
 
-    final itemUserServiceId = json['userserviceid'] ?? json['user_service_id'] ?? parentUserServiceId ?? 0;
-    final itemIsReceived = json['isreceived'] ?? json['is_received'] ?? json['isclaimed'] ?? json['is_claimed'] ?? parentIsReceived ?? false;
-    final itemSettlemented = json['settlemented'] ?? json['is_settlemented'] ?? json['issettlemented'] ?? json['settlement'] ?? parentSettlemented ?? false;
+    final itemUserServiceId = parentUserServiceId ?? 0;
+    final itemIsReceived = parentIsReceived ?? false;
+    final itemSettlemented = parentSettlemented ?? false;
 
-    final parsedUserServiceId = itemUserServiceId is num ? itemUserServiceId.toInt() : int.tryParse('$itemUserServiceId') ?? 0;
-    final parsedIsReceived = itemIsReceived is bool ? itemIsReceived : (itemIsReceived == 1 || itemIsReceived == '1' || itemIsReceived == 'true');
-    final parsedSettlemented = itemSettlemented is bool ? itemSettlemented : (itemSettlemented == 1 || itemSettlemented == '1' || itemSettlemented == 'true');
+    final parsedUserServiceId = itemUserServiceId;
+    final parsedIsReceived = itemIsReceived;
+    final parsedSettlemented = itemSettlemented;
 
     return HomeMonthlyProductModel(
       id: itemId.toString(),
       title: titleVal.toString().trim(),
       imageUrl: imageVal.toString().replaceAll('&amp;', '&'),
-      actionUrl: (json['path'] ?? json['viewurl'] ?? json['actionurl'] ?? json['url'] ?? '').toString(),
+      actionUrl: '',
       userServiceId: parsedUserServiceId,
       isReceived: parsedIsReceived,
       settlemented: parsedSettlemented,
@@ -244,43 +245,6 @@ class HomeOnlineActivityInfoModel {
 
   const HomeOnlineActivityInfoModel({required this.title, required this.blocks});
 
-  factory HomeOnlineActivityInfoModel.fromJson(dynamic jsonInput) {
-    var title = '线上活动';
-    final items = <HomeActivityBlockModel>[];
-
-    if (jsonInput is List) {
-      for (final element in jsonInput) {
-        if (element is Map<String, dynamic>) {
-          if (element['title'] != null) {
-            title = element['title'].toString();
-          }
-          final subList = element['list'] ?? element['activitylist'] ?? element['blocks'] ?? element['items'];
-          if (subList is List) {
-            for (final item in subList) {
-              if (item is Map<String, dynamic>) {
-                items.add(HomeActivityBlockModel.fromJson(item));
-              }
-            }
-          }
-        }
-      }
-    } else if (jsonInput is Map<String, dynamic>) {
-      title = (jsonInput['title'] ?? jsonInput['activitytitle'] ?? '线上活动').toString();
-      final subList = jsonInput['list'] ?? jsonInput['activitylist'] ?? jsonInput['blocks'] ?? jsonInput['items'];
-      if (subList is List) {
-        for (final item in subList) {
-          if (item is Map<String, dynamic>) {
-            items.add(HomeActivityBlockModel.fromJson(item));
-          }
-        }
-      } else if (subList == null && (jsonInput['coverurl'] != null || jsonInput['imgurl'] != null)) {
-        items.add(HomeActivityBlockModel.fromJson(jsonInput));
-      }
-    }
-
-    return HomeOnlineActivityInfoModel(title: title, blocks: items);
-  }
-
   List<HomeActivityBlock> toActivityBlocks() {
     return blocks.map((e) => e.toActivityBlock()).toList();
   }
@@ -291,33 +255,18 @@ class HomeActivityBlockModel {
   final String id;
   final String title;
   final String? imageUrl;
-  final List<String>? imageUrls;
   final String actionUrl;
 
-  const HomeActivityBlockModel({required this.id, required this.title, this.imageUrl, this.imageUrls, required this.actionUrl});
+  const HomeActivityBlockModel({required this.id, required this.title, this.imageUrl, required this.actionUrl});
 
-  factory HomeActivityBlockModel.fromJson(Map<String, dynamic> json) {
-    List<String>? urls;
-    final rawUrls = json['imageurls'] ?? json['imgurls'] ?? json['images'];
-    if (rawUrls is List) {
-      urls = rawUrls.map((e) => e.toString().replaceAll('&amp;', '&')).where((e) => e.isNotEmpty).toList();
-    } else if (rawUrls is String && rawUrls.contains(',')) {
-      urls = rawUrls.split(',').map((e) => e.trim().replaceAll('&amp;', '&')).where((e) => e.isNotEmpty).toList();
-    }
+  factory HomeActivityBlockModel.fromJson(Map<String, dynamic> json, {required String id}) {
+    final imageUrl = (json['cardimg'] ?? '').toString().replaceAll('&amp;', '&');
 
-    final singleUrl = (json['coverurl'] ?? json['imgurl'] ?? json['imageurl'] ?? json['img'] ?? '').toString().replaceAll('&amp;', '&');
-
-    return HomeActivityBlockModel(
-      id: (json['id'] ?? json['activityid'] ?? '').toString(),
-      title: (json['title'] ?? json['activitytitle'] ?? json['name'] ?? '').toString(),
-      imageUrl: singleUrl.isNotEmpty ? singleUrl : null,
-      imageUrls: urls,
-      actionUrl: (json['path'] ?? json['viewurl'] ?? json['actionurl'] ?? json['url'] ?? '').toString(),
-    );
+    return HomeActivityBlockModel(id: id, title: '', imageUrl: imageUrl.isNotEmpty ? imageUrl : null, actionUrl: (json['activityurl'] ?? '').toString());
   }
 
   HomeActivityBlock toActivityBlock() {
-    return HomeActivityBlock(id: id, title: title, imageUrl: imageUrl, imageUrls: imageUrls, actionUrl: actionUrl.isNotEmpty ? actionUrl : null);
+    return HomeActivityBlock(id: id, title: title, imageUrl: imageUrl, actionUrl: actionUrl.isNotEmpty ? actionUrl : null);
   }
 }
 
@@ -329,40 +278,22 @@ class HomeOfflineActivityInfoModel {
   const HomeOfflineActivityInfoModel({required this.title, required this.blocks});
 
   factory HomeOfflineActivityInfoModel.fromJson(dynamic jsonInput) {
-    var title = '线下活动';
-    final items = <HomeOfflineBlockModel>[];
+    if (jsonInput is! Map) {
+      return const HomeOfflineActivityInfoModel(title: '线下活动', blocks: <HomeOfflineBlockModel>[]);
+    }
 
-    if (jsonInput is List) {
-      for (final element in jsonInput) {
-        if (element is Map<String, dynamic>) {
-          if (element['title'] != null) {
-            title = element['title'].toString();
-          }
-          final subList = element['list'] ?? element['activitylist'] ?? element['blocks'] ?? element['items'];
-          if (subList is List) {
-            for (final item in subList) {
-              if (item is Map<String, dynamic>) {
-                items.add(HomeOfflineBlockModel.fromJson(item));
-              }
-            }
-          }
+    final raw = Map<String, dynamic>.from(jsonInput);
+    final rawList = raw['list'];
+    final items = <HomeOfflineBlockModel>[];
+    if (rawList is List) {
+      for (final item in rawList) {
+        if (item is Map) {
+          items.add(HomeOfflineBlockModel.fromJson(Map<String, dynamic>.from(item)));
         }
-      }
-    } else if (jsonInput is Map<String, dynamic>) {
-      title = (jsonInput['title'] ?? jsonInput['activitytitle'] ?? '线下活动').toString();
-      final subList = jsonInput['list'] ?? jsonInput['activitylist'] ?? jsonInput['blocks'] ?? jsonInput['items'];
-      if (subList is List) {
-        for (final item in subList) {
-          if (item is Map<String, dynamic>) {
-            items.add(HomeOfflineBlockModel.fromJson(item));
-          }
-        }
-      } else if (subList == null && (jsonInput['coverurl'] != null || jsonInput['imgurl'] != null)) {
-        items.add(HomeOfflineBlockModel.fromJson(jsonInput));
       }
     }
 
-    return HomeOfflineActivityInfoModel(title: title, blocks: items);
+    return HomeOfflineActivityInfoModel(title: (raw['title'] ?? '线下活动').toString(), blocks: items);
   }
 
   List<HomeTopicActivityBlock> toTopicActivityBlocks() {
@@ -381,10 +312,10 @@ class HomeOfflineBlockModel {
 
   factory HomeOfflineBlockModel.fromJson(Map<String, dynamic> json) {
     return HomeOfflineBlockModel(
-      id: (json['id'] ?? json['activityid'] ?? '').toString(),
-      title: (json['title'] ?? json['activitytitle'] ?? json['name'] ?? '').toString(),
-      imageUrl: (json['coverurl'] ?? json['imgurl'] ?? json['imageurl'] ?? json['img'] ?? '').toString().replaceAll('&amp;', '&'),
-      actionUrl: (json['path'] ?? json['viewurl'] ?? json['actionurl'] ?? json['url'] ?? '').toString(),
+      id: (json['id'] ?? '').toString(),
+      title: (json['name'] ?? '').toString(),
+      imageUrl: (json['coverurl'] ?? '').toString().replaceAll('&amp;', '&'),
+      actionUrl: (json['activityurl'] ?? '').toString(),
     );
   }
 

@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../domain/repositories/product_repository.dart';
 import '../../../../core/network/api_response.dart';
 
 import '../../../home/data/models/carousel_model.dart';
+import '../../../home/data/models/weimeng_activity_location.dart';
 
 /// Mock 商品数据源 - 基于蓝湖设计稿 v1.0
 class MockProductDataSource implements ProductRepository {
@@ -105,6 +107,13 @@ class MockProductDataSource implements ProductRepository {
           HomeMonthlyBenefit(id: '6', title: '专属管家权益', imageUrl: 'assets/images/home/quanyi_5.png'),
         ],
       ),
+    );
+  }
+
+  @override
+  Future<ApiResponse<WeimengActivityLocation>> getWeimengActivityLocation() async {
+    return ApiResponse.success(
+      const WeimengActivityLocation(accessToken: 'mock_sso_token_12345', longitude: '116.44355', latitude: '39.9219', province: '北京市', area: '北京市'),
     );
   }
 
