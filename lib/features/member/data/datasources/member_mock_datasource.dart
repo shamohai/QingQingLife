@@ -256,12 +256,17 @@ class MockMemberDataSource implements MemberRepository {
   }
 
   @override
-  Future<ApiResponse<void>> giveServiceCoupon({required int serviceCouponId, required int count}) async {
-    return ApiResponse.success(null);
+  Future<ApiResponse<GiveServiceCouponResult>> giveServiceCoupon({required int serviceCouponId, required int count}) async {
+    return ApiResponse.success(GiveServiceCouponResult(shareGroup: 'mock-share-$serviceCouponId-$count'));
   }
 
   @override
   Future<ApiResponse<void>> revokeServiceCoupon({required int serviceCouponId, required String shareGroup}) async {
+    return ApiResponse.success(null);
+  }
+
+  @override
+  Future<ApiResponse<void>> receiveServiceCoupon({required String shareGroupId, int serviceCouponId = 0}) async {
     return ApiResponse.success(null);
   }
 

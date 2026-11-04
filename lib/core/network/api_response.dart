@@ -35,7 +35,7 @@ class ApiResponse<T> {
     if (success && fromJsonT != null && json['data'] != null) {
       // 格式 A：数据在 data 字段中
       data = fromJsonT(json['data']);
-    } else if (success && fromJsonT != null && json.length > 2) {
+    } else if (success && fromJsonT != null) {
       // 格式 B：扁平响应，整体作为 data 返回（过滤掉 result/descr/datatag 等状态字段）
       final dataFields = json.entries
           .where((e) => e.key != 'result' && e.key != 'descr' && e.key != 'datatag' && e.key != 'code' && e.key != 'message')

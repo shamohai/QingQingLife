@@ -7,8 +7,9 @@ import 'service_coupon_list_provider.dart';
 class ServiceCouponTransferResult {
   final bool success;
   final String message;
+  final String shareGroup;
 
-  const ServiceCouponTransferResult({required this.success, required this.message});
+  const ServiceCouponTransferResult({required this.success, required this.message, this.shareGroup = ''});
 }
 
 class ServiceCouponTransferController {
@@ -30,8 +31,9 @@ class ServiceCouponTransferController {
       return ServiceCouponTransferResult(success: false, message: message.isEmpty || message == 'unknown error' ? '转赠失败，请稍后重试' : message);
     }
 
+    final shareGroup = response.data?.shareGroup.trim() ?? '';
     await ref.read(serviceCouponListProvider.notifier).load();
-    return const ServiceCouponTransferResult(success: true, message: '转赠成功');
+    return ServiceCouponTransferResult(success: true, message: '转赠成功', shareGroup: shareGroup);
   }
 
   Future<ServiceCouponTransferResult> revoke({required ServiceCouponInfo coupon}) async {

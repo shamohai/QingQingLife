@@ -132,6 +132,20 @@ class ServiceCouponListResult {
   }
 }
 
+/// 转赠服务券接口返回的分享批次信息。
+///
+/// 对齐 POST /api/promotion/giveservicecoupon 响应字段 `sharegroup`。
+class GiveServiceCouponResult {
+  final String shareGroup;
+  final String? dataTag;
+
+  const GiveServiceCouponResult({required this.shareGroup, this.dataTag});
+
+  factory GiveServiceCouponResult.fromJson(Map<String, dynamic> json) {
+    return GiveServiceCouponResult(shareGroup: _asString(json['sharegroup']), dataTag: json['datatag']?.toString());
+  }
+}
+
 String _asString(dynamic value) => value?.toString() ?? '';
 
 int _asInt(dynamic value) {

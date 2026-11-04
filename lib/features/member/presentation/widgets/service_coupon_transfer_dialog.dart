@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/router/route_names.dart';
+import '../../../../core/deeplink/app_link.dart';
+import '../../../../core/widgets/app_share_sheet.dart';
 import '../../data/models/service_coupon_model.dart';
 import '../providers/service_coupon_transfer_provider.dart';
 
@@ -31,6 +34,33 @@ Future<ServiceCouponTransferResult?> runServiceCouponTransferFlow({
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(content: Text(result.message), behavior: SnackBarBehavior.floating));
+
+  if (result.success && context.mounted) {
+    if (result.shareGroup.isEmpty) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('转赠成功，但未获取到分享编号，请刷新后重试'), behavior: SnackBarBehavior.floating));
+      return result;
+    }
+
+    final location = AppLink.buildDispatchLocation(
+      route: RouteNames.serviceCouponReceive,
+      parameters: {
+        'sharegroupid': result.shareGroup,
+        'serviceconponid': '${coupon.serviceCouponId}',
+        'couponname': coupon.couponName,
+        'count': '$count',
+        if (coupon.endTime != null) 'endtime': coupon.endTime!.toIso8601String(),
+      },
+    );
+    await AppShareSheet.showAppPage(
+      context: context,
+      title: '${coupon.couponName}转赠',
+      description: '你的好友赠送给你${count > 1 ? '$count张' : '一张'}${coupon.couponName}，请尽快领取',
+      imageUrl: (coupon.image?.trim().isNotEmpty ?? false) ? coupon.image : null,
+      location: location,
+    );
+  }
   return result;
 }
 

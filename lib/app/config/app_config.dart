@@ -26,5 +26,6 @@ abstract final class AppConfig {
   static const String appScheme = 'qingqinglife';
 
   /// 商城 H5 通用拉起 App 页面。
+  //static const String openAppUrl = 'https://m.mall.qkj.com.cn/mob/common/openapp';
   static const String openAppUrl = 'https://m.mall.qkj.com.cn/mob/common/openapp';
 }

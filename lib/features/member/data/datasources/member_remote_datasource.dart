@@ -320,8 +320,13 @@ class MemberRemoteDataSource {
   ///
   /// 接口：POST /api/promotion/giveservicecoupon
   /// 请求体：{serviceconponid, count}（字段名按接口文档保留）。
-  Future<ApiResponse<void>> giveServiceCoupon({required int serviceCouponId, required int count}) async {
-    return _apiClient.post<void>('/api/promotion/giveservicecoupon', data: <String, dynamic>{'serviceconponid': serviceCouponId, 'count': count});
+  /// 响应：{sharegroup, datatag}，sharegroup 用于生成领取分享链接。
+  Future<ApiResponse<GiveServiceCouponResult>> giveServiceCoupon({required int serviceCouponId, required int count}) async {
+    return _apiClient.post<GiveServiceCouponResult>(
+      '/api/promotion/giveservicecoupon',
+      data: <String, dynamic>{'serviceconponid': serviceCouponId, 'count': count},
+      fromJson: (dynamic json) => GiveServiceCouponResult.fromJson(Map<String, dynamic>.from(json as Map)),
+    );
   }
 
   /// 取消转赠服务券。
@@ -333,6 +338,20 @@ class MemberRemoteDataSource {
     return _apiClient.post<void>(
       '/api/promotion/giveservicecouponreovoke',
       data: <String, dynamic>{'serviceconponid': serviceCouponId, 'sharegroup': shareGroup},
+    );
+  }
+
+  /// 领取好友转赠的服务券。
+  ///
+  /// 接口：POST /api/promotion/receiveservicecoupon
+  /// 请求体：{sharegroupid, serviceconponid, dry}
+  /// - sharegroupid：转赠接口返回的分享批次 id。
+  /// - serviceconponid：服务券 id；传了 sharegroupid 时后端可忽略。
+  /// - dry：true 只校验不实际领取，false 执行领取。
+  Future<ApiResponse<void>> receiveServiceCoupon({required String shareGroupId, int serviceCouponId = 0}) async {
+    return _apiClient.post<void>(
+      '/api/promotion/receiveservicecoupon',
+      data: <String, dynamic>{'sharegroupid': shareGroupId, 'serviceconponid': serviceCouponId, 'dry': false},
     );
   }
 }

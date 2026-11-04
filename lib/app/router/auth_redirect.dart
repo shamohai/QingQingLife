@@ -96,6 +96,7 @@ bool isProtectedPath(String path) {
     '${RouteNames.coupons}/list',
     '${RouteNames.coupons}/red-packet',
     '${RouteNames.coupons}/service',
+    RouteNames.serviceCouponReceive,
     '${RouteNames.coupons}/service/use',
   };
 
