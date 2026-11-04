@@ -6,7 +6,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../../share/activity_share_message.dart';
 import '../../widgets/app_share_sheet.dart';
 
-/// 活动专用 H5 页面，提供 AppShare JavaScriptChannel，不影响常规 WebView。
+/// 活动专用 H5 页面，提供 drinkShare JavaScriptChannel，不影响常规 WebView。
 class ActivityWebViewPage extends StatefulWidget {
   final String url;
   final String title;
@@ -28,7 +28,6 @@ class _ActivityWebViewPageState extends State<ActivityWebViewPage> {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..addJavaScriptChannel('AppShare', onMessageReceived: (message) => _handleShareMessage(message.message))
       ..addJavaScriptChannel('drinkShare', onMessageReceived: (message) => _handleDrinkShareMessage(message.message))
       ..setNavigationDelegate(
         NavigationDelegate(
@@ -82,36 +81,10 @@ class _ActivityWebViewPageState extends State<ActivityWebViewPage> {
     ''');
   }
 
-  Future<void> _handleShareMessage(String message) async {
-    if (!mounted || _isShareSheetOpen) return;
-    final shareMessage = ActivityShareMessage.tryParse(message);
-    if (shareMessage == null) return;
-
-    _isShareSheetOpen = true;
-    try {
-      final currentUrl = await _controller.currentUrl();
-      if (!mounted) return;
-      final payload = shareMessage.toSharePayload(
-        fallbackTitle: widget.title,
-        fallbackUrl: currentUrl,
-        onDrinkShareSucceeded: (returnUrl) {
-          if (mounted) _controller.runJavaScript("window.location.href = ${_encodeJsString(returnUrl.toString())};");
-        },
-      );
-      await AppShareSheet.show(context: context, payload: payload);
-    } finally {
-      _isShareSheetOpen = false;
-    }
-  }
-
   Future<void> _handleDrinkShareMessage(String message) async {
     if (!mounted || _isShareSheetOpen) return;
     final decoded = ActivityShareMessage.tryParse(message);
-    if (decoded == null ||
-        !decoded.useDrinkMapOpenAppUrl ||
-        decoded.drinkShareUrl == null ||
-        !ActivityShareMessage.isValidWebUrl(decoded.drinkShareUrl) ||
-        !ActivityShareMessage.isValidWebUrl(decoded.returnUrl)) {
+    if (decoded == null || !ActivityShareMessage.isValidWebUrl(decoded.drinkShareUrl) || !ActivityShareMessage.isValidWebUrl(decoded.returnUrl)) {
       return;
     }
 
@@ -119,7 +92,6 @@ class _ActivityWebViewPageState extends State<ActivityWebViewPage> {
     try {
       final payload = decoded.toSharePayload(
         fallbackTitle: widget.title,
-        fallbackUrl: null,
         onDrinkShareSucceeded: (returnUrl) {
           if (mounted) _controller.runJavaScript("window.location.href = ${_encodeJsString(returnUrl.toString())};");
         },
