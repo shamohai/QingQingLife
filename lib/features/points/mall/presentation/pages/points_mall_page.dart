@@ -57,7 +57,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
     final staticDataAsync = ref.watch(pointsMallStaticDataProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F5F7),
+      backgroundColor: const Color(0xFF213775),
       body: staticDataAsync.when(
         loading: () => const CustomScrollView(
           slivers: [SliverFillRemaining(child: Center(child: AppLoading()))],
@@ -386,7 +386,7 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
       margin: margin,
       child: ClipRRect(
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
-        child: Container(color: const Color(0xFFF3F5F7), child: child),
+        child: Container(color: const Color(0xFF213775), child: child),
       ),
     );
   }
