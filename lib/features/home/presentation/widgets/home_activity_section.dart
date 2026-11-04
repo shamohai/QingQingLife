@@ -330,8 +330,11 @@ class _ActivityCardState extends ConsumerState<_ActivityCard> {
     if (baseUri == null || (baseUri.scheme != 'http' && baseUri.scheme != 'https') || baseUri.host.isEmpty) return;
 
     final isDrinkMap = widget.block.id == 'drinkmapactivity';
+    final isDrinkRank = widget.block.id == 'drinkrankactivity';
+    final isWeimengActivity = isDrinkMap || isDrinkRank;
+
     var activityUri = baseUri;
-    if (isDrinkMap) {
+    if (isWeimengActivity) {
       setState(() => _isOpeningActivity = true);
       try {
         final response = await ref.read(productRepositoryProvider).getWeimengActivityLocation();
@@ -340,7 +343,7 @@ class _ActivityCardState extends ConsumerState<_ActivityCard> {
           _showActivityError(response.message);
           return;
         }
-        activityUri = buildWeimengActivityUri(baseUri, response.data!);
+        activityUri = buildWeimengActivityUri(baseUri, response.data!, includeArea: isDrinkMap);
       } on Exception {
         if (mounted) _showActivityError();
         return;
@@ -350,6 +353,7 @@ class _ActivityCardState extends ConsumerState<_ActivityCard> {
     }
 
     if (!mounted) return;
+    debugPrint('线上活动拼接后的 WebView URL: $activityUri');
     if (kIsWeb) {
       await launchUrl(activityUri, webOnlyWindowName: '_blank');
       return;

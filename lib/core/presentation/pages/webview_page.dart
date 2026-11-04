@@ -73,22 +73,26 @@ class _WebViewPageState extends State<WebViewPage> {
         title: Text(widget.title),
         actions: [IconButton(onPressed: _reload, icon: const Icon(Icons.refresh))],
       ),
-      body: Stack(
-        children: [
-          if (_errorMessage == null) WebViewWidget(controller: _controller),
-          if (_errorMessage != null)
-            Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(_errorMessage!),
-                  const SizedBox(height: 12),
-                  FilledButton(onPressed: _reload, child: const Text('重新加载')),
-                ],
+      body: SafeArea(
+        top: false,
+        bottom: true,
+        child: Stack(
+          children: [
+            if (_errorMessage == null) WebViewWidget(controller: _controller),
+            if (_errorMessage != null)
+              Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(_errorMessage!),
+                    const SizedBox(height: 12),
+                    FilledButton(onPressed: _reload, child: const Text('重新加载')),
+                  ],
+                ),
               ),
-            ),
-          if (_loadingProgress < 100 && _errorMessage == null) LinearProgressIndicator(value: _loadingProgress / 100),
-        ],
+            if (_loadingProgress < 100 && _errorMessage == null) LinearProgressIndicator(value: _loadingProgress / 100),
+          ],
+        ),
       ),
     );
   }

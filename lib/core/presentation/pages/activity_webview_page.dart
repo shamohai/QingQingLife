@@ -56,6 +56,7 @@ class _ActivityWebViewPageState extends State<ActivityWebViewPage> {
   }
 
   Future<void> _setupUserAgentAndLoad() async {
+    debugPrint('线上活动 WebView 加载 URL: ${widget.url}');
     try {
       final defaultUA = await _controller.getUserAgent();
       final customUA = (defaultUA != null && defaultUA.isNotEmpty) ? '$defaultUA QingQingLife/1.0.0 qqshApp/1.0.0' : 'QingQingLife/1.0.0 qqshApp/1.0.0';
@@ -143,22 +144,26 @@ class _ActivityWebViewPageState extends State<ActivityWebViewPage> {
         title: Text(widget.title),
         actions: [IconButton(onPressed: _reload, icon: const Icon(Icons.refresh))],
       ),
-      body: Stack(
-        children: [
-          if (_errorMessage == null) WebViewWidget(controller: _controller),
-          if (_errorMessage != null)
-            Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(_errorMessage!),
-                  const SizedBox(height: 12),
-                  FilledButton(onPressed: _reload, child: const Text('重新加载')),
-                ],
+      body: SafeArea(
+        top: false,
+        bottom: true,
+        child: Stack(
+          children: [
+            if (_errorMessage == null) WebViewWidget(controller: _controller),
+            if (_errorMessage != null)
+              Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(_errorMessage!),
+                    const SizedBox(height: 12),
+                    FilledButton(onPressed: _reload, child: const Text('重新加载')),
+                  ],
+                ),
               ),
-            ),
-          if (_loadingProgress < 100 && _errorMessage == null) LinearProgressIndicator(value: _loadingProgress / 100),
-        ],
+            if (_loadingProgress < 100 && _errorMessage == null) LinearProgressIndicator(value: _loadingProgress / 100),
+          ],
+        ),
       ),
     );
   }

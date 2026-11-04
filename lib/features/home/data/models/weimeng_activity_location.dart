@@ -13,7 +13,7 @@ class WeimengActivityLocation {
 
 /// Builds the Weimeng / DrinkMap H5 URL while keeping cache busting before `#` and
 /// SSO/location parameters inside the SPA virtual path after `#`.
-Uri buildWeimengActivityUri(Uri uri, WeimengActivityLocation location, {String? timestamp, math.Random? random}) {
+Uri buildWeimengActivityUri(Uri uri, WeimengActivityLocation location, {bool includeArea = true, String? timestamp, math.Random? random}) {
   final tValue = timestamp ?? (DateTime.now().millisecondsSinceEpoch.toString());
   final fragmentParts = uri.fragment.split('?');
   final fragmentPath = fragmentParts.first;
@@ -22,7 +22,7 @@ Uri buildWeimengActivityUri(Uri uri, WeimengActivityLocation location, {String? 
     if (fragmentQuery.isNotEmpty) ...Uri.splitQueryString(fragmentQuery),
     'lnglat': '${location.longitude},${location.latitude}',
     'province': location.province,
-    'area': location.area,
+    if (includeArea) 'area': location.area,
     'accesstoken': location.accessToken,
   };
   final encodedFragmentParameters = fragmentParameters.entries

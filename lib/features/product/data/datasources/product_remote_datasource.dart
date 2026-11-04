@@ -85,8 +85,18 @@ class ProductRemoteDataSource implements ProductRepository {
     }
     final accessToken = ssoResponse.data!;
 
-    // 2. 获取设备经纬度（支持 Web 浏览器定位及默认北京经纬度降级）
-    final position = await _getDevicePosition();
+    // 2. 获取设备经纬度（真机强制要求 GPS 定位服务与定位权限）
+    Position position;
+    try {
+      position = await _getDevicePosition();
+    } on LocationServiceDisabledException {
+      return ApiResponse.error('请开启手机 GPS 定位服务后重试');
+    } on PermissionDeniedException catch (e) {
+      final msg = e.message;
+      return ApiResponse.error((msg != null && msg.isNotEmpty) ? msg : '请允许应用定位权限后重试');
+    } catch (_) {
+      return ApiResponse.error('定位失败，请确保手机 GPS 已开启并已允许定位权限');
+    }
 
     final longitude = position.longitude.toString();
     final latitude = position.latitude.toString();
@@ -139,36 +149,46 @@ class ProductRemoteDataSource implements ProductRepository {
       return _defaultPosition();
     }
 
-    try {
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    // --- 真机 / 移动端 Android & iOS ---
+    // 1. 检查手机系统 GPS 定位开关，若未开启则拉起系统设置页引导开启
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        final lastPos = await Geolocator.getLastKnownPosition();
-        return lastPos ?? _defaultPosition();
+        throw const LocationServiceDisabledException();
       }
+    }
 
-      var permission = await Geolocator.checkPermission();
+    // 2. 检查并申请应用定位权限
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          final lastPos = await Geolocator.getLastKnownPosition();
-          return lastPos ?? _defaultPosition();
-        }
+        throw const PermissionDeniedException('未允许定位权限，无法获取位置');
       }
+    }
 
-      if (permission == LocationPermission.deniedForever) {
-        final lastPos = await Geolocator.getLastKnownPosition();
-        return lastPos ?? _defaultPosition();
-      }
+    if (permission == LocationPermission.deniedForever) {
+      await Geolocator.openAppSettings();
+      throw const PermissionDeniedException('定位权限已被永久拒绝，请在系统设置中开启');
+    }
 
-      return await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.low, timeLimit: Duration(seconds: 5)),
-      );
+    // 3. 使用低精度/模糊定位获取大概位置（启用 forceLocationManager 避免 Android 触发 Google Play 服务的“提高位置精确度”弹窗）
+    try {
+      final LocationSettings locationSettings = defaultTargetPlatform == TargetPlatform.android
+          ? AndroidSettings(
+              accuracy: LocationAccuracy.low,
+              forceLocationManager: true, // 使用系统 LocationManager，防止 Google Play 服务弹出精确度提示
+              timeLimit: const Duration(seconds: 8),
+            )
+          : const LocationSettings(accuracy: LocationAccuracy.low, timeLimit: Duration(seconds: 8));
+
+      return await Geolocator.getCurrentPosition(locationSettings: locationSettings);
     } catch (_) {
-      try {
-        final lastPos = await Geolocator.getLastKnownPosition();
-        if (lastPos != null) return lastPos;
-      } catch (_) {}
-      return _defaultPosition();
+      final lastPos = await Geolocator.getLastKnownPosition();
+      if (lastPos != null) return lastPos;
+      rethrow;
     }
   }
 
