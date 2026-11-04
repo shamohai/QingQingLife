@@ -30,7 +30,7 @@ class App extends StatelessWidget {
             darkTheme: AppTheme.darkThemeData,
             routerConfig: router,
             localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
-            supportedLocales: const [Locale('zh', 'CN'), Locale('en', 'US')],
+            supportedLocales: const [Locale('zh', 'CN')],
             builder: (context, child) {
               // // 检查是否需要显示更新弹窗，测试时关闭
               // if (versionCheckState.state == VersionCheckState.checked && versionCheckState.info != null && versionCheckState.info!.shouldShowDialog) {

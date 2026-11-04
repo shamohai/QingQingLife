@@ -8,7 +8,7 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../product/domain/repositories/product_repository.dart';
 import '../../../../core/widgets/app_image.dart';
 
-/// 线下活动模块（整体左右滑动，严格3行结构：第1行图片，第2行文字，第3行居中按钮）
+/// 线下活动模块：横向滑动，每行约 2.25 个活动，图片为 16:9 横图（精简底部空白，按钮大小不变）。
 class HomeTopicActivitySection extends StatelessWidget {
   final List<HomeTopicActivityBlock> blocks;
   const HomeTopicActivitySection({super.key, required this.blocks});
@@ -51,7 +51,7 @@ class HomeTopicActivitySection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          // 整体左右滑动列表
+          // 整体左右滑动列表 (每行约 2.25 个活动，16:9 横图)
           _buildHorizontalList(context, blocks),
         ],
       ),
@@ -59,50 +59,59 @@ class HomeTopicActivitySection extends StatelessWidget {
   }
 
   Widget _buildHorizontalList(BuildContext context, List<HomeTopicActivityBlock> blocks) {
-    return SizedBox(
-      height: 232, // 162(图) + 文字区 + 按钮 + padding ≈ 232
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-        itemCount: blocks.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: EdgeInsets.only(right: index < blocks.length - 1 ? AppSpacing.sm : 0),
-            child: _TopicCard(block: blocks[index]),
-          );
-        },
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 容器内可用宽度 (减去两边 padding 24)
+        final availableWidth = constraints.maxWidth - 24;
+        final spacing = AppSpacing.sm; // 8.0
+        // 每行大约 2.25 个活动，宽度加大 6
+        final cardWidth = ((availableWidth - spacing * 1.25) / 2.25) + 6;
+        // 16:9 比例横图高度
+        final imageHeight = cardWidth * 9 / 16;
+        // 列表容器高度 = 图片高度 + 文字区(26) + 间距(6) + 按钮(20) + 上下padding(2+0) = imageHeight + 54
+        final listHeight = imageHeight + 58;
+
+        return SizedBox(
+          height: listHeight,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+            itemCount: blocks.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: EdgeInsets.only(right: index < blocks.length - 1 ? spacing : 0),
+                child: _TopicCard(block: blocks[index], cardWidth: cardWidth, imageHeight: imageHeight),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
 
 class _TopicCard extends StatelessWidget {
   final HomeTopicActivityBlock block;
-  const _TopicCard({required this.block});
+  final double cardWidth;
+  final double imageHeight;
+  const _TopicCard({required this.block, required this.cardWidth, required this.imageHeight});
 
   @override
   Widget build(BuildContext context) {
-    const cardWidth = 118.0;
-    const imageHeight = 162.0;
-
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: block.id.isEmpty ? null : () => context.push(RouteNames.activityDetail.replaceFirst(':id', block.id)),
-        borderRadius: BorderRadius.circular(4),
-        child: Container(
+        borderRadius: BorderRadius.circular(6),
+        child: SizedBox(
           width: cardWidth,
-          decoration: BoxDecoration(
-            color: Colors.white, // 和模块白色背景一致
-            borderRadius: BorderRadius.circular(4),
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 完整图片 118×162
+              // 16:9 横图
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                borderRadius: BorderRadius.circular(6),
                 child: SizedBox(
                   width: cardWidth,
                   height: imageHeight,
@@ -119,29 +128,27 @@ class _TopicCard extends StatelessWidget {
                 ),
               ),
 
-              // 文字 + 按钮（在图片下方）
+              // 文字 + 按钮（按钮大小保持不变，收窄底部空白）
               Padding(
-                padding: const EdgeInsets.fromLTRB(4, 6, 4, 6),
+                padding: const EdgeInsets.fromLTRB(2, 2, 2, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(
-                      height: 29,
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          block.title,
-                          style: const TextStyle(color: Color(0xFF333333), fontSize: 11, fontWeight: FontWeight.w600, height: 1.3),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                      height: 26,
+                      child: Text(
+                        block.title,
+                        style: const TextStyle(color: Color(0xFF333333), fontSize: 11, fontWeight: FontWeight.w600, height: 1.2),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Center(
                       child: Container(
                         width: 68,
-                        height: 22,
+                        height: 22, // 按钮大小保持不变
                         decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border.all(color: const Color(0xFFFF2105), width: 1),

@@ -62,7 +62,7 @@ class PointsDetailState {
 }
 
 class PointsDetailNotifier extends Notifier<PointsDetailState> {
-  static const _pageSize = 40;
+  static const _pageSize = 50;
   int _page = 1;
 
   @override
