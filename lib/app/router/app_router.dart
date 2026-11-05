@@ -21,10 +21,11 @@ import '../../features/member/presentation/pages/address_list_page.dart';
 import '../../features/member/presentation/pages/address_form_page.dart';
 import '../../features/member/presentation/pages/my_coupons_page.dart';
 import '../../features/member/presentation/pages/coupon_list_page.dart';
+import '../../features/member/presentation/pages/cash_coupon_share_receive_page.dart';
 import '../../features/member/presentation/pages/locked_red_packet_list_page.dart';
 import '../../features/member/presentation/pages/service_coupon_list_page.dart';
 import '../../features/member/presentation/pages/service_coupon_receive_page.dart';
-import '../../core/deeplink/link_receive_page.dart';
+import '../../core/deeplink/link_dispatch_page.dart';
 import '../../features/member/presentation/pages/service_coupon_use_page.dart';
 import '../../features/member/data/models/service_coupon_model.dart';
 import '../../features/member/domain/repositories/member_repository.dart';
@@ -238,6 +239,10 @@ final appRouter = Provider<GoRouter>((ref) {
         pageBuilder: (c, s) => const MaterialPage(child: LockedRedPacketListPage()),
       ),
       GoRoute(
+        path: RouteNames.cashCouponShareReceive,
+        pageBuilder: (c, s) => MaterialPage(child: CashCouponShareReceivePage(shareCode: s.uri.queryParameters['sharecode'] ?? '')),
+      ),
+      GoRoute(
         path: RouteNames.serviceCouponList,
         pageBuilder: (c, s) => const MaterialPage(child: ServiceCouponListPage()),
       ),
@@ -261,8 +266,8 @@ final appRouter = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: RouteNames.linkReceive,
-        pageBuilder: (c, s) => MaterialPage(child: LinkReceivePage(queryParameters: s.uri.queryParameters)),
+        path: RouteNames.appLinkDispatch,
+        pageBuilder: (c, s) => MaterialPage(child: LinkDispatchPage(queryParameters: s.uri.queryParameters)),
       ),
       GoRoute(
         path: RouteNames.address,

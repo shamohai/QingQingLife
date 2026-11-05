@@ -22,13 +22,13 @@ abstract final class AppLink {
     return Uri.parse(AppConfig.openAppUrl).replace(queryParameters: {'appurl': schemaUrl}).toString();
   }
 
-  /// 构造统一的 App 内链接接收页地址。
+  /// 构造统一的 App 内链接分发入口地址。
   ///
-  /// [route] 是最终要打开的应用内路由，其余参数会原样交给接收页，
-  /// 由接收页校验后再跳转。
+  /// [route] 是最终要打开的应用内路由，其余参数会交给分发页，
+  /// 由分发页校验后再跳转。
   static String buildDispatchLocation({required String route, Map<String, String?> parameters = const {}}) {
     final target = validateLocation(route);
-    if (target == null || Uri.parse(target).path == RouteNames.linkReceive) {
+    if (target == null || _isDispatchPath(Uri.parse(target).path)) {
       throw ArgumentError.value(route, 'route', '不是允许打开的应用内路由');
     }
 
@@ -37,10 +37,10 @@ abstract final class AppLink {
       final trimmed = value?.trim() ?? '';
       if (trimmed.isNotEmpty) query[key] = trimmed;
     });
-    return Uri(path: RouteNames.linkReceive, queryParameters: query).toString();
+    return Uri(path: RouteNames.appLinkDispatch, queryParameters: query).toString();
   }
 
-  /// 从接收页 query 中解析最终目标路由。
+  /// 从分发页 query 中解析最终目标路由。
   static String? resolveDispatchTarget(Map<String, String> queryParameters) {
     final route = queryParameters['route']?.trim();
     if (route == null || route.isEmpty) return null;
@@ -48,7 +48,7 @@ abstract final class AppLink {
     final validatedRoute = validateLocation(route);
     if (validatedRoute == null) return null;
     final targetUri = Uri.parse(validatedRoute);
-    if (targetUri.path == RouteNames.linkReceive) return null;
+    if (_isDispatchPath(targetUri.path)) return null;
 
     final parameters = <String, String>{};
     queryParameters.forEach((key, value) {
@@ -58,6 +58,8 @@ abstract final class AppLink {
     final location = Uri(path: targetUri.path, queryParameters: merged.isEmpty ? null : merged).toString();
     return validateLocation(location);
   }
+
+  static bool _isDispatchPath(String path) => path == RouteNames.appLinkDispatch;
 
   /// 校验应用内路由，返回规范化后的 location；非法路由返回 null。
   static String? validateLocation(String location) {

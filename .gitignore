@@ -43,11 +43,17 @@ devtools_options.yaml
 /openspec/
 /test/*
 !/test/features/
+!/test/core/
+!/test/core/deeplink/
+!/test/core/deeplink/app_link_test.dart
 /test/features/*
 !/test/features/order/
+!/test/features/member/
+/test/features/member/*
 /test/features/order/*
 !/test/features/order/order_list_test.dart
 !/test/features/order/order_list_model_test.dart
+!/test/features/member/cash_coupon_share_receive_provider_test.dart
 /scripts/
 /windows/
 /extracted/

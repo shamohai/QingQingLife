@@ -5,6 +5,7 @@ import '../../domain/repositories/member_repository.dart';
 import '../models/member_authority_model.dart';
 import '../models/available_welfare_model.dart';
 import '../models/cash_coupon_model.dart';
+import '../models/cash_coupon_share_model.dart';
 import '../models/coupon_group_model.dart';
 import '../models/service_coupon_model.dart';
 import '../models/member_rank_models.dart';
@@ -83,6 +84,14 @@ class MemberMixedDataSource implements MemberRepository {
 
   @override
   Future<ApiResponse<AvailableWelfareListResult>> getAvailableWelfareList({required bool cardOnly}) => remote.getAvailableWelfareList(cardOnly: cardOnly);
+
+  @override
+  Future<ApiResponse<BeginCashCouponShareResult>> beginCashCouponShare({required int userServiceId, required int cashCouponConfigId}) =>
+      remote.beginCashCouponShare(userServiceId: userServiceId, cashCouponConfigId: cashCouponConfigId);
+
+  @override
+  Future<ApiResponse<ReceiveCashCouponFromShareResult>> receiveCashCouponFromShare({required String shareCode, required bool doReceive}) =>
+      remote.receiveCashCouponFromShare(shareCode: shareCode, doReceive: doReceive);
 
   @override
   Future<ApiResponse<ServiceCouponListResult>> getServiceCouponList({required ServiceCouponStatus status, bool selfSetOnly = false}) =>
