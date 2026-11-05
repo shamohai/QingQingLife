@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../points/mall/presentation/utils/butler_mini_program_launcher.dart';
 
 /// 管家服务运营 Banner
 ///
 /// 视觉素材：assets/images/member/butler_service_banner.webp（设计稿切图）。
-/// 点击跳转管家服务页 —— 路由暂未实现，保留 TODO。
-class ProfileButlerBanner extends StatelessWidget {
+class ProfileButlerBanner extends ConsumerWidget {
   const ProfileButlerBanner({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
-      onTap: () {
-        // TODO: 管家服务页路由待实现
-        debugPrint('[ProfileButlerBanner] 管家服务 Banner 点击');
-      },
+      onTap: () => launchButlerMiniProgram(context, ref),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: AspectRatio(

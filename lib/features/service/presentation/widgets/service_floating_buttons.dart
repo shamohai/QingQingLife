@@ -1,4 +1,3 @@
-import 'package:fluwx/fluwx.dart' as fluwx;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,15 +5,13 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/router/route_names.dart';
-import '../../../../../features/points/mall/presentation/providers/butler_mini_program_provider.dart';
+import '../../../points/mall/presentation/utils/butler_mini_program_launcher.dart';
 
 /// 服务中心右下角悬浮按钮组
 ///
 /// - 左下角：「预约记录」40x40 蓝色圆角按钮，点击跳转服务记录页
 /// - 右下角：管家服务，点击打开微信小程序
 class ServiceFloatingButtons extends ConsumerWidget {
-  static const _miniProgramUsername = 'gh_c55d2ab30511';
-
   final VoidCallback? onServiceTap;
 
   const ServiceFloatingButtons({super.key, this.onServiceTap});
@@ -38,45 +35,11 @@ class ServiceFloatingButtons extends ConsumerWidget {
             asset: 'assets/images/points/icon-service.png',
             label: '管家服务',
             iconSize: 18, // 管家服务图填充较大，稍小一点保持视觉平衡
-            onTap: onServiceTap ?? () => _openButlerMiniProgram(context, ref),
+            onTap: onServiceTap ?? () => launchButlerMiniProgram(context, ref),
           ),
         ),
       ],
     );
-  }
-
-  Future<void> _openButlerMiniProgram(BuildContext context, WidgetRef ref) async {
-    try {
-      final info = await ref.read(butlerMiniProgramInfoProvider.future);
-      if (!context.mounted) return;
-      final path = info?.workwxmppath.trim() ?? '';
-      if (path.isEmpty) {
-        _showMessage(context, '暂无法获取管家服务入口，请稍后重试');
-        return;
-      }
-
-      final weChat = fluwx.Fluwx();
-      final isInstalled = await weChat.isWeChatInstalled;
-      if (!context.mounted) return;
-
-      if (!isInstalled) {
-        _showMessage(context, '请先安装微信后再使用管家服务');
-        return;
-      }
-
-      await weChat.open(
-        target: fluwx.MiniProgram(username: _miniProgramUsername, path: path),
-      );
-    } catch (_) {
-      if (!context.mounted) return;
-      _showMessage(context, '打开管家服务失败，请稍后重试');
-    }
-  }
-
-  void _showMessage(BuildContext context, String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message), behavior: SnackBarBehavior.floating));
   }
 }
 

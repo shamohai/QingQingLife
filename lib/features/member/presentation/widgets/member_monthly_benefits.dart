@@ -67,7 +67,7 @@ class MemberMonthlyBenefits extends ConsumerWidget {
 
           // ── 横向滚动券面 ─────────────────────────────────────────
           SizedBox(
-            height: hasOwnedCoupon ? 92 : 72,
+            height: hasOwnedCoupon ? 126 : 100,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: EdgeInsets.zero,
@@ -155,15 +155,15 @@ class _CouponFace extends StatelessWidget {
       gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: gradient),
       borderRadius: BorderRadius.circular(8),
     );
-    final fallbackBackground = Container(width: 92, height: 58, alignment: Alignment.center, decoration: backgroundDecoration);
+    final fallbackBackground = Container(width: 92, height: 92, alignment: Alignment.center, decoration: backgroundDecoration);
 
     if (productImage.isEmpty) {
       return Container(
         width: 92,
-        height: 58,
+        height: 92,
         alignment: Alignment.center,
         decoration: backgroundDecoration,
-        child: _CouponTitle(coupon: coupon),
+        child: _CouponDescription(coupon: coupon),
       );
     }
 
@@ -171,17 +171,17 @@ class _CouponFace extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       child: SizedBox(
         width: 92,
-        height: 58,
+        height: 92,
         child: Stack(
           fit: StackFit.expand,
           children: [
-            AppNetworkImage(url: productImage, fit: BoxFit.cover, memCacheWidth: 184, memCacheHeight: 116, errorWidget: fallbackBackground),
+            AppNetworkImage(url: productImage, fit: BoxFit.cover, memCacheWidth: 184, memCacheHeight: 184, errorWidget: fallbackBackground),
             const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.transparent, Color(0x99000000)]),
               ),
             ),
-            Center(child: _CouponTitle(coupon: coupon)),
+            Center(child: _CouponDescription(coupon: coupon)),
           ],
         ),
       ),
@@ -189,10 +189,10 @@ class _CouponFace extends StatelessWidget {
   }
 }
 
-class _CouponTitle extends StatelessWidget {
+class _CouponDescription extends StatelessWidget {
   final MemberMonthlyCoupon coupon;
 
-  const _CouponTitle({required this.coupon});
+  const _CouponDescription({required this.coupon});
 
   @override
   Widget build(BuildContext context) {
@@ -200,17 +200,11 @@ class _CouponTitle extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          coupon.productName,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white, height: 1.2),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: 2),
-        Text(
           coupon.serviceDescr,
-          style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w400, color: Color(0xE6FFFFFF)),
-          maxLines: 1,
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400, color: Color(0xE6FFFFFF)),
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
         ),
       ],
     );

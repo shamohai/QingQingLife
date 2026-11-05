@@ -323,20 +323,23 @@ final appRouter = Provider<GoRouter>((ref) {
           return MaterialPage(child: AllProductsPage(categoryId: categoryId));
         },
       ),
-      if (!kIsWeb) ...[
-        GoRoute(
-          path: RouteNames.webView,
-          pageBuilder: (c, s) {
-            final url = s.uri.queryParameters['url'] ?? '';
-            final uri = Uri.tryParse(url);
-            if (uri == null || !(uri.scheme == 'http' || uri.scheme == 'https')) {
-              return const MaterialPage(
-                child: Scaffold(body: Center(child: Text('无效的网页地址'))),
-              );
-            }
-            return MaterialPage(child: WebViewPage(url: url));
-          },
-        ),
+      GoRoute(
+        path: RouteNames.webView,
+        pageBuilder: (c, s) {
+          final url = s.uri.queryParameters['url'] ?? '';
+          final title = s.uri.queryParameters['title'] ?? '活动详情';
+          final uri = Uri.tryParse(url);
+          if (uri == null || !(uri.scheme == 'http' || uri.scheme == 'https')) {
+            return const MaterialPage(
+              child: Scaffold(body: Center(child: Text('无效的网页地址'))),
+            );
+          }
+          return MaterialPage(
+            child: WebViewPage(url: url, title: title),
+          );
+        },
+      ),
+      if (!kIsWeb)
         GoRoute(
           path: RouteNames.activityWebView,
           pageBuilder: (c, s) {
@@ -350,7 +353,6 @@ final appRouter = Provider<GoRouter>((ref) {
             return MaterialPage(child: ActivityWebViewPage(url: url));
           },
         ),
-      ],
       GoRoute(
         path: RouteNames.paymentResult,
         pageBuilder: (c, s) => MaterialPage(child: PointsPaymentSuccessPage.fromExtra(s.extra)),

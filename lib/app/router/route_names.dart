@@ -137,6 +137,8 @@ abstract final class RouteNames {
   // App 内 H5 页面：常规页面与活动页面保持独立路由和行为。
   static const String webView = '/webview';
   static const String activityWebView = '/activity/webview';
+  static const String userServiceAgreementUrl = 'https://wx.mall.qkj.com.cn/mob/Account/appeula';
+  static const String userPrivacyPolicyUrl = 'https://wx.mall.qkj.com.cn/mob/Account/AppPrivacyPolicy';
 
   /// 允许通过分享 Schema 打开的页面。
   ///

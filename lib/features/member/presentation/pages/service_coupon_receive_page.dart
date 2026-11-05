@@ -316,7 +316,7 @@ class _ReceiveButton extends StatelessWidget {
       height: 48,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [Color(0xFF4E67E9), Color(0xFF6D5BE2)]),
+          gradient: const LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Color(0xFF213775), Color(0xFF3152AF)]),
           borderRadius: BorderRadius.circular(24),
           boxShadow: [BoxShadow(color: const Color(0xFF162D74).withValues(alpha: 0.28), blurRadius: 12, offset: const Offset(0, 5))],
         ),

@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../../../../app/router/route_names.dart';
+
 /// 关于我们页（/member/about-us）
 ///
 /// 入口：「我的」页常用功能宫格「关于我们」（ProfileFeatureGrid）。
@@ -16,8 +18,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 ///
 /// 说明：
 ///   - 版本号通过 package_info_plus 读取真实应用版本。
-///   - 检查更新 / 用户服务协议 / 用户隐私政策 依赖后端接口或协议链接，暂未提供，
-///     交互先标记 TODO，待接入后补充。
+///   - 用户服务协议与隐私政策通过 App 内 H5 页面打开。
+///   - 检查更新依赖后端接口，暂未提供，交互先标记 TODO，待接入后补充。
 ///   - TODO(资源): 品牌 Logo 为按设计稿还原的绘制实现、底部湖面插画取自设计稿切图
 ///     （项目暂无官方品牌切图资源），官方资源就绪后替换 _AboutLogoMark
 ///     与 assets/images/member/about_lake_bg.png 即可。
@@ -85,7 +87,7 @@ class _AboutUsPageState extends State<AboutUsPage> {
                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E93), height: 1.2),
                     ),
                     const SizedBox(height: 40.1),
-                    _buildLinkCard(),
+                    _buildLinkCard(context),
                     const SizedBox(height: 14.5),
                     const Text(
                       'APP备案服务号：青ICP备案0506767778号-41A',
@@ -139,7 +141,7 @@ class _AboutUsPageState extends State<AboutUsPage> {
   }
 
   /// 链接卡片：白色卡片（直角）+ 检查更新 / 用户服务协议 / 用户隐私政策
-  Widget _buildLinkCard() {
+  Widget _buildLinkCard(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Container(
@@ -147,8 +149,8 @@ class _AboutUsPageState extends State<AboutUsPage> {
         child: Column(
           children: [
             _LinkRow(label: '检查更新', height: 54.6, showDivider: true, onTap: _onCheckUpdate),
-            _LinkRow(label: '用户服务协议', height: 57.5, showDivider: true, onTap: _onServiceAgreement),
-            _LinkRow(label: '用户隐私政策', height: 57.5, showDivider: false, onTap: _onPrivacyPolicy),
+            _LinkRow(label: '用户服务协议', height: 57.5, showDivider: true, onTap: () => _openAgreement(context, RouteNames.userServiceAgreementUrl, '用户服务协议')),
+            _LinkRow(label: '用户隐私政策', height: 57.5, showDivider: false, onTap: () => _openAgreement(context, RouteNames.userPrivacyPolicyUrl, '用户隐私政策')),
           ],
         ),
       ),
@@ -160,14 +162,9 @@ class _AboutUsPageState extends State<AboutUsPage> {
     debugPrint('[AboutUsPage] 检查更新');
   }
 
-  void _onServiceAgreement() {
-    // TODO: 用户服务协议页面/链接暂未提供，待接入后补充。
-    debugPrint('[AboutUsPage] 用户服务协议');
-  }
-
-  void _onPrivacyPolicy() {
-    // TODO: 用户隐私政策页面/链接暂未提供，待接入后补充。
-    debugPrint('[AboutUsPage] 用户隐私政策');
+  Future<void> _openAgreement(BuildContext context, String url, String title) async {
+    final route = Uri(path: RouteNames.webView, queryParameters: {'url': url, 'title': title});
+    await context.push(route.toString());
   }
 }
 

@@ -29,7 +29,7 @@ class ProfileStatsCard extends ConsumerWidget {
           // ── 三列统计 ──────────────────────────────────────────────
           Row(
             children: [
-              _StatItem(number: '${state.points}', label: '积分'),
+              _StatItem(number: '${state.points}', label: '积分', onTap: () => context.push(RouteNames.pointsDetail)),
               const _StatDivider(),
               _StatItem(number: '${state.couponCount}', label: '卡券', onTap: () => context.push(RouteNames.coupons)),
               const _StatDivider(),

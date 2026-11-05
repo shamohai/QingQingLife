@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/router/route_names.dart';
+import '../../../service/presentation/providers/service_provider.dart';
 
 /// 常用功能宫格（4 列 × 2 行）
 ///
@@ -12,13 +14,11 @@ class ProfileFeatureGrid extends StatelessWidget {
   const ProfileFeatureGrid({super.key});
 
   static const List<_FeatureItem> _items = [
-    _FeatureItem(icon: Icons.photo_camera_outlined, label: '预约报名', route: null),
+    _FeatureItem(icon: Icons.photo_camera_outlined, label: '预约报名', route: RouteNames.service, serviceTab: 'fuwu'),
     _FeatureItem(icon: Icons.diamond_outlined, label: '我的权益', route: RouteNames.memberLevel),
     _FeatureItem(icon: Icons.person_outline, label: '个人信息', route: RouteNames.personalInfo),
     _FeatureItem(icon: Icons.location_on_outlined, label: '收货地址', route: RouteNames.address),
     _FeatureItem(icon: Icons.phone_outlined, label: '联系客服', route: RouteNames.customerService),
-    _FeatureItem(icon: Icons.receipt_long_outlined, label: '发票中心', route: RouteNames.invoiceCenter),
-    _FeatureItem(icon: Icons.verified_user_outlined, label: '账号安全', route: null),
     _FeatureItem(icon: Icons.domain_outlined, label: '关于我们', route: RouteNames.aboutUs),
   ];
 
@@ -58,20 +58,24 @@ class _FeatureItem {
   final IconData icon;
   final String label;
   final String? route;
+  final String? serviceTab;
 
-  const _FeatureItem({required this.icon, required this.label, required this.route});
+  const _FeatureItem({required this.icon, required this.label, required this.route, this.serviceTab});
 }
 
-class _FeatureGridItem extends StatelessWidget {
+class _FeatureGridItem extends ConsumerWidget {
   final _FeatureItem item;
 
   const _FeatureGridItem({required this.item});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: () {
-        if (item.route != null) {
+        if (item.serviceTab != null) {
+          ref.read(selectedTabProvider.notifier).update(item.serviceTab!);
+          context.go(item.route!);
+        } else if (item.route != null) {
           context.push(item.route!);
         } else {
           debugPrint('[ProfileFeatureGrid] 路由未实现: ${item.label}');

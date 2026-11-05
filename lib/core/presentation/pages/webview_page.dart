@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 /// App 内 H5 页面。
@@ -22,31 +21,33 @@ class _WebViewPageState extends State<WebViewPage> {
   @override
   void initState() {
     super.initState();
-    if (kIsWeb) return;
 
-    _controller = WebViewController()
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onProgress: (progress) {
-            if (mounted) setState(() => _loadingProgress = progress);
-          },
-          onPageStarted: (_) {
-            if (mounted) setState(() => _errorMessage = null);
-          },
-          onWebResourceError: (error) {
-            if (mounted && error.isForMainFrame == true) {
-              setState(() => _errorMessage = '页面加载失败，请稍后重试');
-            }
-          },
-        ),
-      )
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..loadRequest(Uri.parse(widget.url));
+    _controller = WebViewController();
+    if (!kIsWeb) {
+      _controller
+        ..setNavigationDelegate(
+          NavigationDelegate(
+            onProgress: (progress) {
+              if (mounted) setState(() => _loadingProgress = progress);
+            },
+            onPageStarted: (_) {
+              if (mounted) setState(() => _errorMessage = null);
+            },
+            onWebResourceError: (error) {
+              if (mounted && error.isForMainFrame == true) {
+                setState(() => _errorMessage = '页面加载失败，请稍后重试');
+              }
+            },
+          ),
+        )
+        ..setJavaScriptMode(JavaScriptMode.unrestricted);
+    }
+    _controller.loadRequest(Uri.parse(widget.url));
   }
 
   Future<void> _reload() async {
     if (kIsWeb) {
-      await launchUrl(Uri.parse(widget.url), mode: LaunchMode.externalApplication);
+      await _controller.loadRequest(Uri.parse(widget.url));
       return;
     }
     setState(() => _errorMessage = null);
@@ -55,19 +56,6 @@ class _WebViewPageState extends State<WebViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb) {
-      return Scaffold(
-        appBar: AppBar(title: Text(widget.title)),
-        body: Center(
-          child: FilledButton.icon(
-            onPressed: () => launchUrl(Uri.parse(widget.url), mode: LaunchMode.externalApplication),
-            icon: const Icon(Icons.open_in_new),
-            label: const Text('在浏览器中打开'),
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -90,7 +78,7 @@ class _WebViewPageState extends State<WebViewPage> {
                   ],
                 ),
               ),
-            if (_loadingProgress < 100 && _errorMessage == null) LinearProgressIndicator(value: _loadingProgress / 100),
+            if (!kIsWeb && _loadingProgress < 100 && _errorMessage == null) LinearProgressIndicator(value: _loadingProgress / 100),
           ],
         ),
       ),

@@ -71,35 +71,33 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final bottomSafeInset = hasBottomNavigation ? 0.0 : MediaQuery.viewPaddingOf(context).bottom;
 
     return Scaffold(
-      // 页面底色与设计稿浅蓝背景一致
-      backgroundColor: const Color(0xFFD6E8F7),
-      body: isLoading
-          ? const Center(child: AppLoading())
-          : Stack(
-              children: [
-                RefreshIndicator(
-                  onRefresh: () async {
-                    if (ref.read(sessionProvider) == SessionState.authenticated) {
-                      await ref.read(userProfileProvider.notifier).load();
-                    }
-                  },
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: EdgeInsets.zero,
-                    child: Column(
-                      children: [
-                        // ── 顶部渐变背景区：用户信息 + 会员等级卡片 ──────
-                        Container(
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              stops: [0, 0.55, 1],
-                              colors: [Color(0xFF8FB7FD), Color(0xFFA9DEFA), Color(0xFFD6E8F7)],
-                            ),
-                          ),
-                          // 背景保持通栏，内容避让状态栏、刘海和摄像头挖孔。
-                          child: SafeArea(
+      backgroundColor: const Color(0xFF213775),
+      body: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0, 0.2, 0.48, 1],
+            colors: [Color(0xFF91D1FC), Color(0xFF91D1FC), Color(0xFF213775), Color(0xFF213775)],
+          ),
+        ),
+        child: isLoading
+            ? const Center(child: AppLoading())
+            : Stack(
+                children: [
+                  RefreshIndicator(
+                    onRefresh: () async {
+                      if (ref.read(sessionProvider) == SessionState.authenticated) {
+                        await ref.read(userProfileProvider.notifier).load();
+                      }
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: EdgeInsets.zero,
+                      child: Column(
+                        children: [
+                          // 顶部内容透明，页面渐变从状态栏连续延伸到卡片下方。
+                          SafeArea(
                             top: true,
                             bottom: false,
                             child: Column(
@@ -114,53 +112,53 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                               ],
                             ),
                           ),
-                        ),
 
-                        // ── 资产统计卡片 ─────────────────────────────────
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                          child: ProfileStatsCard(),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
+                          // ── 资产统计卡片 ─────────────────────────────────
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                            child: ProfileStatsCard(),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
 
-                        // ── 我的订单 ─────────────────────────────────────
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                          child: ProfileOrderShortcuts(),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
+                          // ── 我的订单 ─────────────────────────────────────
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                            child: ProfileOrderShortcuts(),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
 
-                        // ── 管家服务 Banner ──────────────────────────────
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                          child: ProfileButlerBanner(),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
+                          // ── 管家服务 Banner ──────────────────────────────
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                            child: ProfileButlerBanner(),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
 
-                        // ── 常用功能宫格 ─────────────────────────────────
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                          child: ProfileFeatureGrid(),
-                        ),
+                          // ── 常用功能宫格 ─────────────────────────────────
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                            child: ProfileFeatureGrid(),
+                          ),
 
-                        // ── 退出登录 ─────────────────────────────────────
-                        const ProfileFooter(),
+                          // ── 退出登录 ─────────────────────────────────────
+                          const ProfileFooter(),
 
-                        // 底部留白，避免内容贴底
-                        SizedBox(height: AppSpacing.xxl + bottomSafeInset),
-                      ],
+                          // 底部留白，避免内容贴底
+                          SizedBox(height: AppSpacing.xxl + bottomSafeInset),
+                        ],
+                      ),
                     ),
                   ),
-                ),
 
-                // ── 首页同款管家服务悬浮按钮 ─────────────────────────────
-                Positioned(
-                  right: AppSpacing.lg,
-                  bottom: AppSpacing.xl + bottomSafeInset,
-                  child: SizedBox(key: const Key('profile_customer_service_button'), child: const PointsFloatingButtons()),
-                ),
-              ],
-            ),
+                  // ── 首页同款管家服务悬浮按钮 ─────────────────────────────
+                  Positioned(
+                    right: AppSpacing.lg,
+                    bottom: AppSpacing.xl + bottomSafeInset,
+                    child: SizedBox(key: const Key('profile_customer_service_button'), child: const PointsFloatingButtons()),
+                  ),
+                ],
+              ),
+      ),
     );
   }
 }
