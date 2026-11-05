@@ -40,12 +40,13 @@ abstract final class RouteNames {
   static const String coupons = '/coupons';
   static const String couponList = '/coupons/list';
   static const String lockedRedPacketList = '/coupons/red-packet';
+  static const String cashCouponShareReceive = '/coupons/cash/receive';
   static const String serviceCouponList = '/coupons/service';
   static const String serviceCouponUse = '/coupons/service/use';
   static const String serviceCouponReceive = '/coupons/service/receive';
 
-  /// App 内统一链接接收页：读取 `route` 与其余参数后跳转到目标页面。
-  static const String linkReceive = '/link/receive';
+  /// App 内统一链接分发入口：读取 `route` 与其余参数后跳转到目标页面。
+  static const String appLinkDispatch = '/link/dispatch';
   static const String pointsPage = '/points';
   static const String pointsMall = '/points/mall';
 
@@ -164,9 +165,10 @@ abstract final class RouteNames {
     memberLevel,
     coupons,
     couponList,
+    cashCouponShareReceive,
     serviceCouponList,
     serviceCouponReceive,
-    linkReceive,
+    appLinkDispatch,
     notifications,
     customerService,
     cart,

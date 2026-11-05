@@ -5,19 +5,19 @@ import 'package:go_router/go_router.dart';
 import '../../app/router/route_names.dart';
 import 'app_link.dart';
 
-/// App 内统一链接接收页。
+/// App 内统一链接分发页。
 ///
 /// 读取 `route` 和其余 query 参数，校验目标路由后再跳转。
-class LinkReceivePage extends StatefulWidget {
-  const LinkReceivePage({super.key, required this.queryParameters});
+class LinkDispatchPage extends StatefulWidget {
+  const LinkDispatchPage({super.key, required this.queryParameters});
 
   final Map<String, String> queryParameters;
 
   @override
-  State<LinkReceivePage> createState() => _LinkReceivePageState();
+  State<LinkDispatchPage> createState() => _LinkDispatchPageState();
 }
 
-class _LinkReceivePageState extends State<LinkReceivePage> {
+class _LinkDispatchPageState extends State<LinkDispatchPage> {
   String? _targetLocation;
   bool _dispatched = false;
 
@@ -59,7 +59,7 @@ class _LinkReceivePageState extends State<LinkReceivePage> {
                           style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.white),
                         ),
                         const SizedBox(height: 10),
-                        const Text('请返回 App 重新获取分享链接', style: TextStyle(fontSize: 13, color: Colors.white70)),
+                        const Text('请返回原入口重新打开链接', style: TextStyle(fontSize: 13, color: Colors.white70)),
                         const SizedBox(height: 24),
                         SizedBox(
                           width: 160,

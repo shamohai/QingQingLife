@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/available_welfare_model.dart';
 import '../models/cash_coupon_model.dart';
+import '../models/cash_coupon_share_model.dart';
 import '../models/coupon_group_model.dart';
 import '../models/service_coupon_model.dart';
 import '../../domain/repositories/member_repository.dart';
@@ -219,6 +220,16 @@ class MockMemberDataSource implements MemberRepository {
   @override
   Future<ApiResponse<AvailableWelfareListResult>> getAvailableWelfareList({required bool cardOnly}) async {
     return ApiResponse.success(const AvailableWelfareListResult(welfareList: [], totalCount: 0, keepCount: 0));
+  }
+
+  @override
+  Future<ApiResponse<BeginCashCouponShareResult>> beginCashCouponShare({required int userServiceId, required int cashCouponConfigId}) async {
+    return ApiResponse.error('会员红包分享接口未配置');
+  }
+
+  @override
+  Future<ApiResponse<ReceiveCashCouponFromShareResult>> receiveCashCouponFromShare({required String shareCode, required bool doReceive}) async {
+    return ApiResponse.error('会员红包领取接口未配置');
   }
 
   @override

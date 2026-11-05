@@ -9,6 +9,7 @@ import '../../../../core/network/providers.dart';
 import '../../domain/repositories/member_repository.dart';
 import '../models/available_welfare_model.dart';
 import '../models/cash_coupon_model.dart';
+import '../models/cash_coupon_share_model.dart';
 import '../models/coupon_group_model.dart';
 import '../models/service_coupon_model.dart';
 import '../models/member_authority_model.dart';
@@ -288,6 +289,30 @@ class MemberRemoteDataSource {
       '/api/promotion/availablewelfarelist',
       data: <String, dynamic>{'cardonly': cardOnly},
       fromJson: (dynamic json) => AvailableWelfareListResult.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  /// 发起会员待解锁红包分享；会员权益来源分享必须传入 userserviceid。
+  ///
+  /// 接口：POST /api/promotion/cashcoupons/begincashcouponshare
+  /// 请求体：{userserviceid, cashcouponconfigid}
+  Future<ApiResponse<BeginCashCouponShareResult>> beginCashCouponShare({required int userServiceId, required int cashCouponConfigId}) async {
+    return _apiClient.post<BeginCashCouponShareResult>(
+      '/api/promotion/cashcoupons/begincashcouponshare',
+      data: <String, dynamic>{'userserviceid': userServiceId, 'cashcouponconfigid': cashCouponConfigId},
+      fromJson: (dynamic json) => BeginCashCouponShareResult.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  /// 通过分享编号预览或领取待解锁红包。
+  ///
+  /// 接口：POST /api/promotion/cashcoupons/recvcashcouponfromshare
+  /// 请求体：{dorecv, sharecode}；false 仅查询，true 实际领取。
+  Future<ApiResponse<ReceiveCashCouponFromShareResult>> receiveCashCouponFromShare({required String shareCode, required bool doReceive}) async {
+    return _apiClient.post<ReceiveCashCouponFromShareResult>(
+      '/api/promotion/cashcoupons/recvcashcouponfromshare',
+      data: <String, dynamic>{'dorecv': doReceive, 'sharecode': shareCode},
+      fromJson: (dynamic json) => ReceiveCashCouponFromShareResult.fromJson(json as Map<String, dynamic>),
     );
   }
 
