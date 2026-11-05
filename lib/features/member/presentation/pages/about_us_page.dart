@@ -19,7 +19,7 @@ import '../../../../app/router/route_names.dart';
 /// 说明：
 ///   - 版本号通过 package_info_plus 读取真实应用版本。
 ///   - 用户服务协议与隐私政策通过 App 内 H5 页面打开。
-///   - 检查更新依赖后端接口，暂未提供，交互先标记 TODO，待接入后补充。
+///   - 检查更新当前阶段统一提示「已是最新版本」，待版本检查接口接入后替换。
 ///   - TODO(资源): 品牌 Logo 为按设计稿还原的绘制实现、底部湖面插画取自设计稿切图
 ///     （项目暂无官方品牌切图资源），官方资源就绪后替换 _AboutLogoMark
 ///     与 assets/images/member/about_lake_bg.png 即可。
@@ -157,9 +157,14 @@ class _AboutUsPageState extends State<AboutUsPage> {
     );
   }
 
+  /// 检查更新
+  ///
+  /// 阶段说明：版本发布流程尚未上线，点击后统一提示「当前已是最新版本」。
+  /// 后续接入版本检查接口时，在此发起检查并复用 UpdateDialog 展示新版本。
   void _onCheckUpdate() {
-    // TODO: 版本更新检查依赖后端接口，暂未提供，待接入后补充。
-    debugPrint('[AboutUsPage] 检查更新');
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(const SnackBar(content: Text('当前已是最新版本'), behavior: SnackBarBehavior.floating));
   }
 
   Future<void> _openAgreement(BuildContext context, String url, String title) async {
