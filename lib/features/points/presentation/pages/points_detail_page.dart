@@ -74,7 +74,7 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
       children: [
         // AppBar 行
         Padding(
-          padding: const EdgeInsets.only(right: 15, top: 2),
+          padding: const EdgeInsets.only(right: 15, top: 8),
           child: Row(
             children: [
               IconButton(

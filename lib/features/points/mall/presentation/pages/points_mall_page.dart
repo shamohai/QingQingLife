@@ -57,7 +57,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
     final staticDataAsync = ref.watch(pointsMallStaticDataProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F5F7),
+      backgroundColor: const Color(0xFF213775),
       body: staticDataAsync.when(
         loading: () => const CustomScrollView(
           slivers: [SliverFillRemaining(child: Center(child: AppLoading()))],
@@ -294,39 +294,47 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                   //   ),
                   // ),
                   SliverToBoxAdapter(
-                    child: Stack(
-                      children: [
-                        SizedBox(
-                          height: 260,
-                          child: PointsBanner(
-                            imageUrl: staticData.bannerUrls.first,
-                            imageUrls: staticData.bannerUrls.length > 1 ? staticData.bannerUrls : null,
-                            height: 260, // 传进去
-                            autoPlay: true, // 默认就是 true，可省略
-                            autoPlayInterval: const Duration(seconds: 3),
-                          ),
-                        ),
-
-                        // ==================== 积分卡片（动态高度自然流布局，避免写死总高度导致空白） ====================
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const SizedBox(height: 207),
-                              PointsBalanceCard(
-                                currentPoints: ref
-                                    .watch(pointsMallProfilePointsProvider)
-                                    .maybeWhen(data: (profile) => profile.points, orElse: () => staticData.currentPoints),
-                                expiringPoints: ref
-                                    .watch(pointsMallProfilePointsProvider)
-                                    .maybeWhen(data: (profile) => profile.expiringPoints, orElse: () => staticData.expiringPoints),
-                                onDetailTap: () => GoRouter.of(context).push(RouteNames.pointsDetail),
+                    child: Builder(
+                      builder: (context) {
+                        final statusBarHeight = MediaQuery.of(context).padding.top;
+                        return Stack(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(top: statusBarHeight),
+                              child: SizedBox(
+                                height: 260,
+                                child: PointsBanner(
+                                  imageUrl: staticData.bannerUrls.first,
+                                  imageUrls: staticData.bannerUrls.length > 1 ? staticData.bannerUrls : null,
+                                  height: 260,
+                                  autoPlay: true,
+                                  autoPlayInterval: const Duration(seconds: 3),
+                                ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ],
+                            ),
+
+                            // ==================== 积分卡片（动态高度自然流布局，避免写死总高度导致空白） ====================
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(height: 207 + statusBarHeight),
+                                  PointsBalanceCard(
+                                    currentPoints: ref
+                                        .watch(pointsMallProfilePointsProvider)
+                                        .maybeWhen(data: (profile) => profile.points, orElse: () => staticData.currentPoints),
+                                    expiringPoints: ref
+                                        .watch(pointsMallProfilePointsProvider)
+                                        .maybeWhen(data: (profile) => profile.expiringPoints, orElse: () => staticData.expiringPoints),
+                                    onDetailTap: () => GoRouter.of(context).push(RouteNames.pointsDetail),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
 
@@ -386,7 +394,7 @@ class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
       margin: margin,
       child: ClipRRect(
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
-        child: Container(color: const Color(0xFFF3F5F7), child: child),
+        child: Container(color: const Color(0xFF213775), child: child),
       ),
     );
   }

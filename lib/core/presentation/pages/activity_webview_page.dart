@@ -1,12 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../share/activity_share_message.dart';
 import '../../widgets/app_share_sheet.dart';
 
-/// 活动专用 H5 页面，提供 drinkShare JavaScriptChannel，不影响常规 WebView。
+/// 活动专用 H5 页面，提供 AppShare JavaScriptChannel，不影响常规 WebView。
 class ActivityWebViewPage extends StatefulWidget {
   final String url;
   final String title;
@@ -28,20 +26,14 @@ class _ActivityWebViewPageState extends State<ActivityWebViewPage> {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..addJavaScriptChannel('drinkShare', onMessageReceived: (message) => _handleDrinkShareMessage(message.message))
+      ..addJavaScriptChannel('AppShare', onMessageReceived: (message) => _handleShareMessage(message.message))
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (progress) {
             if (mounted) setState(() => _loadingProgress = progress);
           },
           onPageStarted: (_) {
-            if (mounted) {
-              setState(() => _errorMessage = null);
-              _injectDrinkShareShim();
-            }
-          },
-          onPageFinished: (_) {
-            if (mounted) _injectDrinkShareShim();
+            if (mounted) setState(() => _errorMessage = null);
           },
           onWebResourceError: (error) {
             if (mounted && error.isForMainFrame == true) {
@@ -68,41 +60,21 @@ class _ActivityWebViewPageState extends State<ActivityWebViewPage> {
     }
   }
 
-  void _injectDrinkShareShim() {
-    _controller.runJavaScript('''
-      (function() {
-        window.qqshApp = window.qqshApp || {};
-        window.qqshApp.drinkShare = function(data) {
-          if (window.drinkShare && window.drinkShare.postMessage) {
-            window.drinkShare.postMessage(typeof data === 'string' ? data : JSON.stringify(data));
-          }
-        };
-      })();
-    ''');
-  }
-
-  Future<void> _handleDrinkShareMessage(String message) async {
+  Future<void> _handleShareMessage(String message) async {
     if (!mounted || _isShareSheetOpen) return;
-    final decoded = ActivityShareMessage.tryParse(message);
-    if (decoded == null || !ActivityShareMessage.isValidWebUrl(decoded.drinkShareUrl) || !ActivityShareMessage.isValidWebUrl(decoded.returnUrl)) {
-      return;
-    }
+    final shareMessage = ActivityShareMessage.tryParse(message);
+    if (shareMessage == null) return;
 
     _isShareSheetOpen = true;
     try {
-      final payload = decoded.toSharePayload(
-        fallbackTitle: widget.title,
-        onDrinkShareSucceeded: (returnUrl) {
-          if (mounted) _controller.runJavaScript("window.location.href = ${_encodeJsString(returnUrl.toString())};");
-        },
-      );
+      final currentUrl = await _controller.currentUrl();
+      if (!mounted) return;
+      final payload = shareMessage.toSharePayload(fallbackTitle: widget.title, fallbackUrl: currentUrl);
       await AppShareSheet.show(context: context, payload: payload);
     } finally {
       _isShareSheetOpen = false;
     }
   }
-
-  String _encodeJsString(String value) => jsonEncode(value);
 
   Future<void> _reload() async {
     setState(() => _errorMessage = null);

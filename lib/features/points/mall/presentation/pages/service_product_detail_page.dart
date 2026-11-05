@@ -26,7 +26,7 @@ class ServiceProductDetailPage extends ConsumerWidget {
     final productAsync = ref.watch(serviceProductDetailProvider(productId));
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F5F7),
+      backgroundColor: const Color(0xFF213775),
       body: Stack(
         children: [
           // ── 滚动内容层 ──

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import 'app_link.dart';
@@ -21,7 +22,6 @@ class DeepLinkReceiver extends StatefulWidget {
 }
 
 class _DeepLinkReceiverState extends State<DeepLinkReceiver> {
-  final AppLinks _appLinks = AppLinks();
   StreamSubscription<Uri>? _subscription;
   String? _lastLocation;
   DateTime? _lastHandledAt;
@@ -29,22 +29,29 @@ class _DeepLinkReceiverState extends State<DeepLinkReceiver> {
   @override
   void initState() {
     super.initState();
-    _subscription = _appLinks.uriLinkStream.listen(
-      _handleLink,
-      onError: (Object error, StackTrace stackTrace) {
-        debugPrint('[DeepLink] receive failed: $error');
-      },
-    );
-    // 部分平台在监听建立前就拿到了启动链接，主动读取一次并去重。
-    unawaited(_consumeInitialLink());
+    if (!kIsWeb) {
+      _initAppLinks();
+    } else {
+      // 在 Web 端直接从 Uri.base 处理
+      try {
+        _handleLink(Uri.base);
+      } catch (_) {}
+    }
   }
 
-  Future<void> _consumeInitialLink() async {
+  Future<void> _initAppLinks() async {
     try {
-      final uri = await _appLinks.getInitialLink();
+      final appLinks = AppLinks();
+      _subscription = appLinks.uriLinkStream.listen(
+        _handleLink,
+        onError: (Object error, StackTrace stackTrace) {
+          //debugPrint('[DeepLink] receive failed: $error');
+        },
+      );
+      final uri = await appLinks.getInitialLink();
       if (uri != null) _handleLink(uri);
-    } catch (error) {
-      debugPrint('[DeepLink] read initial link failed: $error');
+    } catch (e) {
+      //debugPrint('[DeepLink] not supported or missing plugin: $e');
     }
   }
 
@@ -52,7 +59,7 @@ class _DeepLinkReceiverState extends State<DeepLinkReceiver> {
     if (!mounted) return;
     final location = AppLink.toAppLocation(uri);
     if (location == null) {
-      debugPrint('[DeepLink] ignored unsupported link: $uri');
+      //debugPrint('[DeepLink] ignored unsupported link: $uri');
       return;
     }
 

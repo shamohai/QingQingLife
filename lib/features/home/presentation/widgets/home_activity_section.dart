@@ -280,13 +280,13 @@ class _ActivityCardState extends ConsumerState<_ActivityCard> {
                           const SizedBox(width: 4),
                           // 右侧 16x16 白色圆形带箭头按钮
                           Container(
-                            width: 16,
-                            height: 16,
+                            width: 24,
+                            height: 24,
                             decoration: const BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle, // 圆形按钮
                             ),
-                            child: const Center(child: Icon(Icons.chevron_right, size: 10, color: Color(0xFF213775))),
+                            child: const Center(child: Icon(Icons.chevron_right, size: 18, color: Color(0xFF213775))),
                           ),
                         ],
                       ),

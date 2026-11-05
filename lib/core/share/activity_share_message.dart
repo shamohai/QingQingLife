@@ -2,17 +2,16 @@ import 'dart:convert';
 
 import 'share_payload.dart';
 
-/// H5 activity WebView share payload from the drinkShare bridge.
+/// H5 activity WebView share payload from the AppShare bridge.
 class ActivityShareMessage {
-  final String title;
-  final String url;
-  final String imageUrl;
-  final String returnUrl;
-  final String drinkShareUrl;
+  final String? title;
+  final String? description;
+  final String? url;
+  final String? imageUrl;
 
-  const ActivityShareMessage({required this.title, required this.url, required this.imageUrl, required this.returnUrl, required this.drinkShareUrl});
+  const ActivityShareMessage({this.title, this.description, this.url, this.imageUrl});
 
-  /// Parses the documented drinkShare contract.
+  /// Parses the legacy AppShare JSON contract.
   static ActivityShareMessage? tryParse(String message) {
     try {
       final decoded = jsonDecode(message);
@@ -25,43 +24,23 @@ class ActivityShareMessage {
         return value.trim();
       }
 
-      final shareUrl = readString('shareUrl');
-      final returnUrl = readString('returnUrl');
-      final shareTitle = readString('shareTitle');
-      final thumbnail = readString('thumbnail');
-
-      if (shareUrl == null || returnUrl == null || shareTitle == null || thumbnail == null) {
-        return null;
-      }
-      if (!_validWebUrl(shareUrl) || !_validWebUrl(returnUrl) || !_validWebUrl(thumbnail)) {
-        return null;
-      }
-
-      return ActivityShareMessage(title: shareTitle, url: shareUrl, imageUrl: thumbnail, returnUrl: returnUrl, drinkShareUrl: shareUrl);
+      return ActivityShareMessage(title: readString('title'), description: readString('description'), url: readString('url'), imageUrl: readString('imageUrl'));
     } on FormatException {
       return null;
     }
   }
 
-  SharePayload toSharePayload({required String fallbackTitle, void Function(Uri returnUrl)? onDrinkShareSucceeded}) {
-    final encodedShareUrl = Uri.encodeComponent(drinkShareUrl);
-    final appLink = 'qqsh://app/activity/drinkmap/index?from=share&url=$encodedShareUrl';
-    final wrappedUrl = _buildOpenAppUrl(appLink);
+  SharePayload toSharePayload({required String fallbackTitle, required String? fallbackUrl}) {
+    final candidateUrl = _validWebUrl(url) ? url : fallbackUrl;
+    final candidateImageUrl = _validWebUrl(imageUrl) ? imageUrl : null;
+    final resolvedUrl = _validWebUrl(candidateUrl) ? candidateUrl : null;
 
     return SharePayload(
-      title: title.isEmpty ? fallbackTitle : title,
-      url: wrappedUrl,
-      imageUrl: imageUrl,
-      returnUrl: returnUrl,
-      onDrinkShareSucceeded: onDrinkShareSucceeded,
+      title: title == null || title!.isEmpty ? fallbackTitle : title!,
+      description: description,
+      url: resolvedUrl,
+      imageUrl: candidateImageUrl,
     );
-  }
-
-  static bool isValidWebUrl(String? value) => _validWebUrl(value);
-
-  static String _buildOpenAppUrl(String appLink) {
-    final encodedAppLink = Uri.encodeComponent(appLink);
-    return 'https://m.mall.qkj.com.cn/mob/common/openapp?appurl=$encodedAppLink';
   }
 
   static bool _validWebUrl(String? value) {
