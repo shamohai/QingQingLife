@@ -201,7 +201,8 @@ class OrderDetailResponse {
   static List<dynamic> _list(dynamic value) => value is List ? value : const [];
   static String? _text(dynamic value) {
     final text = value?.toString().trim();
-    return text == null || text.isEmpty ? null : text;
+    if (text == null || text.isEmpty || text == '【】' || text == '[]' || text == '{}') return null;
+    return text;
   }
 
   static int? _int(dynamic value) => int.tryParse(value?.toString() ?? '');
