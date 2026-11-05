@@ -22,7 +22,32 @@ class OrderDetailResponse {
         _bool(json['iscreditorder']) ??
         typeCode == BackendOrderType.credit.code || typeCode == BackendOrderType.fuluIntegral.code || typeCode == BackendOrderType.baiLiHuiIntegral.code;
     final addressJson = _map(json['addressinfo']);
-    final products = (_list(json['products'])).map(_product).toList(growable: false);
+
+    int pointsValue = 0;
+    if (isCredit) {
+      for (final key in const ['payintegralcount', 'integralcount', 'creditamount', 'credit', 'integralamount', 'orderamount']) {
+        final val = _int(json[key]) ?? (Decimal.tryParse(json[key]?.toString() ?? '')?.round().toBigInt().toInt());
+        if (val != null && val > 0) {
+          pointsValue = val;
+          break;
+        }
+      }
+    }
+
+    final products = (_list(json['products'])).map((p) => _product(p, isCredit)).toList(growable: false);
+
+    if (isCredit && pointsValue == 0) {
+      for (final p in products) {
+        if (p.totalCents > 0) {
+          pointsValue += p.totalCents * (p.quantity > 0 ? p.quantity : 1);
+        }
+      }
+    }
+
+    final productTotal = isCredit ? (pointsValue > 0 ? pointsValue : 0) : (_cents(json['orderamount']) ?? 0);
+    final payAmount = isCredit ? (pointsValue > 0 ? pointsValue : 0) : (_cents(json['payamount']) ?? 0);
+    final pointsCostValue = pointsValue > 0 ? pointsValue : (_int(json['payintegralcount']) ?? _int(json['integralcount']) ?? _int(json['creditamount']));
+
     final shipInfo = _map(json['shipinfo']);
     final traces = _list(shipInfo['traces']);
     final timeline = traces.map(_timeline).whereType<OrderTimeline>().toList(growable: false);
@@ -48,12 +73,13 @@ class OrderDetailResponse {
         detail: _text(addressJson['address']) ?? '',
         fullAddress: _fullAddress(addressJson) ?? '',
       ),
-      productTotalCents: _cents(json['orderamount']) ?? 0,
+      mobile: _text(json['mobile']) ?? _text(addressJson['mobile']),
+      productTotalCents: productTotal,
       orderAmountDescription: _text(json['orderamountdescr']),
       shippingFeeCents: _cents(json['postage']) ?? 0,
       discountCents: _sumCents(json, const ['couponamount', 'vipcouponamount', 'fullcutamont']) ?? 0,
       pointsDeductedCents: _cents(json['integralamount']) ?? 0,
-      payAmountCents: _cents(json['payamount']) ?? 0,
+      payAmountCents: payAmount,
       couponName: null,
       createTime: _date(json['createtime']) ?? DateTime.fromMillisecondsSinceEpoch(0),
       payTime: _date(json['paytime']),
@@ -64,7 +90,8 @@ class OrderDetailResponse {
       remark: _text(json['remark']),
       timeline: timeline,
       orderType: orderType,
-      pointsCost: isCredit ? _int(json['payintegralcount']) ?? _int(json['integralcount']) : null,
+      pointsCost: pointsCostValue,
+      payIntegralCount: pointsCostValue,
       exchangeTime: isCredit ? _date(json['createtime']) : null,
       pickupCode: null,
       payAmountDescription: _text(json['payamountdescr']),
@@ -81,9 +108,20 @@ class OrderDetailResponse {
     );
   }
 
-  OrderItem _product(dynamic value) {
+  OrderItem _product(dynamic value, bool isCredit) {
     final product = _map(value);
-    final total = _cents(product['payamount']) ?? 0;
+    int pPoints = 0;
+    if (isCredit) {
+      for (final key in const ['creditprice', 'creditcount', 'payintegralcount', 'integralcount', 'price']) {
+        final val = _int(product[key]) ?? (Decimal.tryParse(product[key]?.toString() ?? '')?.round().toBigInt().toInt());
+        if (val != null && val > 0) {
+          pPoints = val;
+          break;
+        }
+      }
+    }
+    final total = isCredit ? pPoints : (_cents(product['payamount']) ?? (_cents(product['price']) ?? 0));
+    final price = isCredit ? pPoints : (_cents(product['price']) ?? total);
     return OrderItem(
       id: _text(product['pid']) ?? '',
       productId: _text(product['pid']) ?? '',
@@ -93,8 +131,8 @@ class OrderDetailResponse {
       priceDescription: _text(product['pricedesc']),
       parameters: _parameters(product['parameter']),
       imageUrl: _text(product['img']) ?? '',
-      priceCents: _cents(product['price']) ?? total,
-      quantity: (_num(product['num']) ?? 0).toInt(),
+      priceCents: price,
+      quantity: (_num(product['num']) ?? 1).toInt(),
       totalCents: total,
       tag: _bool(product['isgift']) == true ? '赠品' : null,
       payAmountDescription: _text(product['payamountdescr']),
@@ -163,7 +201,8 @@ class OrderDetailResponse {
   static List<dynamic> _list(dynamic value) => value is List ? value : const [];
   static String? _text(dynamic value) {
     final text = value?.toString().trim();
-    return text == null || text.isEmpty ? null : text;
+    if (text == null || text.isEmpty || text == '【】' || text == '[]' || text == '{}') return null;
+    return text;
   }
 
   static int? _int(dynamic value) => int.tryParse(value?.toString() ?? '');

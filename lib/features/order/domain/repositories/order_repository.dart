@@ -146,6 +146,8 @@ class OrderDetail {
   final String? payAmountDescription;
   final String? payTypeName;
   final String? paySerialNumber;
+  final String? mobile;
+  final int? payIntegralCount;
   final String? userRemark;
   final bool canCancel;
   final bool canCancelAfterSale;
@@ -166,6 +168,7 @@ class OrderDetail {
     this.isCreditOrder = false,
     required this.items,
     required this.address,
+    this.mobile,
     required this.productTotalCents,
     this.orderAmountDescription,
     required this.shippingFeeCents,
@@ -183,6 +186,7 @@ class OrderDetail {
     required this.timeline,
     this.orderType,
     this.pointsCost,
+    this.payIntegralCount,
     this.exchangeTime,
     this.pickupCode,
     this.payAmountDescription,

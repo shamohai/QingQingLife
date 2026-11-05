@@ -5,8 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
-import '../../../points/mall/data/models/get_recommend_product_list_model.dart';
-import '../../../../core/presentation/paging/paging_list_view.dart';
+import '../../../../core/presentation/paging/paging_controller_mixin.dart';
 import '../providers/home_paging_providers.dart';
 import 'home_credit_product_card.dart';
 
@@ -70,19 +69,42 @@ class HomeHotProducts extends ConsumerWidget {
           const SizedBox(height: AppSpacing.md),
           SizedBox(
             height: 190,
-            child: PagingListView<CreditMallProduct>(
-              provider: homeHotProductsProvider,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, product, index) => GestureDetector(
-                onTap: () => context.push(RouteNames.serviceProductDetail.replaceFirst(':id', '${product.productId}')),
-                child: HomeCreditProductCard(product: product),
-              ),
-              shrinkWrap: true,
-              physics: const BouncingScrollPhysics(),
-              separatorBuilder: const SizedBox(width: AppSpacing.sm),
-              padding: EdgeInsets.zero,
-              enablePullToRefresh: false,
-              noMoreWidget: const SizedBox.shrink(), // 不显示“没有更多数据了”
+            child: Consumer(
+              builder: (context, ref, child) {
+                final pagingData = ref.watch(homeHotProductsProvider);
+                if (pagingData.status == PagingStatus.initial) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (context.mounted) {
+                      ref.read(homeHotProductsProvider.notifier).loadFirstPage();
+                    }
+                  });
+                }
+
+                if (pagingData.isLoading && pagingData.items.isEmpty) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (pagingData.isError && pagingData.items.isEmpty) {
+                  return Center(child: Text(pagingData.errorMessage ?? '加载失败'));
+                }
+                if (pagingData.items.isEmpty) {
+                  return const Center(child: Text('暂无数据'));
+                }
+
+                return ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.zero,
+                  itemCount: pagingData.items.length,
+                  separatorBuilder: (context, index) => const SizedBox(width: AppSpacing.sm),
+                  itemBuilder: (context, index) {
+                    final product = pagingData.items[index];
+                    return GestureDetector(
+                      onTap: () => context.push(RouteNames.serviceProductDetail.replaceFirst(':id', '${product.productId}')),
+                      child: HomeCreditProductCard(product: product),
+                    );
+                  },
+                );
+              },
             ),
           ),
         ],
