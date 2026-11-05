@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../product/domain/repositories/product_repository.dart';
-import '../../data/models/carousel_model.dart';
 import '../../../../core/widgets/app_image.dart';
 
 /// 金刚区：10格图标导航（2行5列），白色卡片容器
@@ -43,60 +41,22 @@ class _KingKongItem extends StatelessWidget {
   const _KingKongItem({required this.item});
 
   void _handleTap(BuildContext context) {
-    context.push(RouteNames.allProducts);
-
+    int categoryId = 0;
     final actionUrl = item.actionUrl ?? '';
-    switch (item.jumpType) {
-      case JumpType.productDetail:
-        if (actionUrl.isNotEmpty) {
-          context.push(RouteNames.productDetail.replaceFirst(':id', actionUrl));
+    if (actionUrl.isNotEmpty) {
+      final uri = Uri.tryParse(actionUrl);
+      if (uri != null) {
+        final queryId = uri.queryParameters['categoryid'] ??
+            uri.queryParameters['categoryId'] ??
+            uri.queryParameters['id'];
+        if (queryId != null) {
+          categoryId = int.tryParse(queryId) ?? 0;
         }
-        break;
-      case JumpType.creditMall:
-        context.push(RouteNames.pointsMall);
-        break;
-      case JumpType.cart:
-        context.push(RouteNames.cart);
-        break;
-      case JumpType.orderList:
-        context.push(RouteNames.orders);
-        break;
-      case JumpType.productList:
-      case JumpType.programPage:
-      case JumpType.zjProgramPage:
-      case JumpType.webView:
-        if (actionUrl.isNotEmpty) {
-          if (actionUrl.startsWith('/pages/mall/index') || actionUrl.startsWith('/shop')) {
-            context.go(RouteNames.shop);
-          } else if (actionUrl.startsWith('/points')) {
-            context.go(RouteNames.points);
-          } else if (actionUrl.startsWith('/home')) {
-            context.go(RouteNames.home);
-          } else if (actionUrl.startsWith('/')) {
-            context.push(actionUrl);
-          } else {
-            final uri = Uri.tryParse(actionUrl);
-            if (uri != null) {
-              launchUrl(uri, mode: LaunchMode.externalApplication);
-            }
-          }
-        }
-        break;
-      case JumpType.none:
-      default:
-        if (actionUrl.isNotEmpty) {
-          if (actionUrl.startsWith('/pages/mall/index') || actionUrl.startsWith('/shop')) {
-            context.go(RouteNames.shop);
-          } else if (actionUrl.startsWith('/points')) {
-            context.go(RouteNames.points);
-          } else if (actionUrl.startsWith('/home')) {
-            context.go(RouteNames.home);
-          } else if (actionUrl.startsWith('/')) {
-            context.push(actionUrl);
-          }
-        }
-        break;
+      }
     }
+
+    final path = '${RouteNames.allProducts}?categoryid=$categoryId';
+    context.push(path);
   }
 
   @override

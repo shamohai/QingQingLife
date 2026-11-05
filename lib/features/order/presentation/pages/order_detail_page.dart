@@ -240,17 +240,15 @@ class _OrderContentCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (var index = 0; index < detail.items.length; index++) ...[
-            _ProductRow(item: detail.items[index]),
+            _ProductRow(item: detail.items[index], isCredit: detail.isCreditOrder),
             if (index != detail.items.length - 1) const SizedBox(height: 12),
           ],
           if (detail.items.isNotEmpty) const SizedBox(height: 7),
-          _AmountRow(label: '订单金额', value: _moneyOrPoints(detail.productTotalCents, detail.orderAmountDescription, detail.isCreditOrder)),
+          _AmountRow(label: '订单金额', value: _moneyOrPoints(detail.productTotalCents, detail.orderAmountDescription, detail.isCreditOrder), accent: true),
           const SizedBox(height: 8),
           _AmountRow(label: '订单运费', value: _money(detail.shippingFeeCents)),
           const SizedBox(height: 8),
           _AmountRow(label: '优惠券抵扣', value: '-${_money(detail.discountCents)}', accent: detail.discountCents != 0),
-          const SizedBox(height: 8),
-          _AmountRow(label: '应付金额', value: detail.payAmountDescription ?? _money(detail.payAmountCents), accent: true, bold: true),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Divider(height: 1, color: _OrderDetailTokens.divider),
@@ -274,16 +272,17 @@ class _OrderContentCard extends StatelessWidget {
   String _money(int cents) => '¥${(cents / 100).toStringAsFixed(2)}';
 
   String _moneyOrPoints(int cents, String? description, bool isCredit) {
-    if (description != null && description.isNotEmpty) return description;
-    if (isCredit) return '$cents积分';
+    if (description != null && description.isNotEmpty && !description.startsWith('0')) return description;
+    if (isCredit) return '$cents青稞粒';
     return _money(cents);
   }
 }
 
 class _ProductRow extends StatelessWidget {
   final OrderItem item;
+  final bool isCredit;
 
-  const _ProductRow({required this.item});
+  const _ProductRow({required this.item, required this.isCredit});
 
   @override
   Widget build(BuildContext context) {
@@ -327,7 +326,7 @@ class _ProductRow extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            _productAmount(item),
+            _productAmount(item, isCredit),
             const SizedBox(height: 4),
             Text('×${item.quantity}', style: const TextStyle(fontSize: 12, color: _OrderDetailTokens.muted)),
           ],
@@ -337,15 +336,18 @@ class _ProductRow extends StatelessWidget {
   }
 }
 
-Widget _productAmount(OrderItem item) {
+Widget _productAmount(OrderItem item, bool isCredit) {
   final description = item.priceDescription;
-  if (description != null && description.isNotEmpty) {
+  if (description != null && description.isNotEmpty && !description.startsWith('0')) {
     return _amountDescriptionText(description, mainFontSize: 16);
+  }
+  if (isCredit) {
+    return _amountDescriptionTextWithColor('${item.totalCents}青稞粒', mainFontSize: 16, color: _OrderDetailTokens.accent);
   }
   if (item.totalCents > 0) {
     return _moneyText(item.totalCents, mainFontSize: 16);
   }
-  return _amountDescriptionText('${item.totalCents}积分', mainFontSize: 16);
+  return _amountDescriptionTextWithColor('${item.totalCents}青稞粒', mainFontSize: 16, color: _OrderDetailTokens.accent);
 }
 
 Widget _amountDescriptionText(String value, {required double mainFontSize}) {
