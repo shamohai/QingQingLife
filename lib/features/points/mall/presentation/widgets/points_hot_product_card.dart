@@ -61,7 +61,7 @@ class PointsHotProductCard extends StatelessWidget {
                   ),
                   // 右侧：25dp * 13dp
                   Container(
-                    width: 40,
+                    width: 32,
                     height: 14,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
@@ -70,7 +70,7 @@ class PointsHotProductCard extends StatelessWidget {
                     ),
                     child: Text(
                       '兑换',
-                      style: TextStyle(fontSize: 12, color: const Color(0xFFFF2105), fontWeight: FontWeight.w500, height: 1.1),
+                      style: TextStyle(fontSize: 11, color: const Color(0xFFFF2105), fontWeight: FontWeight.w500, height: 1.1),
                       textAlign: TextAlign.center,
                     ),
                   ),

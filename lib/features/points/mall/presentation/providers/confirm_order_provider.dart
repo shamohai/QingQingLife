@@ -236,8 +236,12 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
           final req = SubmitCreditOrderReq(pid: pid, num: quantity, addressId: addressId, userServiceId: state.userServiceId, remark: state.note);
 
           final resp = await repository.submitCreditOrder(req);
-          if (resp.success && resp.data != null && (resp.data!.result == 0 || resp.data!.result == 200)) {
-            final orderIdStr = resp.data!.orderIds.isNotEmpty ? resp.data!.orderIds.first.toString() : '0';
+          if (resp.success && resp.data != null) {
+            final orderIdInt = resp.data!.primaryOrderId;
+            final orderIdStr = orderIdInt != null && orderIdInt > 0 ? orderIdInt.toString() : '';
+            if (orderIdStr.isEmpty) {
+              return ApiResponse.error('提交订单成功，但未生成有效的订单号');
+            }
             return ApiResponse.success(
               PointsOrderSubmitResult(orderId: orderIdStr, orderNo: orderIdStr, pointsDeducted: totalPoints, message: resp.data!.descr),
             );
@@ -250,8 +254,11 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
           final req = SubmitServiceCouponIntegralOrderReq(pid: pid, num: quantity);
 
           final resp = await repository.submitServiceCouponIntegralOrder(req);
-          if (resp.success && resp.data != null && (resp.data!.result == 0 || resp.data!.result == 200)) {
-            final orderIdStr = resp.data!.orderId?.toString() ?? '0';
+          if (resp.success && resp.data != null) {
+            final orderIdStr = resp.data!.orderId != null && resp.data!.orderId! > 0 ? resp.data!.orderId!.toString() : '';
+            if (orderIdStr.isEmpty) {
+              return ApiResponse.error('提交订单成功，但未生成有效的订单号');
+            }
             return ApiResponse.success(
               PointsOrderSubmitResult(orderId: orderIdStr, orderNo: orderIdStr, pointsDeducted: totalPoints, message: resp.data!.descr),
             );
