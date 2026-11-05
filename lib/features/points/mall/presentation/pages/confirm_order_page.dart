@@ -185,7 +185,12 @@ class ConfirmOrderPage extends ConsumerWidget {
       final res = submitResult.data!;
       context.push(
         RouteNames.paymentResult,
-        extra: PointsPaymentSuccessData(orderNo: res.orderNo, transactionNo: res.orderId, pointsDeducted: res.pointsDeducted),
+        extra: PointsPaymentSuccessData(
+          orderNo: res.orderNo,
+          transactionNo: res.orderId,
+          pointsDeducted: res.pointsDeducted,
+          orderId: res.orderId,
+        ),
       );
     } else {
       final errorMsg = submitResult.message.isNotEmpty ? submitResult.message : '提交订单失败';

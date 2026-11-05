@@ -23,7 +23,7 @@ class ServiceTabBar extends StatelessWidget {
     // 计算每个 Tab 的宽度：(屏幕宽 - 左右 padding - 分隔间距) / 4
     final screenWidth = MediaQuery.of(context).size.width;
     final totalPadding = AppSpacing.lg * 2;
-    final totalSeparator = AppSpacing.xl * 3;
+    final totalSeparator = AppSpacing.md * 3;
     final tabWidth = (screenWidth - totalPadding - totalSeparator) / _tabKeys.length;
 
     return ClipRRect(
@@ -42,7 +42,7 @@ class ServiceTabBar extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             itemCount: _tabKeys.length,
-            separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.xl),
+            separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.md),
             itemBuilder: (context, index) {
               final tabKey = _tabKeys[index];
               final tabLabel = _tabLabels[index];
@@ -57,16 +57,15 @@ class ServiceTabBar extends StatelessWidget {
                       Text(
                         tabLabel,
                         style: AppTextStyles.labelLarge.copyWith(
-                          fontSize: 16,
+                          fontSize: 15,
                           // 设计稿 fontWeight: 500 (Medium)，非 600
                           fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
                           color: isSelected ? AppColors.serviceTabActive : AppColors.serviceTabInactive,
                         ),
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 5),
                       if (isSelected)
                         // 设计稿指示条：高 6px，宽约 68px，圆角 100px
                         Container(

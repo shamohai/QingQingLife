@@ -46,6 +46,12 @@ class ServicePage extends ConsumerWidget {
       backgroundColor: AppColors.servicePageBackground,
       body: Stack(
         children: [
+          // 顶部安全区白色背景（与 ServiceTabBar 同色）
+          SafeArea(
+            bottom: false,
+            minimum: const EdgeInsets.only(top: 0),
+            child: Container(color: Colors.white),
+          ),
           SafeArea(
             bottom: false,
             child: Column(

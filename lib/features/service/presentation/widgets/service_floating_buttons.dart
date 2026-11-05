@@ -18,23 +18,22 @@ class ServiceFloatingButtons extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bottomInset = MediaQuery.of(context).padding.bottom;
     return Stack(
       children: [
         // 左下：预约记录 40x40
         Positioned(
           left: AppSpacing.lg,
-          bottom: bottomInset + AppSpacing.lg,
+          bottom: 20,
           child: _FloatButton(label: '预约\n记录', onTap: () => context.push(RouteNames.serviceRecords)),
         ),
         // 右下：管家服务
         Positioned(
           right: AppSpacing.lg,
-          bottom: bottomInset + AppSpacing.lg,
+          bottom: 20,
           child: _FloatIconButton(
             asset: 'assets/images/points/icon-service.png',
             label: '管家服务',
-            iconSize: 18, // 管家服务图填充较大，稍小一点保持视觉平衡
+            iconSize: 20, // 管家服务图填充较大，稍小一点保持视觉平衡
             onTap: onServiceTap ?? () => launchButlerMiniProgram(context, ref),
           ),
         ),
@@ -54,8 +53,8 @@ class _FloatButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 40,
-        height: 40,
+        width: 56,
+        height: 56,
         decoration: const BoxDecoration(color: AppColors.serviceFloatBg, shape: BoxShape.circle),
         child: Center(
           child: Text(
@@ -83,31 +82,21 @@ class _FloatIconButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 40,
-        height: 40,
+        width: 56,
+        height: 56,
         decoration: BoxDecoration(
           color: AppColors.primary,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: Colors.white,
-            width: 1, // 稍微加粗一点，白边更清晰
-          ),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: Colors.white, width: 1),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 图标
-            if (asset != null)
-              Image.asset(asset!, width: iconSize, height: iconSize, color: Colors.white)
-            else if (icon != null)
-              Icon(icon, color: Colors.white, size: iconSize)
-            else
-              const SizedBox.shrink(),
+            asset != null ? Image.asset(asset!, width: iconSize, height: iconSize, color: Colors.white) : Icon(icon, color: Colors.white, size: iconSize),
             const SizedBox(height: 2),
-            // 文字
             Text(
               label,
-              style: const TextStyle(fontSize: 6, color: Colors.white, height: 1.0, fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 9, color: Colors.white, height: 1.0, fontWeight: FontWeight.w500),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
