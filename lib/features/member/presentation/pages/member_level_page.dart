@@ -5,10 +5,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/deeplink/app_link.dart';
+import '../../../../core/widgets/app_share_sheet.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../data/models/member_rank_models.dart';
+import '../providers/cash_coupon_share_provider.dart';
 import '../providers/member_level_provider.dart';
 import '../widgets/member_benefit_grid.dart';
 import '../widgets/member_level_tabs.dart';
@@ -178,16 +181,16 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
   Future<void> _handleBenefitTap(BuildContext context, MemberBenefitItem item) async {
     final result = await ref.read(memberLevelProvider.notifier).useBenefit(item);
     if (!context.mounted) return;
-    _handleBenefitResult(context, result);
+    await _handleBenefitResult(context, result);
   }
 
   Future<void> _handleMonthlyCouponTap(BuildContext context, MemberMonthlyCoupon coupon) async {
     final result = await ref.read(memberLevelProvider.notifier).useMonthlyCoupon(coupon);
     if (!context.mounted) return;
-    _handleBenefitResult(context, result);
+    await _handleBenefitResult(context, result);
   }
 
-  void _handleBenefitResult(BuildContext context, MemberBenefitUseResult result) {
+  Future<void> _handleBenefitResult(BuildContext context, MemberBenefitUseResult result) async {
     if (!context.mounted || result.busy || result.ignored) return;
 
     if (!result.success || result.access == null) {
@@ -199,10 +202,10 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
     if (message != null) {
       _showMessage(context, message);
     }
-    _openBenefitAccess(context, result.access!);
+    await _openBenefitAccess(context, result.access!);
   }
 
-  void _openBenefitAccess(BuildContext context, MemberBenefitAccess access) {
+  Future<void> _openBenefitAccess(BuildContext context, MemberBenefitAccess access) async {
     switch (access.instanceType) {
       case ServiceInstanceType.serviceCoupon:
         context.push(RouteNames.serviceCouponList);
@@ -225,9 +228,64 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
         }
         context.push(RouteNames.memberServiceTemplateDetailPath(templateId: access.shareCartTemplateId, userServiceId: access.userServiceId));
         return;
+      case ServiceInstanceType.cashCouponShare:
+        final cashCoupon = access.bindInfo?.bindcashcouponinfo;
+        if (cashCoupon == null || cashCoupon.cashcouponconfigid <= 0 || access.userServiceId <= 0) {
+          _showMessage(context, '红包权益信息无效，请刷新后重试');
+          return;
+        }
+        await _shareCashCoupon(
+          context,
+          userServiceId: access.userServiceId,
+          cashCouponConfigId: cashCoupon.cashcouponconfigid,
+          couponName: cashCoupon.name,
+          description: cashCoupon.description,
+          imageUrl: cashCoupon.headimgurl,
+        );
+        return;
       default:
         return;
     }
+  }
+
+  Future<void> _shareCashCoupon(
+    BuildContext context, {
+    required int userServiceId,
+    required int cashCouponConfigId,
+    required String couponName,
+    required String description,
+    required String? imageUrl,
+  }) async {
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final loadingDialog = showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator(color: Colors.white)),
+    );
+    final result = await ref.read(cashCouponShareControllerProvider).begin(userServiceId: userServiceId, cashCouponConfigId: cashCouponConfigId);
+    if (navigator.mounted && navigator.canPop()) navigator.pop();
+    await loadingDialog;
+    if (!context.mounted || result.busy) return;
+    if (!result.success || result.share == null) {
+      _showMessage(context, result.message);
+      return;
+    }
+
+    final share = result.share!;
+    final shareCode = share.shareCode.trim();
+    if (shareCode.isEmpty) {
+      _showMessage(context, '分享已发起，但未获取到分享编号，请稍后重试');
+      return;
+    }
+    final location = AppLink.buildDispatchLocation(route: RouteNames.cashCouponShareReceive, parameters: {'sharecode': shareCode});
+    final shareTitle = share.shareTitle.trim().isNotEmpty ? share.shareTitle.trim() : (couponName.trim().isEmpty ? '会员红包' : couponName.trim());
+    await AppShareSheet.showAppPage(
+      context: context,
+      title: shareTitle,
+      description: description.trim().isNotEmpty ? description.trim() : '好友分享了一份会员红包权益，快来领取吧',
+      imageUrl: share.shareIcon.trim().isNotEmpty ? share.shareIcon.trim() : (imageUrl?.trim().isNotEmpty == true ? imageUrl!.trim() : null),
+      location: location,
+    );
   }
 
   void _showMessage(BuildContext context, String message) {

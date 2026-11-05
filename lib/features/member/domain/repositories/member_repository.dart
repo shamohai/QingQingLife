@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import '../../data/models/member_authority_model.dart';
 import '../../data/models/available_welfare_model.dart';
 import '../../data/models/cash_coupon_model.dart';
+import '../../data/models/cash_coupon_share_model.dart';
 import '../../data/models/coupon_group_model.dart';
 import '../../data/models/service_coupon_model.dart';
 import '../../data/models/member_rank_models.dart';
@@ -53,6 +54,12 @@ abstract class MemberRepository {
 
   /// 获取可用福利列表（真实接口：POST /api/promotion/availablewelfarelist）
   Future<ApiResponse<AvailableWelfareListResult>> getAvailableWelfareList({required bool cardOnly});
+
+  /// 发起会员待解锁红包分享（真实接口：POST /api/promotion/cashcoupons/begincashcouponshare）。
+  Future<ApiResponse<BeginCashCouponShareResult>> beginCashCouponShare({required int userServiceId, required int cashCouponConfigId});
+
+  /// 查询或领取分享待解锁红包（真实接口：POST /api/promotion/cashcoupons/recvcashcouponfromshare）。
+  Future<ApiResponse<ReceiveCashCouponFromShareResult>> receiveCashCouponFromShare({required String shareCode, required bool doReceive});
 
   /// 获取服务券列表（真实接口：POST /api/promotion/getservicecouponlist）
   Future<ApiResponse<ServiceCouponListResult>> getServiceCouponList({required ServiceCouponStatus status, bool selfSetOnly = false});
