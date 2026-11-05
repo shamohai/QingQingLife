@@ -128,6 +128,8 @@ class _HomeBannerState extends State<HomeBanner> {
     final banners = _banners;
     if (banners.isEmpty) return const SizedBox.shrink();
 
+    final isSingle = banners.length <= 1;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: ClipRRect(
@@ -139,34 +141,46 @@ class _HomeBannerState extends State<HomeBanner> {
             children: [
               // PageView 轮播图（带点击手势）
               Listener(
-                onPointerDown: (_) {
-                  _isInteracting = true;
-                  _timer?.cancel();
-                },
-                onPointerUp: (_) {
-                  _isInteracting = false;
-                  _startAutoPlay();
-                },
-                onPointerCancel: (_) {
-                  _isInteracting = false;
-                  _startAutoPlay();
-                },
+                onPointerDown: isSingle
+                    ? null
+                    : (_) {
+                        _isInteracting = true;
+                        _timer?.cancel();
+                      },
+                onPointerUp: isSingle
+                    ? null
+                    : (_) {
+                        _isInteracting = false;
+                        _startAutoPlay();
+                      },
+                onPointerCancel: isSingle
+                    ? null
+                    : (_) {
+                        _isInteracting = false;
+                        _startAutoPlay();
+                      },
                 child: PageView.builder(
                   controller: _controller,
+                  physics: isSingle ? const NeverScrollableScrollPhysics() : null,
+                  itemCount: isSingle ? 1 : null,
                   onPageChanged: (i) {
                     if (banners.length < 2) return;
                     setState(() => _currentPage = i % banners.length);
                     _startAutoPlay();
                   },
                   itemBuilder: (context, index) {
-                    final banner = banners[index % banners.length];
-                    return GestureDetector(onTap: () => _handleTap(index % banners.length), child: _buildImage(banner));
+                    final actualIndex = isSingle ? 0 : (index % banners.length);
+                    final banner = banners[actualIndex];
+                    return GestureDetector(
+                      onTap: () => _handleTap(actualIndex),
+                      child: _buildImage(banner),
+                    );
                   },
                 ),
               ),
 
               // 指示条
-              if (banners.length > 1)
+              if (!isSingle)
                 Positioned(
                   bottom: 16,
                   left: 0,
@@ -181,7 +195,10 @@ class _HomeBannerState extends State<HomeBanner> {
                           width: 30,
                           height: 3,
                           margin: const EdgeInsets.symmetric(horizontal: 4),
-                          decoration: BoxDecoration(color: isActive ? const Color(0xFF0088FF) : Colors.white.withAlpha(200), borderRadius: BorderRadius.zero),
+                          decoration: BoxDecoration(
+                            color: isActive ? const Color(0xFF0088FF) : Colors.white.withAlpha(200),
+                            borderRadius: BorderRadius.zero,
+                          ),
                         );
                       }),
                     ),
