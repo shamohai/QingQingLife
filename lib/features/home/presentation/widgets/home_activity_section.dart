@@ -204,19 +204,6 @@ class _ActivityCardState extends ConsumerState<_ActivityCard> {
                         ),
                       ),
               ),
-              // 渐变蒙层：从中间50%位置到图片底部
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14),
-                    gradient: const LinearGradient(
-                      begin: Alignment(0.0, 0.0), // 中间 50% 位置
-                      end: Alignment.bottomCenter,
-                      colors: [Color(0x0D9D9D9D), Color(0xFF213775)],
-                    ),
-                  ),
-                ),
-              ),
               // 自定义指示器：右上角，图片数量 > 1 时显示
               if (images.length > 1)
                 Positioned(
@@ -254,19 +241,19 @@ class _ActivityCardState extends ConsumerState<_ActivityCard> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 10),
-                          // "立即参与" 按钮样式 (71x24, 圆角 67, 白色背景, 文字 #213775 11sp)
-                          Container(
-                            width: 71,
-                            height: 24,
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(67)),
-                            child: const Center(
-                              child: Text(
-                                '立即参与',
-                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF213775)),
-                              ),
-                            ),
-                          ),
+                          // const SizedBox(height: 10),
+                          // // "立即参与" 按钮样式 (71x24, 圆角 67, 白色背景, 文字 #213775 11sp)
+                          // Container(
+                          //   width: 71,
+                          //   height: 24,
+                          //   decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(67)),
+                          //   child: const Center(
+                          //     child: Text(
+                          //       '立即参与',
+                          //       style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF213775)),
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       )
                     : Row(
@@ -280,25 +267,25 @@ class _ActivityCardState extends ConsumerState<_ActivityCard> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          // 右侧按钮
-                          Container(
-                            width: isFullWidth ? 71 : 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: isFullWidth ? BorderRadius.circular(67) : null,
-                              shape: isFullWidth ? BoxShape.rectangle : BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: isFullWidth
-                                  ? const Text(
-                                      '立即参与',
-                                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF213775)),
-                                    )
-                                  : const Icon(Icons.chevron_right, size: 18, color: Color(0xFF213775)),
-                            ),
-                          ),
+                          // const SizedBox(width: 8),
+                          // // 右侧按钮
+                          // Container(
+                          //   width: isFullWidth ? 71 : 24,
+                          //   height: 24,
+                          //   decoration: BoxDecoration(
+                          //     color: Colors.white,
+                          //     borderRadius: isFullWidth ? BorderRadius.circular(67) : null,
+                          //     shape: isFullWidth ? BoxShape.rectangle : BoxShape.circle,
+                          //   ),
+                          //   child: Center(
+                          //     child: isFullWidth
+                          //         ? const Text(
+                          //             '立即参与',
+                          //             style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF213775)),
+                          //           )
+                          //         : const Icon(Icons.chevron_right, size: 18, color: Color(0xFF213775)),
+                          //   ),
+                          // ),
                         ],
                       ),
               ),
