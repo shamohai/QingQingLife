@@ -109,6 +109,11 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
+  web:
+    generate: true
+    image_path: assets/icon/logo_web.png
+    background_color: "#00367F"
+    theme_color: "#00367F"
   image_path: assets/icon/logo.png
   adaptive_icon_background: "#00367F"
   adaptive_icon_foreground: assets/icon/logo.png
