@@ -26,6 +26,6 @@ abstract final class ApiSecurityConstants {
   /// 当前 App 为独立 Flutter 应用，但接口文档示例传 1（小程序）
   static const int defaultPlatform = 0;
 
-  /// 设备 ID 持久化存储 Key
-  static const String deviceIdStorageKey = 'qingqinglife-device-id';
+  // 设备 ID 的存储 Key 统一由 AppConstants.deviceIdKey 维护，
+  // 此处不再定义第二份，避免两套 Key 导致设备身份不一致。
 }

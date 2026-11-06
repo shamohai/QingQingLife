@@ -49,12 +49,20 @@ class AuthNotifier extends Notifier<AuthStatus> {
     }
   }
 
-  /// Web / 测试环境专用：直接写入测试 token，跳过微信授权。
-  Future<void> webLogin() async {
-    //const token = '134219';
-    const token = '223281';
-    await _session.login(token);
-    await _onLoginSuccess();
+  /// Web 测试环境专用：手动填入 authtoken / devid 模拟登录，跳过微信授权。
+  ///
+  /// 与微信授权登录走完全相同的落库逻辑（[SessionNotifier.login]）：
+  /// 写入 accessToken、authtoken、devid 后再拉取用户资料，
+  /// 因此刷新页面或重启后登录态可被 [SessionNotifier] 正常恢复。
+  Future<void> webTestLogin({required String authToken, required String deviceId}) async {
+    state = AuthStatus.loading;
+    try {
+      await _session.login(authToken, deviceId: deviceId);
+      await _onLoginSuccess();
+    } catch (e) {
+      AppLogger.warning('Web test login failed: $e', module: 'auth', event: 'web_test_login_failed');
+      state = AuthStatus.unauthenticated;
+    }
   }
 
   Future<void> _handleWeChatResponse(fluwx.WeChatResponse response) async {

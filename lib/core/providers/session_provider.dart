@@ -23,10 +23,10 @@ class SessionNotifier extends Notifier<SessionState> {
   Future<void> _restoreSession() async {
     final generation = _operationGeneration;
     try {
-      final accessToken = await _storage.readAuthToken() ?? await _storage.readAccessToken();
+      final token = await _storage.readAuthToken();
       if (!ref.mounted) return;
       if (generation == _operationGeneration && state == SessionState.loading) {
-        state = accessToken != null && accessToken.isNotEmpty ? SessionState.authenticated : SessionState.unauthenticated;
+        state = token != null && token.isNotEmpty ? SessionState.authenticated : SessionState.unauthenticated;
       }
     } catch (_) {
       if (!ref.mounted) return;
@@ -34,13 +34,19 @@ class SessionNotifier extends Notifier<SessionState> {
     }
   }
 
-  Future<void> login(String accessToken, {String? refreshToken}) async {
+  /// 保存登录状态。
+  ///
+  /// 所有登录路径（微信授权、手机号、绑定手机号、Web 测试登录）都经过这里，
+  /// 只写入一份 authtoken 与 devid，避免同一凭证在多处存储产生不一致。
+  ///
+  /// [deviceId] 仅在 Web 测试登录等需要人工指定设备身份时传入；
+  /// 未传入时复用已保存的设备 ID，不存在才生成新的。
+  Future<void> login(String authToken, {String? refreshToken, String? deviceId}) async {
     _operationGeneration++;
     state = SessionState.loading;
-    await _storage.writeAccessToken(accessToken);
-    await _storage.writeAuthToken(accessToken);
-    final deviceId = await _storage.readDeviceId() ?? await DeviceStorage.getDeviceId();
-    await _storage.writeDeviceId(deviceId);
+    final resolvedDeviceId = (deviceId != null && deviceId.isNotEmpty) ? deviceId : await DeviceStorage.getDeviceId();
+    await _storage.writeAuthToken(authToken);
+    await _storage.writeDeviceId(resolvedDeviceId);
     if (refreshToken != null) {
       await _storage.writeRefreshToken(refreshToken);
     }
