@@ -1,4 +1,4 @@
-﻿import '../../network/api_response.dart';
+import '../../network/api_response.dart';
 
 /// 认证业务仓库接口
 ///
@@ -39,7 +39,9 @@ abstract class AuthRepository {
 
 /// 认证操作后的结果封装对象
 class AuthResult {
-  final String accessToken; // authtoken（服务端整数 ID），转为字符串存入 SecureStorage
+  /// 服务端 authtoken（整数 ID 转字符串），是唯一的登录凭证。
+  /// 由 `SessionNotifier.login` 写入 SecureStorage，不再另存第二份。
+  final String accessToken;
   final String? refreshToken; // 暂不支持，保留字段
   final UserInfo userInfo;
 

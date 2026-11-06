@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/auth_redirect.dart';
 import '../../../../app/router/route_names.dart';
+import '../../../../core/storage/device_storage.dart';
+import '../../../../core/storage/secure_storage.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../providers/auth_provider.dart';
 
@@ -17,6 +19,9 @@ import '../providers/auth_provider.dart';
 /// 两个状态：
 ///   1. 正常状态：白底 + 背景图 + 标题 + 微信图标 + 授权按钮 + 协议勾选 + 底部装饰
 ///   2. 协议弹窗：半透明遮罩 + 底部白色圆角面板（"请阅读并同意以下条款"）
+///
+/// Web 环境下额外提供测试登录区：手动填写设备 ID 与 authtoken 模拟登录，
+/// 与微信授权登录写入同一份本地登录态（accessToken / authtoken / devid）。
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
@@ -29,10 +34,42 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   bool _showAgreementSheet = false;
   bool _showLoading = false;
 
+  // Web 测试登录输入（仅 kIsWeb 使用）
+  final _deviceIdController = TextEditingController();
+  final _authTokenController = TextEditingController();
+  final SecureStorage _storage = SecureStorage();
+
+  /// 联调默认值，与原 token-debug 页保持一致。
+  static const String _defaultTestAuthToken = '1575474';
+  static const String _defaultTestDeviceId = '17835616055244338';
+
   // ── 设计稿色值 ─────────────────────────────────────────────────────
   static const Color _buttonBlue = Color(0xFF213775);
   static const Color _linkBlue = Color(0xFF0088FF);
   static const Color _textGray = Color(0xFF8E8E93);
+
+  @override
+  void initState() {
+    super.initState();
+    if (kIsWeb) _loadSavedLoginValues();
+  }
+
+  /// 回填本地已保存的登录信息，便于直接复用上次联调的身份。
+  Future<void> _loadSavedLoginValues() async {
+    final authToken = await _storage.readAuthToken() ?? '';
+    final savedDeviceId = await _storage.readDeviceId() ?? '';
+    final deviceId = savedDeviceId.isNotEmpty ? savedDeviceId : await DeviceStorage.getDeviceId();
+    if (!mounted) return;
+    _authTokenController.text = authToken;
+    _deviceIdController.text = deviceId;
+  }
+
+  @override
+  void dispose() {
+    _deviceIdController.dispose();
+    _authTokenController.dispose();
+    super.dispose();
+  }
 
   void _onWechatAuth() {
     if (!_agreed) {
@@ -59,8 +96,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     ref.read(authProvider.notifier).wechatLogin();
   }
 
+  /// Web 测试登录：使用输入的 authtoken + devid 模拟微信授权登录成功后的结果。
   void _doWebTestLogin() {
-    ref.read(authProvider.notifier).webLogin();
+    final authToken = _authTokenController.text.trim();
+    final deviceId = _deviceIdController.text.trim();
+    if (authToken.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请输入 authtoken')));
+      return;
+    }
+    if (deviceId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请输入设备 ID')));
+      return;
+    }
+    setState(() => _showLoading = true);
+    ref.read(authProvider.notifier).webTestLogin(authToken: authToken, deviceId: deviceId);
   }
 
   @override
@@ -203,14 +252,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   /// 内容固有高度约 242（标题两行≈100 + 图标 60 + 按钮 54 + 协议行≈28），
   /// 设计间距合计 119（60/44/15）。屏幕高度不足时按比例压缩间距，
   /// 避免 Column 溢出；标准屏幕保持设计稿间距不变。
+  ///
+  /// Web 环境额外渲染测试登录区（约 190 高），因此大间距按剩余空间收缩，
+  /// 并允许整体滚动，保证测试登录输入框不会被挤出屏幕。
   Widget _buildMainContent() {
     const double contentHeight = 100.0 + 60 + 54 + 28;
     const double designGap = 60.0 + 44 + 15;
+    // Web 测试登录区预留高度（标题 + 两个输入框 + 按钮 + 间距）
+    const double webTestPanelHeight = 200.0;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final double available = constraints.maxHeight - contentHeight;
-        final double scale = available <= 0 ? 0 : math.min(1.0, available / designGap);
-        return Column(
+        final double scale = (available <= 0 || !available.isFinite) ? 0 : math.min(1.0, available / designGap);
+        final double heroGap = kIsWeb ? math.max(0, math.min(470 * scale, available - webTestPanelHeight)) : 470 * scale;
+        final column = Column(
           children: [
             const Center(
               child: Text(
@@ -233,7 +289,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 textAlign: TextAlign.center,
               ),
             ),
-            SizedBox(height: 470 * scale),
+            SizedBox(height: heroGap),
             // 微信圆形图标
             Image.asset('assets/images/auth/icon_wechat.png', width: 56, height: 56),
             SizedBox(height: 28 * scale),
@@ -281,21 +337,91 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
             ),
             // Web 环境测试入口：仅 kIsWeb 可见，不使用设计稿色值，低视觉权重
-            if (kIsWeb) ...[
-              const SizedBox(height: 24),
+            if (kIsWeb) _buildWebTestLoginPanel(),
+          ],
+        );
+
+        if (!kIsWeb) return column;
+        // Web 下允许滚动，避免小视口或键盘弹出时溢出；至少撑满可用高度。
+        return SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom + 24),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: column,
+          ),
+        );
+      },
+    );
+  }
+
+  /// Web 测试登录区：手动填写设备 ID 与 authtoken 模拟登录。
+  ///
+  /// 仅用于 Web 联调，独立于设计稿样式，视觉权重低于微信授权按钮。
+  Widget _buildWebTestLoginPanel() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24, left: 32, right: 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('Web 测试登录', style: TextStyle(fontSize: 12, color: _textGray)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _deviceIdController,
+            style: const TextStyle(fontSize: 13),
+            decoration: const InputDecoration(
+              isDense: true,
+              labelText: '设备 ID',
+              labelStyle: TextStyle(fontSize: 12, color: _textGray),
+              hintText: '请输入设备 ID',
+              hintStyle: TextStyle(fontSize: 12, color: _textGray),
+              contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _authTokenController,
+            style: const TextStyle(fontSize: 13),
+            keyboardType: TextInputType.number,
+            onSubmitted: (_) => _doWebTestLogin(),
+            decoration: const InputDecoration(
+              isDense: true,
+              labelText: 'authtoken',
+              labelStyle: TextStyle(fontSize: 12, color: _textGray),
+              hintText: '请输入 authtoken',
+              hintStyle: TextStyle(fontSize: 12, color: _textGray),
+              contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
               TextButton(
                 onPressed: _doWebTestLogin,
-
                 child: const Text(
                   'Web 登录',
                   style: TextStyle(fontSize: 12, color: Color(0x990088FF), decoration: TextDecoration.underline),
                 ),
               ),
+              TextButton(
+                onPressed: _fillDefaultTestLoginValues,
+                child: const Text('填入联调默认值', style: TextStyle(fontSize: 12, color: Color(0x990088FF))),
+              ),
             ],
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
+  }
+
+  /// 回填联调默认值（原 token-debug 页提供的快捷入口，仅 Web 使用）。
+  void _fillDefaultTestLoginValues() {
+    setState(() {
+      _authTokenController.text = _defaultTestAuthToken;
+      _deviceIdController.text = _defaultTestDeviceId;
+    });
   }
 
   /// 设计稿统一授权按钮（#213775, 圆角 6px, 白色 18px 文字, 高 54px）

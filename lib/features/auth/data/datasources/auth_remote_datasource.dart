@@ -76,7 +76,7 @@ class RemoteAuthDataSource implements AuthRepository {
 
   @override
   Future<bool> isLoggedIn() async {
-    final token = await _storage.readAuthToken() ?? await _storage.readAccessToken();
+    final token = await _storage.readAuthToken();
     return token != null && token.isNotEmpty;
   }
 }
