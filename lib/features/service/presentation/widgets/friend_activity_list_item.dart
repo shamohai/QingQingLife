@@ -44,7 +44,7 @@ class FriendActivityListItem extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 20),
+        const SizedBox(width: AppSpacing.sm),
         // 中间文字区域：标题（16px w500，maxLines 2）+ 副标题（12px）
         Expanded(
           child: Column(
@@ -67,7 +67,7 @@ class FriendActivityListItem extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 22),
+        const SizedBox(width: AppSpacing.sm),
         // 右侧报名按钮：红色描边胶囊形，最小宽 78，高 31
         Align(
           alignment: Alignment.center,

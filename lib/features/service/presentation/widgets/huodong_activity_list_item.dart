@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
+import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../domain/models/offline_activity_item.dart';
 
@@ -75,7 +76,7 @@ class HuodongActivityListItem extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 20),
+        const SizedBox(width: AppSpacing.sm),
         // 中间文字区域：标题（18px w500，1行）+ 日期行（access_time icon）
         Expanded(
           child: Column(
@@ -88,7 +89,7 @@ class HuodongActivityListItem extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.sm),
               if (item.dateRangeDisplay.isNotEmpty)
                 Row(
                   children: [

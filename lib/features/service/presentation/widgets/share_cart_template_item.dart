@@ -43,7 +43,7 @@ class ShareCartTemplateItem extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    template.requirements.isNotEmpty ? template.requirements : '顶顶顶顶',
+                    template.requirements.isNotEmpty ? template.requirements : '',
                     style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xFF3495E0), height: 1.4),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
