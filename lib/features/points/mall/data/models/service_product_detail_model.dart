@@ -3,6 +3,8 @@
 /// 接口：POST /api/product/getproductinfo
 library;
 
+import 'dart:convert';
+
 import 'package:decimal/decimal.dart';
 
 import 'get_recommend_product_list_model.dart';
@@ -321,9 +323,7 @@ class ServiceProductDetail {
   });
 
   factory ServiceProductDetail.fromJson(Map<String, dynamic> json, {int? fallbackProductId}) {
-    final carouselRaw = json['carouselimg'];
-    final carouselimgs = carouselRaw is List ? carouselRaw : const <dynamic>[];
-    final carouselImages = carouselimgs.map((e) => e.toString()).where((u) => u.isNotEmpty).toList();
+    final carouselImages = _parseCarouselImages(json['carouselimg']);
     final mainImage = carouselImages.isNotEmpty ? carouselImages.first : '';
     final heroImage = carouselImages.length > 1 ? carouselImages[1] : mainImage;
 
@@ -387,6 +387,42 @@ class ServiceProductDetail {
     if (json == null) return [];
     if (json is! List) return [];
     return json.map((e) => fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// 轮播图列表解析辅助（取第一个有效图片作为主图，无值或 null 时返回空列表）
+  static List<String> _parseCarouselImages(dynamic value) {
+    if (value == null) return const [];
+    List<dynamic> list;
+    if (value is List) {
+      list = value;
+    } else if (value is String) {
+      final trimmed = value.trim();
+      if (trimmed.isEmpty) return const [];
+      if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+        try {
+          final decoded = jsonDecode(trimmed);
+          list = decoded is List ? decoded : [trimmed];
+        } catch (_) {
+          list = [trimmed];
+        }
+      } else {
+        list = [trimmed];
+      }
+    } else {
+      return const [];
+    }
+
+    return list
+        .map((e) {
+          var str = e?.toString().trim() ?? '';
+          str = str.replaceAll('&amp;', '&');
+          if (str.startsWith('//')) {
+            str = 'https:$str';
+          }
+          return str;
+        })
+        .where((u) => u.isNotEmpty)
+        .toList();
   }
 
   /// 是否为上架状态（productState == 0）

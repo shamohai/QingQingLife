@@ -1,8 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:fluwx/fluwx.dart' as fluwx;
-import 'package:flutter/services.dart';
+import 'package:flutter/services.dart' hide Uint8List;
 import 'package:share_plus/share_plus.dart';
 
 import 'share_payload.dart';
+import 'wechat_thumbnail_helper.dart';
 
 enum ShareChannel { weChat, weChatTimeline, system, copyLink }
 
@@ -21,10 +24,13 @@ abstract class ShareService {
 }
 
 class FluwxShareService implements ShareService {
-  final fluwx.Fluwx _wechat;
+  final fluwx.Fluwx wechat;
   final SharePlus _systemShare;
+  final WeChatThumbnailHelper _thumbnailHelper;
 
-  FluwxShareService({required this._wechat, SharePlus? systemShare}) : _systemShare = systemShare ?? SharePlus.instance;
+  FluwxShareService({required this.wechat, SharePlus? systemShare, WeChatThumbnailHelper? thumbnailHelper})
+    : _systemShare = systemShare ?? SharePlus.instance,
+      _thumbnailHelper = thumbnailHelper ?? WeChatThumbnailHelper();
 
   @override
   Future<ShareActionResult> share(SharePayload payload, ShareChannel channel) async {
@@ -65,14 +71,21 @@ class FluwxShareService implements ShareService {
     if (!payload.hasShareableUrl) {
       return const ShareActionResult(ShareActionStatus.unavailable, message: '暂无可分享的网页链接');
     }
-    if (!await _wechat.isWeChatInstalled) {
+    if (!await wechat.isWeChatInstalled) {
       return const ShareActionResult(ShareActionStatus.unavailable, message: '请先安装微信');
     }
-    final accepted = await _wechat.share(
+
+    Uint8List? thumbData;
+    if (payload.imageUrl != null && payload.imageUrl!.trim().isNotEmpty) {
+      thumbData = await _thumbnailHelper.fetchAndCompressThumbnail(payload.imageUrl);
+    }
+
+    final accepted = await wechat.share(
       fluwx.WeChatShareWebPageModel(
         payload.shareUrlForSharing.toString(),
         title: payload.title,
         description: payload.plainDescription,
+        thumbData: thumbData,
         scene: channel == ShareChannel.weChat ? fluwx.WeChatScene.session : fluwx.WeChatScene.timeline,
       ),
     );

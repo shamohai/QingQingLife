@@ -66,15 +66,34 @@ class _ShareSheetContent extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.sm),
-            Wrap(
-              alignment: WrapAlignment.start,
-              spacing: AppSpacing.xl,
-              runSpacing: AppSpacing.lg,
-              children: [
-                for (final (channel, label, icon, asset) in channels)
-                  _ShareChannelButton(label: label, icon: icon, asset: asset, onTap: () => _share(context, ref, channel)),
-              ],
-            ),
+            if (channels.length <= 4)
+              Row(
+                mainAxisAlignment: channels.length < 4 ? MainAxisAlignment.start : MainAxisAlignment.spaceBetween,
+                children: [
+                  for (final (channel, label, icon, asset) in channels)
+                    channels.length < 4
+                        ? SizedBox(
+                            width: 72,
+                            child: _ShareChannelButton(label: label, icon: icon, asset: asset, onTap: () => _share(context, ref, channel)),
+                          )
+                        : Expanded(
+                            child: _ShareChannelButton(label: label, icon: icon, asset: asset, onTap: () => _share(context, ref, channel)),
+                          ),
+                ],
+              )
+            else
+              Wrap(
+                alignment: WrapAlignment.start,
+                spacing: AppSpacing.md,
+                runSpacing: AppSpacing.lg,
+                children: [
+                  for (final (channel, label, icon, asset) in channels)
+                    SizedBox(
+                      width: 68,
+                      child: _ShareChannelButton(label: label, icon: icon, asset: asset, onTap: () => _share(context, ref, channel)),
+                    ),
+                ],
+              ),
           ],
         ),
       ),
@@ -117,9 +136,10 @@ class _ShareChannelButton extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        child: SizedBox(
-          width: 68,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               CircleAvatar(
                 radius: 25,
@@ -127,7 +147,12 @@ class _ShareChannelButton extends StatelessWidget {
                 child: asset != null ? Image.asset(asset!, width: 50, height: 50, fit: BoxFit.contain) : Icon(icon, color: AppColors.primary),
               ),
               const SizedBox(height: AppSpacing.xs),
-              Text(label, style: const TextStyle(fontSize: 12, color: AppColors.onSurface)),
+              Text(
+                label,
+                style: const TextStyle(fontSize: 12, color: AppColors.onSurface),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ),
         ),
