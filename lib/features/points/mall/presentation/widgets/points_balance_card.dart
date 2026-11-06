@@ -34,7 +34,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm), // 彻底去除组件内部有副作用的死高负 Margin 传递
+      margin: const EdgeInsets.only(bottom: 5), // 与 home_page.dart 保持一致（上下边距 5dp）
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
