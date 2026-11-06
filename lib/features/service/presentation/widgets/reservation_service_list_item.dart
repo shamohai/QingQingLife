@@ -44,7 +44,7 @@ class ReservationServiceListItem extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 20),
+        const SizedBox(width: AppSpacing.sm),
         // 中间文字区域：垂直居中
         Expanded(
           child: Column(
@@ -67,7 +67,7 @@ class ReservationServiceListItem extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 22),
+        const SizedBox(width: AppSpacing.sm),
         // 右侧预约按钮：红色描边胶囊形
         Align(
           alignment: Alignment.center,

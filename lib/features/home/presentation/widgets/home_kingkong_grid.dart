@@ -27,9 +27,9 @@ class HomeKingKongGrid extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         crossAxisCount: 5,
-        childAspectRatio: 0.83, // <-- 调整为 0.83，正好贴合 64px 的内容高度
+        childAspectRatio: 0.78, // 进一步微调 aspect ratio 以确保在不同设备下文字不会发生 3.3 像素的垂直溢出
         crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
+        mainAxisSpacing: 8, // 减少垂直间距，给图标和文字留出更多安全高度
         children: List.generate(items.length > 10 ? 10 : items.length, (i) => _KingKongItem(item: items[i])),
       ),
     );

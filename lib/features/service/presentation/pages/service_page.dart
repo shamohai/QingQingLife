@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -42,36 +43,34 @@ class ServicePage extends ConsumerWidget {
       }
     }
 
-    return Scaffold(
-      backgroundColor: AppColors.servicePageBackground,
-      body: Stack(
-        children: [
-          // 顶部安全区白色背景（与 ServiceTabBar 同色）
-          SafeArea(
-            bottom: false,
-            minimum: const EdgeInsets.only(top: 0),
-            child: Container(color: Colors.white),
-          ),
-          SafeArea(
-            bottom: false,
-            child: Column(
-              children: [
-                // 顶部固定 Tab 栏
-                ServiceTabBar(selectedTab: selectedTab, onTabChanged: (tab) => ref.read(selectedTabProvider.notifier).update(tab)),
-                // 可滚动内容区
-                Expanded(
-                  child: switch (selectedTab) {
-                    'huodong' => _buildHuodongBody(ref, onItemTap),
-                    'goujiu' => _buildGoujiuBody(context, ref),
-                    'zhiyouhui' => _buildZhiyouhuiBody(ref, onItemTap),
-                    _ => _buildFuwuBody(ref, onItemTap),
-                  },
-                ),
-              ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(statusBarColor: Colors.white, statusBarIconBrightness: Brightness.dark, statusBarBrightness: Brightness.light),
+      child: Scaffold(
+        backgroundColor: AppColors.servicePageBackground,
+        body: Stack(
+          children: [
+            Container(height: MediaQuery.paddingOf(context).top, color: Colors.white),
+            SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  // 顶部固定 Tab 栏
+                  ServiceTabBar(selectedTab: selectedTab, onTabChanged: (tab) => ref.read(selectedTabProvider.notifier).update(tab)),
+                  // 可滚动内容区
+                  Expanded(
+                    child: switch (selectedTab) {
+                      'huodong' => _buildHuodongBody(ref, onItemTap),
+                      'goujiu' => _buildGoujiuBody(context, ref),
+                      'zhiyouhui' => _buildZhiyouhuiBody(ref, onItemTap),
+                      _ => _buildFuwuBody(ref, onItemTap),
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-          const ServiceFloatingButtons(),
-        ],
+            const ServiceFloatingButtons(),
+          ],
+        ),
       ),
     );
   }
