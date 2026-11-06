@@ -141,7 +141,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                     pinned: true,
                     floating: true,
                     delegate: _CategoryTabBarDelegate(
-                      tabHeight: 54,
+                      tabHeight: 53,
                       margin: const EdgeInsets.only(left: AppSpacing.md, right: AppSpacing.md, top: 5),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -157,7 +157,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                                   onCategoryTap: _onCategoryChanged,
                                 ),
                               ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 4),
                         ],
                       ),
                     ),
