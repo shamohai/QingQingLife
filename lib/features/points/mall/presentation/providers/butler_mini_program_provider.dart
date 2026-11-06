@@ -22,14 +22,7 @@ class ButlerVipInfo {
   /// 服务描述（如：服务范围、时间）
   final String servicedescr;
 
-  const ButlerVipInfo({
-    this.title = '',
-    this.workwxqrimg = '',
-    this.workwxmppath = '',
-    this.tel = '',
-    this.telname = '',
-    this.servicedescr = '',
-  });
+  const ButlerVipInfo({this.title = '', this.workwxqrimg = '', this.workwxmppath = '', this.tel = '', this.telname = '', this.servicedescr = ''});
 
   factory ButlerVipInfo.fromJson(Map<String, dynamic> json) {
     return ButlerVipInfo(
@@ -43,13 +36,13 @@ class ButlerVipInfo {
   }
 
   Map<String, dynamic> toJson() => {
-        'title': title,
-        'workwxqrimg': workwxqrimg,
-        'workwxmppath': workwxmppath,
-        'tel': tel,
-        'telname': telname,
-        'servicedescr': servicedescr,
-      };
+    'title': title,
+    'workwxqrimg': workwxqrimg,
+    'workwxmppath': workwxmppath,
+    'tel': tel,
+    'telname': telname,
+    'servicedescr': servicedescr,
+  };
 }
 
 /// 普通用户服务配置 (Default / 联系客服)
@@ -57,7 +50,7 @@ class ButlerDefaultInfo {
   /// 普通客户微信客服 url
   final String wxcustomerserviceurl;
 
-  /// 企微的 CorpId（固定值：ww207c2d0f4b9efa02，微信客服使用）
+  /// 企微 CorpId，由客服配置接口返回，微信客服启动时使用。
   final String workwxcorpid;
 
   /// 服务描述（如：服务范围、时间）
@@ -66,12 +59,7 @@ class ButlerDefaultInfo {
   /// 备用电话（拉起微信客服失败时提示用户拨打）
   final String fallbacktel;
 
-  const ButlerDefaultInfo({
-    this.wxcustomerserviceurl = '',
-    this.workwxcorpid = '',
-    this.servicedescr = '',
-    this.fallbacktel = '',
-  });
+  const ButlerDefaultInfo({this.wxcustomerserviceurl = '', this.workwxcorpid = '', this.servicedescr = '', this.fallbacktel = ''});
 
   factory ButlerDefaultInfo.fromJson(Map<String, dynamic> json) {
     return ButlerDefaultInfo(
@@ -83,11 +71,11 @@ class ButlerDefaultInfo {
   }
 
   Map<String, dynamic> toJson() => {
-        'wxcustomerserviceurl': wxcustomerserviceurl,
-        'workwxcorpid': workwxcorpid,
-        'servicedescr': servicedescr,
-        'fallbacktel': fallbacktel,
-      };
+    'wxcustomerserviceurl': wxcustomerserviceurl,
+    'workwxcorpid': workwxcorpid,
+    'servicedescr': servicedescr,
+    'fallbacktel': fallbacktel,
+  };
 }
 
 /// 客户经理/管家服务信息配置
@@ -105,11 +93,7 @@ class ButlerMiniProgramInfo {
   /// 兼容旧代码：直接获取专属管家小程序路径
   String get workwxmppath => vip?.workwxmppath ?? '';
 
-  const ButlerMiniProgramInfo({
-    this.vip,
-    this.defaultConfig,
-    this.datatag = '',
-  });
+  const ButlerMiniProgramInfo({this.vip, this.defaultConfig, this.datatag = ''});
 
   factory ButlerMiniProgramInfo.fromJson(Map<String, dynamic> json) {
     final info = json['info'];
@@ -119,35 +103,25 @@ class ButlerMiniProgramInfo {
     final vipInfo = vipData is Map
         ? ButlerVipInfo.fromJson(Map<String, dynamic>.from(vipData))
         : (infoJson.containsKey('workwxmppath')
-            ? ButlerVipInfo(
-                workwxmppath: (infoJson['workwxmppath'] ?? '').toString(),
-                title: (infoJson['title'] ?? '').toString(),
-                workwxqrimg: (infoJson['workwxqrimg'] ?? '').toString(),
-                tel: (infoJson['tel'] ?? '').toString(),
-                telname: (infoJson['telname'] ?? '').toString(),
-                servicedescr: (infoJson['servicedescr'] ?? '').toString(),
-              )
-            : null);
+              ? ButlerVipInfo(
+                  workwxmppath: (infoJson['workwxmppath'] ?? '').toString(),
+                  title: (infoJson['title'] ?? '').toString(),
+                  workwxqrimg: (infoJson['workwxqrimg'] ?? '').toString(),
+                  tel: (infoJson['tel'] ?? '').toString(),
+                  telname: (infoJson['telname'] ?? '').toString(),
+                  servicedescr: (infoJson['servicedescr'] ?? '').toString(),
+                )
+              : null);
 
     final defaultData = infoJson['default'];
-    final defaultInfo = defaultData is Map
-        ? ButlerDefaultInfo.fromJson(Map<String, dynamic>.from(defaultData))
-        : null;
+    final defaultInfo = defaultData is Map ? ButlerDefaultInfo.fromJson(Map<String, dynamic>.from(defaultData)) : null;
 
     final datatag = (json['datatag'] ?? infoJson['datatag'] ?? '').toString();
 
-    return ButlerMiniProgramInfo(
-      vip: vipInfo,
-      defaultConfig: defaultInfo,
-      datatag: datatag,
-    );
+    return ButlerMiniProgramInfo(vip: vipInfo, defaultConfig: defaultInfo, datatag: datatag);
   }
 
-  Map<String, dynamic> toJson() => {
-        if (vip != null) 'vip': vip!.toJson(),
-        if (defaultConfig != null) 'default': defaultConfig!.toJson(),
-        'datatag': datatag,
-      };
+  Map<String, dynamic> toJson() => {if (vip != null) 'vip': vip!.toJson(), if (defaultConfig != null) 'default': defaultConfig!.toJson(), 'datatag': datatag};
 }
 
 final butlerMiniProgramInfoProvider = FutureProvider<ButlerMiniProgramInfo?>((ref) async {

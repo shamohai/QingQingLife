@@ -1,3 +1,4 @@
+import 'package:fluwx/fluwx.dart' as fluwx;
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +12,9 @@ import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../../../core/widgets/app_loading.dart';
+
+import 'package:qingqinglife/features/points/mall/presentation/providers/butler_mini_program_provider.dart';
+
 import '../../domain/models/share_cart_template_detail_model.dart';
 import '../providers/share_cart_template_detail_provider.dart';
 
@@ -42,7 +46,7 @@ class ServiceCustomerContactPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (templateId == null) {
-      return _buildMissingTemplatePage(context);
+      return _buildDefaultCustomerServicePage(context, ref);
     }
 
     final detailAsync = ref.watch(shareCartTemplateDetailProvider(templateId!));
@@ -81,7 +85,8 @@ class ServiceCustomerContactPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildMissingTemplatePage(BuildContext context) {
+  Widget _buildDefaultCustomerServicePage(BuildContext context, WidgetRef ref) {
+    final serviceInfo = ref.watch(butlerMiniProgramInfoProvider);
     return Scaffold(
       backgroundColor: AppColors.servicePageBackground,
       body: SafeArea(
@@ -91,7 +96,19 @@ class ServiceCustomerContactPage extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14),
               child: _NavRow(title: title, onBack: () => context.pop()),
             ),
-            const Expanded(child: AppEmpty(message: '缺少模板信息')),
+            Expanded(
+              child: serviceInfo.when(
+                loading: () => const AppLoading(),
+                error: (_, _) => AppError(message: '客服信息加载失败，请稍后重试', onRetry: () => ref.invalidate(butlerMiniProgramInfoProvider)),
+                data: (info) {
+                  final defaultInfo = info?.defaultConfig;
+                  if (defaultInfo == null) {
+                    return AppError(message: '暂无普通客服信息', onRetry: () => ref.invalidate(butlerMiniProgramInfoProvider));
+                  }
+                  return _DefaultCustomerServiceContent(info: defaultInfo);
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -144,6 +161,128 @@ class ServiceCustomerContactPage extends ConsumerWidget {
               ),
             // 底部收尾留白（设计 home indicator 区不实现，由系统安全区渲染）
             const SliverToBoxAdapter(child: SizedBox(height: 60)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DefaultCustomerServiceContent extends StatefulWidget {
+  const _DefaultCustomerServiceContent({required this.info});
+
+  final ButlerDefaultInfo info;
+
+  @override
+  State<_DefaultCustomerServiceContent> createState() => _DefaultCustomerServiceContentState();
+}
+
+class _DefaultCustomerServiceContentState extends State<_DefaultCustomerServiceContent> {
+  bool _opening = false;
+  bool _calling = false;
+
+  Future<void> _openWeChatCustomerService() async {
+    if (_opening) return;
+    setState(() => _opening = true);
+    try {
+      final corpId = widget.info.workwxcorpid.trim();
+      final url = widget.info.wxcustomerserviceurl.trim();
+      if (corpId.isEmpty || url.isEmpty) {
+        _showMessage('微信客服暂不可用，请稍后重试');
+        return;
+      }
+
+      final weChat = fluwx.Fluwx();
+      if (!await weChat.isWeChatInstalled) {
+        if (mounted) _showLaunchFailure('请先安装微信，再联系客服');
+        return;
+      }
+      if (!mounted) return;
+
+      final opened = await weChat.open(
+        target: fluwx.CustomerServiceChat(corpId: corpId, url: url),
+      );
+      if (!mounted) return;
+      if (!opened) _showLaunchFailure('暂时无法打开微信客服');
+    } catch (_) {
+      if (mounted) _showLaunchFailure('暂时无法打开微信客服');
+    } finally {
+      if (mounted) setState(() => _opening = false);
+    }
+  }
+
+  Future<void> _callFallbackPhone() async {
+    if (_calling) return;
+    setState(() => _calling = true);
+    try {
+      final uri = Uri(scheme: 'tel', path: widget.info.fallbacktel.trim());
+      final launched = await launchUrl(uri);
+      if (!launched && mounted) _showMessage('无法拨打备用电话，请稍后重试');
+    } catch (_) {
+      if (mounted) _showMessage('无法拨打备用电话，请稍后重试');
+    } finally {
+      if (mounted) setState(() => _calling = false);
+    }
+  }
+
+  void _showLaunchFailure(String message) {
+    final fallbackTel = widget.info.fallbacktel.trim();
+    _showMessage(fallbackTel.isEmpty ? message : '$message，可拨打备用电话 $fallbackTel');
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message), behavior: SnackBarBehavior.floating));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final description = widget.info.servicedescr.trim();
+    final fallbackTel = widget.info.fallbacktel.trim();
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 24),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
+        child: Column(
+          children: [
+            const Icon(Icons.support_agent_outlined, size: 48, color: AppColors.serviceTabActive),
+            const SizedBox(height: 12),
+            const Text(
+              '微信客服',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black),
+            ),
+            if (description.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Text(
+                description,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 14, color: Color(0xFF666666), height: 1.5),
+              ),
+            ],
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: FilledButton.icon(
+                onPressed: _opening ? null : _openWeChatCustomerService,
+                icon: _opening
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.chat_bubble_outline),
+                label: Text(_opening ? '正在打开...' : '进入微信客服'),
+              ),
+            ),
+            if (fallbackTel.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              const Text('微信客服暂不可用时，可拨打备用电话', style: TextStyle(fontSize: 12, color: Color(0xFF777777))),
+              TextButton.icon(
+                onPressed: _calling ? null : _callFallbackPhone,
+                icon: _calling ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.call_outlined),
+                label: Text(fallbackTel),
+              ),
+            ],
           ],
         ),
       ),

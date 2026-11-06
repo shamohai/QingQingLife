@@ -105,3 +105,11 @@ flutter:
   #         style: italic
 
   # TODO: 积分商城底部 Tab 图标，待替换真实设计稿图片
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/icon/logo_black.png
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: assets/icon/logo_black.png
+  remove_alpha_ios: true
