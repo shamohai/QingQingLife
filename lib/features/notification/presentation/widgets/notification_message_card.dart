@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/repositories/notification_repository.dart';
+import '../../../../core/widgets/app_image.dart';
+import '../../domain/models/notification_models.dart';
 
 /// 通知消息卡片
 ///
-/// 结构：头部（来源图标 + 来源标签 + 时间）/ 分割线 / 标题（未读红点）/ 正文 / 分割线 / 查看详情。
+/// 结构：头部（类型图标 + 类型名称 + 发送时间）/ 分割线 / 标题（未读红点）/ 正文 / 分割线 / 查看详情。
+/// 类型名称与图标均来源于类型统计接口（typename / icon）；图标缺失时用通用通知图标占位。
+/// 点击整卡或「查看详情」均打开详情弹窗。
 class NotificationMessageCard extends StatelessWidget {
   final NotificationMessage message;
+
+  /// 类型名称（来源于类型统计接口的 typename）
+  final String typeName;
+
+  /// 类型图标地址（来源于类型统计接口的 icon，可能为空）
+  final String iconUrl;
+
   final VoidCallback? onDetailTap;
 
-  const NotificationMessageCard({super.key, required this.message, this.onDetailTap});
+  const NotificationMessageCard({super.key, required this.message, required this.typeName, this.iconUrl = '', this.onDetailTap});
 
   @override
   Widget build(BuildContext context) {
@@ -23,15 +33,19 @@ class NotificationMessageCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                _buildSourceIcon(),
+                _buildTypeIcon(),
                 const SizedBox(width: 6),
-                Text(
-                  message.source.label,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF33415A)),
+                Expanded(
+                  child: Text(
+                    typeName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF33415A)),
+                  ),
                 ),
-                const Spacer(),
+                const SizedBox(width: 8),
                 Text(
-                  message.formattedTime,
+                  message.createTime,
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Color(0xFF5C79B4)),
                 ),
               ],
@@ -62,19 +76,21 @@ class NotificationMessageCard extends StatelessWidget {
             const SizedBox(height: 9),
             Text(
               message.content,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Color(0xFF8E9BB3), height: 1.35),
             ),
             const SizedBox(height: 8),
             const _Hairline(),
             const SizedBox(height: 10),
-            Row(
+            const Row(
               children: [
-                const Text(
+                Text(
                   '查看详情',
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF33415A)),
                 ),
-                const Spacer(),
-                const Icon(Icons.chevron_right, size: 18, color: Color(0xFF36445C)),
+                Spacer(),
+                Icon(Icons.chevron_right, size: 18, color: Color(0xFF36445C)),
               ],
             ),
           ],
@@ -83,19 +99,21 @@ class NotificationMessageCard extends StatelessWidget {
     );
   }
 
-  /// 来源图标：22 圆形底色 + 白色图标
-  Widget _buildSourceIcon() {
-    final (IconData icon, Color background) = switch (message.source) {
-      NotificationSource.announcement => (Icons.campaign_rounded, const Color(0xFF22418A)),
-      NotificationSource.systemNotice => (Icons.notifications_rounded, const Color(0xFFE69746)),
-      NotificationSource.orderNotice => (Icons.receipt_long_rounded, const Color(0xFFE69746)),
-      NotificationSource.serviceNotice => (Icons.card_giftcard_rounded, const Color(0xFFE2544A)),
-    };
+  /// 类型图标：22 圆形底 + 接口 icon；缺失或加载失败时用通用通知图标占位
+  Widget _buildTypeIcon() {
+    if (iconUrl.trim().isEmpty) return _buildPlaceholderIcon();
+
+    return ClipOval(
+      child: AppNetworkImage(url: iconUrl, width: 22, height: 22, fit: BoxFit.cover, errorWidget: _buildPlaceholderIcon()),
+    );
+  }
+
+  Widget _buildPlaceholderIcon() {
     return Container(
       width: 22,
       height: 22,
-      decoration: BoxDecoration(color: background, shape: BoxShape.circle),
-      child: Icon(icon, size: 13, color: Colors.white),
+      decoration: const BoxDecoration(color: Color(0xFF24427A), shape: BoxShape.circle),
+      child: const Icon(Icons.notifications_rounded, size: 13, color: Colors.white),
     );
   }
 }

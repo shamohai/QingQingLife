@@ -44,6 +44,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ref.read(userProfileProvider.notifier).load();
         } else {
           ref.read(userProfileProvider.notifier).refreshCouponCount();
+          ref.read(userProfileProvider.notifier).refreshUnreadMessageCount();
         }
       }
     });

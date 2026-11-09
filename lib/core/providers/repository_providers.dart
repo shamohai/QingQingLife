@@ -12,7 +12,7 @@ import '../../features/member/data/datasources/member_remote_datasource.dart';
 import '../../features/member/data/datasources/member_sign_in_mock_datasource.dart';
 import '../../features/member/domain/repositories/member_repository.dart';
 import '../../features/member/domain/repositories/member_sign_in_repository.dart';
-import '../../features/notification/data/datasources/notification_mock_datasource.dart';
+import '../../features/notification/data/datasources/notification_remote_datasource.dart';
 import '../../features/notification/domain/repositories/notification_repository.dart';
 import '../../features/order/data/datasources/invoice_mock_datasource.dart';
 import '../../features/order/data/datasources/order_mock_datasource.dart';
@@ -92,9 +92,7 @@ PointsRepository pointsRepository(Ref ref) {
 /// Notification Repository Provider
 @riverpod
 NotificationRepository notificationRepository(Ref ref) {
-  // TODO(Mock): 通知中心后端接口尚未定义，当前走 Mock。
-  // 接口就绪后改为返回 NotificationRemoteDataSource。
-  return MockNotificationDataSource();
+  return NotificationRemoteDataSource(ref.read(apiClientProvider));
 }
 
 /// 所有 Repository Provider 的聚合

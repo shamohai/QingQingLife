@@ -1,81 +1,28 @@
 import '../../../../core/network/api_response.dart';
-
-/// 通知分类（顶部入口：系统通知 / 订单通知 / 服务通知）
-enum NotificationCategory {
-  system('系统通知'),
-  order('订单通知'),
-  service('服务通知');
-
-  const NotificationCategory(this.label);
-
-  final String label;
-}
-
-/// 通知来源（卡片头部标签，决定图标样式：系统公告 / 系统通知 / 订单通知 / 服务通知）
-enum NotificationSource {
-  announcement('系统公告'),
-  systemNotice('系统通知'),
-  orderNotice('订单通知'),
-  serviceNotice('服务通知');
-
-  const NotificationSource(this.label);
-
-  final String label;
-}
-
-/// 通知分类摘要（顶部入口角标未读数）
-class NotificationCategorySummary {
-  final NotificationCategory category;
-
-  /// 未读数（0 不展示角标）
-  final int unreadCount;
-
-  const NotificationCategorySummary({required this.category, required this.unreadCount});
-}
-
-/// 通知消息
-class NotificationMessage {
-  final String id;
-
-  /// 所属分类（决定展示在哪个入口下）
-  final NotificationCategory category;
-
-  /// 来源（卡片头部标签）
-  final NotificationSource source;
-
-  final String title;
-  final String content;
-  final DateTime createTime;
-
-  /// 未读（标题前展示红点）
-  final bool isUnread;
-
-  const NotificationMessage({
-    required this.id,
-    required this.category,
-    required this.source,
-    required this.title,
-    required this.content,
-    required this.createTime,
-    this.isUnread = false,
-  });
-
-  /// 展示时间：yyyy-MM-dd HH:mm:ss
-  String get formattedTime {
-    String two(int value) => value.toString().padLeft(2, '0');
-    return '${createTime.year}-${two(createTime.month)}-${two(createTime.day)} '
-        '${two(createTime.hour)}:${two(createTime.minute)}:${two(createTime.second)}';
-  }
-}
+import '../models/notification_models.dart';
 
 /// 通知中心仓库接口
 ///
-/// TODO(Mock): 通知相关后端接口尚未定义，当前由 MockNotificationDataSource 提供数据；
-/// 接口就绪后新增 Remote 数据源实现本接口，并在 repository_providers 中切换。
+/// 后端接口（公共模块）：
+///   - POST /api/common/app/getnotificationtypestat   通知类型统计（顶部类型入口）
+///   - POST /api/common/app/getmynotificationlist     我的通知列表（按 type 过滤，分页）
+///   - POST /api/common/app/marknotificationasread    标记通知已读
+///
+/// authtoken、meta 等公共字段由拦截器统一注入，调用点只需传业务参数。
 abstract class NotificationRepository {
-  /// 获取各分类未读摘要（顶部入口角标）
-  Future<ApiResponse<List<NotificationCategorySummary>>> getCategorySummaries();
+  /// 获取通知类型统计（顶部类型入口的 icon / typename / type / unreadcount）
+  Future<ApiResponse<List<NotificationTypeStat>>> getTypeStats();
 
-  /// 获取指定分类的通知列表
-  Future<ApiResponse<List<NotificationMessage>>> getMessages({required NotificationCategory category});
+  /// 获取我的通知列表
+  ///
+  /// [typeValue] 为接口下发的原始 type 数值（来自类型统计的 type 字段）；
+  /// null 表示全部类型（接口约定 null 或 -1 表示全部）。
+  /// [pageIndex] 从 1 开始，[pageSize] 不传时后端默认 10。
+  Future<ApiResponse<List<NotificationMessage>>> getMessages({int? typeValue, int pageIndex = 1, int pageSize = 20});
+
+  /// 标记通知已读
+  ///
+  /// [notificationId] 指定则只标记该条；为 null 时按 [typeValue] 标记该类型全部通知。
+  /// 返回成功标记行数（0 表示没有通知被标记，不作为错误处理）。
+  Future<ApiResponse<int>> markAsRead({int? notificationId, int? typeValue});
 }

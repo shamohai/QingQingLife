@@ -59,6 +59,17 @@ abstract final class AppLink {
     return validateLocation(location);
   }
 
+  /// 分发页在路由层的跳转目标。
+  ///
+  /// 由 GoRouter 的全局 `redirect` 调用，使 `/link/dispatch?...` 在路由匹配阶段
+  /// 直接落到最终页面，分发页本身不会进入导航栈，也不会闪一次加载态。
+  /// 返回 null 表示无需跳转：非分发路径，或链接参数非法（此时保留分发页，
+  /// 由页面展示「链接无效或已失效」）。
+  static String? dispatchRedirect(Uri uri) {
+    if (!_isDispatchPath(uri.path)) return null;
+    return resolveDispatchTarget(uri.queryParameters);
+  }
+
   static bool _isDispatchPath(String path) => path == RouteNames.appLinkDispatch;
 
   /// 校验应用内路由，返回规范化后的 location；非法路由返回 null。

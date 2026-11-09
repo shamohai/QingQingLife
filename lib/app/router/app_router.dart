@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/deeplink/app_link.dart';
 import '../../core/providers/session_provider.dart';
 import 'auth_redirect.dart';
 import 'main_shell_scope.dart';
@@ -70,6 +71,12 @@ final appRouter = Provider<GoRouter>((ref) {
     debugLogDiagnostics: false,
     refreshListenable: refreshListenable,
     redirect: (context, state) async {
+      // 链接分发页在路由层直接解析目标，成功则落地目标页面，失败时保留
+      // 分发页展示错误态。必须在登录拦截之前执行：外部链接自身的登录要求
+      // 由目标路由决定，不应把 `/link/dispatch` 当成受保护页面处理。
+      final dispatchTarget = AppLink.dispatchRedirect(state.uri);
+      if (dispatchTarget != null) return dispatchTarget;
+
       final sessionNotifier = ref.read(sessionProvider.notifier);
       await sessionNotifier.ensureInitialized();
       final sessionState = ref.read(sessionProvider);
@@ -262,7 +269,8 @@ final appRouter = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.appLinkDispatch,
-        pageBuilder: (c, s) => MaterialPage(child: LinkDispatchPage(queryParameters: s.uri.queryParameters)),
+        // 正常链接已被 redirect 提前跳走，本页只承接非法链接的错误提示。
+        pageBuilder: (c, s) => const MaterialPage(child: LinkDispatchPage()),
       ),
       GoRoute(
         path: RouteNames.address,

@@ -60,7 +60,10 @@ class UserProfileState {
   /// 下一等级成长值（0 表示当前已是最高等级）
   int get nextLevelGrowthValue => currentRank?.currentrankend ?? 0;
 
-  /// 未读消息数（用于头部消息图标红点角标；后端暂未提供字段，默认 0 不显示）
+  /// 未读消息总数（头部消息入口角标）。
+  ///
+  /// 来源：getnotificationtypestat 中 type = -1（全部）项的 unreadcount；
+  /// 进入「我的」页面时随资料加载/刷新拉取，接口失败或无「全部」项时保持现值（默认 0 不显示）。
   final int unreadMessageCount;
 
   /// 头像上传成功后的本地预览字节。
@@ -115,6 +118,10 @@ class UserProfileState {
     return _copyWith(couponCount: couponCount);
   }
 
+  UserProfileState withUnreadMessageCount(int unreadMessageCount) {
+    return _copyWith(unreadMessageCount: unreadMessageCount);
+  }
+
   UserProfileState withAvatarPreview(Uint8List bytes) {
     return _copyWith(avatarPreviewBytes: bytes);
   }
@@ -131,7 +138,7 @@ class UserProfileState {
     return _copyWith(isLoading: false, hasLoaded: true);
   }
 
-  UserProfileState _copyWith({int? couponCount, String? avatarUrl, Uint8List? avatarPreviewBytes, bool? isLoading, bool? hasLoaded}) {
+  UserProfileState _copyWith({int? couponCount, int? unreadMessageCount, String? avatarUrl, Uint8List? avatarPreviewBytes, bool? isLoading, bool? hasLoaded}) {
     return UserProfileState(
       nickname: nickname,
       avatarUrl: avatarUrl ?? this.avatarUrl,
@@ -148,7 +155,7 @@ class UserProfileState {
       memberLevel: memberLevel,
       levelName: levelName,
       levelIconUrl: levelIconUrl,
-      unreadMessageCount: unreadMessageCount,
+      unreadMessageCount: unreadMessageCount ?? this.unreadMessageCount,
       avatarPreviewBytes: avatarPreviewBytes ?? this.avatarPreviewBytes,
       memberExpireDate: memberExpireDate,
       tianyoudeValue: tianyoudeValue,
@@ -200,6 +207,8 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
     state = state.withLoading(true);
     final repository = ref.read(memberRepositoryProvider);
     final couponCountFuture = _loadCouponCount();
+    // 未读消息总数与资料并行拉取，失败不影响资料展示
+    final unreadCountFuture = _loadUnreadMessageCount();
     try {
       final ranksResp = await repository.getRankList();
       final ranks = (ranksResp.success ? ranksResp.data!.ranks : const <RankBaseInfo>[]).where((e) => e.userrid > 0).toList();
@@ -242,6 +251,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
       }
       final couponCount = await couponCountFuture ?? state.couponCount;
 
+      final unreadMessageCount = await unreadCountFuture ?? state.unreadMessageCount;
       if (!_isCurrentLoad(generation)) return;
       state = UserProfileState(
         nickname: nickname,
@@ -258,6 +268,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         memberLevel: memberLevel,
         levelName: levelName,
         levelIconUrl: levelIconUrl,
+        unreadMessageCount: unreadMessageCount,
         avatarPreviewBytes: state.avatarPreviewBytes,
         memberExpireDate: expireDate,
         // TODO(Mock): 天佑德值后端暂无对应字段，使用标记 Mock 值做 UI 还原
@@ -278,6 +289,23 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
       if (response.success && response.data != null) return response.data!.keepCount;
     } catch (error) {
       debugPrint('[UserProfile] coupon count error: $error');
+    }
+    return null;
+  }
+
+  /// 未读消息总数：getnotificationtypestat 中 type = -1（全部）项的 unreadcount。
+  ///
+  /// 接口未返回「全部」项或请求失败时返回 null，调用方保持现值。
+  Future<int?> _loadUnreadMessageCount() async {
+    try {
+      final response = await ref.read(notificationRepositoryProvider).getTypeStats();
+      if (!response.success || response.data == null) return null;
+      for (final stat in response.data!) {
+        // 接口约定 type = -1 为「全部」
+        if (stat.typeValue == -1) return stat.unreadCount;
+      }
+    } catch (error) {
+      debugPrint('[UserProfile] unread message count error: $error');
     }
     return null;
   }
@@ -322,6 +350,22 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
     if (couponCount != null && _isCurrentLoad(generation)) {
       state = state.withCouponCount(couponCount);
     }
+  }
+
+  /// 已加载用户资料后，进入「我的」页面时单独刷新未读消息总数（头部消息入口角标）。
+  Future<void> refreshUnreadMessageCount() async {
+    if (!_isAuthenticated) return;
+    final generation = _loadGeneration;
+    final unreadCount = await _loadUnreadMessageCount();
+    if (unreadCount != null && _isCurrentLoad(generation)) {
+      state = state.withUnreadMessageCount(unreadCount);
+    }
+  }
+
+  /// 本地清零未读消息角标（通知列表页一键全部已读成功后同步调用）。
+  void clearUnreadMessageCount() {
+    if (state.unreadMessageCount == 0) return;
+    state = state.withUnreadMessageCount(0);
   }
 
   /// 登出 / 注销时调用：重置为初始空状态，清除页面上的个人信息。
