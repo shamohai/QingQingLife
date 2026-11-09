@@ -38,29 +38,53 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    // 注意：此 Widget 嵌套在外层可滚动视图内（PagingListView shrinkWrap + NeverScrollable）。
+    // IntrinsicHeight 与 ListView/ShrinkWrappingViewport 不兼容，会触发 assertion 崩溃，
+    // 原因是 ListView 的 ShrinkWrappingViewport 不支持计算 intrinsic 尺寸。
+    //
+    // 解决方案：移除 IntrinsicHeight，用 Stack 模拟"侧边栏背景延伸"效果：
+    // - Stack 底层放一个覆盖整个区域的侧边栏背景色 Container（宽度 110px）
+    // - 上层叠放真实的 Row（侧边栏 + 商品列表）
+    // - 右侧白色 Container 覆盖掉右侧部分的灰色背景，左侧灰色背景自然延伸到底部
+    return Stack(
       children: [
-        // 左侧积分段侧边栏
-        PointsCategorySidebar(groups: widget.groups, activeIndex: _activeIndex, onCategoryTap: _onRangeTap),
-        const VerticalDivider(width: 5, color: Color(0xFFE1E4DC)),
-        // 右侧分页商品列表
-        Expanded(
-          child: Container(
-            color: Colors.white,
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: PagingListView<CreditProductItem>(
-                provider: creditProductListProvider,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                enablePullToRefresh: false,
-                emptyWidget: const AppEmpty(message: '暂无商品'),
-                itemBuilder: (context, item, index) => _buildProductCard(context, item),
-                separatorBuilder: const SizedBox(height: 10),
+        // 底层：侧边栏背景色延伸层，覆盖整个高度（由右侧商品列表撑开）
+        Positioned(
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: 110,
+          child: ColoredBox(color: const Color(0xFFF3F5F7)),
+        ),
+        // 上层：真实内容 Row
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 左侧积分段侧边栏
+            PointsCategorySidebar(
+              groups: widget.groups,
+              activeIndex: _activeIndex,
+              onCategoryTap: _onRangeTap,
+            ),
+            // 右侧分页商品列表
+            Expanded(
+              child: Container(
+                color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: PagingListView<CreditProductItem>(
+                    provider: creditProductListProvider,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    enablePullToRefresh: false,
+                    emptyWidget: const AppEmpty(message: '暂无商品'),
+                    itemBuilder: (context, item, index) => _buildProductCard(context, item),
+                    separatorBuilder: const SizedBox(height: 10),
+                  ),
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ],
     );
