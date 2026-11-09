@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../../../core/widgets/app_loading.dart';
@@ -289,51 +290,58 @@ class _ProductRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tags = <String>[if (item.tag != null && item.tag!.isNotEmpty) item.tag!];
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 100,
-          height: 100,
-          decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFFD8DBE4)),
-            borderRadius: BorderRadius.circular(5),
+    final targetProductId = item.productId.trim().isNotEmpty ? item.productId.trim() : item.id.trim();
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: targetProductId.isEmpty
+          ? null
+          : () => context.push(RouteNames.serviceProductDetailPath(productId: targetProductId)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color(0xFFD8DBE4)),
+              borderRadius: BorderRadius.circular(5),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: AppNetworkImage(url: item.imageUrl, width: 100, height: 100, fit: BoxFit.cover),
           ),
-          clipBehavior: Clip.antiAlias,
-          child: AppNetworkImage(url: item.imageUrl, width: 100, height: 100, fit: BoxFit.cover),
-        ),
-        const SizedBox(width: 13),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(width: 13),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.productName,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black, height: 1.25),
+                ),
+                if (tags.isNotEmpty) ...[
+                  const SizedBox(height: 5),
+                  Wrap(spacing: 7, runSpacing: 4, children: [for (final tag in tags) _Tag(tag)]),
+                ],
+                if (_specTags(item.parameters).isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Wrap(spacing: 6, children: _specTags(item.parameters).map(_SpecTag.new).toList()),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 4),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                item.productName,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black, height: 1.25),
-              ),
-              if (tags.isNotEmpty) ...[
-                const SizedBox(height: 5),
-                Wrap(spacing: 7, runSpacing: 4, children: [for (final tag in tags) _Tag(tag)]),
-              ],
-              if (_specTags(item.parameters).isNotEmpty) ...[
-                const SizedBox(height: 6),
-                Wrap(spacing: 6, children: _specTags(item.parameters).map(_SpecTag.new).toList()),
-              ],
+              _productAmount(item, isCredit),
+              const SizedBox(height: 4),
+              Text('×${item.quantity}', style: const TextStyle(fontSize: 12, color: _OrderDetailTokens.muted)),
             ],
           ),
-        ),
-        const SizedBox(width: 4),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            _productAmount(item, isCredit),
-            const SizedBox(height: 4),
-            Text('×${item.quantity}', style: const TextStyle(fontSize: 12, color: _OrderDetailTokens.muted)),
-          ],
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

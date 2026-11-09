@@ -26,9 +26,56 @@ class SharePayload {
   /// Constructs the activity app-aware sharing URL and successful-share callback URL.
   Uri get shareUrlForSharing {
     final shareUri = Uri.parse(url!);
-    if (!wrapWithDrinkMapOpenApp) return shareUri;
-    final appLink = 'qqsh://app/activity/drinkmap/index?from=share&url=${Uri.encodeComponent(shareUri.toString())}';
+    final cleanedUri = _cleanShareUri(shareUri);
+    if (!wrapWithDrinkMapOpenApp) return cleanedUri;
+    final appLink = 'qqsh://app/activity/drinkmap/index?from=share&url=${Uri.encodeComponent(cleanedUri.toString())}';
     return Uri(scheme: 'https', host: 'm.mall.qkj.com.cn', path: '/mob/common/openapp', queryParameters: {'appurl': appLink});
+  }
+
+  static Uri _cleanShareUri(Uri uri) {
+    const keysToRemove = {'lnglat', 'province', 'accesstoken', 't', 'area'};
+
+    final cleanedQuery = Map<String, String>.from(uri.queryParameters);
+    cleanedQuery.removeWhere((key, _) => keysToRemove.contains(key.toLowerCase()));
+
+    String? cleanedFragment = uri.fragment;
+    if (uri.fragment.isNotEmpty) {
+      final fragmentParts = uri.fragment.split('?');
+      final fragmentPath = fragmentParts.first;
+      if (fragmentParts.length > 1) {
+        final fragmentQueryStr = fragmentParts.sublist(1).join('?');
+        final fragmentParams = Uri.splitQueryString(fragmentQueryStr);
+        fragmentParams.removeWhere((key, _) => keysToRemove.contains(key.toLowerCase()));
+        if (fragmentParams.isNotEmpty) {
+          final encodedFragmentQuery = fragmentParams.entries
+              .map((e) => '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value)}')
+              .join('&');
+          cleanedFragment = '$fragmentPath?$encodedFragmentQuery';
+        } else {
+          cleanedFragment = fragmentPath;
+        }
+      }
+    }
+
+    if (!uri.hasQuery && cleanedQuery.isEmpty) {
+      return uri.replace(fragment: cleanedFragment.isEmpty ? null : cleanedFragment);
+    }
+
+    final replaced = uri.replace(
+      query: cleanedQuery.isEmpty ? '' : null,
+      queryParameters: cleanedQuery.isEmpty ? null : cleanedQuery,
+      fragment: cleanedFragment.isEmpty ? null : cleanedFragment,
+    );
+
+    var resultStr = replaced.toString();
+    if (uri.hasQuery && cleanedQuery.isEmpty) {
+      if (resultStr.contains('?#')) {
+        resultStr = resultStr.replaceFirst('?#', '#');
+      } else if (resultStr.endsWith('?')) {
+        resultStr = resultStr.substring(0, resultStr.length - 1);
+      }
+    }
+    return Uri.parse(resultStr);
   }
 
   Uri? get shareSuccessReturnUrl {

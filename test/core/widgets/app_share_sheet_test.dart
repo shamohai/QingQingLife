@@ -52,14 +52,29 @@ void main() {
     expect(service.payload, payload);
   });
 
-  testWidgets('shows WeChat and copy actions only when a real web URL exists', (tester) async {
+  testWidgets('shows WeChat and copy actions only when a real web URL exists and keeps 4 icons on one line', (tester) async {
+    tester.view.physicalSize = const Size(384, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(const ProviderScope(child: MaterialApp(home: _ShareSheetTestPage())));
     await tester.tap(find.text('打开分享'));
     await tester.pumpAndSettle();
+
     expect(find.text('微信好友'), findsOneWidget);
     expect(find.text('朋友圈'), findsOneWidget);
     expect(find.text('复制链接'), findsOneWidget);
     expect(find.text('更多'), findsOneWidget);
+
+    final y1 = tester.getTopLeft(find.text('微信好友')).dy;
+    final y2 = tester.getTopLeft(find.text('朋友圈')).dy;
+    final y3 = tester.getTopLeft(find.text('复制链接')).dy;
+    final y4 = tester.getTopLeft(find.text('更多')).dy;
+
+    expect(y1, equals(y2));
+    expect(y2, equals(y3));
+    expect(y3, equals(y4));
   });
 }
 

@@ -1,19 +1,14 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-import '../../../../app/router/route_names.dart';
-import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_spacing.dart';
-import '../../../../app/theme/app_text_styles.dart';
-import '../../../product/domain/repositories/product_repository.dart';
-import '../../data/models/weimeng_activity_location.dart' show buildWeimengActivityUri;
-import '../../../../core/providers/repository_providers.dart';
-import '../../../../core/widgets/app_image.dart';
+import 'package:qingqinglife/app/theme/app_colors.dart';
+import 'package:qingqinglife/app/theme/app_spacing.dart';
+import 'package:qingqinglife/app/theme/app_text_styles.dart';
+import 'package:qingqinglife/core/utils/activity_opener.dart';
+import 'package:qingqinglife/core/widgets/app_image.dart';
+import 'package:qingqinglife/features/product/domain/repositories/product_repository.dart';
 
 /// 首页线上活动模块：固定两列，卡片按图片原始比例自适应高度。
 class HomeActivitySection extends StatelessWidget {
@@ -321,48 +316,16 @@ class _ActivityCardState extends ConsumerState<_ActivityCard> {
 
   Future<void> _openActivity(BuildContext context) async {
     if (_isOpeningActivity) return;
-    final path = widget.block.actionUrl?.trim() ?? '';
-    if (path.isEmpty) return;
-
-    final baseUri = Uri.tryParse(path);
-    if (baseUri == null || (baseUri.scheme != 'http' && baseUri.scheme != 'https') || baseUri.host.isEmpty) return;
-
-    final isDrinkMap = widget.block.id == 'drinkmapactivity';
-    final isDrinkRank = widget.block.id == 'drinkrankactivity';
-    final isWeimengActivity = isDrinkMap || isDrinkRank;
-
-    var activityUri = baseUri;
-    if (isWeimengActivity) {
-      setState(() => _isOpeningActivity = true);
-      try {
-        final response = await ref.read(productRepositoryProvider).getWeimengActivityLocation();
-        if (!mounted) return;
-        if (!response.success || response.data == null) {
-          _showActivityError(response.message);
-          return;
-        }
-        activityUri = buildWeimengActivityUri(baseUri, response.data!, includeArea: isDrinkMap);
-      } on Exception {
-        if (mounted) _showActivityError();
-        return;
-      } finally {
-        if (mounted) setState(() => _isOpeningActivity = false);
-      }
+    setState(() => _isOpeningActivity = true);
+    try {
+      await ActivityOpener.open(
+        context: context,
+        ref: ref,
+        actionUrl: widget.block.actionUrl ?? '',
+        activityId: widget.block.id,
+      );
+    } finally {
+      if (mounted) setState(() => _isOpeningActivity = false);
     }
-
-    if (!mounted) return;
-    debugPrint('线上活动拼接后的 WebView URL: $activityUri');
-    if (kIsWeb) {
-      await launchUrl(activityUri, webOnlyWindowName: '_blank');
-      return;
-    }
-
-    final route = Uri(path: RouteNames.activityWebView, queryParameters: {'url': activityUri.toString()});
-    this.context.push(route.toString());
-  }
-
-  void _showActivityError([String message = '活动暂时无法打开，请稍后重试']) {
-    final displayMessage = message.trim().isEmpty ? '活动暂时无法打开，请稍后重试' : message;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(displayMessage)));
   }
 }

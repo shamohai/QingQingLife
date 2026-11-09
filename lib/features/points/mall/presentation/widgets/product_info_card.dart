@@ -74,7 +74,7 @@ class ProductInfoCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Container(
-                        width: 111,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
                         height: 25,
                         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.round)),
                         child: Center(
