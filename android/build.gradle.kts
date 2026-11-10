@@ -7,9 +7,8 @@ plugins {
 
 allprojects {
     repositories {
-        // TODO: 接入 Shiply 后添加以下行
-        // maven { url "https://shiply-cdn.tds.qq.com/release" }
-
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
         google()
         mavenCentral()
     }

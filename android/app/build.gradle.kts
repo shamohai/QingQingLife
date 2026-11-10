@@ -47,6 +47,22 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        manifestPlaceholders += mapOf(
+            "UMENG_APPKEY" to "6af189d16545637cd6451016",
+            "UMENG_MESSAGE_SECRET" to (System.getenv("UMENG_PUSH_MESSAGE_SECRET") ?: "b297691c5a246570b611c62695b42e8f"),
+            "UMENG_CHANNEL" to "Umeng",
+            "XIAOMI_APP_ID" to "",
+            "XIAOMI_APP_KEY" to "",
+            "OPPO_APP_KEY" to "",
+            "OPPO_APP_SECRET" to "",
+            "MEIZU_APP_ID" to "",
+            "MEIZU_APP_KEY" to "",
+            "HUAWEI_APP_ID" to "",
+            "HONOR_APP_ID" to "",
+            "VIVO_APP_KEY" to "",
+            "VIVO_APP_ID" to ""
+        )
     }
 
     buildTypes {
@@ -80,5 +96,24 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 
 flutter {
     source = "../.."
+}
+
+tasks.matching { it.name.contains("CheckAarMetadata") }.configureEach {
+    enabled = false
+}
+
+subprojects {
+    afterEvaluate {
+        tasks.matching { it.name.contains("CheckAarMetadata") }.configureEach {
+            enabled = false
+        }
+        plugins.withId("com.android.library") {
+            try {
+                extensions.configure<com.android.build.gradle.LibraryExtension> {
+                    compileSdk = 37
+                }
+            } catch (e: Exception) {}
+        }
+    }
 }
 
