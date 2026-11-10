@@ -181,6 +181,34 @@ class _DefaultCustomerServiceContentState extends State<_DefaultCustomerServiceC
   bool _opening = false;
   bool _calling = false;
 
+  late final fluwx.Fluwx _weChat;
+  fluwx.FluwxCancelable? _responseSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _weChat = fluwx.Fluwx();
+    _responseSubscription = _weChat.addSubscriber(_handleWeChatResponse);
+  }
+
+  @override
+  void dispose() {
+    _responseSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _handleWeChatResponse(fluwx.WeChatResponse response) {
+    if (response is! fluwx.WeChatOpenCustomerServiceChatResponse || !mounted) {
+      return;
+    }
+
+    setState(() => _opening = false);
+    if (response.isSuccessful) return;
+
+    final reason = response.errStr?.trim() ?? '';
+    _showLaunchFailure(reason.contains('no permission') ? '微信客服权限未开通' : '暂时无法打开微信客服');
+  }
+
   Future<void> _openWeChatCustomerService() async {
     if (_opening) return;
     setState(() => _opening = true);
@@ -192,14 +220,13 @@ class _DefaultCustomerServiceContentState extends State<_DefaultCustomerServiceC
         return;
       }
 
-      final weChat = fluwx.Fluwx();
-      if (!await weChat.isWeChatInstalled) {
+      if (!await _weChat.isWeChatInstalled) {
         if (mounted) _showLaunchFailure('请先安装微信，再联系客服');
         return;
       }
       if (!mounted) return;
 
-      final opened = await weChat.open(
+      final opened = await _weChat.open(
         target: fluwx.CustomerServiceChat(corpId: corpId, url: url),
       );
       if (!mounted) return;
