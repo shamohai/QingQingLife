@@ -125,12 +125,12 @@ class HomePage extends ConsumerWidget {
               child: CustomScrollView(
                 physics: const ClampingScrollPhysics(),
                 slivers: [
-                  // 顶部栏：Logo + 搜索框 + 消息
-                  // const SliverToBoxAdapter(child: HomeAppBar()),
-
                   // Banner（轮播图，真实 API 数据）
                   SliverPadding(
-                    padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + AppSpacing.sm, bottom: 4),
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top + AppSpacing.sm,
+                      bottom: AppSpacing.xs,
+                    ),
                     sliver: SliverToBoxAdapter(
                       child: carouselAsync.when(
                         data: (banners) => home_widgets.HomeBanner(banners: banners),
@@ -140,23 +140,15 @@ class HomePage extends ConsumerWidget {
                     ),
                   ),
 
-                  // // White Card 1: 新人礼 + 可用商品 ,暂时注释掉
-                  // SliverPadding(
-                  //   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                  //   sliver: SliverToBoxAdapter(
-                  //     child: HomePromoSection(gifts: staticData.newUserGifts, products: staticData.hotProducts),
-                  //   ),
-                  // ),
-
-                  // White Card 2: 金刚区 (10项 2x5 网格)
+                  // 金刚区 (10项 2x5 网格)
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.xs),
                     sliver: SliverToBoxAdapter(child: HomeKingKongGrid(items: staticData.kingKongItems)),
                   ),
 
-                  // White Card 3: 每月权益
+                  // 每月权益
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.xs),
                     sliver: SliverToBoxAdapter(
                       child: Consumer(
                         builder: (context, ref, child) {
@@ -173,11 +165,9 @@ class HomePage extends ConsumerWidget {
                               final effectiveSettlemented = benefit.settlemented;
 
                               if (effectiveIsClaimed && !effectiveSettlemented) {
-                                // 状态 2：当月已领取未兑换/未核销 -> 点击图片跳转到确认订单页
                                 final path = '${RouteNames.confirmOrder.replaceFirst(':id', benefit.id)}?userServiceId=$effectiveUserServiceId';
                                 GoRouter.of(context).push(path);
                               } else {
-                                // 状态 1 (未领取) 或 状态 3 (已兑换/已发货/已核销) -> 跳转到积分商品详情页
                                 final path = RouteNames.serviceProductDetail.replaceFirst(':id', benefit.id);
                                 GoRouter.of(context).push(path);
                               }
@@ -188,18 +178,15 @@ class HomePage extends ConsumerWidget {
                               final effectiveSettlemented = benefit.settlemented;
 
                               if (effectiveIsClaimed && !effectiveSettlemented) {
-                                // 状态 2：点击【去兑换】-> 直接跳转到确认订单页
                                 final path = '${RouteNames.confirmOrder.replaceFirst(':id', benefit.id)}?userServiceId=$effectiveUserServiceId';
                                 GoRouter.of(context).push(path);
                                 return;
                               }
 
                               if (effectiveIsClaimed && effectiveSettlemented) {
-                                // 状态 3：已兑换/已发货/已核销，按钮不可点击
                                 return;
                               }
 
-                              // 状态 1：当月未领取 -> 调 receiveUserService 接口
                               final serviceIdInt = benefit.serviceId > 0 ? benefit.serviceId : (int.tryParse(benefit.id) ?? 0);
                               if (serviceIdInt <= 0) {
                                 if (!context.mounted) return;
@@ -230,12 +217,9 @@ class HomePage extends ConsumerWidget {
                                 final newUserServiceId = result.userServiceId;
 
                                 if (newUserServiceId > 0) {
-                                  // 1. 更新本地激活状态（当月已领取，所有卡片变去兑换/按钮状态刷新）
                                   ref.read(homeActiveUserServiceIdProvider.notifier).set(newUserServiceId);
-
                                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('领取成功')));
 
-                                  // 2. 紧接着跳转到确认订单页
                                   final confirmPath = '${RouteNames.confirmOrder.replaceFirst(':id', benefit.id)}?userServiceId=$newUserServiceId';
                                   GoRouter.of(context).push(confirmPath);
                                 } else {
@@ -254,32 +238,32 @@ class HomePage extends ConsumerWidget {
                     ),
                   ),
 
-                  // White Card 4: 热卖商品
+                  // 热卖商品
                   const SliverPadding(
-                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 5),
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.xs),
                     sliver: SliverToBoxAdapter(child: HomeHotProducts()),
                   ),
 
-                  // White Card 5: 线上活动 (2大图并排)
+                  // 线上活动 (2大图并排)
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.xs),
                     sliver: SliverToBoxAdapter(child: HomeActivitySection(blocks: staticData.activityBlocks)),
                   ),
 
-                  // White Card 6: 线下活动 (3图并排) - 仅在有数据时渲染
+                  // 线下活动 (3图并排) - 仅在有数据时渲染
                   if (staticData.topicActivityBlocks.isNotEmpty)
                     SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 5),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.xs),
                       sliver: SliverToBoxAdapter(child: HomeTopicActivitySection(blocks: staticData.topicActivityBlocks)),
                     ),
 
                   // 底部商品展示区 (推荐青稞粒商品列表，支持滚动加载)
                   const SliverPadding(
-                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 5),
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.xs),
                     sliver: SliverToBoxAdapter(child: HomeBottomRecommendSection()),
                   ),
 
-                  const SliverToBoxAdapter(child: SizedBox(height: 15)),
+                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
                 ],
               ),
             ),

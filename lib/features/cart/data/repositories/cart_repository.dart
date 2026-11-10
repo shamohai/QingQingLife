@@ -3,11 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/models/cart_page_models.dart';
 import '../../domain/repositories/cart_page_repository.dart';
 
-const cartLanhuThumbnailUrl = 'https://lanhu-oss-2537-2.lanhuapp.com/FigmaDDSSlicePNG5dc0e9629ac1ccf335ecb422332c0b59.png';
-const cartLanhuRecommendationUrl = 'https://lanhu-oss-2537-2.lanhuapp.com/FigmaDDSSlicePNG4da2cc058cd2093f461bfcf5417e8cda.png';
+const cartThumbnailUrl = 'https://lanhu-oss-2537-2.lanhuapp.com/FigmaDDSSlicePNG5dc0e9629ac1ccf335ecb422332c0b59.png';
+const cartRecommendationUrl = 'https://lanhu-oss-2537-2.lanhuapp.com/FigmaDDSSlicePNG4da2cc058cd2093f461bfcf5417e8cda.png';
 
-class CartPageMockRepository implements CartPageRepository {
-  const CartPageMockRepository();
+const cartLanhuThumbnailUrl = cartThumbnailUrl;
+const cartLanhuRecommendationUrl = cartRecommendationUrl;
+
+/// 统一购物车 Repository 实现
+class CartRepository implements CartPageRepository {
+  const CartRepository();
 
   static const _productName = '天佑德电商专供青稞酒特别版本42度500ml';
 
@@ -18,14 +22,14 @@ class CartPageMockRepository implements CartPageRepository {
       items: List.generate(
         4,
         (index) =>
-            CartDisplayItem(id: 'lanhu-cart-${index + 1}', imageUrl: cartLanhuThumbnailUrl, name: _productName, priceCents: 80000, quantity: 1, selected: true),
+            CartDisplayItem(id: 'cart-${index + 1}', imageUrl: cartThumbnailUrl, name: _productName, priceCents: 80000, quantity: 1, selected: true),
         growable: false,
       ),
       recommendations: List.generate(
         4,
         (index) => CartRecommendation(
-          id: 'lanhu-recommendation-${index + 1}',
-          imageUrl: cartLanhuRecommendationUrl,
+          id: 'recommendation-${index + 1}',
+          imageUrl: cartRecommendationUrl,
           name: _productName,
           priceCents: 80000,
           originalPriceCents: 98500,
@@ -38,5 +42,7 @@ class CartPageMockRepository implements CartPageRepository {
 }
 
 final cartPageRepositoryProvider = Provider<CartPageRepository>((ref) {
-  return const CartPageMockRepository();
+  return const CartRepository();
 });
+
+final cartRepositoryProvider = cartPageRepositoryProvider;

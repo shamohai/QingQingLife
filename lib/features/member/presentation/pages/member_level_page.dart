@@ -77,17 +77,16 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
                             onSelect: (index) => ref.read(memberLevelProvider.notifier).selectLevel(index),
                           ),
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(AppSpacing.md, 6, AppSpacing.md, 0),
+                            padding: const EdgeInsets.fromLTRB(AppSpacing.compactPageMargin, AppSpacing.xs, AppSpacing.compactPageMargin, 0),
                             child: MemberSummaryCard(level: state.selectedLevel, growthValue: state.growthValue),
                           ),
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(AppSpacing.md, 12, AppSpacing.md, 0),
+                            padding: const EdgeInsets.fromLTRB(AppSpacing.compactPageMargin, AppSpacing.sm, AppSpacing.compactPageMargin, 0),
                             child: MemberMonthlyBenefits(coupons: state.monthlyCoupons, onCouponTap: (coupon) => _handleMonthlyCouponTap(context, coupon)),
                           ),
                         ] else
-                          // 等级列表加载中/失败时的占位，避免等级卡片取空列表越界
                           const SizedBox(height: 120, child: Center(child: AppLoading())),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppSpacing.md),
                       ],
                     ),
                   ),
@@ -167,10 +166,10 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
-          padding: EdgeInsets.fromLTRB(AppSpacing.xl, 16, AppSpacing.xl, 10),
+          padding: EdgeInsets.fromLTRB(AppSpacing.compactPageMargin, AppSpacing.md, AppSpacing.compactPageMargin, AppSpacing.sm),
           child: Text(
             '会员权益',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Color(0xFF1A1D1C)),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF1A1D1C)),
           ),
         ),
         content,

@@ -30,21 +30,13 @@ class ServiceTierCard extends StatelessWidget {
               color: AppColors.surfaceVariant,
               borderRadius: BorderRadius.circular(AppRadius.sm),
             ),
-            child: tier.imageUrl != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    child: AppNetworkImage(
-                      url: tier.imageUrl!,
-                      fit: BoxFit.cover,
-                    ),
-                  )
-                : const Center(
-                    child: Icon(
-                      Icons.image_outlined,
-                      size: 32,
-                      color: AppColors.outline,
-                    ),
-                  ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+              child: AppNetworkImage(
+                url: tier.imageUrl,
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
           const SizedBox(width: AppSpacing.lg),
           Expanded(

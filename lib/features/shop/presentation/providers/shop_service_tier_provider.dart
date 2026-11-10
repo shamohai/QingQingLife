@@ -15,16 +15,15 @@ final activeCategoryProvider =
 );
 
 final serviceCategoriesProvider = Provider<List<ServiceCategory>>((ref) {
-  return ServiceCategory.mockData;
+  return ServiceCategory.fallbackData;
 });
 
 /// 当前激活分类的商品/服务列表数据
 final shopListDataProvider = Provider((ref) {
   final activeId = ref.watch(activeCategoryProvider);
-  final cat = ServiceCategory.mockData.firstWhere(
+  final cat = ServiceCategory.fallbackData.firstWhere(
     (c) => c.id == activeId,
-    orElse: () => ServiceCategory.mockData.first,
+    orElse: () => ServiceCategory.fallbackData.first,
   );
   return cat;
 });
-

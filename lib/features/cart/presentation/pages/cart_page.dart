@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
+import '../../../../app/theme/app_spacing.dart';
 import '../../domain/models/cart_page_models.dart';
 import '../providers/cart_page_provider.dart';
 import '../widgets/cart_bottom_bar.dart';
@@ -43,7 +44,7 @@ class CartPage extends ConsumerWidget {
             child: CustomScrollView(
               physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
               slivers: [
-                const SliverToBoxAdapter(child: SizedBox(height: 12)),
+                const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.sm)),
                 SliverToBoxAdapter(
                   child: state.items.isEmpty
                       ? const _EmptyCartPanel()
@@ -57,15 +58,15 @@ class CartPage extends ConsumerWidget {
                 ),
                 const SliverToBoxAdapter(child: _RecommendationHeading()),
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.compactPageMargin, 0, AppSpacing.compactPageMargin, AppSpacing.xl),
                   sliver: SliverLayoutBuilder(
                     builder: (context, constraints) {
-                      final cardWidth = (constraints.crossAxisExtent - 14) / 2;
+                      final cardWidth = (constraints.crossAxisExtent - AppSpacing.md) / 2;
                       return SliverGrid(
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          crossAxisSpacing: 14,
-                          mainAxisSpacing: 14,
+                          crossAxisSpacing: AppSpacing.md,
+                          mainAxisSpacing: AppSpacing.md,
                           mainAxisExtent: cardWidth + 164,
                         ),
                         delegate: SliverChildBuilderDelegate((context, index) {
@@ -249,12 +250,12 @@ class _CartItemsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 14),
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 26),
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xxl),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(CartDesignTokens.panelRadius)),
       child: Column(
         children: List.generate(items.length * 2 - 1, (index) {
-          if (index.isOdd) return const SizedBox(height: 20);
+          if (index.isOdd) return const SizedBox(height: AppSpacing.md);
           final item = items[index ~/ 2];
           final card = CartItemCard(item: item, onToggle: () => onToggle(item.id), onQuantityChanged: (quantity) => onQuantityChanged(item.id, quantity));
 
@@ -297,20 +298,20 @@ class _EmptyCartPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 230,
-      margin: const EdgeInsets.symmetric(horizontal: 14),
+      height: 220,
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(CartDesignTokens.panelRadius)),
       child: const Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.shopping_cart_outlined, size: 54, color: Color(0xFFB4B8C0)),
-          SizedBox(height: 14),
+          Icon(Icons.shopping_cart_outlined, size: 48, color: Color(0xFFB4B8C0)),
+          SizedBox(height: AppSpacing.md),
           Text(
             '购物车还是空的',
-            style: TextStyle(color: Color(0xFF555555), fontSize: 16, fontWeight: FontWeight.w500),
+            style: TextStyle(color: Color(0xFF555555), fontSize: 15, fontWeight: FontWeight.w500),
           ),
-          SizedBox(height: 6),
-          Text('看看下面为你推荐的商品吧', style: TextStyle(color: CartDesignTokens.muted, fontSize: 13)),
+          SizedBox(height: AppSpacing.xs),
+          Text('看看下面为你推荐的商品吧', style: TextStyle(color: CartDesignTokens.muted, fontSize: 12)),
         ],
       ),
     );
