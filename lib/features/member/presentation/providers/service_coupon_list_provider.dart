@@ -1,5 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:qingqinglife/core/logging/app_logger.dart';
 
 import '../../../../core/providers/repository_providers.dart';
 import '../../data/models/service_coupon_model.dart';
@@ -53,7 +54,7 @@ class ServiceCouponListNotifier extends Notifier<ServiceCouponListState> {
       state = state.copyWith(loading: false, coupons: response.data!.coupons, clearError: true);
     } catch (error) {
       if (token != _requestToken || state.status != status) return;
-      debugPrint('[ServiceCouponList] load error: $error');
+      AppLogger.error('load error', module: 'service_coupon_list', error: error);
       state = state.copyWith(loading: false, errorMessage: '服务券加载失败，请稍后重试');
     }
   }

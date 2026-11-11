@@ -210,7 +210,7 @@ class _DetailCard extends StatelessWidget {
                                 style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400, color: AppColors.serviceButtonRed, height: 1.5),
                               ),
                             ),
-                            if (statusName != null && statusName.isNotEmpty) ...[
+                            if (statusName.isNotEmpty) ...[
                               const SizedBox(height: 8),
                               Text(
                                 statusName,

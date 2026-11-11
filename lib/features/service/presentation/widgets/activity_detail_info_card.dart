@@ -100,7 +100,7 @@ class _ActivityMetadata extends StatelessWidget {
             final address = entry.value;
             final label = detail.addressList.length > 1 ? '活动地址$index' : '活动地址';
             // 调试：打印地址对象
-            // print('ActivityAddress: id=${address.id}, address=${address.address}, activityId=${address.activityId}, coordinate=${address.coordinate}');
+
             return _MetadataLine(label: label, value: address.address, style: style);
           }),
         _MetadataLine(label: '限制人数', value: detail.maxSignupCount > 0 ? '${detail.maxSignupCount}人' : null, style: style),

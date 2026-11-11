@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/router/route_names.dart';
+import '../../../../app/theme/app_spacing.dart';
 import '../../../service/presentation/providers/service_provider.dart';
 
 /// 常用功能宫格（4 列 × 2 行）
 ///
-/// 描边风格图标 + 文字标签，点击跳转至对应路由
-/// （部分页面暂未实现，保留 debugPrint 与 TODO）。
+/// 描边风格图标 + 文字标签，点击跳转至对应路由。
+/// 未开放的功能（无路由）点击后提示"功能暂未开放"。
 class ProfileFeatureGrid extends StatelessWidget {
   const ProfileFeatureGrid({super.key});
 
@@ -78,7 +78,9 @@ class _FeatureGridItem extends ConsumerWidget {
         } else if (item.route != null) {
           context.push(item.route!);
         } else {
-          debugPrint('[ProfileFeatureGrid] 路由未实现: ${item.label}');
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(const SnackBar(content: Text('功能暂未开放'), behavior: SnackBarBehavior.floating));
         }
       },
       behavior: HitTestBehavior.opaque,

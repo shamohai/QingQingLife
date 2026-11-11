@@ -7,6 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../constants/api_security_constants.dart';
 import '../../crypto/signature_helper.dart';
+import '../../logging/app_logger.dart';
 import '../../storage/device_storage.dart';
 
 import '../../utils/common_utils.dart';
@@ -83,16 +84,13 @@ class EncryptInterceptor extends Interceptor {
       options.headers['Accept'] = 'application/json';
 
       if (kDebugMode) {
-        //debugPrint('[EncryptInterceptor] API请求 → ${options.method} ${uri.path}');
         if (kIsWeb) {
           debugPrint('${options.path} 接口Request参数：${CommonUtils.safeEncode(options.data)}');
         }
       }
     } catch (e, st) {
-      if (kDebugMode) {
-        debugPrint('[EncryptInterceptor] 拦截器异常: $e\n$st');
-      }
       // 拦截器异常不阻断请求，继续发送原始数据
+      AppLogger.warning('拦截器异常', module: 'encrypt_interceptor', error: e, stackTrace: st);
     }
 
     return handler.next(options);

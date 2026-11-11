@@ -1,12 +1,9 @@
-import 'service_card_data.dart';
-
 enum ServiceProjectDetailType { appointment, friend, activity }
 
 /// 预约项目详情数据模型
 ///
-/// 同时支持：
-/// - mock 活动/挚友数据（heroAsset, detailImageAsset 等）
-/// - 真实 API 数据（subtitle, reservationRemark 来自 getreservationservicedetail）
+/// 数据来源：getreservationservicedetail 接口。
+/// 活动/挚友类字段（activityTime 等）待对应接口接入后再填充。
 class ServiceProjectDetail {
   final String id;
 
@@ -43,39 +40,4 @@ class ServiceProjectDetail {
     this.subtitle,
     this.reservationRemark,
   });
-
-  /// 一期静态 mock 数据，对应蓝湖设计稿中的山野野营活动
-  factory ServiceProjectDetail.mock(String projectId) {
-    final source = _lookupMock(projectId);
-    final isActivity = source?.tabKey == 'huodong';
-    final isFriend = source?.tabKey == 'zhiyouhui';
-
-    return ServiceProjectDetail(
-      id: projectId,
-      title: source?.title ?? (isActivity ? '活动详情' : '预约项目'),
-      heroAsset: source?.heroAsset ?? 'assets/images/service/service_project_hero.png',
-      description: source?.description ?? '',
-      onBook: () {},
-      type: isActivity
-          ? ServiceProjectDetailType.activity
-          : isFriend
-          ? ServiceProjectDetailType.friend
-          : ServiceProjectDetailType.appointment,
-      activityTime: source?.dateRange,
-      registrationTime: source?.registrationRange,
-      activityAddress: source?.activityAddress,
-      limitCount: source?.limitCount,
-      detailImageAsset: source?.detailImageAsset,
-    );
-  }
-
-  /// 从静态 mock 数据查找项目名称，找不到时回退为 '预约项目'
-  static ServiceCardData? _lookupMock(String projectId) {
-    for (final list in ServiceCardData.staticListByTab.values) {
-      for (final card in list) {
-        if (card.id == projectId) return card;
-      }
-    }
-    return null;
-  }
 }

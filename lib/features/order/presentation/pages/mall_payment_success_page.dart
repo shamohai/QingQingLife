@@ -23,47 +23,76 @@ class MallPaymentSuccessData {
 }
 
 /// 商城订单模拟支付成功页。
+///
+/// 正常下单流程通过 `extra` 传入 [MallPaymentSuccessData]；
+/// 缺参时显示空态，不再渲染假订单数据。
 class MallPaymentSuccessPage extends StatelessWidget {
-  const MallPaymentSuccessPage({super.key, required this.data});
+  const MallPaymentSuccessPage({super.key, this.data});
 
-  final MallPaymentSuccessData data;
+  final MallPaymentSuccessData? data;
 
   factory MallPaymentSuccessPage.fromExtra(dynamic extra) {
     if (extra is MallPaymentSuccessData) {
       return MallPaymentSuccessPage(data: extra);
     }
-    return const MallPaymentSuccessPage(
-      data: MallPaymentSuccessData(
-        orderId: 'order_mock',
-        orderNo: 'DDBH45674567898908765789',
-        transactionNo: 'WX4565465789087654678908765789',
-        amountCents: 76000,
-        discountCents: 4000,
-      ),
-    );
+    return const MallPaymentSuccessPage();
   }
 
   @override
   Widget build(BuildContext context) {
+    final payment = data;
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F7),
       body: SafeArea(
         bottom: false,
-        child: Stack(
-          children: [
-            const _TopGradient(),
-            SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(14, 52, 14, 32),
-              child: Column(
+        child: payment == null
+            ? _MissingDataView(onBack: () => _goBack(context))
+            : Stack(
                 children: [
-                  _SuccessHeader(data: data),
-                  const SizedBox(height: 39),
-                  _PaymentSummaryCard(data: data),
+                  const _TopGradient(),
+                  SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(14, 52, 14, 32),
+                    child: Column(
+                      children: [
+                        _SuccessHeader(data: payment),
+                        const SizedBox(height: 39),
+                        _PaymentSummaryCard(data: payment),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ],
-        ),
+      ),
+    );
+  }
+
+  static void _goBack(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go(RouteNames.orders);
+    }
+  }
+}
+
+/// 缺少支付信息时的空态视图。
+class _MissingDataView extends StatelessWidget {
+  const _MissingDataView({required this.onBack});
+
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.receipt_long_outlined, size: 48, color: Color(0xFF8E8E93)),
+          const SizedBox(height: 16),
+          const Text('订单信息已失效', style: TextStyle(fontSize: 16, color: Color(0xFF3A3A3A))),
+          const SizedBox(height: 24),
+          _OutlineButton(label: '返回', onPressed: onBack),
+        ],
       ),
     );
   }
@@ -141,7 +170,7 @@ class _PaymentSummaryCard extends StatelessWidget {
           const SizedBox(height: 14),
           _InfoRow(label: '支付方式', value: data.paymentMethod, leading: Icons.wechat),
           const SizedBox(height: 14),
-          _InfoRow(label: '交易状态', value: '支付成功'),
+          const _InfoRow(label: '交易状态', value: '支付成功'),
           const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

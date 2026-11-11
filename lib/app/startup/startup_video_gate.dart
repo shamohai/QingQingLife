@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../core/logging/app_logger.dart';
 import '../../core/storage/local_storage.dart';
 import '../../core/update/services/startup_video_update_service_stub.dart' if (dart.library.io) '../../core/update/services/startup_video_update_service.dart';
 
@@ -89,11 +90,11 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
 
       if (localFile != null) {
         try {
-          debugPrint('[StartupVideoGate] 使用热更新视频文件: ${localFile.path}');
+          AppLogger.debug('使用热更新视频文件: ${localFile.path}', module: 'startup_video_gate');
           controller = VideoPlayerController.file(localFile);
           await controller.initialize();
         } catch (e) {
-          debugPrint('[StartupVideoGate] 加载热更视频失败，降级到 Asset: $e');
+          AppLogger.warning('加载热更视频失败，降级到 Asset', module: 'startup_video_gate', error: e);
           await controller?.dispose();
           controller = null;
         }

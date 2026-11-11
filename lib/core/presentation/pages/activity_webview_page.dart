@@ -4,6 +4,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 import 'package:qingqinglife/core/providers/repository_providers.dart';
 import 'package:qingqinglife/features/home/data/models/weimeng_activity_location.dart';
+
+import '../../../core/logging/app_logger.dart';
 import '../../share/activity_share_message.dart';
 import '../../widgets/app_share_sheet.dart';
 
@@ -69,7 +71,7 @@ class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
       }
     }
 
-    debugPrint('线上活动 WebView 加载 URL: $finalUrl');
+    AppLogger.debug('线上活动 WebView 加载 URL: $finalUrl', module: 'activity_webview');
     try {
       final defaultUA = await _controller.getUserAgent();
       final customUA = (defaultUA != null && defaultUA.isNotEmpty) ? '$defaultUA QingQingLife/1.0.0 qqshApp/1.0.0' : 'QingQingLife/1.0.0 qqshApp/1.0.0';

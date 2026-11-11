@@ -1,5 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:qingqinglife/core/logging/app_logger.dart';
 
 import '../../../../core/providers/repository_providers.dart';
 import '../../data/datasources/notification_type_stat_cache.dart';
@@ -134,7 +135,7 @@ class NotificationListNotifier extends Notifier<NotificationListState> {
       if (statResp.success && statResp.data != null) _updateStats(statResp.data!);
     } catch (error) {
       if (token != _requestToken) return;
-      debugPrint('[NotificationList] load error: $error');
+      AppLogger.error('load error', module: 'notification_list', error: error);
       state = _copy(loading: false, errorMessage: '通知加载失败，请稍后重试');
     }
   }
@@ -178,7 +179,7 @@ class NotificationListNotifier extends Notifier<NotificationListState> {
       state = _copy(loadingMore: false, clearError: true, messages: [...state.messages, ...next], pageIndex: nextPage, hasMore: next.length >= pageSize);
     } catch (error) {
       if (token != _requestToken) return;
-      debugPrint('[NotificationList] load more error: $error');
+      AppLogger.error('load more error', module: 'notification_list', error: error);
       state = _copy(loadingMore: false, errorMessage: '加载更多失败，请稍后重试');
     }
   }
@@ -193,10 +194,10 @@ class NotificationListNotifier extends Notifier<NotificationListState> {
     try {
       final response = await ref.read(notificationRepositoryProvider).markAsRead(notificationId: message.id);
       if (!response.success) {
-        debugPrint('[NotificationList] markAsRead failed: ${response.message}');
+        AppLogger.warning('markAsRead failed: ${response.message}', module: 'notification_list');
       }
     } catch (error) {
-      debugPrint('[NotificationList] markAsRead error: $error');
+      AppLogger.error('markAsRead error', module: 'notification_list', error: error);
     }
   }
 
@@ -212,7 +213,7 @@ class NotificationListNotifier extends Notifier<NotificationListState> {
     try {
       final response = await ref.read(notificationRepositoryProvider).markAsRead(typeValue: -1);
       if (!response.success) {
-        debugPrint('[NotificationList] markAllAsRead failed: ${response.message}');
+        AppLogger.warning('markAllAsRead failed: ${response.message}', module: 'notification_list');
         return false;
       }
 
@@ -229,7 +230,7 @@ class NotificationListNotifier extends Notifier<NotificationListState> {
       if (clearedStats.isNotEmpty) _statCache.write(clearedStats);
       return true;
     } catch (error) {
-      debugPrint('[NotificationList] markAllAsRead error: $error');
+      AppLogger.error('markAllAsRead error', module: 'notification_list', error: error);
       if (ref.mounted) state = _copy(markingAllRead: false);
       return false;
     }

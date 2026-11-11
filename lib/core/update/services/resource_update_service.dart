@@ -1,8 +1,10 @@
 import 'dart:io';
+
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:qingqinglife/core/logging/app_logger.dart';
 
 import '../models/resource_manifest.dart';
 import '../../../app/config/app_config.dart';
@@ -45,9 +47,7 @@ class ResourceUpdateService {
     }
 
     try {
-      final response = await _dio.get(
-        '${AppConfig.baseUrl}/api/app/resource/manifest',
-      );
+      final response = await _dio.get('${AppConfig.baseUrl}/api/app/resource/manifest');
       final json = response.data as Map<String, dynamic>? ?? {};
       final manifest = ResourceManifest.fromJson(json);
 
@@ -65,8 +65,7 @@ class ResourceUpdateService {
     }
   }
 
-  Future<void> _downloadChangedResources(
-      ResourceManifest manifest, SharedPreferences prefs) async {
+  Future<void> _downloadChangedResources(ResourceManifest manifest, SharedPreferences prefs) async {
     final localVersion = prefs.getString(_manifestVersionKey) ?? '';
     for (final entry in manifest.resources.entries) {
       final path = entry.key;
@@ -77,13 +76,9 @@ class ResourceUpdateService {
       }
       final url = '${AppConfig.resourceCdnBaseUrl}/$path';
       try {
-        await _dio.download(
-          url,
-          '${_cacheDir.path}/$path',
-          options: Options(receiveTimeout: const Duration(seconds: 30)),
-        );
+        await _dio.download(url, '${_cacheDir.path}/$path', options: Options(receiveTimeout: const Duration(seconds: 30)));
       } catch (e) {
-        debugPrint('[ResourceUpdate] Failed to download $url: $e');
+        AppLogger.warning('Failed to download $url', module: 'resource_update', error: e);
       }
     }
   }

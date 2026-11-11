@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../app/theme/app_spacing.dart';
+
+import 'package:qingqinglife/core/logging/app_logger.dart';
+
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../providers/user_profile_provider.dart';
@@ -233,7 +236,7 @@ class _PersonalInfoEditPageState extends ConsumerState<PersonalInfoEditPage> {
       if (mounted) _showAvatarError(_avatarPickerErrorMessage(error.code));
       return;
     } catch (error) {
-      debugPrint('[PersonalInfoEditPage] pick avatar error: $error');
+      AppLogger.error('pick avatar error', module: 'personal_info_edit', error: error);
       if (mounted) _showAvatarError('无法打开相机或相册，请稍后重试');
       return;
     }

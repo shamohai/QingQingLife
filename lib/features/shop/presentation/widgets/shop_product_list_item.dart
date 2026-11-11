@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -17,25 +18,17 @@ class ShopProductListItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
       child: Row(
         children: [
           Container(
             width: 80,
             height: 80,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
+            decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(AppRadius.sm)),
+            child: ClipRRect(
               borderRadius: BorderRadius.circular(AppRadius.sm),
+              child: AppNetworkImage(url: product.imageUrl, fit: BoxFit.cover),
             ),
-            child: product.imageUrl != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    child: AppNetworkImage(url: product.imageUrl!, fit: BoxFit.cover),
-                  )
-                : const Center(child: Icon(Icons.image_outlined, size: 32, color: AppColors.outline)),
           ),
           const SizedBox(width: AppSpacing.lg),
           Expanded(
@@ -43,11 +36,11 @@ class ShopProductListItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (product.tag != null) ...[
+                if (product.tag.isNotEmpty) ...[
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(color: AppColors.surfaceVariant, borderRadius: BorderRadius.circular(AppRadius.xs)),
-                    child: Text(product.tag!, style: AppTextStyles.labelSmall.copyWith(color: AppColors.onSurfaceVariant)),
+                    child: Text(product.tag, style: AppTextStyles.labelSmall.copyWith(color: AppColors.onSurfaceVariant)),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                 ],
@@ -58,10 +51,7 @@ class ShopProductListItem extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                Text(
-                  '${product.price.toStringAsFixed(1)}元',
-                  style: AppTextStyles.priceSmall,
-                ),
+                Text('${product.price.toStringAsFixed(1)}元', style: AppTextStyles.priceSmall),
               ],
             ),
           ),

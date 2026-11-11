@@ -82,7 +82,6 @@ class ProfileHeaderSection extends ConsumerWidget {
             ),
 
             // ── 客服入口 ──────────────────────────────────────────────
-            //_HeaderIconButton(icon: Icons.headset_mic_outlined, onTap: () => debugPrint('[ProfileHeader] 客服入口点击')),
             const SizedBox(width: AppSpacing.sm),
 
             // ── 消息入口（未读数 > 0 时显示红色角标）──────────────────

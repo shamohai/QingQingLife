@@ -1,5 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:qingqinglife/core/logging/app_logger.dart';
 
 import '../../../../core/providers/repository_providers.dart';
 import 'service_coupon_list_provider.dart';
@@ -49,7 +50,7 @@ class ServiceCouponReceiveNotifier extends Notifier<ServiceCouponReceiveState> {
       await ref.read(serviceCouponListProvider.notifier).load();
       return true;
     } catch (error) {
-      debugPrint('[ServiceCouponReceive] receive error: $error');
+      AppLogger.error('receive error', module: 'service_coupon_receive', error: error);
       state = state.copyWith(submitting: false, errorMessage: '领取失败，请稍后重试');
       return false;
     }

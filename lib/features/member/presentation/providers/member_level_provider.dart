@@ -1,5 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:qingqinglife/core/logging/app_logger.dart';
 
 import '../../../../core/providers/repository_providers.dart';
 import '../../data/models/member_rank_models.dart';
@@ -264,7 +265,7 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
         monthlyCoupons: _mapMonthlyCoupons(detail),
       );
     } catch (e) {
-      debugPrint('[MemberLevel] load error: $e');
+      AppLogger.error('load error', module: 'member_level', error: e);
       state = _copy(loading: false, errorMessage: '会员权益加载失败，请稍后重试');
     }
   }
@@ -279,7 +280,7 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
 
   /// 月度权益仅在 hasowned=true 时处理；未领取先领取，再返回 instancetype 分流信息。
   Future<MemberBenefitUseResult> useMonthlyCoupon(MemberMonthlyCoupon coupon) async {
-    debugPrint('[MemberLevel] use monthly coupon: ${coupon.serviceId} (${coupon.productName})');
+    AppLogger.debug('use monthly coupon: ${coupon.serviceId} (${coupon.productName})', module: 'member_level');
     if (!coupon.hasOwned) return const MemberBenefitUseResult.failure('暂无权限');
 
     final monthlyService = _findMonthlyService();
@@ -307,7 +308,7 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
         message = result.isDuplicate ? '该权益已领取' : '领取成功';
         _markMonthlyCouponReceived(serviceId, userServiceId);
       } catch (e) {
-        debugPrint('[MemberLevel] receive monthly coupon error: $e');
+        AppLogger.error('receive monthly coupon error', module: 'member_level', error: e);
         return const MemberBenefitUseResult.failure('领取失败，请稍后重试');
       } finally {
         final receiving = {...state.receivingServiceIds}..remove(serviceId);
@@ -363,7 +364,7 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
         message = result.isDuplicate ? '该权益已领取' : '领取成功';
         _markBenefitReceived(service.serviceid, userServiceId);
       } catch (e) {
-        debugPrint('[MemberLevel] receive benefit error: $e');
+        AppLogger.error('receive benefit error', module: 'member_level', error: e);
         return const MemberBenefitUseResult.failure('领取失败，请稍后重试');
       } finally {
         final receiving = {...state.receivingServiceIds}..remove(service.serviceid);

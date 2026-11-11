@@ -68,9 +68,7 @@ class ProductDataSource implements ProductRepository, ProductDetailContentReposi
     // 降级使用基础本地数据
     return ApiResponse.success(
       HomeProductData(
-        banners: [
-          HomeBanner(imageUrl: 'assets/images/home/banner_1.png', title: '特产热卖', actionUrl: '/activity/special'),
-        ],
+        banners: [HomeBanner(imageUrl: 'assets/images/home/banner_1.png', title: '特产热卖', actionUrl: '/activity/special')],
         kingKongItems: [],
         newUserGifts: [],
         hotProducts: [],
@@ -122,7 +120,7 @@ class ProductDataSource implements ProductRepository, ProductDetailContentReposi
             },
           );
 
-          final resolveData = locationResponse.data ?? _LocationResolveData(provinceName: '北京市', cityName: '北京市');
+          final resolveData = locationResponse.data ?? _LocationResolveData(provinceName: '青海省', cityName: '西宁市');
           return ApiResponse.success(
             WeimengActivityLocation(
               accessToken: accessToken,
@@ -136,15 +134,7 @@ class ProductDataSource implements ProductRepository, ProductDetailContentReposi
       } catch (_) {}
     }
 
-    return ApiResponse.success(
-      const WeimengActivityLocation(
-        accessToken: 'mock_sso_token_12345',
-        longitude: '116.4074',
-        latitude: '39.9042',
-        province: '北京市',
-        area: '北京市',
-      ),
-    );
+    return ApiResponse.error('获取活动位置失败，请稍后重试');
   }
 
   Future<Position> _getDevicePosition() async {
@@ -167,8 +157,8 @@ class ProductDataSource implements ProductRepository, ProductDetailContentReposi
 
   static Position _defaultPosition() {
     return Position(
-      longitude: 116.4074,
-      latitude: 39.9042,
+      longitude: 101.7782,
+      latitude: 36.6171,
       timestamp: DateTime.now(),
       accuracy: 0,
       altitude: 0,
@@ -215,17 +205,12 @@ class ProductDataSource implements ProductRepository, ProductDetailContentReposi
       ),
       ProductCard(id: '2', imageUrl: 'assets/images/product/product3.jpg', name: '天佑德青稞酒 经典款 500ml', priceCents: 9800, tag: '自营', salesCount: 888),
     ];
-    return ApiResponse.success(
-      ProductListResult(products: products, total: products.length, page: page, pageSize: pageSize, hasMore: false),
-    );
+    return ApiResponse.success(ProductListResult(products: products, total: products.length, page: page, pageSize: pageSize, hasMore: false));
   }
 
   @override
   Future<ApiResponse<List<ProductCategory>>> getCategories() async {
-    return ApiResponse.success([
-      ProductCategory(id: 'all', label: '全部', sortOrder: 0),
-      ProductCategory(id: 'self', label: '天佑德自营', sortOrder: 1),
-    ]);
+    return ApiResponse.success([ProductCategory(id: 'all', label: '全部', sortOrder: 0), ProductCategory(id: 'self', label: '天佑德自营', sortOrder: 1)]);
   }
 
   @override
@@ -270,10 +255,7 @@ class _LocationResolveData {
   _LocationResolveData({required this.provinceName, required this.cityName});
 
   factory _LocationResolveData.fromJson(Map<String, dynamic> json) {
-    return _LocationResolveData(
-      provinceName: json['provincename'] as String? ?? '',
-      cityName: json['cityname'] as String? ?? '',
-    );
+    return _LocationResolveData(provinceName: json['provincename'] as String? ?? '', cityName: json['cityname'] as String? ?? '');
   }
 }
 

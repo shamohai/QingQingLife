@@ -4,6 +4,7 @@ import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+import '../logging/app_logger.dart';
 import 'app_link.dart';
 
 /// 接收系统转发的 Schema / Universal Link，并转换为应用内路由。
@@ -45,13 +46,13 @@ class _DeepLinkReceiverState extends State<DeepLinkReceiver> {
       _subscription = appLinks.uriLinkStream.listen(
         _handleLink,
         onError: (Object error, StackTrace stackTrace) {
-          //debugPrint('[DeepLink] receive failed: $error');
+          AppLogger.warning('deep link stream error', module: 'deep_link', error: error, stackTrace: stackTrace);
         },
       );
       final uri = await appLinks.getInitialLink();
       if (uri != null) _handleLink(uri);
     } catch (e) {
-      //debugPrint('[DeepLink] not supported or missing plugin: $e');
+      AppLogger.warning('deep link not supported or missing plugin', module: 'deep_link', error: e);
     }
   }
 
@@ -59,7 +60,6 @@ class _DeepLinkReceiverState extends State<DeepLinkReceiver> {
     if (!mounted) return;
     final location = AppLink.toAppLocation(uri);
     if (location == null) {
-      //debugPrint('[DeepLink] ignored unsupported link: $uri');
       return;
     }
 

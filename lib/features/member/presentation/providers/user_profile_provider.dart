@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -8,6 +7,7 @@ import '../../data/models/member_rank_models.dart';
 
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/exceptions/exceptions.dart';
+import '../../../../core/logging/app_logger.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/providers/session_provider.dart';
 import '../../../../core/domain/repositories/auth_repository.dart' show UserInfo;
@@ -277,7 +277,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         hasLoaded: true,
       );
     } catch (e) {
-      debugPrint('[UserProfile] load error: $e');
+      AppLogger.error('load error', module: 'user_profile', error: e);
       if (_isCurrentLoad(generation)) {
         state = state.withLoadFinished();
       }
@@ -289,7 +289,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
       final response = await ref.read(memberRepositoryProvider).getAvailableWelfareList(cardOnly: true);
       if (response.success && response.data != null) return response.data!.keepCount;
     } catch (error) {
-      debugPrint('[UserProfile] coupon count error: $error');
+      AppLogger.error('coupon count error', module: 'user_profile', error: error);
     }
     return null;
   }
@@ -306,7 +306,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         if (stat.typeValue == -1) return stat.unreadCount;
       }
     } catch (error) {
-      debugPrint('[UserProfile] unread message count error: $error');
+      AppLogger.error('unread message count error', module: 'user_profile', error: error);
     }
     return null;
   }
@@ -321,7 +321,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
     } on NetworkException catch (error) {
       return error.toDisplayMessage(fallback: '头像更新失败，请稍后重试');
     } catch (error) {
-      debugPrint('[UserProfile] change avatar error: $error');
+      AppLogger.error('change avatar error', module: 'user_profile', error: error);
       return '头像更新失败，请稍后重试';
     }
 
@@ -338,7 +338,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         state = state.withAvatarUrl(avatarUrl);
       }
     } catch (error) {
-      debugPrint('[UserProfile] avatar uploaded but profile refresh failed: $error');
+      AppLogger.error('avatar uploaded but profile refresh failed', module: 'user_profile', error: error);
     }
     return null;
   }

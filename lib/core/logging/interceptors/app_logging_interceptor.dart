@@ -26,33 +26,16 @@ class AppLoggingInterceptor extends Interceptor {
     options.extra[_traceIdHeader] = traceId;
     options.extra[_startTimeKey] = DateTime.now().millisecondsSinceEpoch;
 
-    final logData = <String, dynamic>{'url': options.uri.toString(), 'method': options.method, 'headers': Map<String, dynamic>.from(options.headers)};
-    if (options.queryParameters.isNotEmpty) {
-      logData['queryParameters'] = options.queryParameters;
-    }
-    if (options.data != null) {
-      logData['data'] = options.data;
-    }
-
     return handler.next(options);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    final startTime = response.requestOptions.extra[_startTimeKey] as int?;
-    final traceId = response.requestOptions.extra[_traceIdHeader] as String?;
-    final elapsed = startTime != null ? DateTime.now().millisecondsSinceEpoch - startTime : null;
     final uri = response.requestOptions.uri;
 
     if (kDebugMode) {
-      // debugPrint('\u2550' * 38);
-      // debugPrint('[HTTP RESPONSE] ' + response.statusCode.toString() + ' ' + uri.path + ' (' + (elapsed?.toString() ?? '?') + 'ms)');
-      // debugPrint('\u2550' * 38);
-      // debugPrint('[Response Body]');
-      // debugPrint(safeEncode(response.data));
-      // debugPrint('');
       if (kIsWeb) {
-        debugPrint(uri.path + ' 接口Response返回数据：' + safeEncode(response.data));
+        debugPrint('${uri.path} 接口Response返回数据：${safeEncode(response.data)}');
       }
     }
     return handler.next(response);
@@ -85,7 +68,7 @@ class AppLoggingInterceptor extends Interceptor {
     );
     if (err.response?.data != null) {
       AppLogger.rawInfo(
-        '[HTTP ERROR RESPONSE BODY] ' + uri.path + ': ' + safeEncode(err.response!.data),
+        '[HTTP ERROR RESPONSE BODY] ${uri.path}: ${safeEncode(err.response!.data)}',
         module: 'network',
         event: 'http_error_response_raw',
         data: {

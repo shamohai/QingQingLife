@@ -1,5 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:qingqinglife/core/logging/app_logger.dart';
 
 import '../../../../core/providers/repository_providers.dart';
 import '../../data/models/member_sign_in_models.dart';
@@ -45,7 +46,7 @@ class MemberSignInNotifier extends Notifier<MemberSignInState> {
         state = _copy(loading: false, errorMessage: '签到信息加载失败，请稍后重试');
       }
     } catch (e) {
-      debugPrint('[MemberSignIn] load error: $e');
+      AppLogger.error('load error', module: 'member_sign_in', error: e);
       state = _copy(loading: false, errorMessage: '签到信息加载失败，请稍后重试');
     }
   }
@@ -59,7 +60,7 @@ class MemberSignInNotifier extends Notifier<MemberSignInState> {
       state = _copy(signing: false);
       return resp.data;
     } catch (e) {
-      debugPrint('[MemberSignIn] signIn error: $e');
+      AppLogger.error('signIn error', module: 'member_sign_in', error: e);
       state = _copy(signing: false);
       return null;
     }

@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
-import 'package:dio/dio.dart';
 
 import 'app_logger.dart';
 import 'log_buffer.dart';
 import 'log_entry.dart';
-import 'remote_log_uploader.dart';
+
+// RemoteLogUploader 仅在下方注释的上传调用中使用，启用时再恢复 import。
 
 /// 日志系统统一初始化器
 ///

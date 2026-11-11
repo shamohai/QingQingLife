@@ -91,7 +91,7 @@ class _Connector extends StatelessWidget {
   const _Connector({required this.progress});
 
   static const Color _doneColor = Color(0xFF0686FF);
-  static const Color _todoColor = Color(0xFFC6D2E6);
+  static const Color _pendingMilestoneColor = Color(0xFFC6D2E6);
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +99,7 @@ class _Connector extends StatelessWidget {
 
     Widget line;
     if (flex <= 0) {
-      line = const ColoredBox(color: _todoColor);
+      line = const ColoredBox(color: _pendingMilestoneColor);
     } else if (flex >= 1000) {
       line = const ColoredBox(color: _doneColor);
     } else {
@@ -111,7 +111,7 @@ class _Connector extends StatelessWidget {
           ),
           Expanded(
             flex: 1000 - flex,
-            child: const ColoredBox(color: _todoColor),
+            child: const ColoredBox(color: _pendingMilestoneColor),
           ),
         ],
       );

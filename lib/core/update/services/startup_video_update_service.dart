@@ -2,8 +2,9 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
+
+import 'package:qingqinglife/core/logging/app_logger.dart';
 
 import '../../../app/config/app_config.dart';
 import '../../storage/local_storage.dart';
@@ -11,9 +12,7 @@ import '../models/resource_manifest.dart';
 
 /// 负责自有服务器首页启动视频（open.mp4）的热更新管理服务
 class StartupVideoUpdateService {
-  StartupVideoUpdateService({Dio? dio, LocalStorage? storage})
-      : _dio = dio ?? Dio(),
-        _storage = storage ?? LocalStorage();
+  StartupVideoUpdateService({Dio? dio, LocalStorage? storage}) : _dio = dio ?? Dio(), _storage = storage ?? LocalStorage();
 
   final Dio _dio;
   final LocalStorage _storage;
@@ -58,7 +57,7 @@ class StartupVideoUpdateService {
 
       return file;
     } catch (e) {
-      debugPrint('[StartupVideoUpdate] 校验本地视频失败: $e');
+      AppLogger.warning('校验本地视频失败', module: 'startup_video_update', error: e);
       return null;
     }
   }
@@ -91,18 +90,15 @@ class StartupVideoUpdateService {
         await tmpFile.delete();
       }
 
-      debugPrint('[StartupVideoUpdate] 开始从自有服务器下载最新启动视频: $videoUrl');
+      AppLogger.info('开始从自有服务器下载最新启动视频: $videoUrl', module: 'startup_video_update');
       await _dio.download(
         videoUrl,
         tmpFile.path,
-        options: Options(
-          receiveTimeout: const Duration(seconds: 60),
-          connectTimeout: const Duration(seconds: 15),
-        ),
+        options: Options(receiveTimeout: const Duration(seconds: 60), connectTimeout: const Duration(seconds: 15)),
       );
 
       if (!await tmpFile.exists() || await tmpFile.length() <= 0) {
-        debugPrint('[StartupVideoUpdate] 下载视频文件为空');
+        AppLogger.warning('下载视频文件为空', module: 'startup_video_update');
         return false;
       }
 
@@ -111,7 +107,7 @@ class StartupVideoUpdateService {
       final downloadedMd5 = md5.convert(downloadedBytes).toString();
 
       if (targetMd5.isNotEmpty && downloadedMd5 != targetMd5) {
-        debugPrint('[StartupVideoUpdate] MD5 校验失败: downloaded=$downloadedMd5, target=$targetMd5');
+        AppLogger.warning('MD5 校验失败: downloaded=$downloadedMd5, target=$targetMd5', module: 'startup_video_update');
         if (await tmpFile.exists()) {
           await tmpFile.delete();
         }
@@ -127,10 +123,10 @@ class StartupVideoUpdateService {
       final finalMd5 = targetMd5.isNotEmpty ? targetMd5 : downloadedMd5;
       await _storage.putString(_localVideoMd5Key, finalMd5);
 
-      debugPrint('[StartupVideoUpdate] 启动视频热更新成功! MD5: $finalMd5');
+      AppLogger.info('启动视频热更新成功! MD5: $finalMd5', module: 'startup_video_update');
       return true;
     } catch (e) {
-      debugPrint('[StartupVideoUpdate] 检查或下载热更新视频异常: $e');
+      AppLogger.error('检查或下载热更新视频异常', module: 'startup_video_update', error: e);
       return false;
     }
   }
@@ -141,18 +137,13 @@ class StartupVideoUpdateService {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
         '${AppConfig.baseUrl}/resources/video/config.json',
-        options: Options(
-          connectTimeout: const Duration(seconds: 5),
-          receiveTimeout: const Duration(seconds: 5),
-        ),
+        options: Options(connectTimeout: const Duration(seconds: 5), receiveTimeout: const Duration(seconds: 5)),
       );
       if (response.data != null) {
         final data = response.data!;
         final rawUrl = data['videoUrl'] as String? ?? 'resources/video/open.mp4';
         final remoteMd5 = data['md5'] as String? ?? '';
-        final fullUrl = rawUrl.startsWith('http')
-            ? rawUrl
-            : '${AppConfig.baseUrl}/${rawUrl.startsWith('/') ? rawUrl.substring(1) : rawUrl}';
+        final fullUrl = rawUrl.startsWith('http') ? rawUrl : '${AppConfig.baseUrl}/${rawUrl.startsWith('/') ? rawUrl.substring(1) : rawUrl}';
         return (videoUrl: fullUrl, md5: remoteMd5);
       }
     } catch (_) {
@@ -163,10 +154,7 @@ class StartupVideoUpdateService {
     try {
       final response = await _dio.get<Map<String, dynamic>>(
         '${AppConfig.baseUrl}/api/app/resource/manifest',
-        options: Options(
-          connectTimeout: const Duration(seconds: 5),
-          receiveTimeout: const Duration(seconds: 5),
-        ),
+        options: Options(connectTimeout: const Duration(seconds: 5), receiveTimeout: const Duration(seconds: 5)),
       );
       if (response.data != null) {
         final manifest = ResourceManifest.fromJson(response.data!);

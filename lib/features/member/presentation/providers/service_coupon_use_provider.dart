@@ -1,7 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:qingqinglife/core/logging/app_logger.dart';
 
 import '../../../../core/providers/repository_providers.dart';
 import '../../data/models/service_coupon_model.dart';
@@ -84,7 +85,7 @@ class ServiceCouponUseNotifier extends Notifier<ServiceCouponUseState> {
         state = state.copyWith(loading: false, errorMessage: _friendlyMessage(response.message));
       }
     } catch (error) {
-      debugPrint('[ServiceCouponUse] refresh error: $error');
+      AppLogger.error('refresh error', module: 'service_coupon_use', error: error);
       state = state.copyWith(loading: false, errorMessage: '服务券信息刷新失败，请稍后重试');
     } finally {
       _requesting = false;

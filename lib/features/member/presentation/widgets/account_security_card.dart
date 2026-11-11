@@ -93,7 +93,7 @@ class AccountSecurityCard extends ConsumerWidget {
   Widget _buildPhoneValue(String phoneMasked) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => debugPrint('[AccountSecurityCard] 修改绑定手机号点击'),
+      onTap: () {},
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

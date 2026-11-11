@@ -262,8 +262,7 @@ class _OrderContentCard extends StatelessWidget {
           if (detail.payTime != null) _MetaRow(label: '付款时间', value: _formatDate(detail.payTime!)),
           if (detail.shipTime != null) _MetaRow(label: '发货时间', value: _formatDate(detail.shipTime!)),
           if (detail.receiveTime != null) _MetaRow(label: '收货时间', value: _formatDate(detail.receiveTime!)),
-          if ((detail.remark ?? detail.userRemark ?? '').trim().isNotEmpty &&
-              (detail.remark ?? detail.userRemark) != '【】')
+          if ((detail.remark ?? detail.userRemark ?? '').trim().isNotEmpty && (detail.remark ?? detail.userRemark) != '【】')
             _MetaRow(label: '订单备注', value: (detail.remark ?? detail.userRemark!).trim()),
         ],
       ),
@@ -293,9 +292,7 @@ class _ProductRow extends StatelessWidget {
     final targetProductId = item.productId.trim().isNotEmpty ? item.productId.trim() : item.id.trim();
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: targetProductId.isEmpty
-          ? null
-          : () => context.push(RouteNames.serviceProductDetailPath(productId: targetProductId)),
+      onTap: targetProductId.isEmpty ? null : () => context.push(RouteNames.serviceProductDetailPath(productId: targetProductId)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -555,9 +552,8 @@ class _AmountRow extends StatelessWidget {
   final String label;
   final String value;
   final bool accent;
-  final bool bold;
 
-  const _AmountRow({required this.label, required this.value, this.accent = false, this.bold = false});
+  const _AmountRow({required this.label, required this.value, this.accent = false});
 
   @override
   Widget build(BuildContext context) {
@@ -565,7 +561,7 @@ class _AmountRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: const TextStyle(fontSize: 13, color: _OrderDetailTokens.muted)),
-        _amountDescriptionTextWithColor(value, mainFontSize: bold ? 20 : 16, color: accent ? _OrderDetailTokens.accent : Colors.black),
+        _amountDescriptionTextWithColor(value, mainFontSize: 16, color: accent ? _OrderDetailTokens.accent : Colors.black),
       ],
     );
   }

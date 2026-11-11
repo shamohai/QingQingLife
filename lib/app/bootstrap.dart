@@ -21,7 +21,7 @@ Future<void> bootstrap() async {
   //   await LoggingInitializer.initialize(logEndpoint: '${AppConfig.baseUrl}/api/app-log/batch');
   //   AppLogger.info('Local log file: ${LoggingInitializer.localFilePath}', module: 'bootstrap');
   // } catch (e, stackTrace) {
-  //   debugPrint('[Bootstrap] Logging init failed (non-fatal): $e\n$stackTrace');
+  //   AppLogger.error('Logging init failed (non-fatal)', module: 'bootstrap', error: e, stackTrace: stackTrace);
   // }
 
   // 微信 SDK 注册：放入后台异步执行，避免阻塞首帧渲染

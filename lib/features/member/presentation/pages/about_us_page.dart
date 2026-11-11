@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import 'package:qingqinglife/core/logging/app_logger.dart';
+
 import '../../../../app/router/route_names.dart';
 
 /// 关于我们页（/member/about-us）
@@ -42,7 +44,7 @@ class _AboutUsPageState extends State<AboutUsPage> {
       if (!mounted) return;
       setState(() => _version = info.version);
     } catch (e) {
-      debugPrint('[AboutUsPage] 读取版本号失败: $e');
+      AppLogger.warning('读取版本号失败', module: 'about_us', error: e);
     }
   }
 
@@ -210,4 +212,3 @@ class _LinkRow extends StatelessWidget {
     );
   }
 }
-
