@@ -49,23 +49,13 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
     return Stack(
       children: [
         // 底层：侧边栏背景色延伸层，覆盖整个高度（由右侧商品列表撑开）
-        Positioned(
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: 110,
-          child: ColoredBox(color: const Color(0xFFF3F5F7)),
-        ),
+        Positioned(left: 0, top: 0, bottom: 0, width: 110, child: ColoredBox(color: const Color(0xFFF3F5F7))),
         // 上层：真实内容 Row
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 左侧积分段侧边栏
-            PointsCategorySidebar(
-              groups: widget.groups,
-              activeIndex: _activeIndex,
-              onCategoryTap: _onRangeTap,
-            ),
+            PointsCategorySidebar(groups: widget.groups, activeIndex: _activeIndex, onCategoryTap: _onRangeTap),
             // 右侧分页商品列表
             Expanded(
               child: Container(

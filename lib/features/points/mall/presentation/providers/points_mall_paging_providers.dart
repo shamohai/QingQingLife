@@ -35,28 +35,25 @@ class PointsMallProductListNotifier extends PagingNotifier<PointsProduct> {
 
 final pointsMallProductListProvider = NotifierProvider.autoDispose<PointsMallProductListNotifier, PagingData<PointsProduct>>(PointsMallProductListNotifier.new);
 
-/// 热门商品（优先调用真实推荐位接口加载，失败/无数据时降级使用 Mock）
+/// 热门商品：调用推荐位接口加载；失败时抛出，由页面 Error 状态承接，不降级为假数据。
 final pointsMallHotProductsProvider = FutureProvider<List<PointsProduct>>((ref) async {
   final repository = ref.read(pointsRepositoryProvider);
-  try {
-    final response = await repository.getRecommendProductList(positionCode: 'APP_CREDITMALL');
-    if (response.success && response.data != null && response.data!.isNotEmpty) {
-      return response.data!.map((item) {
-        return PointsProduct(
-          id: item.productId.toString(),
-          imageUrl: item.imgUrl,
-          name: item.productName,
-          points: item.creditPrice,
-          commentCount: item.commentCount,
-          tag: '热门',
-          type: item.isService ? PointsProductType.service : PointsProductType.physical,
-        );
-      }).toList();
-    }
-  } catch (ex) {
-    throw Exception(ex);
+  final response = await repository.getRecommendProductList(positionCode: 'APP_CREDITMALL');
+  if (!response.success) {
+    throw Exception(response.message);
   }
-  return [];
+  final items = response.data ?? const [];
+  return items.map((item) {
+    return PointsProduct(
+      id: item.productId.toString(),
+      imageUrl: item.imgUrl,
+      name: item.productName,
+      points: item.creditPrice,
+      commentCount: item.commentCount,
+      tag: '热门',
+      type: item.isService ? PointsProductType.service : PointsProductType.physical,
+    );
+  }).toList();
 });
 
 /// 积分商城首页静态数据 Provider

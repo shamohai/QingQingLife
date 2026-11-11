@@ -3,7 +3,7 @@ import '../../../../core/network/api_response.dart';
 /// 发票仓库接口
 ///
 /// TODO(API): 发票中心后端接口尚未定义（一期产品规范中发票仅出现在购物车结算），
-/// 当前仅提供接口抽象与 Mock 实现；后端契约就绪后由 Remote 数据源实现本接口，
+/// 当前数据源返回失败结果，不提供任何假数据。后端契约就绪后由真实数据源实现本接口，
 /// 页面与 Provider 层无需改动。
 abstract class InvoiceRepository {
   /// 获取发票列表（分页）

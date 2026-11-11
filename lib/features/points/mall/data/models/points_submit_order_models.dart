@@ -44,14 +44,7 @@ class SubmitCreditOrderResp {
   final Autum2023Info? autum2023;
   final String? dataTag;
 
-  const SubmitCreditOrderResp({
-    required this.result,
-    this.descr,
-    this.orderIds = const [],
-    this.surplusMoney,
-    this.autum2023,
-    this.dataTag,
-  });
+  const SubmitCreditOrderResp({required this.result, this.descr, this.orderIds = const [], this.surplusMoney, this.autum2023, this.dataTag});
 
   /// 获取提交生成的首个订单 ID (`orderids[0]`)
   int? get primaryOrderId => orderIds.isNotEmpty ? orderIds.first : null;

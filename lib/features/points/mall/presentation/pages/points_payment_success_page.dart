@@ -19,13 +19,7 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
   final int pointsDeducted;
   final String orderId;
 
-  const PointsPaymentSuccessPage({
-    super.key,
-    required this.orderNo,
-    required this.transactionNo,
-    this.pointsDeducted = 0,
-    this.orderId = '',
-  });
+  const PointsPaymentSuccessPage({super.key, required this.orderNo, required this.transactionNo, this.pointsDeducted = 0, this.orderId = ''});
 
   /// 从 GoRouter extra 构建页面
   factory PointsPaymentSuccessPage.fromExtra(dynamic extra) {
@@ -44,18 +38,9 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
       final transactionNo = extra['transactionNo']?.toString() ?? extra['orderid']?.toString() ?? '';
       final id = extra['orderId']?.toString() ?? extra['orderid']?.toString() ?? transactionNo;
       final points = int.tryParse(extra['pointsDeducted']?.toString() ?? extra['payintegralcount']?.toString() ?? '0') ?? 0;
-      return PointsPaymentSuccessPage(
-        orderNo: orderNo,
-        transactionNo: transactionNo,
-        pointsDeducted: points,
-        orderId: id,
-      );
+      return PointsPaymentSuccessPage(orderNo: orderNo, transactionNo: transactionNo, pointsDeducted: points, orderId: id);
     } else if (extra is String) {
-      return PointsPaymentSuccessPage(
-        orderNo: extra,
-        transactionNo: extra,
-        orderId: extra,
-      );
+      return PointsPaymentSuccessPage(orderNo: extra, transactionNo: extra, orderId: extra);
     }
     return const PointsPaymentSuccessPage(orderNo: '', transactionNo: '', orderId: '');
   }
@@ -103,11 +88,7 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
                         flex: 50,
                         child: Container(
                           decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [Color(0xFFF3F5F7), Color(0xFFFFFFFF)],
-                            ),
+                            gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFF3F5F7), Color(0xFFFFFFFF)]),
                             image: DecorationImage(
                               image: AssetImage('assets/images/order/order_bottom_bg.png'),
                               fit: BoxFit.cover,
@@ -128,11 +109,7 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
                         // 成功图标，水平居中
                         const Align(
                           alignment: Alignment.center,
-                          child: Image(
-                            image: AssetImage('assets/images/points/icon-success.png'),
-                            width: 150,
-                            height: 150,
-                          ),
+                          child: Image(image: AssetImage('assets/images/points/icon-success.png'), width: 150, height: 150),
                         ),
                         const SizedBox(height: 1),
                         // "提交订单成功" 标签
@@ -140,12 +117,7 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
                           alignment: Alignment.center,
                           child: Text(
                             '提交订单成功',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF000000),
-                              height: 1.0,
-                            ),
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF000000), height: 1.0),
                           ),
                         ),
                         const SizedBox(height: 40),
@@ -154,10 +126,7 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.lg),
                           child: Container(
                             constraints: const BoxConstraints(maxWidth: 414),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(AppRadius.sm),
-                            ),
+                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.sm)),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.lg),
                               child: _buildOrderCardContent(context, asyncDetail, effectiveOrderId),
@@ -176,11 +145,7 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildOrderCardContent(
-    BuildContext context,
-    AsyncValue<ApiResponse<OrderDetail>>? asyncDetail,
-    String effectiveOrderId,
-  ) {
+  Widget _buildOrderCardContent(BuildContext context, AsyncValue<ApiResponse<OrderDetail>>? asyncDetail, String effectiveOrderId) {
     if (asyncDetail == null) {
       return _buildCardFields(
         context: context,
@@ -269,10 +234,7 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
         OrderInfoRow(label: '下单时间', value: createTimeStr),
         const SizedBox(height: AppSpacing.sm),
         OrderInfoRow(label: '手机号', value: mobileStr),
-        if (userRemarkStr.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.sm),
-          OrderInfoRow(label: '用户备注', value: userRemarkStr),
-        ],
+        if (userRemarkStr.isNotEmpty) ...[const SizedBox(height: AppSpacing.sm), OrderInfoRow(label: '用户备注', value: userRemarkStr)],
         const SizedBox(height: AppSpacing.lg),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,

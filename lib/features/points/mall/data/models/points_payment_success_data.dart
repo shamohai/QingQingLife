@@ -7,10 +7,5 @@ class PointsPaymentSuccessData {
   final int pointsDeducted;
   final String? orderId;
 
-  const PointsPaymentSuccessData({
-    required this.orderNo,
-    required this.transactionNo,
-    this.pointsDeducted = 0,
-    this.orderId,
-  });
+  const PointsPaymentSuccessData({required this.orderNo, required this.transactionNo, this.pointsDeducted = 0, this.orderId});
 }

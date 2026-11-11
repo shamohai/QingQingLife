@@ -2,66 +2,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_response.dart';
+import '../../../../core/network/providers.dart';
 import '../../domain/repositories/invoice_repository.dart';
 
 /// 统一发票数据源（实现 InvoiceRepository 接口）
+///
+/// 发票中心后端接口尚未定义，当前不提供任何伪造数据。
+/// 所有方法返回失败结果，由页面的 Error 状态承接；接口就绪后在此替换实现即可。
 class InvoiceDataSource implements InvoiceRepository {
-  const InvoiceDataSource({ApiClient? apiClient});
+  /// 后端接口就绪后用于发起真实请求。
+  final ApiClient? apiClient;
 
-  static final List<InvoiceSummary> _fallbackInvoices = [
-    InvoiceSummary(
-      id: 'inv_pending_1',
-      title: '天佑德电商专供青稞酒 46度500ml',
-      orderNo: 'DDBH3456789',
-      orderTypeText: '商城订单',
-      invoiceTypeText: '数电普票',
-      amountCents: 80000,
-      createTime: DateTime(2026, 10, 1, 12, 30, 9),
-      status: InvoiceStatus.pending,
-    ),
-    InvoiceSummary(
-      id: 'inv_invoiced_1',
-      title: '天佑德电商专供青稞酒 46度500ml',
-      orderNo: 'DDBH3456789',
-      orderTypeText: '商城订单',
-      invoiceTypeText: '数电普票',
-      amountCents: 80000,
-      createTime: DateTime(2026, 10, 1, 12, 30, 9),
-      status: InvoiceStatus.invoiced,
-    ),
-  ];
+  const InvoiceDataSource({this.apiClient});
+
+  static const _notAvailable = '发票功能暂未开放，请稍后再试';
 
   @override
   Future<ApiResponse<InvoiceListResult>> getInvoiceList({required int page, required int pageSize, InvoiceStatus? status}) async {
-    final filtered = status == null ? _fallbackInvoices : _fallbackInvoices.where((inv) => inv.status == status).toList();
-    return ApiResponse.success(InvoiceListResult(invoices: filtered, total: filtered.length, page: page, pageSize: pageSize, hasMore: false));
+    return ApiResponse.error(_notAvailable);
   }
 
   @override
   Future<ApiResponse<InvoiceDetail>> getInvoiceDetail(String invoiceId) async {
-    final summary = _fallbackInvoices.where((inv) => inv.id == invoiceId).firstOrNull ?? _fallbackInvoices.first;
-    var mockTime = DateTime(2026, 10, 1, 12, 30, 9);
-    return ApiResponse.success(
-      InvoiceDetail(
-        id: summary.id,
-        title: summary.title,
-        productImage: 'assets/images/product/product1.jpg',
-        productTags: const ['52%vol', '清香型'],
-        quantity: 1,
-        specText: '【规格一】 天佑德电商专供青稞酒特别版本42度500ml',
-        orderNo: summary.orderNo,
-        orderTypeText: summary.orderTypeText,
-        invoiceTypeText: summary.invoiceTypeText,
-        amountCents: summary.amountCents,
-        orderTime: mockTime,
-        applyTime: mockTime,
-        invoiceTime: summary.status == InvoiceStatus.invoiced ? mockTime : null,
-        status: summary.status,
-      ),
-    );
+    return ApiResponse.error(_notAvailable);
   }
 }
 
 final invoiceDataSourceProvider = Provider<InvoiceDataSource>((ref) {
-  return const InvoiceDataSource();
+  return InvoiceDataSource(apiClient: ref.read(apiClientProvider));
 });
