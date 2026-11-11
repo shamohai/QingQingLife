@@ -1,11 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../core/storage/local_storage.dart';
-import '../../core/update/services/startup_video_update_service.dart';
 
 /// Controls the one-time startup video shown after an install or app upgrade.
 class StartupVideoGate extends StatefulWidget {
@@ -22,7 +19,6 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
   static const _videoAsset = 'assets/video/open.mp4';
 
   final _storage = LocalStorage();
-  final _updateService = StartupVideoUpdateService();
   VideoPlayerController? _controller;
   bool _showVideo = false;
   bool _isReady = false;
@@ -34,9 +30,6 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
   }
 
   Future<void> _prepare() async {
-    // 启动后异步触发后台静默检测自有服务器热更新视频
-    unawaited(_updateService.checkAndDownloadUpdate());
-
     try {
       final packageInfo = await PackageInfo.fromPlatform();
       final lastPlayedVersion = await _storage.getString(_lastPlayedVersionKey);
@@ -47,28 +40,8 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
         return;
       }
 
-      // 1. 优先检查本地是否存在从自有服务器热更新下载的视频 File
-      final localFile = await _updateService.getValidLocalVideoFile();
-      VideoPlayerController? controller;
-
-      if (localFile != null) {
-        try {
-          debugPrint('[StartupVideoGate] 使用热更新视频文件: ${localFile.path}');
-          controller = VideoPlayerController.file(localFile);
-          await controller.initialize();
-        } catch (e) {
-          debugPrint('[StartupVideoGate] 加载热更视频失败，回退到 Asset: $e');
-          await controller?.dispose();
-          controller = null;
-        }
-      }
-
-      // 2. 若无热更新视频或加载失败，回退使用打包内置的 Asset 视频
-      if (controller == null) {
-        controller = VideoPlayerController.asset(_videoAsset);
-        await controller.initialize();
-      }
-
+      final controller = VideoPlayerController.asset(_videoAsset);
+      await controller.initialize();
       await controller.setLooping(false);
       controller.addListener(_onVideoChanged);
 
@@ -146,4 +119,3 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
     );
   }
 }
-
