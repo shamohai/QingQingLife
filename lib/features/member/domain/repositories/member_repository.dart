@@ -11,12 +11,6 @@ import '../../../../core/network/api_response.dart';
 
 /// 会员仓库接口
 abstract class MemberRepository {
-  /// 获取会员信息
-  Future<ApiResponse<MemberInfo>> getMemberInfo();
-
-  /// 获取会员等级权益
-  Future<ApiResponse<MemberLevelBenefits>> getLevelBenefits(int level);
-
   /// 获取会员等级列表（真实接口：POST /api/sys/app/getranklist）
   ///
   /// 返回全部等级的定义（等级 id / 名称 / 积分区间），用于会员详情页等级页签。
@@ -39,9 +33,6 @@ abstract class MemberRepository {
 
   /// 获取会员权益权限（真实接口：POST /api/sys/v2/getmemberauthority）
   Future<ApiResponse<MemberAuthorityModel>> getMemberAuthority({required int level});
-
-  /// 获取优惠券列表
-  Future<ApiResponse<CouponListResult>> getCoupons({required int page, required int pageSize, CouponStatus? status});
 
   /// 获取我的优惠券分组列表（真实接口：POST /api/promotion/getcoupongrouplist）
   Future<ApiResponse<CouponGroupListResult>> getCouponGroupList({required CouponGroupStatus status});
@@ -75,21 +66,6 @@ abstract class MemberRepository {
 
   /// 领取好友转赠的服务券（真实接口：POST /api/promotion/receiveservicecoupon）
   Future<ApiResponse<void>> receiveServiceCoupon({required String shareGroupId, int serviceCouponId = 0});
-
-  /// 领取优惠券
-  Future<ApiResponse<void>> claimCoupon(String couponTemplateId);
-
-  /// 获取积分账户
-  Future<ApiResponse<PointsAccount>> getPointsAccount();
-
-  /// 获取积分流水（分页）
-  Future<ApiResponse<PointsLogResult>> getPointsLogs({required int page, required int pageSize, PointsLogType? type});
-
-  /// 获取积分规则
-  Future<ApiResponse<String>> getPointsRules();
-
-  /// 获取收支明细
-  Future<ApiResponse<StatementResult>> getStatements({required int page, required int pageSize, StatementType? type});
 
   /// 获取收货地址列表
   Future<ApiResponse<List<MemberAddress>>> getAddresses({int addressId = 0});
@@ -481,12 +457,105 @@ class MemberArea {
   }
 }
 
-/// 客服信息
+/// 客服信息（getcustomermanagerinfo）
+///
+/// 接口返回两个互相独立的客服入口：[vip] 为专属管家/企微，[defaultConfig] 为普通用户加群客服。
+/// 两者之间不做字段互相回退，缺失即为 null 或空字符串。
 class CustomerServiceInfo {
-  final String phone;
-  final String onlineUrl;
-  final String workTime;
-  final String? qrCodeUrl;
+  /// 专属管家/企微客服（info.vip）
+  final CustomerServiceVip? vip;
 
-  const CustomerServiceInfo({required this.phone, required this.onlineUrl, required this.workTime, this.qrCodeUrl});
+  /// 普通用户/加群客服（info.default）
+  final CustomerServiceDefault? defaultConfig;
+
+  /// 数据版本标识
+  final String datatag;
+
+  const CustomerServiceInfo({this.vip, this.defaultConfig, this.datatag = ''});
+
+  factory CustomerServiceInfo.fromJson(Map<String, dynamic> json) {
+    final infoRaw = json['info'];
+    final info = infoRaw is Map ? Map<String, dynamic>.from(infoRaw) : json;
+
+    final vipRaw = info['vip'];
+    final defaultRaw = info['default'];
+
+    return CustomerServiceInfo(
+      vip: vipRaw is Map ? CustomerServiceVip.fromJson(Map<String, dynamic>.from(vipRaw)) : null,
+      defaultConfig: defaultRaw is Map ? CustomerServiceDefault.fromJson(Map<String, dynamic>.from(defaultRaw)) : null,
+      datatag: (json['datatag'] ?? info['datatag'] ?? '').toString(),
+    );
+  }
+}
+
+/// 专属管家/企微客服（info.vip）
+class CustomerServiceVip {
+  /// 服务标题
+  final String title;
+
+  /// 企微二维码图片地址
+  final String workwxqrimg;
+
+  /// 企微客服小程序路径
+  final String workwxmppath;
+
+  /// 联系电话
+  final String tel;
+
+  /// 电话名称
+  final String telname;
+
+  /// 服务描述
+  final String servicedescr;
+
+  const CustomerServiceVip({
+    this.title = '',
+    this.workwxqrimg = '',
+    this.workwxmppath = '',
+    this.tel = '',
+    this.telname = '',
+    this.servicedescr = '',
+  });
+
+  factory CustomerServiceVip.fromJson(Map<String, dynamic> json) {
+    return CustomerServiceVip(
+      title: (json['title'] ?? '').toString(),
+      workwxqrimg: (json['workwxqrimg'] ?? '').toString(),
+      workwxmppath: (json['workwxmppath'] ?? '').toString(),
+      tel: (json['tel'] ?? '').toString(),
+      telname: (json['telname'] ?? '').toString(),
+      servicedescr: (json['servicedescr'] ?? '').toString(),
+    );
+  }
+}
+
+/// 普通用户/加群客服（info.default）
+class CustomerServiceDefault {
+  /// 微信客服 url
+  final String wxcustomerserviceurl;
+
+  /// 企微 CorpId，拉起微信客服时使用
+  final String workwxcorpid;
+
+  /// 服务描述
+  final String servicedescr;
+
+  /// 拉起微信客服失败时的备用电话
+  final String fallbacktel;
+
+  const CustomerServiceDefault({
+    this.wxcustomerserviceurl = '',
+    this.workwxcorpid = '',
+    this.servicedescr = '',
+    this.fallbacktel = '',
+  });
+
+  factory CustomerServiceDefault.fromJson(Map<String, dynamic> json) {
+    return CustomerServiceDefault(
+      wxcustomerserviceurl: (json['wxcustomerserviceurl'] ?? '').toString(),
+      workwxcorpid: (json['workwxcorpid'] ?? '').toString(),
+      servicedescr: (json['servicedescr'] ?? '').toString(),
+      fallbacktel: (json['fallbacktel'] ?? '').toString(),
+    );
+  }
 }

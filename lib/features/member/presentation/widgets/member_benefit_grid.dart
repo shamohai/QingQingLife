@@ -23,7 +23,7 @@ class MemberBenefitGrid extends StatelessWidget {
   static const Color _titleColor = Color(0xFF5C3A21);
   static const Color _subColor = Color(0xFFA5805B);
 
-  /// 权益名 → 图标（与 Mock 数据对应；真实数据未命中时回退钻石图标）
+  /// 权益名 → 图标映射；未命中时回退钻石图标
   static const Map<String, IconData> _benefitIcons = {
     '生日好礼': Icons.cake,
     '生日好礼2': Icons.card_giftcard,

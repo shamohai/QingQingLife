@@ -27,7 +27,7 @@ final memberSignInProvider = NotifierProvider<MemberSignInNotifier, MemberSignIn
 
 /// 会员签到页控制器
 ///
-/// 数据链路：Page → [memberSignInProvider] → MemberSignInRepository → DataSource（当前为 Mock）
+/// 数据链路：Page → [memberSignInProvider] → MemberSignInRepository → MemberDataSource（签到接口暂未接入，返回失败态）
 class MemberSignInNotifier extends Notifier<MemberSignInState> {
   @override
   MemberSignInState build() => const MemberSignInState();

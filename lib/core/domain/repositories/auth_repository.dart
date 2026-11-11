@@ -81,6 +81,7 @@ class UserInfo {
   final String genderName; // gendername
   final DateTime? birthday; // birthday
   final String? address; // address（getmyprofile 顶层的地址文本）
+  final int tianyoudeValue; // baseprofile.apprankcredit（天佑德值/等级积分）
 
   const UserInfo({
     required this.id,
@@ -100,6 +101,7 @@ class UserInfo {
     this.genderName = '',
     this.birthday,
     this.address,
+    this.tianyoudeValue = 0,
   });
 
   factory UserInfo.fromJson(Map<String, dynamic> json) {
@@ -128,6 +130,7 @@ class UserInfo {
       genderName: _string(source['gendername']),
       birthday: _dateTime(source['birthday']),
       address: address.isEmpty ? null : address,
+      tianyoudeValue: _int(source['apprankcredit']),
     );
   }
 

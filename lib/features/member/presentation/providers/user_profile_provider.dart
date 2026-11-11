@@ -75,8 +75,7 @@ class UserProfileState {
   /// 会员等级到期时间（getranklist 的 expiredate，后端未返回时为 null）
   final DateTime? memberExpireDate;
 
-  /// TODO(Mock): 天佑德值 —— 后端 MemberInfo / PointsAccount 暂无此字段，
-  /// 当前使用标记 Mock 值用于 UI 还原，接入真实字段后替换。
+  /// 天佑德值（baseprofile.apprankcredit）；用户资料接口失败时为 0
   final int tianyoudeValue;
 
   /// 资料是否正在加载。
@@ -227,6 +226,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
       String genderName = state.genderName;
       DateTime? birthday = state.birthday;
       String? address = state.address;
+      int tianyoudeValue = state.tianyoudeValue;
 
       final authResp = await ref.read(authProvider.notifier).getCurrentUser();
       if (authResp.success && authResp.data != null) {
@@ -242,6 +242,7 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         genderName = u.genderName;
         birthday = u.birthday;
         address = u.address ?? address;
+        tianyoudeValue = u.tianyoudeValue;
       }
       // 重新匹配到期时间与等级名（此时 memberLevel 已更新为真实值）
       if (ranks.isNotEmpty) {
@@ -271,8 +272,8 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         unreadMessageCount: unreadMessageCount,
         avatarPreviewBytes: state.avatarPreviewBytes,
         memberExpireDate: expireDate,
-        // TODO(Mock): 天佑德值后端暂无对应字段，使用标记 Mock 值做 UI 还原
-        tianyoudeValue: 1500,
+        // 天佑德值来源：getmyprofile baseprofile.apprankcredit
+        tianyoudeValue: tianyoudeValue,
         hasLoaded: true,
       );
     } catch (e) {

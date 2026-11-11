@@ -19,8 +19,8 @@ import '../widgets/member_sign_in_records.dart';
 ///   浅蓝渐变背景：返回栏「会员签到」+ 我的积分 + 签到日历卡片
 ///   + 连续签到奖励 + 签到明细；右上角吉祥物叠在日历卡片之上；
 ///   底部固定签到栏（渐变按钮「立即签到」）。
-/// 数据：TODO(Mock) 由 [memberSignInProvider] 提供（MockMemberSignInDataSource），
-/// 后端接口就绪后替换为真实接口。
+/// 数据：由 [memberSignInProvider] 提供，数据源为 MemberDataSource；
+/// 后端签到接口暂未接入时页面展示加载失败态。
 class MemberSignInPage extends ConsumerStatefulWidget {
   const MemberSignInPage({super.key});
 
@@ -37,7 +37,7 @@ class _MemberSignInPageState extends ConsumerState<MemberSignInPage> {
     });
   }
 
-  /// 签到（TODO(Mock)：当前返回「今日已签到」，接口就绪后按真实结果刷新页面）
+  /// 签到：后端接口暂未接入时提示失败，接口就绪后按真实结果刷新页面
   Future<void> _handleSignIn() async {
     final result = await ref.read(memberSignInProvider.notifier).signIn();
     if (!mounted) return;
