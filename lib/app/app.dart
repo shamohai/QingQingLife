@@ -6,6 +6,7 @@ import 'providers/theme_provider.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 import '../core/deeplink/deep_link_receiver.dart';
+import 'startup/startup_video_gate.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -17,22 +18,20 @@ class App extends StatelessWidget {
         final themeMode = ref.watch(themeProvider);
         final router = ref.watch(appRouter);
 
-        return DeepLinkReceiver(
-          onLocation: router.go,
-          child: MaterialApp.router(
-            title: '青轻生活',
-            debugShowCheckedModeBanner: false,
-            themeMode: themeMode,
-            theme: AppTheme.themeData,
-            darkTheme: AppTheme.darkThemeData,
-            routerConfig: router,
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [Locale('zh', 'CN')],
-            builder: (context, child) => child ?? const SizedBox.shrink(),
+        return StartupVideoGate(
+          child: DeepLinkReceiver(
+            onLocation: router.go,
+            child: MaterialApp.router(
+              title: '青轻生活',
+              debugShowCheckedModeBanner: false,
+              themeMode: themeMode,
+              theme: AppTheme.themeData,
+              darkTheme: AppTheme.darkThemeData,
+              routerConfig: router,
+              localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
+              supportedLocales: const [Locale('zh', 'CN')],
+              builder: (context, child) => child ?? const SizedBox.shrink(),
+            ),
           ),
         );
       },
