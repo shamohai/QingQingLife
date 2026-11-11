@@ -6,6 +6,7 @@ import 'providers/theme_provider.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 import '../core/deeplink/deep_link_receiver.dart';
+import 'startup/startup_video_gate.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -16,41 +17,21 @@ class App extends StatelessWidget {
       builder: (context, ref, _) {
         final themeMode = ref.watch(themeProvider);
         final router = ref.watch(appRouter);
-        // final versionCheckState = ref.watch(versionCheckProvider);
-        // // 触发启动时版本检查（仅执行一次）
-        // ref.read(autoVersionCheckProvider);
 
-        return DeepLinkReceiver(
-          onLocation: router.go,
-          child: MaterialApp.router(
-            title: '青轻生活',
-            debugShowCheckedModeBanner: false,
-            themeMode: themeMode,
-            theme: AppTheme.themeData,
-            darkTheme: AppTheme.darkThemeData,
-            routerConfig: router,
-            localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
-            supportedLocales: const [Locale('zh', 'CN')],
-            builder: (context, child) {
-              // // 检查是否需要显示更新弹窗，测试时关闭
-              // if (versionCheckState.state == VersionCheckState.checked && versionCheckState.info != null && versionCheckState.info!.shouldShowDialog) {
-              //   WidgetsBinding.instance.addPostFrameCallback((_) {
-              //     if (!context.mounted) return;
-              //     final info = versionCheckState.info!;
-              //     showDialog(
-              //       context: context,
-              //       barrierDismissible: !info.isForceUpdate,
-              //       builder: (dialogContext) => UpdateDialog(
-              //         info: info,
-              //         onConfirm: () {
-              //           // TODO: 触发实际更新逻辑
-              //         },
-              //       ),
-              //     );
-              //   });
-              // }
-              return child ?? const SizedBox.shrink();
-            },
+        return StartupVideoGate(
+          child: DeepLinkReceiver(
+            onLocation: router.go,
+            child: MaterialApp.router(
+              title: '青轻生活',
+              debugShowCheckedModeBanner: false,
+              themeMode: themeMode,
+              theme: AppTheme.themeData,
+              darkTheme: AppTheme.darkThemeData,
+              routerConfig: router,
+              localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
+              supportedLocales: const [Locale('zh', 'CN')],
+              builder: (context, child) => child ?? const SizedBox.shrink(),
+            ),
           ),
         );
       },

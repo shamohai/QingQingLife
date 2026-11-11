@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/repositories/cart_page_mock_repository.dart';
+import '../../data/repositories/cart_repository.dart';
 import '../../domain/models/cart_page_models.dart';
 
 class CartPageState {

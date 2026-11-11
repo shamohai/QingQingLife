@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:qingqinglife/core/network/api_client.dart';
 import 'package:qingqinglife/core/network/api_response.dart';
 import 'package:qingqinglife/core/network/providers.dart';
-import 'package:qingqinglife/features/order/data/datasources/order_remote_datasource.dart';
+import 'package:qingqinglife/features/order/data/datasources/order_datasource.dart';
 import 'package:qingqinglife/features/order/presentation/pages/all_orders_page.dart';
 import 'package:qingqinglife/features/order/presentation/providers/all_orders_provider.dart';
 
@@ -44,9 +44,9 @@ ProviderContainer _container(_ApiClient client) {
 void main() {
   test('search uses exactly one field, preserves leading zeroes, and clears both', () async {
     final client = _ApiClient((_) async => _response());
-    final remote = OrderRemoteDataSource(client);
+    final dataSource = OrderDataSource(apiClient: client);
     for (final keyword in [' 001234 ', '青稞酒', '123abc', '12 34', '１２３', '   ']) {
-      await remote.getOrderList(page: 1, pageSize: 20, orderState: 0, keyword: keyword);
+      await dataSource.getOrderList(page: 1, pageSize: 20, orderState: 0, keyword: keyword);
     }
     expect(client.requests[0], {'orderstate': 0, 'ordercode': '001234', 'productname': null, 'pageindex': 1, 'pagesize': 20});
     for (var index = 1; index <= 4; index++) {

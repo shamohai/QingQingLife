@@ -1,40 +1,36 @@
 import 'package:flutter/material.dart';
 
-// ─── Service Tier（服务档位，用于购酒享服务/青藏特色） ───
-
 class ServiceTier {
   final String id;
   final String title;
   final String description;
   final int minSpendCents;
-  final String? imageUrl;
+  final String imageUrl;
 
   const ServiceTier({
     required this.id,
     required this.title,
     required this.description,
     required this.minSpendCents,
-    this.imageUrl,
+    required this.imageUrl,
   });
 
-  String get spendFormatted => (minSpendCents / 100).toStringAsFixed(2);
+  String get spendFormatted => (minSpendCents / 100).toStringAsFixed(0);
 }
-
-// ─── 商品列表项（用于电商特供） ───
 
 class ShopProductItem {
   final String id;
+  final String imageUrl;
   final String name;
   final double price;
-  final String? imageUrl;
-  final String? tag; // e.g. "自营"
+  final String tag;
 
   const ShopProductItem({
     required this.id,
+    required this.imageUrl,
     required this.name,
     required this.price,
-    this.imageUrl,
-    this.tag,
+    required this.tag,
   });
 }
 
@@ -46,16 +42,16 @@ class ShopSubCategory {
 
   const ShopSubCategory({required this.id, required this.label});
 
-  static const List<ShopSubCategory> mockData = [
+  static const List<ShopSubCategory> fallbackData = [
     ShopSubCategory(id: 'baijiu', label: '白酒'),
     ShopSubCategory(id: 'redwine', label: '红酒'),
     ShopSubCategory(id: 'whisky', label: '威士忌'),
   ];
 }
 
-// ─── 电商特供 Mock 商品数据 ───
+// ─── 电商特供降级商品数据 ───
 
-class ShopProductMockData {
+class ShopProductFallbackData {
   static const List<ShopProductItem> products = [
     ShopProductItem(
       id: 'p1', imageUrl: 'assets/images/service/ecommerce1.jpg',
@@ -113,7 +109,7 @@ class ServiceCategory {
     this.subCategories,
   });
 
-  static const List<ServiceCategory> mockData = [
+  static const List<ServiceCategory> fallbackData = [
     ServiceCategory(
       id: 'wine',
       label: '购酒享服务',
@@ -140,8 +136,8 @@ class ServiceCategory {
       label: '电商特供',
       icon: Icons.shopping_bag_outlined,
       isProductList: true,
-      subCategories: ShopSubCategory.mockData,
-      products: ShopProductMockData.products,
+      subCategories: ShopSubCategory.fallbackData,
+      products: ShopProductFallbackData.products,
     ),
     ServiceCategory(
       id: 'dingxiang',

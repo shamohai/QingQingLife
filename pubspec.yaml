@@ -58,6 +58,7 @@ dependencies:
   url_launcher: ^6.3.2
   share_plus: ^13.3.1
   image_picker: ^1.2.3
+  video_player: ^2.9.5
 
   path_provider: ^2.1.0
   flutter_launcher_icons: ^0.14.4
@@ -100,6 +101,7 @@ flutter:
     - assets/images/service/
     - assets/images/points/
     - assets/images/order/
+    - assets/video/open.mp4
 
   # fonts:
   #   - family: Schyler

@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_radius.dart';
+import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/router/route_names.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_loading.dart';
@@ -84,13 +86,13 @@ class ServicePage extends ConsumerWidget {
           return const SizedBox(height: 200, child: AppEmpty(message: '暂无活动'));
         }
         return ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.sm),
           children: [
             Container(
               width: double.infinity,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 11),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                 child: Column(
                   children: [
                     Padding(
@@ -129,13 +131,13 @@ class ServicePage extends ConsumerWidget {
           return const SizedBox(height: 200, child: AppEmpty(message: '暂无服务'));
         }
         return ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.sm),
           children: [
             Container(
               width: double.infinity,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 11),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                 child: Column(
                   children: [
                     Padding(
@@ -173,13 +175,13 @@ class ServicePage extends ConsumerWidget {
           return const SizedBox(height: 200, child: AppEmpty(message: '暂无挚友报名会'));
         }
         return ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.sm),
           children: [
             Container(
               width: double.infinity,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 11),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                 child: Column(
                   children: [
                     Padding(
@@ -216,13 +218,13 @@ class ServicePage extends ConsumerWidget {
           return const Center(child: AppEmpty(message: '暂无购酒享服务'));
         }
         return ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.sm),
           children: [
             Container(
               width: double.infinity,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 11),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                 child: Column(
                   children: [
                     Padding(
