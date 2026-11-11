@@ -337,7 +337,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
             ),
             // Web 环境测试入口：仅 kIsWeb 可见，不使用设计稿色值，低视觉权重
-            if (kIsWeb) _buildWebTestLoginPanel(),
+            // if (kIsWeb)
+            _buildWebTestLoginPanel(),
           ],
         );
 
