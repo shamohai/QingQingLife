@@ -21,12 +21,19 @@ android {
         keystoreProperties.load(keystorePropertiesFile.inputStream())
     }
 
+    val hasReleaseSigningConfig =
+        listOf("storeFile", "storePassword", "keyAlias", "keyPassword").all {
+            !keystoreProperties[it]?.toString().isNullOrBlank()
+        }
+
     signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties["keyAlias"]?.toString() ?: "debug"
-            keyPassword = keystoreProperties["keyPassword"]?.toString() ?: "debug"
-            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
-            storePassword = keystoreProperties["storePassword"]?.toString() ?: "debug"
+        if (hasReleaseSigningConfig) {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"].toString()
+                keyPassword = keystoreProperties["keyPassword"].toString()
+                storeFile = file(keystoreProperties["storeFile"].toString())
+                storePassword = keystoreProperties["storePassword"].toString()
+            }
         }
     }
 
@@ -67,13 +74,12 @@ android {
 
     buildTypes {
         getByName("debug") {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.getByName(if (hasReleaseSigningConfig) "release" else "debug")
             isDebuggable = true
         }
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("release")
+            // Keep builds runnable before production signing is provisioned.
+            signingConfig = signingConfigs.getByName(if (hasReleaseSigningConfig) "release" else "debug")
         }
     }
     buildFeatures {
