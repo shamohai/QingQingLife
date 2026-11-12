@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import 'package:qingqinglife/core/providers/repository_providers.dart';
+import 'package:qingqinglife/core/location/activity_location_service.dart';
 import 'package:qingqinglife/features/home/data/models/weimeng_activity_location.dart';
 
 import '../../../core/logging/app_logger.dart';
@@ -66,7 +66,7 @@ class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
     final actType = widget.activityType?.trim().toLowerCase();
     debugPrint('[线上活动] 原始URL (activityType=$actType): ${widget.url}');
     if (actType == 'drinkmapactivity' || actType == 'drinkrankactivity') {
-      final response = await ref.read(productRepositoryProvider).getWeimengActivityLocation();
+      final response = await ref.read(activityLocationServiceProvider).getWeimengActivityLocation();
       if (!response.success || response.data == null) {
         final message = response.message.isNotEmpty ? response.message : '获取活动信息失败，请稍后重试';
         debugPrint('[线上活动] 获取微盟 SSO 参数失败: code=${response.code}, message=$message');

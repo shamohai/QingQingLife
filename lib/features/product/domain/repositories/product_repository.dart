@@ -1,6 +1,5 @@
 import '../../../../core/network/api_response.dart';
 import '../../../home/data/models/carousel_model.dart';
-import '../../../home/data/models/weimeng_activity_location.dart';
 
 /// 商品仓库接口
 abstract class ProductRepository {
@@ -9,9 +8,6 @@ abstract class ProductRepository {
 
   /// 获取首页商品数据（轮播、金刚区、热卖等）
   Future<ApiResponse<HomeProductData>> getHomeProductData();
-
-  /// 获取微盟酒王 H5 所需的授权和位置参数。
-  Future<ApiResponse<WeimengActivityLocation>> getWeimengActivityLocation();
 
   /// 获取商品列表（分页）
   Future<ApiResponse<ProductListResult>> getProductList({required int page, required int pageSize, String? categoryId, String? keyword, String? sortBy});
