@@ -13,17 +13,8 @@ abstract class ProductRepository {
   /// 获取微盟酒王 H5 所需的授权和位置参数。
   Future<ApiResponse<WeimengActivityLocation>> getWeimengActivityLocation();
 
-  /// 获取商品详情
-  Future<ApiResponse<ProductDetail>> getProductDetail(String productId);
-
   /// 获取商品列表（分页）
   Future<ApiResponse<ProductListResult>> getProductList({required int page, required int pageSize, String? categoryId, String? keyword, String? sortBy});
-
-  /// 获取商品分类
-  Future<ApiResponse<List<ProductCategory>>> getCategories();
-
-  /// 搜索商品
-  Future<ApiResponse<ProductListResult>> searchProducts({required String keyword, required int page, required int pageSize});
 }
 
 /// 首页商品聚合数据
@@ -225,14 +216,4 @@ class ProductListResult {
   final bool hasMore;
 
   const ProductListResult({required this.products, required this.total, required this.page, required this.pageSize, required this.hasMore});
-}
-
-/// 商品分类
-class ProductCategory {
-  final String id;
-  final String label;
-  final String? iconUrl;
-  final int sortOrder;
-
-  const ProductCategory({required this.id, required this.label, this.iconUrl, required this.sortOrder});
 }

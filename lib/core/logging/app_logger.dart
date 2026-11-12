@@ -54,10 +54,6 @@ class AppLogger {
   static void critical(String message, {String? module, Object? error, StackTrace? stackTrace, Map<String, dynamic>? data}) =>
       _log(AppLogLevel.critical, message, module: module, error: error, stackTrace: stackTrace, data: data);
 
-  static void setModuleLevel(String module, AppLogLevel level) {
-    _moduleLevels[module] = level;
-  }
-
   // ── 内部实现 ──────────────────────────────────────────────────────
 
   static void _log(

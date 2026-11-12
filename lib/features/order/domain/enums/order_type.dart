@@ -12,18 +12,4 @@ enum OrderType {
 
   const OrderType(this.label);
   final String label;
-
-  /// 从字符串解析
-  static OrderType fromString(String value) {
-    switch (value) {
-      case 'mall':
-        return OrderType.mall;
-      case 'points':
-        return OrderType.points;
-      case 'service':
-        return OrderType.service;
-      default:
-        return OrderType.mall;
-    }
-  }
 }

@@ -9,7 +9,6 @@ import '../../core/storage/local_storage.dart';
 /// 状态为 [ThemeMode]（system / light / dark），
 /// 初始化时从 LocalStorage 读取用户偏好，切换时自动持久化。
 class ThemeNotifier extends Notifier<ThemeMode> {
-  static const _keySystem = 'system';
   static const _keyLight = 'light';
   static const _keyDark = 'dark';
 
@@ -32,19 +31,6 @@ class ThemeNotifier extends Notifier<ThemeMode> {
         state = ThemeMode.system;
     }
   }
-
-  Future<void> setMode(ThemeMode mode) async {
-    state = mode;
-    final key = mode == ThemeMode.light
-        ? _keyLight
-        : mode == ThemeMode.dark
-            ? _keyDark
-            : _keySystem;
-    await _storage.putString(AppConstants.themeModeKey, key);
-  }
 }
 
-final themeProvider = NotifierProvider<ThemeNotifier, ThemeMode>(
-  () => ThemeNotifier(),
-  name: 'themeProvider',
-);
+final themeProvider = NotifierProvider<ThemeNotifier, ThemeMode>(() => ThemeNotifier(), name: 'themeProvider');

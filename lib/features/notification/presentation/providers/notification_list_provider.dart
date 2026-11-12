@@ -53,14 +53,6 @@ class NotificationListState {
   /// 首次加载（尚无列表数据）时展示整页加载态；下拉刷新与切换类型时保留旧数据
   bool get showLoading => loading && messages.isEmpty;
 
-  /// 指定类型的未读数（无统计或为 0 时不展示角标）
-  int unreadCountOf(int typeValue) {
-    for (final stat in typeStats) {
-      if (stat.typeValue == typeValue) return stat.unreadCount;
-    }
-    return 0;
-  }
-
   /// 指定类型的统计数据（无匹配时返回 null）
   NotificationTypeStat? statOf(int typeValue) {
     for (final stat in typeStats) {

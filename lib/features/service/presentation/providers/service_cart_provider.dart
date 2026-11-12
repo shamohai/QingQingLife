@@ -196,42 +196,6 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
     state = AsyncData(current.copyWith(selectedMap: newMap));
   }
 
-  /// 刷新候选商品（分页加载）
-  Future<void> loadMoreCandidates() async {
-    final current = state.value;
-    if (current == null || !current.hasMoreCandidates) return;
-
-    final ds = ref.read(serviceRemoteDataSourceProvider);
-    final nextPage = current.candidateProducts.length ~/ 20 + 1;
-    final resp = await ds.getCandidateProductList(current.shareCartId, nextPage, 20);
-    if (!resp.success) return;
-
-    final newData = resp.requireData;
-    state = AsyncData(
-      current.copyWith(
-        candidateProducts: [...current.candidateProducts, ...newData.products],
-        hasMoreCandidates: current.candidateProducts.length + newData.products.length < newData.totalCount,
-      ),
-    );
-  }
-
-  /// 刷新购物车商品（数量变化后重新拉取）
-  Future<void> refreshCartProducts() async {
-    final current = state.value;
-    if (current == null || current.shareCartId == 0) return;
-
-    final ds = ref.read(serviceRemoteDataSourceProvider);
-    final resp = await ds.getShareCartProductList(current.shareCartId);
-    if (!resp.success) return;
-
-    final productList = resp.requireData;
-    // 保留现有 selectedMap 对新商品的默认值
-    final selectedMap = <int, bool>{for (final p in productList.list) p.pid: current.selectedMap[p.pid] ?? true};
-    state = AsyncData(
-      current.copyWith(cartProducts: productList.list, canSubmit: productList.canSubmit, verifyMsg: productList.verifyMsg, selectedMap: selectedMap),
-    );
-  }
-
   /// 点击候选商品的加号：首次用默认数量，已在购物车则 +1。
   /// 直接调接口，不再客户端提前 return（避免达到 maxCount 时静默失败）。
   Future<void> addCandidateProduct(CandidateProduct candidate) async {

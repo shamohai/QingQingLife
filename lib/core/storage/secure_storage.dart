@@ -62,12 +62,6 @@ class SecureStorage {
   /// 保存认证请求使用的设备身份。
   Future<void> writeDeviceId(String deviceId) => put(AppConstants.deviceIdKey, deviceId);
 
-  /// 读取刷新令牌
-  Future<String?> readRefreshToken() async {
-    if (kIsWeb) return storage.getLocalStorageItem(AppConstants.refreshTokenKey);
-    return await _storage.read(key: AppConstants.refreshTokenKey);
-  }
-
   /// 写入刷新令牌
   Future<void> writeRefreshToken(String token) async {
     if (kIsWeb) {

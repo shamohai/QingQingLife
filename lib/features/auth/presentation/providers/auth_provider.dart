@@ -93,18 +93,6 @@ class AuthNotifier extends Notifier<AuthStatus> {
 
   // ── 手机号登录 ──────────────────────────────────────────────────────
 
-  Future<void> phoneLogin({required String phone, required String code}) async {
-    state = AuthStatus.loading;
-    final response = await _repository.loginWithPhone(phone: phone, code: code);
-    if (response.success) {
-      final result = response.data!;
-      await _session.login(result.accessToken, refreshToken: result.refreshToken);
-      await _onLoginSuccess();
-    } else {
-      state = AuthStatus.unauthenticated;
-    }
-  }
-
   Future<void> phoneBind({required String phone, required String code}) async {
     state = AuthStatus.loading;
     final wechatCode = await _session.readPendingWechatCode();
