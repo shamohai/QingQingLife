@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'points_mall_home_data.g.dart';
+part 'points_product_model.g.dart';
 
 @JsonSerializable()
 class PointsProduct {

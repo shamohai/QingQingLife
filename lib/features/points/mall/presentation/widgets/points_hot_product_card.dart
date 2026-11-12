@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/widgets/app_image.dart';
-import '../../data/models/points_mall_home_data.dart';
+import '../../data/models/points_product_model.dart';
 
 class PointsHotProductCard extends StatelessWidget {
   final PointsProduct product;

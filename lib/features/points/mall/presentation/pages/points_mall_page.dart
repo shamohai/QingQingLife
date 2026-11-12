@@ -6,7 +6,7 @@ import '../../../../../app/router/route_names.dart';
 import '../../../../../app/theme/app_spacing.dart';
 import '../providers/credit_product_list_provider.dart';
 import '../providers/credit_product_category_provider.dart';
-import '../providers/points_mall_paging_providers.dart';
+import '../providers/points_mall_providers.dart';
 import '../widgets/points_banner.dart';
 import '../widgets/points_balance_card.dart';
 import '../widgets/points_category_tab_bar.dart';
