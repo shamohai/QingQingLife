@@ -10,7 +10,7 @@ enum OrderFilterStatus {
   pendingPayment('pending_payment'),
   pendingShipment('pending_shipment'),
   shipped('shipped'),
-  reviewing('reviewing'),
+  pendingEvaluation('pending_evaluation'),
   refunding('refunding');
 
   const OrderFilterStatus(this.value);
@@ -29,7 +29,7 @@ class ProfileOrderShortcuts extends StatelessWidget {
     _OrderShortcutConfig(icon: Icons.payment_outlined, label: '待付款', status: OrderFilterStatus.pendingPayment),
     _OrderShortcutConfig(icon: Icons.inventory_2_outlined, label: '待发货', status: OrderFilterStatus.pendingShipment),
     _OrderShortcutConfig(icon: Icons.local_shipping_outlined, label: '待收货', status: OrderFilterStatus.shipped),
-    _OrderShortcutConfig(icon: Icons.mood_outlined, label: '评价', status: OrderFilterStatus.reviewing),
+    _OrderShortcutConfig(icon: Icons.mood_outlined, label: '评价', status: OrderFilterStatus.pendingEvaluation),
     _OrderShortcutConfig(icon: Icons.currency_yuan, label: '退款/售后', status: OrderFilterStatus.refunding),
   ];
 
