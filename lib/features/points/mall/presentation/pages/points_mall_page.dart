@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../../app/router/route_names.dart';
 import '../../../../../app/theme/app_spacing.dart';
-import '../../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/credit_product_list_provider.dart';
 import '../providers/credit_product_category_provider.dart';
+import '../providers/points_mall_paging_providers.dart';
 import '../widgets/points_banner.dart';
 import '../widgets/points_balance_card.dart';
 import '../widgets/points_category_tab_bar.dart';
@@ -23,29 +23,8 @@ class PointsMallPage extends ConsumerStatefulWidget {
 /// 积分商城顶部 Banner：静态设计资源，不走接口
 const _kPointsBannerAsset = 'assets/images/points/banner.jpg';
 
-final pointsMallProfilePointsProvider = FutureProvider<({int points, int expiringPoints})>((ref) async {
-  final response = await ref.read(authProvider.notifier).getCurrentUser();
-  if (!response.success || response.data == null) {
-    throw Exception(response.message);
-  }
-  return (points: response.data!.points, expiringPoints: response.data!.expiringPoints);
-});
-
 class _PointsMallPageState extends ConsumerState<PointsMallPage> {
-  final _searchController = TextEditingController();
   int _activeCategoryId = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    Future<void>.microtask(() => ref.read(pointsMallProfilePointsProvider));
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   void _onCategoryChanged(int categoryId) {
     setState(() => _activeCategoryId = categoryId);

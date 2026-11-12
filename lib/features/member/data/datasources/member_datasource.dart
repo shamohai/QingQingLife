@@ -43,9 +43,6 @@ class MemberDataSource implements MemberRepository, MemberSignInRepository {
     }
   }
 
-  /// 后端暂未提供对应接口时的失败响应。
-  ApiResponse<T> _unavailable<T>(String feature) => ApiResponse.error('$feature暂未接入后端接口');
-
   // ── 会员等级 ──────────────────────────────────────────────────────────────
   @override
   Future<ApiResponse<GetRankListResp>> getRankList() {
@@ -141,10 +138,10 @@ class MemberDataSource implements MemberRepository, MemberSignInRepository {
   }
 
   @override
-  Future<ApiResponse<void>> deleteAddress(String addressId) async => _unavailable<void>('删除收货地址');
+  Future<ApiResponse<void>> deleteAddress(String addressId) async => ApiResponse.error('删除收货地址暂未接入后端接口');
 
   @override
-  Future<ApiResponse<void>> setDefaultAddress(String addressId) async => _unavailable<void>('设置默认收货地址');
+  Future<ApiResponse<void>> setDefaultAddress(String addressId) async => ApiResponse.error('设置默认收货地址暂未接入后端接口');
 
   // ── 会员权益与优惠券 ──────────────────────────────────────────────────────
   @override
@@ -239,10 +236,7 @@ class MemberDataSource implements MemberRepository, MemberSignInRepository {
 
   @override
   Future<ApiResponse<void>> revokeServiceCoupon({required int serviceCouponId, required String shareGroup}) {
-    return _post<void>(
-      '/api/promotion/giveservicecouponreovoke',
-      data: <String, dynamic>{'serviceconponid': serviceCouponId, 'sharegroup': shareGroup},
-    );
+    return _post<void>('/api/promotion/giveservicecouponreovoke', data: <String, dynamic>{'serviceconponid': serviceCouponId, 'sharegroup': shareGroup});
   }
 
   @override
@@ -265,10 +259,10 @@ class MemberDataSource implements MemberRepository, MemberSignInRepository {
 
   // ── 会员签到（后端接口暂未提供） ───────────────────────────────────────────
   @override
-  Future<ApiResponse<MemberSignInOverview>> getSignInOverview() async => _unavailable<MemberSignInOverview>('签到总览');
+  Future<ApiResponse<MemberSignInOverview>> getSignInOverview() async => ApiResponse.error('签到总览暂未接入后端接口');
 
   @override
-  Future<ApiResponse<MemberSignInResult>> signIn() async => _unavailable<MemberSignInResult>('会员签到');
+  Future<ApiResponse<MemberSignInResult>> signIn() async => ApiResponse.error('会员签到暂未接入后端接口');
 }
 
 final memberDataSourceProvider = Provider<MemberDataSource>((ref) {
