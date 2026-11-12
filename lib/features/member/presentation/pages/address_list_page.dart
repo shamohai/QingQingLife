@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
+import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/widgets/app_dialog.dart';
@@ -79,23 +80,24 @@ class _AddressListPageState extends ConsumerState<AddressListPage> {
   /// 顶部返回栏（标题左对齐）
   Widget _buildNav(BuildContext context) {
     return SizedBox(
-      height: 30,
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 22),
-            onPressed: () => context.pop(),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          ),
-          const Padding(
-            padding: EdgeInsets.only(top: 2),
-            child: Text(
-              '收货地址',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF000000), height: 1.2),
+      height: 56,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 4),
+        child: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 22),
+              onPressed: () => context.pop(),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
             ),
-          ),
-        ],
+            const SizedBox(width: 4),
+            const Text(
+              '收货地址',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface),
+            ),
+          ],
+        ),
       ),
     );
   }
