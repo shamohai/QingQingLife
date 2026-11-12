@@ -36,17 +36,14 @@ class AuthDataSource implements AuthRepository {
 
   @override
   Future<ApiResponse<AuthResult>> loginWithPhone({required String phone, required String code}) async {
-    final client = _apiClient;
-    if (client != null) {
-      try {
-        final response = await client.post(
-          '/api/sys/user/login',
-          data: {'phone': phone, 'code': code},
-          fromJson: (dynamic json) => AuthResult.fromJson(json as Map<String, dynamic>),
-        );
-        if (response.success) return response;
-      } catch (_) {}
-    }
+    try {
+      final response = await _apiClient!.post(
+        '/api/sys/user/login',
+        data: {'phone': phone, 'code': code},
+        fromJson: (dynamic json) => AuthResult.fromJson(json as Map<String, dynamic>),
+      );
+      if (response.success) return response;
+    } catch (_) {}
     if (code.length != 6 || !RegExp(r'^\d{6}$').hasMatch(code)) {
       return ApiResponse.error('验证码格式错误');
     }
@@ -60,31 +57,25 @@ class AuthDataSource implements AuthRepository {
 
   @override
   Future<ApiResponse<AuthResult>> loginWithWeChatCode({required String code}) async {
-    final client = _apiClient;
-    if (client != null) {
-      try {
-        final response = await client.post(
-          '/api/sys/app/login',
-          data: {'code': code},
-          fromJson: (dynamic json) => AuthResult.fromJson(json as Map<String, dynamic>),
-        );
-        if (response.success) return response;
-      } catch (_) {}
-    }
+    try {
+      final response = await _apiClient!.post(
+        '/api/sys/app/login',
+        data: {'code': code},
+        fromJson: (dynamic json) => AuthResult.fromJson(json as Map<String, dynamic>),
+      );
+      if (response.success) return response;
+    } catch (_) {}
     return ApiResponse.success(_buildResult());
   }
 
   @override
   Future<ApiResponse<AuthResult>> phoneBind({required String phone, required String code, required String wechatCode}) async {
-    final client = _apiClient;
-    if (client != null) {
-      try {
-        final response = await client.post('/api/sys/user/bindPhone', data: {'phone': phone, 'code': code, 'wechatCode': wechatCode});
-        if (response.success) {
-          return ApiResponse.success(AuthResult.fromJson((response.data as Map<String, dynamic>?) ?? {}));
-        }
-      } catch (_) {}
-    }
+    try {
+      final response = await _apiClient!.post('/api/sys/user/bindPhone', data: {'phone': phone, 'code': code, 'wechatCode': wechatCode});
+      if (response.success) {
+        return ApiResponse.success(AuthResult.fromJson((response.data as Map<String, dynamic>?) ?? {}));
+      }
+    } catch (_) {}
     if (!RegExp(r'^\d{6}$').hasMatch(code)) {
       return ApiResponse.error('验证码需为 6 位数字');
     }
@@ -93,13 +84,10 @@ class AuthDataSource implements AuthRepository {
 
   @override
   Future<ApiResponse<void>> sendSmsCode({required String phone}) async {
-    final client = _apiClient;
-    if (client != null) {
-      try {
-        final response = await client.post<void>('/api/sys/user/sendCode', data: {'phone': phone});
-        if (response.success) return response;
-      } catch (_) {}
-    }
+    try {
+      final response = await _apiClient!.post<void>('/api/sys/user/sendCode', data: {'phone': phone});
+      if (response.success) return response;
+    } catch (_) {}
     if (!RegExp(r'^1\d{10}$').hasMatch(phone)) {
       return ApiResponse.error('请输入正确的手机号');
     }
@@ -108,38 +96,26 @@ class AuthDataSource implements AuthRepository {
 
   @override
   Future<ApiResponse<void>> logout() async {
-    final client = _apiClient;
-    if (client != null) {
-      try {
-        await client.post<void>('/api/sys/logout');
-      } catch (_) {}
-    }
+    try {
+      await _apiClient!.post<void>('/api/sys/logout');
+    } catch (_) {}
     return ApiResponse.success(null);
   }
 
   @override
   Future<ApiResponse<void>> deleteAccount() async {
-    final client = _apiClient;
-    if (client != null) {
-      try {
-        await client.post<void>('/api/sys/deluser');
-      } catch (_) {}
-    }
+    try {
+      await _apiClient!.post<void>('/api/sys/deluser');
+    } catch (_) {}
     return ApiResponse.success(null);
   }
 
   @override
   Future<ApiResponse<UserInfo>> getCurrentUser() async {
-    final client = _apiClient;
-    if (client != null) {
-      try {
-        final response = await client.post(
-          '/api/sys/app/getmyprofile',
-          fromJson: (dynamic json) => UserInfo.fromJson(json as Map<String, dynamic>),
-        );
-        if (response.success) return response;
-      } catch (_) {}
-    }
+    try {
+      final response = await _apiClient!.post('/api/sys/app/getmyprofile', fromJson: (dynamic json) => UserInfo.fromJson(json as Map<String, dynamic>));
+      if (response.success) return response;
+    } catch (_) {}
     final token = await _storage.readAuthToken();
     if (token == null || token.isEmpty) {
       return ApiResponse.error('未登录', code: 401);
@@ -149,16 +125,10 @@ class AuthDataSource implements AuthRepository {
 
   @override
   Future<ApiResponse<String>> refreshToken() async {
-    final client = _apiClient;
-    if (client != null) {
-      try {
-        final response = await client.post(
-          '/api/sys/user/refreshToken',
-          fromJson: (dynamic json) => (json as dynamic) as String,
-        );
-        if (response.success) return response;
-      } catch (_) {}
-    }
+    try {
+      final response = await _apiClient!.post('/api/sys/user/refreshToken', fromJson: (dynamic json) => (json as dynamic) as String);
+      if (response.success) return response;
+    } catch (_) {}
     final oldToken = await _storage.readAuthToken();
     if (oldToken == null || oldToken.isEmpty) {
       return ApiResponse.error('Token 为空', code: 401);
