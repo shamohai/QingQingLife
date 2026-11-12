@@ -104,7 +104,21 @@ class ProductDataSource implements ProductRepository, ProductDetailContentReposi
 
   /// 获取设备定位；无定位服务或未授权时返回 null，不使用假坐标。
   Future<Position?> _getDevicePosition() async {
-    if (kIsWeb) return null;
+    if (kIsWeb) {
+      // Web 端暂用青海省西宁市坐标（lng, lat）代替定位，便于 Chrome 联调。
+      return Position(
+        longitude: 101.7782,
+        latitude: 36.6171,
+        timestamp: DateTime.now(),
+        accuracy: 0,
+        altitude: 0,
+        altitudeAccuracy: 0,
+        heading: 0,
+        headingAccuracy: 0,
+        speed: 0,
+        speedAccuracy: 0,
+      );
+    }
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) return null;
     var permission = await Geolocator.checkPermission();

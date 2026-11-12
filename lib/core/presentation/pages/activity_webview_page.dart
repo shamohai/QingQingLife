@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import 'package:qingqinglife/core/providers/repository_providers.dart';
@@ -22,7 +24,7 @@ class ActivityWebViewPage extends ConsumerStatefulWidget {
 }
 
 class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
-  late final WebViewController _controller;
+  WebViewController? _controller;
   int _loadingProgress = 0;
   String? _errorMessage;
   bool _isShareSheetOpen = false;
@@ -30,6 +32,11 @@ class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
   @override
   void initState() {
     super.initState();
+    if (kIsWeb) {
+      // Web 端 webview_flutter 未实现 JS Channel 等接口，改为拼接后用新窗口打开。
+      _openOnWeb();
+      return;
+    }
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..addJavaScriptChannel('AppShare', onMessageReceived: (message) => _handleShareMessage(message.message))
@@ -52,9 +59,11 @@ class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
     _setupUserAgentAndLoad();
   }
 
-  Future<void> _setupUserAgentAndLoad() async {
+  /// 构造最终 URL（与移动端逻辑一致），Web 端仅打印并在新窗口打开。
+  Future<String> _buildFinalUrl() async {
     var finalUrl = widget.url;
     final actType = widget.activityType?.trim().toLowerCase();
+    debugPrint('[线上活动] 原始URL (activityType=$actType): ${widget.url}');
     if (actType == 'drinkmapactivity' || actType == 'drinkrankactivity') {
       final response = await ref.read(productRepositoryProvider).getWeimengActivityLocation();
       if (response.success && response.data != null) {
@@ -66,28 +75,43 @@ class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
         }
       }
     }
+    debugPrint('[线上活动] 拼接后最终WebView URL: $finalUrl');
+    return finalUrl;
+  }
 
+  Future<void> _openOnWeb() async {
+    final finalUrl = await _buildFinalUrl();
+    if (!mounted) return;
+    await launchUrl(Uri.parse(finalUrl), webOnlyWindowName: '_blank');
+    if (mounted) Navigator.of(context).maybePop();
+  }
+
+  Future<void> _setupUserAgentAndLoad() async {
+    final controller = _controller;
+    if (controller == null) return;
+    final finalUrl = await _buildFinalUrl();
     AppLogger.debug('线上活动 WebView 加载 URL: $finalUrl', module: 'activity_webview');
     try {
-      final defaultUA = await _controller.getUserAgent();
+      final defaultUA = await controller.getUserAgent();
       final customUA = (defaultUA != null && defaultUA.isNotEmpty) ? '$defaultUA QingQingLife/1.0.0 qqshApp/1.0.0' : 'QingQingLife/1.0.0 qqshApp/1.0.0';
-      await _controller.setUserAgent(customUA);
+      await controller.setUserAgent(customUA);
     } catch (_) {
-      await _controller.setUserAgent('QingQingLife/1.0.0 qqshApp/1.0.0');
+      await controller.setUserAgent('QingQingLife/1.0.0 qqshApp/1.0.0');
     }
     if (mounted) {
-      await _controller.loadRequest(Uri.parse(finalUrl));
+      await controller.loadRequest(Uri.parse(finalUrl));
     }
   }
 
   Future<void> _handleShareMessage(String message) async {
-    if (!mounted || _isShareSheetOpen) return;
+    final controller = _controller;
+    if (!mounted || _isShareSheetOpen || controller == null) return;
     final shareMessage = ActivityShareMessage.tryParse(message);
     if (shareMessage == null) return;
 
     _isShareSheetOpen = true;
     try {
-      final currentUrl = await _controller.currentUrl();
+      final currentUrl = await controller.currentUrl();
       if (!mounted) return;
       final payload = shareMessage.toSharePayload(fallbackTitle: widget.title, fallbackUrl: currentUrl);
       await AppShareSheet.show(context: context, payload: payload);
@@ -97,38 +121,46 @@ class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
   }
 
   Future<void> _reload() async {
+    final controller = _controller;
+    if (controller == null) {
+      await _openOnWeb();
+      return;
+    }
     setState(() => _errorMessage = null);
-    await _controller.reload();
+    await controller.reload();
   }
 
   @override
   Widget build(BuildContext context) {
+    final controller = _controller;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
         actions: [IconButton(onPressed: _reload, icon: const Icon(Icons.refresh))],
       ),
-      body: SafeArea(
-        top: false,
-        bottom: true,
-        child: Stack(
-          children: [
-            if (_errorMessage == null) WebViewWidget(controller: _controller),
-            if (_errorMessage != null)
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(_errorMessage!),
-                    const SizedBox(height: 12),
-                    FilledButton(onPressed: _reload, child: const Text('重新加载')),
-                  ],
-                ),
+      body: kIsWeb || controller == null
+          ? const Center(child: Text('已在新窗口打开活动页面'))
+          : SafeArea(
+              top: false,
+              bottom: true,
+              child: Stack(
+                children: [
+                  if (_errorMessage == null) WebViewWidget(controller: controller),
+                  if (_errorMessage != null)
+                    Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(_errorMessage!),
+                          const SizedBox(height: 12),
+                          FilledButton(onPressed: _reload, child: const Text('重新加载')),
+                        ],
+                      ),
+                    ),
+                  if (_loadingProgress < 100 && _errorMessage == null) LinearProgressIndicator(value: _loadingProgress / 100),
+                ],
               ),
-            if (_loadingProgress < 100 && _errorMessage == null) LinearProgressIndicator(value: _loadingProgress / 100),
-          ],
-        ),
-      ),
+            ),
     );
   }
 }
