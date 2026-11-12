@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../../data/models/points_mall_home_data.dart';
+/// 积分段标签（静态配置，第一项为“我能兑换”）
+const List<String> kPointsRangeLabels = ['我能兑换'];
 
 /// 积分商城左侧分类侧边栏（固定宽度，选中项有蓝色竖线指示）
 class PointsCategorySidebar extends StatefulWidget {
-  final List<PointsRedeemGroup> groups;
+  final List<String> labels;
   final int activeIndex;
   final ValueChanged<int> onCategoryTap;
   final double? height;
 
-  const PointsCategorySidebar({super.key, required this.groups, required this.activeIndex, required this.onCategoryTap, this.height});
+  const PointsCategorySidebar({super.key, this.labels = kPointsRangeLabels, required this.activeIndex, required this.onCategoryTap, this.height});
 
   @override
   State<PointsCategorySidebar> createState() => _PointsCategorySidebarState();
@@ -32,7 +33,7 @@ class _PointsCategorySidebarState extends State<PointsCategorySidebar> {
 
   @override
   Widget build(BuildContext context) {
-    final allLabels = ['我能兑换', ...widget.groups.map((g) => g.rangeLabel)];
+    final allLabels = widget.labels;
 
     return Container(
       width: 110, // 侧边栏容器总宽度

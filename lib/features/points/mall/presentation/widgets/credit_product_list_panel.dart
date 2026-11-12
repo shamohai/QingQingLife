@@ -6,7 +6,6 @@ import '../../../../../app/router/route_names.dart';
 import '../../../../../core/presentation/paging/paging_list_view.dart';
 import '../../../../../core/widgets/app_empty.dart';
 import '../../data/models/get_credit_product_list_model.dart';
-import '../../data/models/points_mall_home_data.dart';
 import '../providers/credit_product_list_provider.dart';
 import 'points_category_sidebar.dart';
 
@@ -15,10 +14,9 @@ import 'points_category_sidebar.dart';
 /// 左侧：积分段侧边栏（可点击切换）
 /// 右侧：分页商品列表（PagingListView）
 class CreditProductListPanel extends ConsumerStatefulWidget {
-  final List<PointsRedeemGroup> groups;
   final int activeCategoryId;
 
-  const CreditProductListPanel({super.key, required this.groups, this.activeCategoryId = 0});
+  const CreditProductListPanel({super.key, this.activeCategoryId = 0});
 
   @override
   ConsumerState<CreditProductListPanel> createState() => _CreditProductListPanelState();
@@ -27,13 +25,11 @@ class CreditProductListPanel extends ConsumerStatefulWidget {
 class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel> {
   int _activeIndex = 0;
 
-  List<String> get _labels => ['我能兑换', ...widget.groups.map((g) => g.rangeLabel)];
-
   void _onRangeTap(int index) {
     setState(() => _activeIndex = index);
     final notifier = ref.read(creditProductListProvider.notifier);
     notifier.setCategoryId(widget.activeCategoryId);
-    notifier.setIntegralRange(_labels[index]);
+    notifier.setIntegralRange(kPointsRangeLabels[index]);
   }
 
   @override
@@ -55,7 +51,7 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 左侧积分段侧边栏
-            PointsCategorySidebar(groups: widget.groups, activeIndex: _activeIndex, onCategoryTap: _onRangeTap),
+            PointsCategorySidebar(activeIndex: _activeIndex, onCategoryTap: _onRangeTap),
             // 右侧分页商品列表
             Expanded(
               child: Container(

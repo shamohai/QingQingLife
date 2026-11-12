@@ -1,6 +1,5 @@
 import '../../../../core/network/api_response.dart';
 import '../../data/models/points_credit_detail_models.dart';
-import '../../mall/data/models/points_mall_home_data.dart';
 import '../../mall/data/models/get_recommend_product_list_model.dart';
 import '../../mall/data/models/get_credit_product_list_model.dart';
 import '../../mall/data/models/credit_product_category_model.dart';
@@ -9,12 +8,6 @@ import '../../mall/data/models/points_submit_order_models.dart';
 
 /// 积分商城仓库接口
 abstract class PointsRepository {
-  /// 获取积分商城首页数据
-  Future<ApiResponse<PointsMallHomeData>> getPointsMallHome();
-
-  /// 获取积分商品列表（分页）
-  Future<ApiResponse<PointsMallHomeData>> getProducts({required int page, required int pageSize, String? categoryId, String? keyword});
-
   /// 获取积分账户余额及积分流水。
   /// 接口：POST /api/promotion/getcreditlist
   Future<ApiResponse<PointsCreditListData>> getCreditList({required int page, required int pageSize, String? startDate, String? endDate});
