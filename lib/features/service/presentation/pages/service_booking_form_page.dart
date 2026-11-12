@@ -345,8 +345,10 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
           ),
         ),
       );
-    } finally {
-      if (mounted && _isSubmitting) setState(() => _isSubmitting = false);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isSubmitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('提交失败，请稍后重试'), behavior: SnackBarBehavior.floating));
     }
   }
 

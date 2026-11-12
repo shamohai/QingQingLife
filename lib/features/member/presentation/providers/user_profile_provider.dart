@@ -6,6 +6,8 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/models/member_rank_models.dart';
 
 import '../../../../core/network/api_response.dart';
+import '../../../../core/network/exceptions/exceptions.dart';
+import '../../../../core/logging/app_logger.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/providers/session_provider.dart';
 import '../../../../core/domain/repositories/auth_repository.dart' show UserInfo;
@@ -274,28 +276,37 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
         tianyoudeValue: tianyoudeValue,
         hasLoaded: true,
       );
-    } finally {
-      if (_isCurrentLoad(generation) && state.isLoading) {
+    } catch (e) {
+      AppLogger.error('load error', module: 'user_profile', error: e);
+      if (_isCurrentLoad(generation)) {
         state = state.withLoadFinished();
       }
     }
   }
 
   Future<int?> _loadCouponCount() async {
-    final response = await ref.read(memberRepositoryProvider).getAvailableWelfareList(cardOnly: true);
-    if (response.success && response.data != null) return response.data!.keepCount;
+    try {
+      final response = await ref.read(memberRepositoryProvider).getAvailableWelfareList(cardOnly: true);
+      if (response.success && response.data != null) return response.data!.keepCount;
+    } catch (error) {
+      AppLogger.error('coupon count error', module: 'user_profile', error: error);
+    }
     return null;
   }
 
   /// 未读消息总数：getnotificationtypestat 中 type = -1（全部）项的 unreadcount。
   ///
-  /// 接口未返回「全部」项时返回 null，调用方保持现值。
+  /// 接口未返回「全部」项或请求失败时返回 null，调用方保持现值。
   Future<int?> _loadUnreadMessageCount() async {
-    final response = await ref.read(notificationRepositoryProvider).getTypeStats();
-    if (!response.success || response.data == null) return null;
-    for (final stat in response.data!) {
-      // 接口约定 type = -1 为「全部」
-      if (stat.typeValue == -1) return stat.unreadCount;
+    try {
+      final response = await ref.read(notificationRepositoryProvider).getTypeStats();
+      if (!response.success || response.data == null) return null;
+      for (final stat in response.data!) {
+        // 接口约定 type = -1 为「全部」
+        if (stat.typeValue == -1) return stat.unreadCount;
+      }
+    } catch (error) {
+      AppLogger.error('unread message count error', module: 'user_profile', error: error);
     }
     return null;
   }
@@ -304,7 +315,15 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
   ///
   /// 返回 null 表示上传成功；否则返回可直接展示给用户的错误文案。
   Future<String?> changeAvatar({required Uint8List bytes, required String ext}) async {
-    final ApiResponse<void> response = await ref.read(memberRepositoryProvider).changeUserAvatar(buffer: bytes, ext: ext);
+    final ApiResponse<void> response;
+    try {
+      response = await ref.read(memberRepositoryProvider).changeUserAvatar(buffer: bytes, ext: ext);
+    } on NetworkException catch (error) {
+      return error.toDisplayMessage(fallback: '头像更新失败，请稍后重试');
+    } catch (error) {
+      AppLogger.error('change avatar error', module: 'user_profile', error: error);
+      return '头像更新失败，请稍后重试';
+    }
 
     if (!response.success) {
       final message = response.message.trim();
@@ -312,10 +331,14 @@ class UserProfileNotifier extends Notifier<UserProfileState> {
     }
 
     state = state.withAvatarPreview(bytes);
-    final authResponse = await ref.read(authProvider.notifier).getCurrentUser();
-    final avatarUrl = authResponse.data?.avatarUrl;
-    if (authResponse.success && avatarUrl != null) {
-      state = state.withAvatarUrl(avatarUrl);
+    try {
+      final authResponse = await ref.read(authProvider.notifier).getCurrentUser();
+      final avatarUrl = authResponse.data?.avatarUrl;
+      if (authResponse.success && avatarUrl != null) {
+        state = state.withAvatarUrl(avatarUrl);
+      }
+    } catch (error) {
+      AppLogger.error('avatar uploaded but profile refresh failed', module: 'user_profile', error: error);
     }
     return null;
   }

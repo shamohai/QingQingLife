@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart' show DioException;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/exceptions/exceptions.dart';
@@ -13,6 +14,8 @@ class AllOrdersState {
   final int page;
   final int total;
   final String keyword;
+  final String? error;
+  final bool failedToLoadMore;
 
   const AllOrdersState({
     this.orders = const [],
@@ -23,9 +26,20 @@ class AllOrdersState {
     this.page = 0,
     this.total = 0,
     this.keyword = '',
+    this.error,
+    this.failedToLoadMore = false,
   });
 
-  AllOrdersState copyWith({List<OrderListOrder>? orders, bool? isLoading, bool? isLoadingMore, bool? hasMore, int? page, int? total}) => AllOrdersState(
+  AllOrdersState copyWith({
+    List<OrderListOrder>? orders,
+    bool? isLoading,
+    bool? isLoadingMore,
+    bool? hasMore,
+    int? page,
+    int? total,
+    String? error,
+    bool failedToLoadMore = false,
+  }) => AllOrdersState(
     orders: orders ?? this.orders,
     isLoading: isLoading ?? this.isLoading,
     isLoadingMore: isLoadingMore ?? this.isLoadingMore,
@@ -34,6 +48,8 @@ class AllOrdersState {
     page: page ?? this.page,
     total: total ?? this.total,
     keyword: keyword,
+    error: error,
+    failedToLoadMore: failedToLoadMore,
   );
 }
 
@@ -132,10 +148,15 @@ class AllOrdersNotifier extends Notifier<AllOrdersState> {
         total: result.total,
         hasMore: result.hasMore,
       );
-    } finally {
-      if (ref.mounted && request == _requestVersion && (state.isLoading || state.isLoadingMore)) {
-        state = state.copyWith(isLoading: false, isLoadingMore: false);
-      }
+    } catch (error) {
+      if (!ref.mounted || request != _requestVersion) return;
+      final cause = error is DioException ? error.error : error;
+      state = state.copyWith(
+        isLoading: false,
+        isLoadingMore: false,
+        error: cause is NetworkException ? cause.message : '订单加载失败，请稍后重试',
+        failedToLoadMore: append,
+      );
     }
   }
 }

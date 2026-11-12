@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:qingqinglife/core/logging/app_logger.dart';
+
 import '../../../../core/providers/repository_providers.dart';
 import '../../domain/repositories/invoice_repository.dart';
 
@@ -45,8 +47,9 @@ class InvoiceDetailNotifier extends Notifier<InvoiceDetailState> {
       } else {
         state = state.copyWith(isLoading: false, errorMessage: '发票详情加载失败，请稍后重试');
       }
-    } finally {
-      if (state.isLoading) state = state.copyWith(isLoading: false);
+    } catch (e) {
+      AppLogger.error('load error', module: 'invoice_detail', error: e);
+      state = state.copyWith(isLoading: false, errorMessage: '发票详情加载失败，请稍后重试');
     }
   }
 }

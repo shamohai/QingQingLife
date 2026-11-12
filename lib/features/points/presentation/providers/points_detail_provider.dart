@@ -82,6 +82,8 @@ class PointsDetailNotifier extends Notifier<PointsDetailState> {
     await _fetch(reset: false);
   }
 
+  void selectMonth(String month) => state = state.copyWith(selectedMonth: month);
+
   Future<void> _fetch({required bool reset}) async {
     try {
       final response = await ref.read(pointsRepositoryProvider).getCreditList(page: _page, pageSize: _pageSize);
@@ -102,8 +104,8 @@ class PointsDetailNotifier extends Notifier<PointsDetailState> {
         clearError: true,
       );
       if (data.credits.isNotEmpty) _page++;
-    } finally {
-      state = state.copyWith(isLoading: false, isLoadingMore: false);
+    } catch (error) {
+      state = state.copyWith(isLoading: false, isLoadingMore: false, errorMessage: error.toString());
     }
   }
 

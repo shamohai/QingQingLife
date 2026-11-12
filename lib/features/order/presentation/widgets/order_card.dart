@@ -5,6 +5,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_image.dart';
+import '../../../../core/network/exceptions/exceptions.dart';
 import '../../domain/entities/order_list_order.dart';
 import 'order_amount_text.dart';
 
@@ -367,9 +368,15 @@ class OrderCard extends StatelessWidget {
     );
     if (confirmed != true || !context.mounted) return;
 
-    await onCancelOrder!(orderId);
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('订单已取消')));
+    try {
+      await onCancelOrder!(orderId);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('订单已取消')));
+    } catch (error) {
+      if (!context.mounted) return;
+      final message = error is NetworkException ? error.message : '请稍后重试';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('取消订单失败：$message')));
+    }
   }
 
   Future<void> _confirmReceived(BuildContext context) async {
@@ -398,9 +405,15 @@ class OrderCard extends StatelessWidget {
     );
     if (confirmed != true || !context.mounted) return;
 
-    await onConfirmReceived!(orderId);
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('已确认收货')));
+    try {
+      await onConfirmReceived!(orderId);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('已确认收货')));
+    } catch (error) {
+      if (!context.mounted) return;
+      final message = error is NetworkException ? error.message : '请稍后重试';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('确认收货失败：$message')));
+    }
   }
 }
 

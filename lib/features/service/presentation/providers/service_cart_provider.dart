@@ -176,7 +176,11 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
   /// 重试加载时复用已创建的购物车，避免重复创建。
   Future<void> retry() async {
     state = const AsyncLoading();
-    state = AsyncData(await _load());
+    try {
+      state = AsyncData(await _load());
+    } catch (error, stackTrace) {
+      state = AsyncError(error, stackTrace);
+    }
   }
 
   /// 切换单个商品选中状态
@@ -194,6 +198,42 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
     if (current == null) return;
     final newMap = <int, bool>{for (final p in current.cartProducts) p.pid: value};
     state = AsyncData(current.copyWith(selectedMap: newMap));
+  }
+
+  /// 刷新候选商品（分页加载）
+  Future<void> loadMoreCandidates() async {
+    final current = state.value;
+    if (current == null || !current.hasMoreCandidates) return;
+
+    final ds = ref.read(serviceRemoteDataSourceProvider);
+    final nextPage = current.candidateProducts.length ~/ 20 + 1;
+    final resp = await ds.getCandidateProductList(current.shareCartId, nextPage, 20);
+    if (!resp.success) return;
+
+    final newData = resp.requireData;
+    state = AsyncData(
+      current.copyWith(
+        candidateProducts: [...current.candidateProducts, ...newData.products],
+        hasMoreCandidates: current.candidateProducts.length + newData.products.length < newData.totalCount,
+      ),
+    );
+  }
+
+  /// 刷新购物车商品（数量变化后重新拉取）
+  Future<void> refreshCartProducts() async {
+    final current = state.value;
+    if (current == null || current.shareCartId == 0) return;
+
+    final ds = ref.read(serviceRemoteDataSourceProvider);
+    final resp = await ds.getShareCartProductList(current.shareCartId);
+    if (!resp.success) return;
+
+    final productList = resp.requireData;
+    // 保留现有 selectedMap 对新商品的默认值
+    final selectedMap = <int, bool>{for (final p in productList.list) p.pid: current.selectedMap[p.pid] ?? true};
+    state = AsyncData(
+      current.copyWith(cartProducts: productList.list, canSubmit: productList.canSubmit, verifyMsg: productList.verifyMsg, selectedMap: selectedMap),
+    );
   }
 
   /// 点击候选商品的加号：首次用默认数量，已在购物车则 +1。
@@ -244,9 +284,12 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
           isUpdatingCart: false,
         ),
       );
-    } finally {
-      final latest = state.value;
-      if (latest != null && latest.isUpdatingCart == true) state = AsyncData(latest.copyWith(isUpdatingCart: false));
+    } on NetworkException catch (e) {
+      final latest = state.value ?? current;
+      state = AsyncData(latest.copyWith(isUpdatingCart: false, cartError: e.toDisplayMessage()));
+    } catch (_) {
+      final latest = state.value ?? current;
+      state = AsyncData(latest.copyWith(isUpdatingCart: false, cartError: '网络异常，请重试'));
     }
   }
 
@@ -270,9 +313,17 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
       final latest = state.value ?? current;
       state = AsyncData(latest.copyWith(isUpdatingCart: false));
       return result;
-    } finally {
-      final latest = state.value;
-      if (latest != null && latest.isUpdatingCart == true) state = AsyncData(latest.copyWith(isUpdatingCart: false));
+    } on ApiException {
+      rethrow;
+    } on NetworkException catch (e) {
+      final latest = state.value ?? current;
+      final displayMsg = e.toDisplayMessage(fallback: '网络异常，请重试');
+      state = AsyncData(latest.copyWith(isUpdatingCart: false, cartError: displayMsg));
+      throw ApiException(message: displayMsg, code: -1);
+    } catch (_) {
+      final latest = state.value ?? current;
+      state = AsyncData(latest.copyWith(isUpdatingCart: false, cartError: '网络异常，请重试'));
+      throw ApiException(message: '网络异常，请重试');
     }
   }
 

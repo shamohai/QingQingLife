@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:qingqinglife/core/logging/app_logger.dart';
+
 import '../../../../core/providers/repository_providers.dart';
 import '../../data/models/member_sign_in_models.dart';
 
@@ -43,12 +45,13 @@ class MemberSignInNotifier extends Notifier<MemberSignInState> {
       } else {
         state = _copy(loading: false, errorMessage: '签到信息加载失败，请稍后重试');
       }
-    } finally {
-      if (state.loading) state = _copy(loading: false);
+    } catch (e) {
+      AppLogger.error('load error', module: 'member_sign_in', error: e);
+      state = _copy(loading: false, errorMessage: '签到信息加载失败，请稍后重试');
     }
   }
 
-  /// 执行签到
+  /// 执行签到；返回 null 表示请求异常（由页面提示失败）
   Future<MemberSignInResult?> signIn() async {
     if (state.signing) return null;
     state = _copy(signing: true);
@@ -56,8 +59,10 @@ class MemberSignInNotifier extends Notifier<MemberSignInState> {
       final resp = await ref.read(memberSignInRepositoryProvider).signIn();
       state = _copy(signing: false);
       return resp.data;
-    } finally {
-      if (state.signing) state = _copy(signing: false);
+    } catch (e) {
+      AppLogger.error('signIn error', module: 'member_sign_in', error: e);
+      state = _copy(signing: false);
+      return null;
     }
   }
 

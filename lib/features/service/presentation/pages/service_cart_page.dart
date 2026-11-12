@@ -10,6 +10,7 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../features/member/domain/repositories/member_repository.dart';
 import '../../../../features/member/presentation/providers/member_addresses_provider.dart';
 import '../../domain/models/share_cart_candidate_model.dart';
@@ -427,13 +428,24 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
 
       final uri = Uri(path: RouteNames.customerService, queryParameters: {'templateId': widget.templateId.toString()});
       await context.push(uri.toString());
+    } on NetworkException catch (error) {
+      if (!context.mounted) return;
+      _showErrorDialog(error.toDisplayMessage(), params);
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('网络异常，请稍后重试')));
     } finally {
       if (mounted) setState(() => _isSubmittingOrder = false);
     }
   }
 
   Future<void> _runCartAction(BuildContext context, Future<void> Function() action) async {
-    await action();
+    try {
+      await action();
+    } catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('购物车更新失败：$error')));
+    }
   }
 
   void _showErrorDialog(String message, ServiceCartInitialParams params) {

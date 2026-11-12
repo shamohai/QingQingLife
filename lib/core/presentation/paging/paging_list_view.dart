@@ -20,16 +20,21 @@ abstract class PagingNotifier<T> extends Notifier<PagingData<T>> {
     if (state.status == PagingStatus.loading && state.items.isEmpty) return;
 
     state = state.copyWith(status: PagingStatus.loading, errorMessage: null);
-    final result = await fetchPage(1, pageSize);
-    if (!ref.mounted) return;
-    state = PagingData<T>(
-      status: result.items.isEmpty ? PagingStatus.empty : PagingStatus.loaded,
-      items: result.items,
-      hasMore: result.hasMore,
-      currentPage: 1,
-      totalItems: result.totalItems,
-      totalPages: result.totalPages,
-    );
+    try {
+      final result = await fetchPage(1, pageSize);
+      if (!ref.mounted) return;
+      state = PagingData<T>(
+        status: result.items.isEmpty ? PagingStatus.empty : PagingStatus.loaded,
+        items: result.items,
+        hasMore: result.hasMore,
+        currentPage: 1,
+        totalItems: result.totalItems,
+        totalPages: result.totalPages,
+      );
+    } catch (e) {
+      if (!ref.mounted) return;
+      state = state.copyWith(status: PagingStatus.error, errorMessage: e.toString());
+    }
   }
 
   Future<void> loadMore() async {
@@ -38,17 +43,22 @@ abstract class PagingNotifier<T> extends Notifier<PagingData<T>> {
     final nextPage = state.currentPage + 1;
     state = state.copyWith(status: PagingStatus.loading, errorMessage: null);
 
-    final result = await fetchPage(nextPage, pageSize);
-    if (!ref.mounted) return;
-    final newItems = [...state.items, ...result.items];
-    state = PagingData<T>(
-      status: PagingStatus.loaded,
-      items: newItems,
-      hasMore: result.hasMore,
-      currentPage: nextPage,
-      totalItems: result.totalItems,
-      totalPages: result.totalPages,
-    );
+    try {
+      final result = await fetchPage(nextPage, pageSize);
+      if (!ref.mounted) return;
+      final newItems = [...state.items, ...result.items];
+      state = PagingData<T>(
+        status: PagingStatus.loaded,
+        items: newItems,
+        hasMore: result.hasMore,
+        currentPage: nextPage,
+        totalItems: result.totalItems,
+        totalPages: result.totalPages,
+      );
+    } catch (e) {
+      if (!ref.mounted) return;
+      state = state.copyWith(status: PagingStatus.error, errorMessage: e.toString());
+    }
   }
 
   Future<void> refresh() => loadFirstPage();
