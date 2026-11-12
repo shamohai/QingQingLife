@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// 积分段标签（静态配置，第一项为“我能兑换”）
-const List<String> kPointsRangeLabels = ['我能兑换'];
+const List<String> kPointsRangeLabels = ['我能兑换', '0~1000', '1001~5000', '5001~10000', '10001~20000', '20000以上'];
 
 /// 积分商城左侧分类侧边栏（固定宽度，选中项有蓝色竖线指示）
 class PointsCategorySidebar extends StatefulWidget {

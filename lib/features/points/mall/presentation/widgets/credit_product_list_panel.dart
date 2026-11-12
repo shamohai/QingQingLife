@@ -27,9 +27,7 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
 
   void _onRangeTap(int index) {
     setState(() => _activeIndex = index);
-    final notifier = ref.read(creditProductListProvider.notifier);
-    notifier.setCategoryId(widget.activeCategoryId);
-    notifier.setIntegralRange(kPointsRangeLabels[index]);
+    ref.read(creditProductListProvider.notifier).setFilter(rangeLabel: kPointsRangeLabels[index], categoryId: widget.activeCategoryId);
   }
 
   @override
