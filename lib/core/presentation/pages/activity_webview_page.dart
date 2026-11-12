@@ -60,19 +60,24 @@ class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
   }
 
   /// 构造最终 URL（与移动端逻辑一致），Web 端仅打印并在新窗口打开。
-  Future<String> _buildFinalUrl() async {
+  /// 微盟活动需要 SSO 参数：获取失败时返回 null 并展示错误，不再带着空 token 加载 H5。
+  Future<String?> _buildFinalUrl() async {
     var finalUrl = widget.url;
     final actType = widget.activityType?.trim().toLowerCase();
     debugPrint('[线上活动] 原始URL (activityType=$actType): ${widget.url}');
     if (actType == 'drinkmapactivity' || actType == 'drinkrankactivity') {
       final response = await ref.read(productRepositoryProvider).getWeimengActivityLocation();
-      if (response.success && response.data != null) {
-        final baseUri = Uri.tryParse(widget.url);
-        if (baseUri != null) {
-          final isDrinkMap = actType == 'drinkmapactivity';
-          final builtUri = buildWeimengActivityUri(baseUri, response.data!, includeArea: isDrinkMap);
-          finalUrl = builtUri.toString();
-        }
+      if (!response.success || response.data == null) {
+        final message = response.message.isNotEmpty ? response.message : '获取活动信息失败，请稍后重试';
+        debugPrint('[线上活动] 获取微盟 SSO 参数失败: code=${response.code}, message=$message');
+        if (mounted) setState(() => _errorMessage = message);
+        return null;
+      }
+      final baseUri = Uri.tryParse(widget.url);
+      if (baseUri != null) {
+        final isDrinkMap = actType == 'drinkmapactivity';
+        final builtUri = buildWeimengActivityUri(baseUri, response.data!, includeArea: isDrinkMap);
+        finalUrl = builtUri.toString();
       }
     }
     debugPrint('[线上活动] 拼接后最终WebView URL: $finalUrl');
@@ -81,7 +86,7 @@ class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
 
   Future<void> _openOnWeb() async {
     final finalUrl = await _buildFinalUrl();
-    if (!mounted) return;
+    if (!mounted || finalUrl == null) return;
     await launchUrl(Uri.parse(finalUrl), webOnlyWindowName: '_blank');
     if (mounted) Navigator.of(context).maybePop();
   }
@@ -90,6 +95,7 @@ class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
     final controller = _controller;
     if (controller == null) return;
     final finalUrl = await _buildFinalUrl();
+    if (finalUrl == null) return;
     AppLogger.debug('线上活动 WebView 加载 URL: $finalUrl', module: 'activity_webview');
     try {
       final defaultUA = await controller.getUserAgent();
@@ -127,7 +133,8 @@ class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
       return;
     }
     setState(() => _errorMessage = null);
-    await controller.reload();
+    // 首次 SSO 参数获取失败时页面尚未加载，reload 无效，需重新构造 URL 加载
+    await _setupUserAgentAndLoad();
   }
 
   @override
