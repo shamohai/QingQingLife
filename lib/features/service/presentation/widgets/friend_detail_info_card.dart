@@ -5,18 +5,14 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/config/app_config.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
-import '../../domain/models/service_project_detail_model.dart';
 
 /// 挚友报名会详情内容卡片，独立于普通服务预约详情。
 ///
-/// 支持两种数据来源：
-/// - [detail]（真实 API）：渲染 contenthtml 富文本
-/// - [project]（mock 数据）：渲染 description 纯文本，用于旧路由兼容
+/// 渲染 [detail] 的 contenthtml 富文本。
 class FriendDetailInfoCard extends StatelessWidget {
-  final ServiceProjectDetail? project;
   final OfflineActivityDetail? detail;
 
-  const FriendDetailInfoCard({super.key, this.project, this.detail});
+  const FriendDetailInfoCard({super.key, this.detail});
 
   @override
   Widget build(BuildContext context) {
@@ -63,11 +59,6 @@ class FriendDetailInfoCard extends StatelessWidget {
                 detail!.contentHtml,
                 baseUrl: Uri.parse(AppConfig.baseUrl),
                 textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black, height: 1.5),
-              )
-            else if (project != null)
-              Text(
-                project!.description,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black, height: 1.5),
               ),
           ],
         ),

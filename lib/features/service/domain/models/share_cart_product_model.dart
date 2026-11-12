@@ -23,6 +23,7 @@
 ///   ]
 /// }
 /// ```
+library;
 
 /// 购物车中的单个商品
 class ShareCartProduct {

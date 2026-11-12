@@ -46,7 +46,7 @@ final zhiyouhuiActivityListProvider = FutureProvider<List<OfflineActivityItem>>(
 });
 
 /// 活动报名列表 Provider（typdsfriends=false）
-final huodongActivityListProvider = FutureProvider<List<OfflineActivityItem>>((ref) async {
+final offlineActivityListProvider = FutureProvider<List<OfflineActivityItem>>((ref) async {
   final dataSource = ref.read(serviceRemoteDataSourceProvider);
   final response = await dataSource.getOfflineActivityList(typdsfriends: false);
   return response.requireData;

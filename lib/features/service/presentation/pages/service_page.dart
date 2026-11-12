@@ -12,7 +12,7 @@ import '../../../../core/widgets/app_loading.dart';
 import '../providers/service_provider.dart';
 import '../widgets/service_tab_bar.dart';
 import '../widgets/friend_activity_list_item.dart';
-import '../widgets/huodong_activity_list_item.dart';
+import '../widgets/offline_activity_list_item.dart';
 import '../widgets/reservation_service_list_item.dart';
 import '../widgets/service_floating_buttons.dart';
 import '../widgets/share_cart_template_item.dart';
@@ -61,7 +61,7 @@ class ServicePage extends ConsumerWidget {
                   // 可滚动内容区
                   Expanded(
                     child: switch (selectedTab) {
-                      'huodong' => _buildHuodongBody(ref, onItemTap),
+                      'huodong' => _buildOfflineActivityBody(ref, onItemTap),
                       'goujiu' => _buildGoujiuBody(context, ref),
                       'zhiyouhui' => _buildZhiyouhuiBody(ref, onItemTap),
                       _ => _buildFuwuBody(ref, onItemTap),
@@ -78,8 +78,8 @@ class ServicePage extends ConsumerWidget {
   }
 
   /// 活动报名列表（第三个 tab）：使用真实 API 数据
-  Widget _buildHuodongBody(WidgetRef ref, void Function(String) onItemTap) {
-    final activitiesAsync = ref.watch(huodongActivityListProvider);
+  Widget _buildOfflineActivityBody(WidgetRef ref, void Function(String) onItemTap) {
+    final activitiesAsync = ref.watch(offlineActivityListProvider);
     return activitiesAsync.when(
       data: (activities) {
         if (activities.isEmpty) {
@@ -97,7 +97,7 @@ class ServicePage extends ConsumerWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(top: 14, bottom: 14),
-                      child: HuodongActivityListItem(item: activities[0], onTap: () => onItemTap(activities[0].activityId)),
+                      child: OfflineActivityListItem(item: activities[0], onTap: () => onItemTap(activities[0].activityId)),
                     ),
                     for (int i = 1; i < activities.length; i++)
                       Column(
@@ -105,7 +105,7 @@ class ServicePage extends ConsumerWidget {
                           Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
                           Padding(
                             padding: const EdgeInsets.only(top: 14, bottom: 14),
-                            child: HuodongActivityListItem(item: activities[i], onTap: () => onItemTap(activities[i].activityId)),
+                            child: OfflineActivityListItem(item: activities[i], onTap: () => onItemTap(activities[i].activityId)),
                           ),
                         ],
                       ),

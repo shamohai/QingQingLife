@@ -41,7 +41,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
   Map<String, dynamic>? _selectedTimeSlotObj;
 
   // 从 calendar 解析出的可选日期列表
-  List<DateTime> _availableDates = [];
+  final List<DateTime> _availableDates = [];
   // 当前选中日期对应的时段列表（完整对象）
   List<Map<String, dynamic>> _availableTimeSlotObjects = [];
 
@@ -442,9 +442,9 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                           child: AspectRatio(
                             aspectRatio: 412 / 180,
                             child: headImgUrl.startsWith('http')
-                                ? Image.network(headImgUrl, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _defaultHeroImage())
+                                ? Image.network(headImgUrl, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_, _, _) => _defaultHeroImage())
                                 : headImgUrl.isNotEmpty
-                                ? Image.asset(headImgUrl, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _defaultHeroImage())
+                                ? Image.asset(headImgUrl, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_, _, _) => _defaultHeroImage())
                                 : _defaultHeroImage(),
                           ),
                         ),
@@ -670,7 +670,7 @@ class _TimeSlotPickerSheet extends StatelessWidget {
               shrinkWrap: true,
               padding: const EdgeInsets.symmetric(horizontal: 20),
               itemCount: slots.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (_, index) {
                 final slot = slots[index];
                 final timedescr = slot['timedescr'] as String? ?? '';

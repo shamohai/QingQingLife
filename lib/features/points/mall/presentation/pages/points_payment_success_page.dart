@@ -199,7 +199,7 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
         padding: EdgeInsets.symmetric(vertical: 40),
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (_, __) => _buildCardFields(
+      error: (_, _) => _buildCardFields(
         context: context,
         orderSn: orderNo.isNotEmpty ? orderNo : '-',
         orderStateDesc: '提交成功',

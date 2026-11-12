@@ -24,6 +24,7 @@
 ///     }
 ///   ]
 /// }
+library;
 
 /// 候选商品（继续加购区）
 class CandidateProduct {

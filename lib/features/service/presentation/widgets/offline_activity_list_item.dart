@@ -14,11 +14,11 @@ import '../../domain/models/offline_activity_item.dart';
 /// + 状态行（进行中/已结束，不同颜色）
 /// + 固定 78x31 红色描边"立即报名"按钮
 /// 图片来自网络 URL，无图时显示占位。
-class HuodongActivityListItem extends StatelessWidget {
+class OfflineActivityListItem extends StatelessWidget {
   final OfflineActivityItem item;
   final VoidCallback onTap;
 
-  const HuodongActivityListItem({super.key, required this.item, required this.onTap});
+  const OfflineActivityListItem({super.key, required this.item, required this.onTap});
 
   /// 获取状态文案
   String _getStatusText() {

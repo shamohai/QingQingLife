@@ -85,7 +85,7 @@ class _OrderShortcutConfig {
   final OrderFilterStatus status;
   final int badgeCount;
 
-  const _OrderShortcutConfig({required this.icon, required this.label, required this.status, this.badgeCount = 0});
+  const _OrderShortcutConfig({required this.icon, required this.label, required this.status}) : badgeCount = 0;
 }
 
 class _OrderShortcutItem extends StatelessWidget {

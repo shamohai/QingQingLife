@@ -72,9 +72,8 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
           ],
         ),
         data: (staticData) => Stack(
-          // 个人资料接口返回的 paycredit 覆盖积分商城首页模型中的积分 Mock 值
+          // 个人资料接口返回的 paycredit 覆盖积分商城首页模型中的积分值
           // 其余积分商城数据仍由积分商城接口提供。
-
           children: [
             NotificationListener<ScrollNotification>(
               onNotification: (notification) {
@@ -150,7 +149,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                               .watch(creditProductCategoryProvider)
                               .when(
                                 loading: () => const SizedBox(height: 44, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
-                                error: (_, __) => const SizedBox(height: 44),
+                                error: (_, _) => const SizedBox(height: 44),
                                 data: (catData) => PointsCategoryTabBar(
                                   categories: catData.categories,
                                   activeCategoryId: _activeCategoryId,

@@ -119,7 +119,7 @@ class ConfirmOrderHeader extends StatelessWidget {
                   'assets/images/points/confirm_order_location.png',
                   width: 18,
                   height: 18,
-                  errorBuilder: (_, __, ___) => const Icon(Icons.location_on, size: 18, color: Color(0xFF213775)),
+                  errorBuilder: (_, _, _) => const Icon(Icons.location_on, size: 18, color: Color(0xFF213775)),
                 ),
                 const SizedBox(width: 4),
                 Expanded(

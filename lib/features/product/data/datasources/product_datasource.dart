@@ -173,44 +173,17 @@ class ProductDataSource implements ProductRepository, ProductDetailContentReposi
   // ── 商品详情与分类列表 ─────────────────────────────────────────────────────
   @override
   Future<ApiResponse<ProductDetail>> getProductDetail(String productId) async {
-    return ApiResponse.success(
-      ProductDetail(
-        id: productId,
-        name: '天佑德青稞酒',
-        description: '精选高原青稞酿造',
-        images: ['assets/images/product/product1.jpg'],
-        priceCents: 13990,
-        skus: [
-          ProductSku(id: 's1', name: '500ml', priceCents: 13990, stock: 100, attributes: {'规格': '500ml'}),
-        ],
-        specs: [
-          ProductSpec(key: '产地', value: '青海'),
-          ProductSpec(key: '度数', value: '46度'),
-        ],
-      ),
-    );
+    return ApiResponse.error('商品详情接口暂未接入');
   }
 
   @override
   Future<ApiResponse<ProductListResult>> getProductList({required int page, required int pageSize, String? categoryId, String? keyword, String? sortBy}) async {
-    final products = [
-      ProductCard(
-        id: '1',
-        imageUrl: 'assets/images/product/product2.jpg',
-        name: '天佑德电商专供海拔系列 2900青稞酒 46度500ml',
-        priceCents: 13990,
-        originalPriceCents: 16800,
-        tag: '自营',
-        salesCount: 1234,
-      ),
-      ProductCard(id: '2', imageUrl: 'assets/images/product/product3.jpg', name: '天佑德青稞酒 经典款 500ml', priceCents: 9800, tag: '自营', salesCount: 888),
-    ];
-    return ApiResponse.success(ProductListResult(products: products, total: products.length, page: page, pageSize: pageSize, hasMore: false));
+    return ApiResponse.success(ProductListResult(products: const [], total: 0, page: page, pageSize: pageSize, hasMore: false));
   }
 
   @override
   Future<ApiResponse<List<ProductCategory>>> getCategories() async {
-    return ApiResponse.success([ProductCategory(id: 'all', label: '全部', sortOrder: 0), ProductCategory(id: 'self', label: '天佑德自营', sortOrder: 1)]);
+    return ApiResponse.success(const []);
   }
 
   @override
@@ -220,32 +193,7 @@ class ProductDataSource implements ProductRepository, ProductDetailContentReposi
 
   // ── ProductDetailContentRepository 结构化详情 ─────────────────────────────
   @override
-  Future<ProductDetailContent?> getDetail(String id) async {
-    if (int.tryParse(id) == null || int.parse(id) <= 0) return null;
-    const asset = 'assets/images/product/';
-    return ProductDetailContent(
-      product: ProductDetail(
-        id: id,
-        name: '天佑德电商专供青稞酒特别版本42度500ml',
-        description: '独创天酿工艺，天、时、人酒合而为一。',
-        images: List<String>.filled(5, '${asset}detail-hero.png', growable: false),
-        priceCents: 80000,
-        originalPriceCents: 90000,
-        skus: const [
-          ProductSku(id: '500ml', name: '500ml', priceCents: 80000, stock: 100, attributes: {'容量': '500ml'}),
-        ],
-        specs: const [
-          ProductSpec(key: '酒精度', value: '52%vol'),
-          ProductSpec(key: '香型', value: '清香型'),
-        ],
-      ),
-      memberPriceCents: 76000,
-      salesLabel: '9万件',
-      reviewCount: 74677,
-      reviews: const [],
-      detailImage: '${asset}detail-poster.png',
-    );
-  }
+  Future<ProductDetailContent?> getDetail(String id) async => null;
 }
 
 class _LocationResolveData {

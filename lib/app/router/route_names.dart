@@ -91,10 +91,10 @@ abstract final class RouteNames {
   // 预约服务详情（服务预约 tab - 真实 API）
   static const String reservationServiceDetail = '/service/reservation/:id';
 
-  // 挚友报名会详情（挚友会 tab - Mock）
+  // 挚友报名会详情（挚友会 tab）
   static const String friendDetail = '/service/friend/:id';
 
-  // 活动详情（活动 tab - Mock）
+  // 活动详情（活动 tab）
   static const String activityDetail = '/service/activity/:id';
 
   // 活动报名填写信息
