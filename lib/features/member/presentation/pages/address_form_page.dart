@@ -657,12 +657,10 @@ class _RegionPickerSheetState extends ConsumerState<_RegionPickerSheet> {
         _district = _matchName(districts, _initialAt(2)) ?? (districts.isEmpty ? null : districts.first);
         _loading = false;
       });
-    } catch (error) {
-      if (!mounted || generation != _requestGeneration) return;
-      setState(() {
-        _loading = false;
-        _error = _errorText(error);
-      });
+    } finally {
+      if (mounted && generation == _requestGeneration && _loading) {
+        setState(() => _loading = false);
+      }
     }
   }
 
@@ -690,12 +688,10 @@ class _RegionPickerSheetState extends ConsumerState<_RegionPickerSheet> {
         _district = districts.isEmpty ? null : districts.first;
         _loading = false;
       });
-    } catch (error) {
-      if (!mounted || generation != _requestGeneration) return;
-      setState(() {
-        _loading = false;
-        _error = _errorText(error);
-      });
+    } finally {
+      if (mounted && generation == _requestGeneration && _loading) {
+        setState(() => _loading = false);
+      }
     }
   }
 
@@ -716,12 +712,10 @@ class _RegionPickerSheetState extends ConsumerState<_RegionPickerSheet> {
         _district = districts.isEmpty ? null : districts.first;
         _loading = false;
       });
-    } catch (error) {
-      if (!mounted || generation != _requestGeneration) return;
-      setState(() {
-        _loading = false;
-        _error = _errorText(error);
-      });
+    } finally {
+      if (mounted && generation == _requestGeneration && _loading) {
+        setState(() => _loading = false);
+      }
     }
   }
 
@@ -745,10 +739,6 @@ class _RegionPickerSheetState extends ConsumerState<_RegionPickerSheet> {
       if (area.name == name) return area;
     }
     return null;
-  }
-
-  String _errorText(Object error) {
-    return error is _RegionLoadError ? error.message : '省市区加载失败，请稍后重试';
   }
 
   void _confirm() {

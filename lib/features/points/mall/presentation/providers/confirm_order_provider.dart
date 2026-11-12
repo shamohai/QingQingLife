@@ -133,8 +133,10 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
       } else {
         _handlePreOrderFailure(requestId, response.message.isNotEmpty ? response.message : '获取订单预处理信息失败', initial: initial);
       }
-    } catch (error) {
-      _handlePreOrderFailure(requestId, '预处理订单失败：$error', initial: initial);
+    } finally {
+      if (ref.mounted && requestId == _preOrderRequestId) {
+        state = state.copyWith(isPreOrderValidating: false);
+      }
     }
   }
 
@@ -321,8 +323,6 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
             return ApiResponse.error(resp.data?.descr ?? resp.message.ifEmpty('提交订单失败'));
           }
       }
-    } catch (e) {
-      return ApiResponse.error('提交订单发生异常: $e');
     } finally {
       if (ref.mounted) {
         state = state.copyWith(isSubmitting: false);

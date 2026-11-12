@@ -34,9 +34,7 @@ class _DeepLinkReceiverState extends State<DeepLinkReceiver> {
       _initAppLinks();
     } else {
       // 在 Web 端直接从 Uri.base 处理
-      try {
-        _handleLink(Uri.base);
-      } catch (_) {}
+      _handleLink(Uri.base);
     }
   }
 

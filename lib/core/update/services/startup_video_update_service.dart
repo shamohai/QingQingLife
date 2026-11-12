@@ -8,7 +8,6 @@ import 'package:qingqinglife/core/logging/app_logger.dart';
 
 import '../../../app/config/app_config.dart';
 import '../../storage/local_storage.dart';
-import '../models/resource_manifest.dart';
 
 /// 负责自有服务器首页启动视频（open.mp4）的热更新管理服务
 class StartupVideoUpdateService {
@@ -133,41 +132,15 @@ class StartupVideoUpdateService {
 
   /// 从自有服务器拉取视频配置（兼容 Manifest 格式与单视频 Config 格式）
   Future<({String videoUrl, String md5})?> _fetchRemoteVideoInfo() async {
-    // 策略 A: 优先尝试请求专用视频配置 config.json
-    try {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '${AppConfig.baseUrl}/resources/video/config.json',
-        options: Options(connectTimeout: const Duration(seconds: 5), receiveTimeout: const Duration(seconds: 5)),
-      );
-      if (response.data != null) {
-        final data = response.data!;
-        final rawUrl = data['videoUrl'] as String? ?? 'resources/video/open.mp4';
-        final remoteMd5 = data['md5'] as String? ?? '';
-        final fullUrl = rawUrl.startsWith('http') ? rawUrl : '${AppConfig.baseUrl}/${rawUrl.startsWith('/') ? rawUrl.substring(1) : rawUrl}';
-        return (videoUrl: fullUrl, md5: remoteMd5);
-      }
-    } catch (_) {
-      // 若 config.json 不存在，尝试策略 B
-    }
-
-    // 策略 B: 尝试通用 Manifest 清单
-    try {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '${AppConfig.baseUrl}/api/app/resource/manifest',
-        options: Options(connectTimeout: const Duration(seconds: 5), receiveTimeout: const Duration(seconds: 5)),
-      );
-      if (response.data != null) {
-        final manifest = ResourceManifest.fromJson(response.data!);
-        final videoMd5 = manifest.resources['assets/video/open.mp4'];
-        if (videoMd5 != null && videoMd5.isNotEmpty) {
-          final fullUrl = '${AppConfig.baseUrl}/resources/video/open.mp4';
-          return (videoUrl: fullUrl, md5: videoMd5);
-        }
-      }
-    } catch (_) {
-      // 静默失败，不影响应用正常运行
-    }
-
-    return null;
+    final response = await _dio.get<Map<String, dynamic>>(
+      '${AppConfig.baseUrl}/resources/video/config.json',
+      options: Options(connectTimeout: const Duration(seconds: 5), receiveTimeout: const Duration(seconds: 5)),
+    );
+    if (response.data == null) return null;
+    final data = response.data!;
+    final rawUrl = data['videoUrl'] as String? ?? 'resources/video/open.mp4';
+    final remoteMd5 = data['md5'] as String? ?? '';
+    final fullUrl = rawUrl.startsWith('http') ? rawUrl : '${AppConfig.baseUrl}/${rawUrl.startsWith('/') ? rawUrl.substring(1) : rawUrl}';
+    return (videoUrl: fullUrl, md5: remoteMd5);
   }
 }

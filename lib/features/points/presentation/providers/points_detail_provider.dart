@@ -104,8 +104,8 @@ class PointsDetailNotifier extends Notifier<PointsDetailState> {
         clearError: true,
       );
       if (data.credits.isNotEmpty) _page++;
-    } catch (error) {
-      state = state.copyWith(isLoading: false, isLoadingMore: false, errorMessage: error.toString());
+    } finally {
+      state = state.copyWith(isLoading: false, isLoadingMore: false);
     }
   }
 

@@ -1,4 +1,3 @@
-import 'package:qingqinglife/core/logging/app_logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/exceptions/exceptions.dart';
@@ -37,9 +36,6 @@ class CashCouponShareController {
         return const CashCouponShareStartResult(success: false, message: '分享已发起，但未获取到分享编号，请稍后重试');
       }
       return CashCouponShareStartResult(success: true, share: response.data);
-    } catch (error) {
-      AppLogger.error('begin error', module: 'cash_coupon_share', error: error);
-      return const CashCouponShareStartResult(success: false, message: '发起分享失败，请稍后重试');
     } finally {
       _startingUserServiceIds.remove(userServiceId);
     }
@@ -116,9 +112,8 @@ class CashCouponShareReceiveNotifier extends Notifier<CashCouponShareReceiveStat
         return;
       }
       state = state.copyWith(loading: false, loaded: true, result: response.data, clearError: true);
-    } catch (error) {
-      AppLogger.error('preview error', module: 'cash_coupon_share_receive', error: error);
-      state = state.copyWith(loading: false, loaded: true, errorMessage: '红包信息加载失败，请稍后重试');
+    } finally {
+      if (state.loading) state = state.copyWith(loading: false, loaded: true);
     }
   }
 
@@ -147,10 +142,8 @@ class CashCouponShareReceiveNotifier extends Notifier<CashCouponShareReceiveStat
 
       state = state.copyWith(submitting: false, received: true, result: response.data, clearError: true);
       return true;
-    } catch (error) {
-      AppLogger.error('receive error', module: 'cash_coupon_share_receive', error: error);
-      state = state.copyWith(submitting: false, errorMessage: '领取失败，请稍后重试');
-      return false;
+    } finally {
+      if (state.submitting) state = state.copyWith(submitting: false);
     }
   }
 

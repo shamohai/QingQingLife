@@ -1,7 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:qingqinglife/core/logging/app_logger.dart';
-
 import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../data/models/coupon_group_model.dart';
@@ -59,10 +57,8 @@ class CouponListNotifier extends Notifier<CouponListState> {
 
       final result = response.data!;
       state = state.copyWith(loading: false, coupons: result.coupons, totalCount: result.totalCount, clearError: true);
-    } catch (error) {
-      if (token != _requestToken || state.status != status) return;
-      AppLogger.error('load error', module: 'coupon_list', error: error);
-      state = state.copyWith(loading: false, errorMessage: '优惠券加载失败，请稍后重试');
+    } finally {
+      if (token == _requestToken && state.status == status) state = state.copyWith(loading: false);
     }
   }
 

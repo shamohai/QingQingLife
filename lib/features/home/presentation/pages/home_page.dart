@@ -127,10 +127,7 @@ class HomePage extends ConsumerWidget {
                 slivers: [
                   // Banner（轮播图，真实 API 数据）
                   SliverPadding(
-                    padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).padding.top + AppSpacing.sm,
-                      bottom: AppSpacing.xs,
-                    ),
+                    padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + AppSpacing.sm, bottom: AppSpacing.xs),
                     sliver: SliverToBoxAdapter(
                       child: carouselAsync.when(
                         data: (banners) => home_widgets.HomeBanner(banners: banners),
@@ -225,9 +222,6 @@ class HomePage extends ConsumerWidget {
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result.isDuplicate ? '该权益当月已领取' : '领取失败，未获取到有效权益')));
                                 }
-                              } catch (e) {
-                                if (!context.mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('领取异常: $e')));
                               } finally {
                                 claimingNotifier.remove(benefit.id);
                               }

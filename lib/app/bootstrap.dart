@@ -32,9 +32,5 @@ Future<void> bootstrap() async {
 
 // 异步注册微信 SDK，不阻塞启动流程
 Future<void> _registerWeChatAsync() async {
-  try {
-    await fluwx.Fluwx().registerApi(appId: AppConfig.wechatAppId);
-  } catch (_) {
-    // 微信注册失败不阻塞 App 启动。
-  }
+  await fluwx.Fluwx().registerApi(appId: AppConfig.wechatAppId);
 }

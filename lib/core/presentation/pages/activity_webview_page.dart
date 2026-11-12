@@ -56,18 +56,14 @@ class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
     var finalUrl = widget.url;
     final actType = widget.activityType?.trim().toLowerCase();
     if (actType == 'drinkmapactivity' || actType == 'drinkrankactivity') {
-      try {
-        final response = await ref.read(productRepositoryProvider).getWeimengActivityLocation();
-        if (response.success && response.data != null) {
-          final baseUri = Uri.tryParse(widget.url);
-          if (baseUri != null) {
-            final isDrinkMap = actType == 'drinkmapactivity';
-            final builtUri = buildWeimengActivityUri(baseUri, response.data!, includeArea: isDrinkMap);
-            finalUrl = builtUri.toString();
-          }
+      final response = await ref.read(productRepositoryProvider).getWeimengActivityLocation();
+      if (response.success && response.data != null) {
+        final baseUri = Uri.tryParse(widget.url);
+        if (baseUri != null) {
+          final isDrinkMap = actType == 'drinkmapactivity';
+          final builtUri = buildWeimengActivityUri(baseUri, response.data!, includeArea: isDrinkMap);
+          finalUrl = builtUri.toString();
         }
-      } catch (_) {
-        // Fallback to original url if fetching location fails
       }
     }
 

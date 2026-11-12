@@ -265,9 +265,8 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
         benefitAuths: benefitAuths,
         monthlyCoupons: _mapMonthlyCoupons(detail),
       );
-    } catch (e) {
-      AppLogger.error('load error', module: 'member_level', error: e);
-      state = _copy(loading: false, errorMessage: '会员权益加载失败，请稍后重试');
+    } finally {
+      if (state.loading) state = _copy(loading: false);
     }
   }
 
@@ -308,9 +307,6 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
         userServiceId = result.userServiceId;
         message = result.isDuplicate ? '该权益已领取' : '领取成功';
         _markMonthlyCouponReceived(serviceId, userServiceId);
-      } catch (e) {
-        AppLogger.error('receive monthly coupon error', module: 'member_level', error: e);
-        return const MemberBenefitUseResult.failure('领取失败，请稍后重试');
       } finally {
         final receiving = {...state.receivingServiceIds}..remove(serviceId);
         state = _copy(receivingServiceIds: receiving);
@@ -364,9 +360,6 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
         userServiceId = result.userServiceId;
         message = result.isDuplicate ? '该权益已领取' : '领取成功';
         _markBenefitReceived(service.serviceid, userServiceId);
-      } catch (e) {
-        AppLogger.error('receive benefit error', module: 'member_level', error: e);
-        return const MemberBenefitUseResult.failure('领取失败，请稍后重试');
       } finally {
         final receiving = {...state.receivingServiceIds}..remove(service.serviceid);
         state = _copy(receivingServiceIds: receiving);

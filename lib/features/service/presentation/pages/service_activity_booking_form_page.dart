@@ -6,7 +6,6 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
-import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
 import '../../domain/models/service_booking_success_data.dart';
@@ -161,14 +160,8 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
           ),
         ),
       );
-    } on ApiException catch (e) {
-      if (!mounted) return;
-      setState(() => _isSubmitting = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message), behavior: SnackBarBehavior.floating));
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _isSubmitting = false);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('网络异常，请稍后重试'), behavior: SnackBarBehavior.floating));
+    } finally {
+      if (mounted && _isSubmitting) setState(() => _isSubmitting = false);
     }
   }
 

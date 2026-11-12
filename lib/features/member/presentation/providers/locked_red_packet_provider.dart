@@ -1,7 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:qingqinglife/core/logging/app_logger.dart';
-
 import '../../../../core/providers/repository_providers.dart';
 import '../../data/models/cash_coupon_model.dart';
 
@@ -76,10 +74,8 @@ class LockedRedPacketListNotifier extends Notifier<LockedRedPacketListState> {
 
       final result = response.data!;
       state = state.copyWith(loading: false, coupons: result.coupons, totalCount: result.totalCount, hasMore: result.hasMore, pageIndex: 1, clearError: true);
-    } catch (error) {
-      if (token != _requestToken || state.status != status) return;
-      AppLogger.error('load error', module: 'locked_red_packet_list', error: error);
-      state = state.copyWith(loading: false, errorMessage: '红包加载失败，请稍后重试');
+    } finally {
+      if (token == _requestToken && state.status == status) state = state.copyWith(loading: false);
     }
   }
 
@@ -117,10 +113,8 @@ class LockedRedPacketListNotifier extends Notifier<LockedRedPacketListState> {
         pageIndex: nextPage,
         clearError: true,
       );
-    } catch (error) {
-      if (token != _requestToken || state.status != status) return;
-      AppLogger.error('load more error', module: 'locked_red_packet_list', error: error);
-      state = state.copyWith(loadingMore: false, errorMessage: '加载更多失败，请稍后重试');
+    } finally {
+      if (token == _requestToken && state.status == status) state = state.copyWith(loadingMore: false);
     }
   }
 

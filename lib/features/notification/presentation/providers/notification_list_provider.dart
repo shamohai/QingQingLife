@@ -134,10 +134,8 @@ class NotificationListNotifier extends Notifier<NotificationListState> {
         hasMore: messages.length >= pageSize,
       );
       if (statResp.success && statResp.data != null) _updateStats(statResp.data!);
-    } catch (error) {
-      if (token != _requestToken) return;
-      AppLogger.error('load error', module: 'notification_list', error: error);
-      state = _copy(loading: false, errorMessage: '通知加载失败，请稍后重试');
+    } finally {
+      if (token == _requestToken && state.loading) state = _copy(loading: false);
     }
   }
 
@@ -178,10 +176,8 @@ class NotificationListNotifier extends Notifier<NotificationListState> {
 
       final next = response.data!;
       state = _copy(loadingMore: false, clearError: true, messages: [...state.messages, ...next], pageIndex: nextPage, hasMore: next.length >= pageSize);
-    } catch (error) {
-      if (token != _requestToken) return;
-      AppLogger.error('load more error', module: 'notification_list', error: error);
-      state = _copy(loadingMore: false, errorMessage: '加载更多失败，请稍后重试');
+    } finally {
+      if (token == _requestToken && state.loadingMore) state = _copy(loadingMore: false);
     }
   }
 
@@ -192,13 +188,9 @@ class NotificationListNotifier extends Notifier<NotificationListState> {
     if (message.isRead) return;
 
     _markLocalAsRead(message);
-    try {
-      final response = await ref.read(notificationRepositoryProvider).markAsRead(notificationId: message.id);
-      if (!response.success) {
-        AppLogger.warning('markAsRead failed: ${response.message}', module: 'notification_list');
-      }
-    } catch (error) {
-      AppLogger.error('markAsRead error', module: 'notification_list', error: error);
+    final response = await ref.read(notificationRepositoryProvider).markAsRead(notificationId: message.id);
+    if (!response.success) {
+      AppLogger.warning('markAsRead failed: ${response.message}', module: 'notification_list');
     }
   }
 
@@ -230,10 +222,8 @@ class NotificationListNotifier extends Notifier<NotificationListState> {
       // 同步更新统计缓存，避免下次进入先渲染出旧角标
       if (clearedStats.isNotEmpty) _statCache.write(clearedStats);
       return true;
-    } catch (error) {
-      AppLogger.error('markAllAsRead error', module: 'notification_list', error: error);
-      if (ref.mounted) state = _copy(markingAllRead: false);
-      return false;
+    } finally {
+      if (ref.mounted && state.markingAllRead) state = _copy(markingAllRead: false);
     }
   }
 

@@ -176,11 +176,7 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
   /// 重试加载时复用已创建的购物车，避免重复创建。
   Future<void> retry() async {
     state = const AsyncLoading();
-    try {
-      state = AsyncData(await _load());
-    } catch (error, stackTrace) {
-      state = AsyncError(error, stackTrace);
-    }
+    state = AsyncData(await _load());
   }
 
   /// 切换单个商品选中状态
@@ -284,12 +280,9 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
           isUpdatingCart: false,
         ),
       );
-    } on NetworkException catch (e) {
-      final latest = state.value ?? current;
-      state = AsyncData(latest.copyWith(isUpdatingCart: false, cartError: e.toDisplayMessage()));
-    } catch (_) {
-      final latest = state.value ?? current;
-      state = AsyncData(latest.copyWith(isUpdatingCart: false, cartError: '网络异常，请重试'));
+    } finally {
+      final latest = state.value;
+      if (latest != null && latest.isUpdatingCart == true) state = AsyncData(latest.copyWith(isUpdatingCart: false));
     }
   }
 
@@ -313,17 +306,9 @@ class ServiceCartNotifier extends AsyncNotifier<ServiceCartState> {
       final latest = state.value ?? current;
       state = AsyncData(latest.copyWith(isUpdatingCart: false));
       return result;
-    } on ApiException {
-      rethrow;
-    } on NetworkException catch (e) {
-      final latest = state.value ?? current;
-      final displayMsg = e.toDisplayMessage(fallback: '网络异常，请重试');
-      state = AsyncData(latest.copyWith(isUpdatingCart: false, cartError: displayMsg));
-      throw ApiException(message: displayMsg, code: -1);
-    } catch (_) {
-      final latest = state.value ?? current;
-      state = AsyncData(latest.copyWith(isUpdatingCart: false, cartError: '网络异常，请重试'));
-      throw ApiException(message: '网络异常，请重试');
+    } finally {
+      final latest = state.value;
+      if (latest != null && latest.isUpdatingCart == true) state = AsyncData(latest.copyWith(isUpdatingCart: false));
     }
   }
 

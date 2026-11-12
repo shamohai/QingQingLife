@@ -28,15 +28,7 @@ class PagingData<T> {
   bool get isError => status == PagingStatus.error;
   bool get isEmpty => status == PagingStatus.empty;
 
-  PagingData<T> copyWith({
-    PagingStatus? status,
-    List<T>? items,
-    bool? hasMore,
-    int? currentPage,
-    int? totalItems,
-    int? totalPages,
-    String? errorMessage,
-  }) {
+  PagingData<T> copyWith({PagingStatus? status, List<T>? items, bool? hasMore, int? currentPage, int? totalItems, int? totalPages, String? errorMessage}) {
     return PagingData<T>(
       status: status ?? this.status,
       items: items ?? this.items,
@@ -86,22 +78,14 @@ mixin PagingControllerMixin<T> on State<StatefulWidget> {
       _hasMore = true;
       _errorMessage = null;
     });
-    try {
-      final result = await fetchPage(1, pageSize);
-      if (!mounted) return;
-      setState(() {
-        _items.addAll(result.items);
-        _hasMore = result.hasMore;
-        _currentPage = 1;
-        _pagingStatus = result.items.isEmpty ? PagingStatus.empty : PagingStatus.loaded;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _pagingStatus = PagingStatus.error;
-        _errorMessage = e.toString();
-      });
-    }
+    final result = await fetchPage(1, pageSize);
+    if (!mounted) return;
+    setState(() {
+      _items.addAll(result.items);
+      _hasMore = result.hasMore;
+      _currentPage = 1;
+      _pagingStatus = result.items.isEmpty ? PagingStatus.empty : PagingStatus.loaded;
+    });
   }
 
   Future<void> loadMorePage({int pageSize = 20}) async {
@@ -117,11 +101,6 @@ mixin PagingControllerMixin<T> on State<StatefulWidget> {
         _currentPage = nextPage;
         _pagingStatus = PagingStatus.loaded;
       });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _errorMessage = e.toString();
-      });
     } finally {
       _isLoadingMore = false;
     }
@@ -131,7 +110,9 @@ mixin PagingControllerMixin<T> on State<StatefulWidget> {
     if (!_hasMore) {
       return const Padding(
         padding: EdgeInsets.all(16),
-        child: Center(child: Text('已加载全部', style: TextStyle(color: Colors.grey, fontSize: 12))),
+        child: Center(
+          child: Text('已加载全部', style: TextStyle(color: Colors.grey, fontSize: 12)),
+        ),
       );
     }
     if (_isLoadingMore) {

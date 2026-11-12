@@ -111,7 +111,7 @@ class ConfirmOrderNotifier extends Notifier<ConfirmOrderState> {
   Future<ApiResponse<OrderCreateResult>> submit() async {
     state = state.copyWith(isSubmitting: true);
     try {
-      final response = await ref
+      return await ref
           .read(orderRepositoryProvider)
           .createOrder(
             items: [
@@ -132,11 +132,8 @@ class ConfirmOrderNotifier extends Notifier<ConfirmOrderState> {
             couponCode: state.couponName,
             remark: state.note.isEmpty ? null : state.note,
           );
+    } finally {
       state = state.copyWith(isSubmitting: false);
-      return response;
-    } catch (_) {
-      state = state.copyWith(isSubmitting: false);
-      return ApiResponse.error('订单提交失败，请稍后重试');
     }
   }
 }
