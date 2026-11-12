@@ -122,7 +122,7 @@ class _DetailHeader extends StatelessWidget {
       child: Align(
         alignment: Alignment.centerLeft,
         child: Padding(
-          padding: const EdgeInsets.only(left: 14),
+          padding: const EdgeInsets.only(left: 12),
           child: Row(
             children: [
               GestureDetector(
@@ -165,7 +165,7 @@ class _DetailCard extends StatelessWidget {
     final rows = reservation != null ? _reservationRows(reservation) : _activityRows(activity!, signupInfo);
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(13, 0, 13, 24),
+      margin: const EdgeInsets.fromLTRB(12, 0, 12, 24),
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 35),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
       child: Column(

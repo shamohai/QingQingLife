@@ -28,10 +28,12 @@ abstract final class AppSpacing {
   /// 页面左右紧凑内边距 EdgeInsets.symmetric(horizontal: 12)
   static const EdgeInsets edgeInsetsCompactPage = EdgeInsets.symmetric(horizontal: compactPageMargin);
 
+  /// 页面左右外边距（与 [compactPageMargin] 一致，供页面级布局统一引用）
+  static const EdgeInsets pageHorizontal = EdgeInsets.symmetric(horizontal: compactPageMargin);
+
+  /// 页面主体首块顶部间距（统一为 8，见实施计划第二批）
+  static const double pageTopGap = sm;
+
   /// 卡片内边距 EdgeInsets.all(12)
   static const EdgeInsets edgeInsetsCard = EdgeInsets.all(compactCardPadding);
-
-  /// 紧凑卡片内边距 EdgeInsets.all(8)
-  static const EdgeInsets edgeInsetsCompactCard = EdgeInsets.all(sm);
 }
-

@@ -101,7 +101,7 @@ class _AllOrdersPageState extends ConsumerState<AllOrdersPage> {
                       if (state.isLoading && state.orders.isNotEmpty) const SliverToBoxAdapter(child: LinearProgressIndicator()),
                       // 订单列表（灰色背景滚动区域）
                       SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(14, AppSpacing.md, 14, AppSpacing.xxl),
+                        padding: const EdgeInsets.fromLTRB(AppSpacing.compactPageMargin, AppSpacing.md, AppSpacing.compactPageMargin, AppSpacing.xxl),
                         sliver: state.isLoading && state.orders.isEmpty
                             ? const SliverToBoxAdapter(child: Center(child: AppLoading()))
                             : state.orders.isEmpty && state.error != null

@@ -162,7 +162,7 @@ class OrderCard extends StatelessWidget {
   Widget _buildMetaRow() {
     final createdAt = item.createdAt;
     final time = createdAt == null
-        ? 'l'
+        ? '暂无'
         : '${createdAt.year}-${_pad(createdAt.month)}-${_pad(createdAt.day)}  ${_pad(createdAt.hour)}:${_pad(createdAt.minute)}:${_pad(createdAt.second)}';
     final isCreditOrder = const [2, 7, 25].contains(item.typeCode);
     return Row(
@@ -170,7 +170,7 @@ class OrderCard extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            isCreditOrder ? '兑换时间: m' : '下单时间: $time',
+            isCreditOrder ? '兑换时间: $time' : '下单时间: $time',
             style: const TextStyle(fontSize: 14, color: Color(0xFF8E8E97)),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

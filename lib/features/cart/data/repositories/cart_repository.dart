@@ -3,41 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/models/cart_page_models.dart';
 import '../../domain/repositories/cart_page_repository.dart';
 
-const cartThumbnailUrl = 'https://lanhu-oss-2537-2.lanhuapp.com/FigmaDDSSlicePNG5dc0e9629ac1ccf335ecb422332c0b59.png';
-const cartRecommendationUrl = 'https://lanhu-oss-2537-2.lanhuapp.com/FigmaDDSSlicePNG4da2cc058cd2093f461bfcf5417e8cda.png';
-
-const cartLanhuThumbnailUrl = cartThumbnailUrl;
-const cartLanhuRecommendationUrl = cartRecommendationUrl;
-
 /// 统一购物车 Repository 实现
+///
+/// 购物车商品、收货地址与推荐商品需对接真实接口，接口就绪前返回空数据，
+/// 页面以空购物车状态展示，不提供假数据。
 class CartRepository implements CartPageRepository {
   const CartRepository();
 
-  static const _productName = '天佑德电商专供青稞酒特别版本42度500ml';
-
   @override
   CartPageSeedData loadSeedData() {
-    return CartPageSeedData(
-      addresses: const ['甘肃省兰州市七里河区建兰路街道', '青海省西宁市城西区文汇路街道', '北京市朝阳区望京街道'],
-      items: List.generate(
-        4,
-        (index) =>
-            CartDisplayItem(id: 'cart-${index + 1}', imageUrl: cartThumbnailUrl, name: _productName, priceCents: 80000, quantity: 1, selected: true),
-        growable: false,
-      ),
-      recommendations: List.generate(
-        4,
-        (index) => CartRecommendation(
-          id: 'recommendation-${index + 1}',
-          imageUrl: cartRecommendationUrl,
-          name: _productName,
-          priceCents: 80000,
-          originalPriceCents: 98500,
-          memberPriceCents: 76000,
-        ),
-        growable: false,
-      ),
-    );
+    return const CartPageSeedData(addresses: [], items: [], recommendations: []);
   }
 }
 

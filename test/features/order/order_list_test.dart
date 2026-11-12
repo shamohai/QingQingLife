@@ -71,10 +71,8 @@ void main() {
     await notifier.search('酒');
     expect(client.requests.last['pageindex'], 1);
     await notifier.selectTab(4);
-    expect(client.requests.last['orderstate'], 130);
-    expect(client.requests.last['productname'], '酒');
-    await notifier.selectTab(5);
     expect(client.requests.last['orderstate'], 160);
+    expect(client.requests.last['productname'], '酒');
     await notifier.loadOrders();
     expect(client.requests.last['pageindex'], 1);
   });
@@ -133,11 +131,11 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [apiClientProvider.overrideWithValue(client)],
-          child: const MaterialApp(home: AllOrdersPage(initialStatus: 'reviewing')),
+          child: const MaterialApp(home: AllOrdersPage(initialStatus: 'shipped')),
         ),
       );
       await tester.pumpAndSettle();
-      expect(client.requests.single['orderstate'], 130);
+      expect(client.requests.single['orderstate'], 110);
       expect(find.text('暂无订单'), findsOneWidget);
       await tester.pump(const Duration(seconds: 2));
       expect(client.requests.length, 1);

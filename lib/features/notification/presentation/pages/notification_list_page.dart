@@ -91,7 +91,7 @@ class _NotificationListPageState extends ConsumerState<NotificationListPage> {
           children: [
             _buildAppBar(state, notifier),
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.compactPageMargin, 0, AppSpacing.compactPageMargin, 10),
               child: NotificationTypeTabs(selected: state.selectedTypeValue, stats: state.typeStats, onSelect: notifier.selectType),
             ),
           ],

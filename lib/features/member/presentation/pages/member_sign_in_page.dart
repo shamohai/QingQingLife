@@ -129,17 +129,17 @@ class _MemberSignInPageState extends ConsumerState<MemberSignInPage> {
             _buildHeader(overview),
             const SizedBox(height: 21),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: MemberSignInCalendarGrid(consecutiveDays: overview.consecutiveDays, days: overview.days),
             ),
             const SizedBox(height: 11),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: MemberSignInMilestoneTrack(milestones: overview.milestones),
             ),
             const SizedBox(height: 11),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: MemberSignInRecords(records: overview.records),
             ),
           ],

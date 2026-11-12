@@ -1,8 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../features/auth/data/datasources/auth_datasource.dart';
-import '../../features/cart/data/repositories/cart_repository_impl.dart';
-import '../../features/cart/domain/repositories/cart_page_repository.dart';
+import '../../features/cart/data/repositories/cart_repository.dart';
 import '../../features/member/data/datasources/member_datasource.dart';
 import '../../features/member/domain/repositories/member_repository.dart';
 import '../../features/member/domain/repositories/member_sign_in_repository.dart';
@@ -36,12 +35,6 @@ AuthRepository authRepository(Ref ref) {
 @riverpod
 ProductRepository productRepository(Ref ref) {
   return ProductDataSource(apiClient: ref.read(apiClientProvider));
-}
-
-/// Cart Repository Provider
-@riverpod
-CartPageRepository cartRepository(Ref ref) {
-  return const CartRepositoryImpl();
 }
 
 /// Order Repository Provider

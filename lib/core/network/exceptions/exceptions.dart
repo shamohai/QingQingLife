@@ -34,6 +34,14 @@ bool isDefaultError(String message) {
   return cleaned.isEmpty || cleaned == 'unknown error';
 }
 
+/// 将后端原始 message 转为可展示文案：空或占位符时返回 [fallback]，否则返回去除首尾空白后的文本。
+///
+/// 供 Provider 层统一替代各自的 `_friendlyMessage` 私有实现。
+String friendlyMessageOr(String? raw, String fallback) {
+  final message = raw?.trim() ?? '';
+  return message.isEmpty || message == 'unknown error' ? fallback : message;
+}
+
 /// HTTP 状态异常（4xx/5xx）
 base class HttpException extends NetworkException {
   const HttpException({required super.message, super.statusCode});

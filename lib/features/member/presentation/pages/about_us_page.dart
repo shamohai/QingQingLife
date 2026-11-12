@@ -142,7 +142,7 @@ class _AboutUsPageState extends State<AboutUsPage> {
   /// 链接卡片：白色卡片（直角）+ 检查更新 / 用户服务协议 / 用户隐私政策
   Widget _buildLinkCard(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Container(
         color: Colors.white,
         child: Column(

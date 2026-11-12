@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:qingqinglife/core/logging/app_logger.dart';
 
+import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../data/models/coupon_group_model.dart';
 
@@ -52,7 +53,7 @@ class CouponListNotifier extends Notifier<CouponListState> {
       if (token != _requestToken || state.status != status) return;
 
       if (!response.success || response.data == null) {
-        state = state.copyWith(loading: false, errorMessage: _friendlyMessage(response.message));
+        state = state.copyWith(loading: false, errorMessage: friendlyMessageOr(response.message, '优惠券加载失败，请稍后重试'));
         return;
       }
 
@@ -71,11 +72,5 @@ class CouponListNotifier extends Notifier<CouponListState> {
     _requestToken++;
     state = CouponListState(status: status, loading: true);
     await load();
-  }
-
-  static String _friendlyMessage(String? raw) {
-    final message = raw?.trim() ?? '';
-    if (message.isEmpty || message == 'unknown error') return '优惠券加载失败，请稍后重试';
-    return message;
   }
 }

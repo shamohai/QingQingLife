@@ -58,14 +58,14 @@ class _MallConfirmOrderInvoiceInfoPageState extends State<MallConfirmOrderInvoic
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(18))),
       builder: (context) => SafeArea(
         child: Column(
-   mainAxisSize: MainAxisSize.min,
-   children: [
-     Padding(
-       padding: const EdgeInsets.all(18),
-       child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-     ),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(18),
+              child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+            ),
             for (final option in options) ListTile(title: Text(option), onTap: () => Navigator.of(context).pop(option)),
-     const SizedBox(height: 8),
+            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -92,129 +92,124 @@ class _MallConfirmOrderInvoiceInfoPageState extends State<MallConfirmOrderInvoic
     return Scaffold(
       backgroundColor: AppColors.servicePageBackground,
       body: SafeArea(
- child: Column(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-   children: [
-     Expanded(
-       child: SingleChildScrollView(
-  physics: const BouncingScrollPhysics(),
-  child: Container(
-    constraints: const BoxConstraints(minHeight: 620),
-    padding: const EdgeInsets.only(bottom: 36),
-    decoration: const BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.vertical(bottom: Radius.circular(14)),
-    ),
-    child: Column(
-      children: [
-        SizedBox(
-          height: 33,
-          child: Padding(
-     padding: const EdgeInsets.only(top: 6),
-     child: Row(
-       children: [
-         const SizedBox(width: 14),
-         GestureDetector(
-    onTap: () => Navigator.of(context).pop(),
-           child: Image.asset('assets/images/order/confirm-order-back.png', width: 24, height: 24),
-         ),
-         const Text(
-    '发票信息',
-    style: TextStyle(fontSize: 18, height: 1.5, fontWeight: FontWeight.w500, color: Colors.black),
-  ),
-       ],
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: 620),
+                  padding: const EdgeInsets.only(bottom: 36),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(14)),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 33,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 14),
+                              GestureDetector(
+                                onTap: () => Navigator.of(context).pop(),
+                                child: Image.asset('assets/images/order/confirm-order-back.png', width: 24, height: 24),
+                              ),
+                              const Text(
+                                '发票信息',
+                                style: TextStyle(fontSize: 18, height: 1.5, fontWeight: FontWeight.w500, color: Colors.black),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 26),
+                      MallConfirmOrderInvoiceSelectRow(
+                        label: '选择发票类型',
+                        value: _invoiceType,
+                        placeholder: '请选择发票类型',
+                        onTap: () => _chooseValue(title: '选择发票类型', options: _invoiceTypes, onSelected: (value) => setState(() => _invoiceType = value)),
+                      ),
+                      const SizedBox(height: 20),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 23),
+                        child: SizedBox(
+                          height: 24,
+                          child: Row(
+                            children: [
+                              const Expanded(
+                                child: Text('开票人类型', style: TextStyle(fontSize: 16, height: 1.5, color: Colors.black)),
+                              ),
+                              MallConfirmOrderInvoiceTypeChoice(label: '企业', selected: _isCompany, onTap: () => setState(() => _isCompany = true)),
+                              const SizedBox(width: 12),
+                              MallConfirmOrderInvoiceTypeChoice(label: '个人', selected: !_isCompany, onTap: () => setState(() => _isCompany = false)),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      MallConfirmOrderInvoiceInputRow(label: '发票抬头', placeholder: '请输入发票抬头', controller: _titleController),
+                      if (_isCompany) ...[
+                        const SizedBox(height: 20),
+                        MallConfirmOrderInvoiceInputRow(label: '纳税人识别号', placeholder: '请输入纳税人识别号', controller: _taxIdController),
+                        const SizedBox(height: 20),
+                        MallConfirmOrderInvoiceSelectRow(
+                          label: '注册地址',
+                          value: _registrationAddress,
+                          placeholder: '请选择注册地址',
+                          onTap: () => _chooseValue(
+                            title: '选择注册地址',
+                            options: _registrationAddresses,
+                            onSelected: (value) => setState(() => _registrationAddress = value),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        MallConfirmOrderInvoiceInputRow(label: '注册电话', placeholder: '请输入注册电话', controller: _phoneController, keyboardType: TextInputType.phone),
+                        const SizedBox(height: 20),
+                        MallConfirmOrderInvoiceInputRow(label: '开户银行', placeholder: '请输入开户银行', controller: _bankController),
+                        const SizedBox(height: 20),
+                        MallConfirmOrderInvoiceInputRow(
+                          label: '银行账户',
+                          placeholder: '请输入银行账户',
+                          controller: _bankAccountController,
+                          keyboardType: TextInputType.number,
+                        ),
+                      ],
+                      const SizedBox(height: 30),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 31),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 51,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                begin: Alignment.centerRight,
+                                end: Alignment.centerLeft,
+                                colors: [Color(0xFF3152AF), Color(0xFF213775)],
+                              ),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: TextButton(
+                              onPressed: _save,
+                              style: TextButton.styleFrom(padding: EdgeInsets.zero, shape: const StadiumBorder()),
+                              child: const Text(
+                                '确定保存',
+                                style: TextStyle(fontSize: 18, height: 1.5, fontWeight: FontWeight.w500, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-        const SizedBox(height: 26),
-        MallConfirmOrderInvoiceSelectRow(
-   label: '选择发票类型',
-   value: _invoiceType,
-          placeholder: '请选择发票类型',
-          onTap: () => _chooseValue(title: '选择发票类型', options: _invoiceTypes, onSelected: (value) => setState(() => _invoiceType = value)),
-        ),
- const SizedBox(height: 20),
-        Padding(
-   padding: const EdgeInsets.symmetric(horizontal: 23),
-   child: SizedBox(
-     height: 24,
-     child: Row(
-children: [
-  const Expanded(
-    child: Text('开票人类型', style: TextStyle(fontSize: 16, height: 1.5, color: Colors.black)),
-  ),
-  MallConfirmOrderInvoiceTypeChoice(label: '企业', selected: _isCompany, onTap: () => setState(() => _isCompany = true)),
-  const SizedBox(width: 12),
-         MallConfirmOrderInvoiceTypeChoice(label: '个人', selected: !_isCompany, onTap: () => setState(() => _isCompany = false)),
-       ],
-     ),
-   ),
-        ),
-        const SizedBox(height: 20),
-        MallConfirmOrderInvoiceInputRow(label: '发票抬头', placeholder: '请输入发票抬头', controller: _titleController),
-        if (_isCompany) ...[
-   const SizedBox(height: 20),
-          MallConfirmOrderInvoiceInputRow(label: '纳税人识别号', placeholder: '请输入纳税人识别号', controller: _taxIdController),
-          const SizedBox(height: 20),
-   MallConfirmOrderInvoiceSelectRow(
-            label: '注册地址',
-            value: _registrationAddress,
-            placeholder: '请选择注册地址',
-     onTap: () => _chooseValue(
-       title: '选择注册地址',
-       options: _registrationAddresses,
-       onSelected: (value) => setState(() => _registrationAddress = value),
-     ),
-   ),
-   const SizedBox(height: 20),
-          MallConfirmOrderInvoiceInputRow(
-     label: '注册电话',
-     placeholder: '请输入注册电话',
-     controller: _phoneController,
-            keyboardType: TextInputType.phone,
-   ),
-   const SizedBox(height: 20),
-   MallConfirmOrderInvoiceInputRow(label: '开户银行', placeholder: '请输入开户银行', controller: _bankController),
-   const SizedBox(height: 20),
-          MallConfirmOrderInvoiceInputRow(
-     label: '银行账户',
-     placeholder: '请输入银行账户',
-     controller: _bankAccountController,
-     keyboardType: TextInputType.number,
-   ),
-        ],
-        const SizedBox(height: 30),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 31),
-          child: SizedBox(
-     width: double.infinity,
-     height: 51,
-     child: DecoratedBox(
-       decoration: BoxDecoration(
-         gradient: const LinearGradient(
-           begin: Alignment.centerRight,
-           end: Alignment.centerLeft,
-    colors: [Color(0xFF3152AF), Color(0xFF213775)],
-         ),
-         borderRadius: BorderRadius.circular(100),
-       ),
-       child: TextButton(
-  onPressed: _save,
-  style: TextButton.styleFrom(padding: EdgeInsets.zero, shape: const StadiumBorder()),
-         child: const Text(
-    '确定保存',
-    style: TextStyle(fontSize: 18, height: 1.5, fontWeight: FontWeight.w500, color: Colors.white),
-  ),
-       ),
-     ),
-   ),
-        ),
-      ],
-    ),
-  ),
-       ),
-     ),
-   ],
+          ],
         ),
       ),
     );

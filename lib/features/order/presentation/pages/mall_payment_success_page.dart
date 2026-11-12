@@ -51,7 +51,7 @@ class MallPaymentSuccessPage extends StatelessWidget {
                 children: [
                   const _TopGradient(),
                   SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(14, 52, 14, 32),
+                    padding: const EdgeInsets.fromLTRB(12, 52, 12, 32),
                     child: Column(
                       children: [
                         _SuccessHeader(data: payment),

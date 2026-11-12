@@ -436,7 +436,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                     SizedBox(
                       width: double.infinity,
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
                         child: ClipRRect(
                           borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
                           child: AspectRatio(
@@ -453,7 +453,7 @@ class _ServiceBookingFormPageState extends ConsumerState<ServiceBookingFormPage>
                     Transform.translate(
                       offset: const Offset(0, -50),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.white,

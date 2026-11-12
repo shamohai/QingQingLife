@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:qingqinglife/core/logging/app_logger.dart';
 
+import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../data/datasources/notification_type_stat_cache.dart';
 import '../../domain/models/notification_models.dart';
@@ -253,11 +254,7 @@ class NotificationListNotifier extends Notifier<NotificationListState> {
   }
 
   /// 后端 message 可能为空或为 `unknown error`，统一转成可展示的文案
-  static String _friendlyMessage(String? raw) {
-    final message = raw?.trim() ?? '';
-    if (message.isEmpty || message == 'unknown error') return '通知加载失败，请稍后重试';
-    return message;
-  }
+  static String _friendlyMessage(String? raw) => friendlyMessageOr(raw, '通知加载失败，请稍后重试');
 
   NotificationListState _copy({
     bool? loading,

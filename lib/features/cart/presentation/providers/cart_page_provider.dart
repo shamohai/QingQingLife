@@ -51,7 +51,12 @@ class CartPageController extends Notifier<CartPageState> {
   @override
   CartPageState build() {
     final seed = ref.read(cartPageRepositoryProvider).loadSeedData();
-    return CartPageState(addresses: seed.addresses, selectedAddress: seed.addresses.first, items: seed.items, recommendations: seed.recommendations);
+    return CartPageState(
+      addresses: seed.addresses,
+      selectedAddress: seed.addresses.isEmpty ? '' : seed.addresses.first,
+      items: seed.items,
+      recommendations: seed.recommendations,
+    );
   }
 
   void toggleItem(String id) {
@@ -102,7 +107,7 @@ class CartPageController extends Notifier<CartPageState> {
         ...state.items,
         CartDisplayItem(
           id: 'recommendation-cart-${recommendation.id}',
-          imageUrl: cartLanhuThumbnailUrl,
+          imageUrl: recommendation.imageUrl,
           name: recommendation.name,
           priceCents: recommendation.priceCents,
           quantity: 1,

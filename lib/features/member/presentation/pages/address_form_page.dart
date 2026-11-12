@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../domain/repositories/member_repository.dart';
@@ -97,7 +98,10 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
                   _buildNav(context),
                   const SizedBox(height: _navToCardGap),
                   Expanded(
-                    child: SingleChildScrollView(padding: const EdgeInsets.fromLTRB(12, 0, 12, 24), child: _buildCard()),
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(AppSpacing.compactPageMargin, 0, AppSpacing.compactPageMargin, 24),
+                      child: _buildCard(),
+                    ),
                   ),
                 ],
               ),
@@ -308,7 +312,7 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
         Transform.translate(offset: const Offset(0, 2), child: const _FieldLabel('设置为默认地址')),
         const Spacer(),
         Padding(
-          padding: const EdgeInsets.only(right: 15),
+          padding: const EdgeInsets.only(right: 12),
           child: _ToggleSwitch(value: _isDefault, onChanged: (value) => setState(() => _isDefault = value)),
         ),
       ],

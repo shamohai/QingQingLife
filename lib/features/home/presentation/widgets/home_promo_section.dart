@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/theme/app_spacing.dart';
 import '../../../product/domain/repositories/product_repository.dart';
 import 'home_new_user_gift_card.dart';
 import 'home_available_products.dart';
@@ -17,7 +18,7 @@ class HomePromoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(top: 5), // 与上方 banner 间距 10px
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 5), // 左右边距
+      padding: const EdgeInsets.fromLTRB(AppSpacing.compactPageMargin, AppSpacing.md, AppSpacing.compactPageMargin, 5), // 左右边距
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(14)), // 设计稿 14px 圆角

@@ -248,7 +248,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
                   children: [
                     // Section 1: Banner（412:180 比例，两侧 14dp padding，圆角 md）
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
                       child: ClipRRect(
                         borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
                         child: AspectRatio(aspectRatio: 412 / 180, child: _buildHeroImage()),
@@ -258,7 +258,7 @@ class _ServiceActivityBookingFormPageState extends ConsumerState<ServiceActivity
                     Transform.translate(
                       offset: const Offset(0, -50),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.white,

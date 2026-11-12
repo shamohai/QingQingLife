@@ -99,8 +99,8 @@ class OrderListOrder {
     this.actions = const [],
   });
 
-  String get typeLabel => BackendOrderType.fromCode(typeCode)?.label ?? (typeCode == null ? 'a' : '未知订单类型（$typeCode）');
-  String get statusLabel => stateDescription ?? BackendOrderState.fromCode(stateCode)?.label ?? (stateCode == null ? 'c' : '未知状态（$stateCode）');
+  String get typeLabel => BackendOrderType.fromCode(typeCode)?.label ?? (typeCode == null ? '未知订单类型' : '未知订单类型（$typeCode）');
+  String get statusLabel => stateDescription ?? BackendOrderState.fromCode(stateCode)?.label ?? (stateCode == null ? '未知状态' : '未知状态（$stateCode）');
 }
 
 class OrderListProduct {

@@ -1,6 +1,7 @@
 import 'package:qingqinglife/core/logging/app_logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../data/models/cash_coupon_share_model.dart';
 
@@ -44,10 +45,7 @@ class CashCouponShareController {
     }
   }
 
-  static String _friendlyMessage(String? raw, String fallback) {
-    final message = raw?.trim() ?? '';
-    return message.isEmpty || message == 'unknown error' ? fallback : message;
-  }
+  static String _friendlyMessage(String? raw, String fallback) => friendlyMessageOr(raw, fallback);
 }
 
 final cashCouponShareControllerProvider = Provider<CashCouponShareController>((ref) => CashCouponShareController(ref));
@@ -156,8 +154,5 @@ class CashCouponShareReceiveNotifier extends Notifier<CashCouponShareReceiveStat
     }
   }
 
-  static String _friendlyMessage(String? raw, String fallback) {
-    final message = raw?.trim() ?? '';
-    return message.isEmpty || message == 'unknown error' ? fallback : message;
-  }
+  static String _friendlyMessage(String? raw, String fallback) => friendlyMessageOr(raw, fallback);
 }

@@ -294,7 +294,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
           padding: EdgeInsets.zero,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(AppRadius.md),
                 child: AspectRatio(aspectRatio: 412 / 180, child: _buildHeroImage()),
@@ -303,7 +303,7 @@ class _ServiceFriendBookingFormPageState extends ConsumerState<ServiceFriendBook
             Transform.translate(
               offset: const Offset(0, -50),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,

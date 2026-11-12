@@ -94,11 +94,6 @@ class InvoiceCenterNotifier extends Notifier<InvoiceCenterState> {
       state = state.copyWith(isLoading: false, errorMessage: '发票信息加载失败，请稍后重试');
     }
   }
-
-  /// 加载更多（分页预留；Mock 数据 hasMore=false，不会触发）
-  Future<void> loadMore() async {
-    // TODO(API): 后端分页契约就绪后实现翻页加载
-  }
 }
 
 final invoiceCenterProvider = NotifierProvider<InvoiceCenterNotifier, InvoiceCenterState>(() => InvoiceCenterNotifier());

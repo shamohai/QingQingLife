@@ -196,7 +196,7 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
         });
 
         return ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
           itemCount: months.length + (state.isLoadingMore ? 1 : 0),
           itemBuilder: (context, index) {
             if (index == months.length) {

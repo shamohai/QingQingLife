@@ -9,8 +9,8 @@ part of 'repository_providers.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// ============================================================
-/// Repository Providers - 开发/测试环境使用 Mock 实现
-/// 真实 API 就绪后，在此处切换为 Remote*Repository 实现
+/// Repository Providers - 统一数据源接入层
+/// 各 Feature 统一使用对应的 *DataSource 实例提供服务
 /// ============================================================
 /// Auth Repository Provider
 
@@ -18,8 +18,8 @@ part of 'repository_providers.dart';
 final authRepositoryProvider = AuthRepositoryProvider._();
 
 /// ============================================================
-/// Repository Providers - 开发/测试环境使用 Mock 实现
-/// 真实 API 就绪后，在此处切换为 Remote*Repository 实现
+/// Repository Providers - 统一数据源接入层
+/// 各 Feature 统一使用对应的 *DataSource 实例提供服务
 /// ============================================================
 /// Auth Repository Provider
 
@@ -27,8 +27,8 @@ final class AuthRepositoryProvider
     extends $FunctionalProvider<AuthRepository, AuthRepository, AuthRepository>
     with $Provider<AuthRepository> {
   /// ============================================================
-  /// Repository Providers - 开发/测试环境使用 Mock 实现
-  /// 真实 API 就绪后，在此处切换为 Remote*Repository 实现
+  /// Repository Providers - 统一数据源接入层
+  /// 各 Feature 统一使用对应的 *DataSource 实例提供服务
   /// ============================================================
   /// Auth Repository Provider
   AuthRepositoryProvider._()
@@ -64,7 +64,7 @@ final class AuthRepositoryProvider
   }
 }
 
-String _$authRepositoryHash() => r'c3a391fe0ace4749b9e4ac103934d5cefa6cbfe9';
+String _$authRepositoryHash() => r'377bf750d397d8f99e40b673a2e55b09f7f0d52c';
 
 /// Product Repository Provider
 
@@ -116,59 +116,7 @@ final class ProductRepositoryProvider
   }
 }
 
-String _$productRepositoryHash() => r'18d5ebb994b77f8be993a6e1f385f724fc57e4e7';
-
-/// Cart Repository Provider
-
-@ProviderFor(cartRepository)
-final cartRepositoryProvider = CartRepositoryProvider._();
-
-/// Cart Repository Provider
-
-final class CartRepositoryProvider
-    extends
-        $FunctionalProvider<
-          CartPageRepository,
-          CartPageRepository,
-          CartPageRepository
-        >
-    with $Provider<CartPageRepository> {
-  /// Cart Repository Provider
-  CartRepositoryProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'cartRepositoryProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$cartRepositoryHash();
-
-  @$internal
-  @override
-  $ProviderElement<CartPageRepository> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  CartPageRepository create(Ref ref) {
-    return cartRepository(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(CartPageRepository value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<CartPageRepository>(value),
-    );
-  }
-}
-
-String _$cartRepositoryHash() => r'4f84a94e7963f4180c1bd7d32bcf9e84cb17a8eb';
+String _$productRepositoryHash() => r'866682f6beb2eb5740e498240ab58b33ad8a0473';
 
 /// Order Repository Provider
 
@@ -215,7 +163,7 @@ final class OrderRepositoryProvider
   }
 }
 
-String _$orderRepositoryHash() => r'66c4f1582b578137a3b5f755281b6d7a0937aac8';
+String _$orderRepositoryHash() => r'cf93b7a4616f62708a1c49c1bbeb8df128be8030';
 
 /// Invoice Repository Provider
 
@@ -267,7 +215,7 @@ final class InvoiceRepositoryProvider
   }
 }
 
-String _$invoiceRepositoryHash() => r'5bc0bfc2efc8230227f64c818835bf7c3dbd78dd';
+String _$invoiceRepositoryHash() => r'8c5464dd99156c1e11750fcd260ae143795d9465';
 
 /// Member Repository Provider
 
@@ -318,7 +266,7 @@ final class MemberRepositoryProvider
   }
 }
 
-String _$memberRepositoryHash() => r'45800a821657242a9f96f3c45510b94189cc8ca5';
+String _$memberRepositoryHash() => r'4f3692a18b5199b7f7c746eba5274b992642540f';
 
 /// Member Sign In Repository Provider
 
@@ -371,20 +319,14 @@ final class MemberSignInRepositoryProvider
 }
 
 String _$memberSignInRepositoryHash() =>
-    r'd948153f3d342d5597a9df67bbd7ade68915460f';
+    r'afe2fa591cde0043749f8b171e966f5a37f73f3e';
 
 /// Points Repository Provider
-///
-/// 全量使用 Mock 数据源，其中 getRecommendProductList 会自动注入 apiClient
-/// 以调用真实推荐位接口（positioncode 由调用方指定）。
 
 @ProviderFor(pointsRepository)
 final pointsRepositoryProvider = PointsRepositoryProvider._();
 
 /// Points Repository Provider
-///
-/// 全量使用 Mock 数据源，其中 getRecommendProductList 会自动注入 apiClient
-/// 以调用真实推荐位接口（positioncode 由调用方指定）。
 
 final class PointsRepositoryProvider
     extends
@@ -395,9 +337,6 @@ final class PointsRepositoryProvider
         >
     with $Provider<PointsRepository> {
   /// Points Repository Provider
-  ///
-  /// 全量使用 Mock 数据源，其中 getRecommendProductList 会自动注入 apiClient
-  /// 以调用真实推荐位接口（positioncode 由调用方指定）。
   PointsRepositoryProvider._()
     : super(
         from: null,
@@ -431,7 +370,7 @@ final class PointsRepositoryProvider
   }
 }
 
-String _$pointsRepositoryHash() => r'1c5013a0dc464dd3d6ca634c4ac1e3707cdcf24e';
+String _$pointsRepositoryHash() => r'f626b500039a261c6516a595b063bd5ea5de0494';
 
 /// Notification Repository Provider
 
@@ -484,5 +423,4 @@ final class NotificationRepositoryProvider
 }
 
 String _$notificationRepositoryHash() =>
-    r'0ea9f8b5fc10ccffe645cb3857eb4cdac3c4d4b0';
-
+    r'a8309606a96306d49fa7397a0be06389b7bd8263';

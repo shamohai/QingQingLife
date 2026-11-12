@@ -46,7 +46,6 @@ void main() {
       );
 
       final finalShareUrl = payload.shareUrlForSharing.toString();
-      print('FINAL ENCODED SHARE URL: $finalShareUrl');
       expect(finalShareUrl, startsWith('https://m.mall.qkj.com.cn/mob/common/openapp?appurl='));
     });
 
@@ -58,7 +57,6 @@ void main() {
       );
 
       final finalShareUrl = payload.shareUrlForSharing.toString();
-      print('DRINK MAP FINAL SHARE URL: $finalShareUrl');
       expect(finalShareUrl, startsWith('https://m.mall.qkj.com.cn/mob/common/openapp?appurl='));
     });
   });

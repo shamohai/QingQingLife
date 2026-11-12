@@ -2,7 +2,6 @@
 abstract final class RouteNames {
   // 主 Tab 路由
   static const String home = '/home';
-  static const String shop = '/shop';
   static const String service = '/service';
   static const String points = '/points';
   static const String profile = '/profile';

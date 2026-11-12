@@ -48,7 +48,7 @@ class AccountSecurityCard extends ConsumerWidget {
             label: '出生日期',
             value: Text(_formatBirthday(profileState.birthday), style: _valueStyle),
           ),
-          _buildRow(label: '手机号', value: _buildPhoneValue(profileState.phoneMasked)),
+          _buildRow(label: '手机号', value: _buildPhoneValue(context, profileState.phoneMasked)),
           _buildRow(
             height: 62,
             topPadding: 4,
@@ -90,10 +90,10 @@ class AccountSecurityCard extends ConsumerWidget {
   /// 手机号（掩码）+ 编辑图标
   ///
   /// TODO: 修改绑定手机号流程依赖后端短信/换绑接口，后端暂未提供，待接入后补充。
-  Widget _buildPhoneValue(String phoneMasked) {
+  Widget _buildPhoneValue(BuildContext context, String phoneMasked) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () {},
+      onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('功能暂未开放'), behavior: SnackBarBehavior.floating)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

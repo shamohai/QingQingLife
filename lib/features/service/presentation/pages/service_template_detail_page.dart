@@ -156,7 +156,7 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
                   const SizedBox(height: 10),
                   if (requirements.isNotEmpty)
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
                         requirements,
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black, height: 1.5),

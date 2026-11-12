@@ -127,14 +127,6 @@ final appRouter = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          // StatefulShellBranch(
-          //   routes: [
-          //     GoRoute(
-          //       path: RouteNames.shop,
-          //       pageBuilder: (c, s) => const NoTransitionPage(child: ShopPage()),
-          //     ),
-          //   ],
-          // ),
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -450,7 +442,6 @@ class MainShell extends StatelessWidget {
   static const _tabAssets = [
     (selected: 'assets/icon/tab_home_selected.png', unselected: 'assets/icon/tab_home_unselected.png'),
     (selected: 'assets/icon/tab_points_selected.png', unselected: 'assets/icon/tab_points_unselected.png'),
-    // (selected: 'assets/icon/tab_shop_selected.png', unselected: 'assets/icon/tab_shop_unselected.png'),
     (selected: 'assets/icon/tab_service_selected.png', unselected: 'assets/icon/tab_service_unselected.png'),
     (selected: 'assets/icon/tab_profile_selected.png', unselected: 'assets/icon/tab_profile_unselected.png'),
   ];

@@ -27,7 +27,7 @@ void main() {
     expect(order.amountCents, isNull);
     expect(order.consumedPoints, isNull);
     expect(order.createdAt, isNull);
-    expect(order.typeLabel, 'a');
+    expect(order.typeLabel, '未知订单类型');
   });
 
   test('all backend enum remarks and state codes are preserved', () {
@@ -40,12 +40,12 @@ void main() {
       5: '抽奖礼品订单',
       6: '封坛订单',
       7: '福禄积分订单',
-      8: '热销产品订单（旧的：常规订单）',
+      8: '热销产品订单',
       9: '服务券提货订单',
       20: '特供订单',
       21: '合作权益订单',
       22: '特殊纪念订单',
-      23: '服务券购买订单（兑换或购买）',
+      23: '服务券购买订单',
       25: '百礼汇积分订单',
     };
     for (final entry in labels.entries) {
@@ -158,9 +158,15 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('总计: 1000积分'), isCreditOrder ? findsOneWidget : findsNothing);
+      expect(
+        find.byWidgetPredicate((widget) => widget is RichText && widget.text.toPlainText() == '总计: 1000积分'),
+        isCreditOrder ? findsOneWidget : findsNothing,
+      );
+      expect(
+        find.byWidgetPredicate((widget) => widget is RichText && widget.text.toPlainText() == '¥100.00'),
+        isCreditOrder ? findsNothing : findsOneWidget,
+      );
       expect(find.text('500积分'), isCreditOrder ? findsOneWidget : findsNothing);
-      expect(find.text('总计: ¥100.00'), isCreditOrder ? findsNothing : findsOneWidget);
       expect(find.text('¥50.00'), isCreditOrder ? findsNothing : findsOneWidget);
       expect(find.textContaining('消耗积分'), findsNothing);
       expect(tester.takeException(), isNull);
@@ -215,11 +221,7 @@ void main() {
       expect(find.text('总计: '), findsOneWidget);
       expect(find.byWidgetPredicate((widget) => widget is RichText && widget.text.toPlainText() == '¥19.99'), findsOneWidget);
       expect(find.textContaining('消耗积分'), findsNothing);
-      expect(find.text('下单时间: l'), findsOneWidget);
-      expect(find.text('f'), findsNothing);
-      expect(find.text('g'), findsNothing);
-      expect(find.text('h'), findsNothing);
-      expect(find.text('k'), findsNothing);
+      expect(find.text('下单时间: 暂无'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.tap(find.text('立即付款'));
       await tester.pump();

@@ -94,7 +94,7 @@ class _ServiceCouponConfirmOrderPageState extends ConsumerState<ServiceCouponCon
       },
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        padding: const EdgeInsets.fromLTRB(10, 10, 10, 28),
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 28),
         child: Column(
           children: [
             if (!preDeal.dontShowAddress) ...[
@@ -545,7 +545,7 @@ class _AddressPickerSheet extends StatelessWidget {
             ),
             Expanded(
               child: ListView.separated(
-                padding: const EdgeInsets.fromLTRB(14, 0, 14, 16),
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
                 itemCount: addresses.length,
                 separatorBuilder: (context, index) => const SizedBox(height: 10),
                 itemBuilder: (context, index) {

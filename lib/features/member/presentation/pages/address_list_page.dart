@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
+import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../core/widgets/app_empty.dart';
@@ -121,7 +122,7 @@ class _AddressListPageState extends ConsumerState<AddressListPage> {
       },
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(12, 0, 12, 144),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.compactPageMargin, 0, AppSpacing.compactPageMargin, 144),
         itemCount: addresses.length,
         separatorBuilder: (context, index) => const SizedBox(height: _cardGap),
         itemBuilder: (context, index) {

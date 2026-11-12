@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:qingqinglife/core/logging/app_logger.dart';
 
+import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../data/models/member_rank_models.dart';
 import '../../data/models/member_authority_model.dart';
@@ -527,11 +528,7 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
   }
 
   /// 后端 message 可能为空或为 `unknown error`，统一转成可展示的文案
-  static String _friendlyMessage(String? raw, {String fallback = '会员权益加载失败，请稍后重试'}) {
-    final message = raw?.trim() ?? '';
-    if (message.isEmpty || message == 'unknown error') return fallback;
-    return message;
-  }
+  static String _friendlyMessage(String? raw, {String fallback = '会员权益加载失败，请稍后重试'}) => friendlyMessageOr(raw, fallback);
 
   MemberLevelState _copy({
     bool? loading,

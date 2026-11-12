@@ -17,7 +17,7 @@ class HomeTopicActivitySection extends StatelessWidget {
   Widget build(BuildContext context) {
     if (blocks.isEmpty) return const SizedBox.shrink();
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: 8),
       decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(14))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -57,7 +57,7 @@ class ServiceCustomerContactPage extends ConsumerWidget {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: _NavRow(title: title, onBack: () => context.pop()),
               ),
               const Expanded(child: Center(child: AppLoading())),
@@ -71,7 +71,7 @@ class ServiceCustomerContactPage extends ConsumerWidget {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: _NavRow(title: title, onBack: () => context.pop()),
               ),
               Expanded(
@@ -93,7 +93,7 @@ class ServiceCustomerContactPage extends ConsumerWidget {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: _NavRow(title: title, onBack: () => context.pop()),
             ),
             Expanded(
@@ -132,7 +132,7 @@ class ServiceCustomerContactPage extends ConsumerWidget {
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               sliver: SliverToBoxAdapter(
                 child: _NavRow(title: title, onBack: () => context.pop()),
               ),
@@ -140,21 +140,21 @@ class ServiceCustomerContactPage extends ConsumerWidget {
             if (!hasContent) const SliverFillRemaining(hasScrollBody: false, child: AppEmpty(message: '暂无客服信息')),
             if (info.qrCodeUrl.isNotEmpty)
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 sliver: SliverToBoxAdapter(
                   child: Padding(padding: const EdgeInsets.only(top: 10), child: _QrCodeCard(info)),
                 ),
               ),
             if (info.phoneNumber.isNotEmpty || info.phoneLabel.isNotEmpty || info.phoneSubtitle.isNotEmpty)
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 sliver: SliverToBoxAdapter(
                   child: Padding(padding: const EdgeInsets.only(top: 10), child: _PhoneCard(info)),
                 ),
               ),
             if (info.descriptionHtml.isNotEmpty || info.rules.isNotEmpty)
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 sliver: SliverToBoxAdapter(
                   child: Padding(padding: const EdgeInsets.only(top: 10), child: _RulesCard(info)),
                 ),
@@ -268,7 +268,7 @@ class _DefaultCustomerServiceContentState extends State<_DefaultCustomerServiceC
     final description = widget.info.servicedescr.trim();
     final fallbackTel = widget.info.fallbacktel.trim();
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(14, 10, 14, 24),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 24),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(24),

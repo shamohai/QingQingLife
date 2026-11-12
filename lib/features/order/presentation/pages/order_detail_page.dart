@@ -178,7 +178,7 @@ class _AddressCard extends StatelessWidget {
     final region = [address.province, address.city, address.district].where((value) => value.isNotEmpty).join(' ');
     final detailText = address.detail.isNotEmpty ? address.detail : address.fullAddress;
     return _CardShell(
-      margin: const EdgeInsets.fromLTRB(14, 0, 14, 8),
+      margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
       padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -235,7 +235,7 @@ class _OrderContentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _CardShell(
-      margin: const EdgeInsets.fromLTRB(14, 0, 14, 8),
+      margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
       padding: const EdgeInsets.fromLTRB(10, 13, 10, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -399,7 +399,7 @@ class _LogisticsCard extends StatelessWidget {
     final latest = detail.timeline.isNotEmpty ? detail.timeline.last : null;
     final address = detail.address;
     return _CardShell(
-      margin: const EdgeInsets.fromLTRB(14, 11, 14, 18),
+      margin: const EdgeInsets.fromLTRB(12, 11, 12, 18),
       padding: const EdgeInsets.fromLTRB(14, 13, 14, 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
