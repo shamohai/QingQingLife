@@ -71,8 +71,10 @@ PreferredSizeWidget _buildAppBar(BuildContext context) {
     centerTitle: false,
     titleSpacing: 0,
     leading: IconButton(
-      icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 19),
+      icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 22),
       onPressed: () => context.pop(),
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
     ),
     title: const Text(
       '订单详情',

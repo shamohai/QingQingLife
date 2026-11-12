@@ -89,13 +89,11 @@ class _MemberSignInPageState extends ConsumerState<MemberSignInPage> {
       height: 44,
       child: Row(
         children: [
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => context.pop(),
-            child: const Padding(
-              padding: EdgeInsets.fromLTRB(7, 10, 2, 10),
-              child: Icon(Icons.arrow_back_ios_new, size: 23, color: Color(0xFF1A2A47)),
-            ),
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF1A2A47), size: 22),
+            onPressed: () => context.pop(),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
           ),
           const Text(
             '会员签到',

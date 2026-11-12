@@ -118,13 +118,11 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
       height: 30,
       child: Row(
         children: [
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => context.pop(),
-            child: const Padding(
-              padding: EdgeInsets.only(left: 11, right: 1.5),
-              child: Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.black),
-            ),
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 22),
+            onPressed: () => context.pop(),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 2),

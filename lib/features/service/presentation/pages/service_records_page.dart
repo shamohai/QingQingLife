@@ -42,8 +42,10 @@ class ServiceRecordsPage extends ConsumerWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 22),
           onPressed: () => context.pop(),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
         ),
         title: Text('预约/报名记录', style: AppTextStyles.headlineSmall.copyWith(fontSize: 18, color: Colors.black)),
         centerTitle: false,

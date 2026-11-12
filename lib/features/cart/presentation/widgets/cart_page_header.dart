@@ -40,8 +40,9 @@ class CartPageHeader extends StatelessWidget {
                     IconButton(
                       onPressed: onBack,
                       tooltip: '返回',
-                      visualDensity: VisualDensity.compact,
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 21, color: Color(0xFF111111)),
+                      icon: const Icon(Icons.arrow_back_ios_new, size: 22, color: Color(0xFF111111)),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                     ),
                     const Text(
                       '购物车',

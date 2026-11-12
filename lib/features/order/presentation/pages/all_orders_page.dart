@@ -179,7 +179,7 @@ class _TopNavBar extends StatelessWidget {
             icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 22),
             onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 24, minHeight: 40),
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
           ),
           const Text(
             '全部订单',
