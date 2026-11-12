@@ -18,8 +18,6 @@ import '../models/member_sign_in_models.dart';
 import '../models/service_coupon_model.dart';
 
 /// 统一会员数据源（实现 MemberRepository 与 MemberSignInRepository 接口）
-///
-/// 所有方法只对接真实后端接口，不包含 mock 或本地伪造的业务数据。
 /// 未配置网络客户端或接口尚未提供时，返回 [ApiResponse.error]；接口请求结果原样返回。
 class MemberDataSource implements MemberRepository, MemberSignInRepository {
   final ApiClient? apiClient;
