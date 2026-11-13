@@ -9,7 +9,7 @@ import '../../../service/presentation/providers/service_provider.dart';
 /// 常用功能宫格（4 列 × 2 行）
 ///
 /// 描边风格图标 + 文字标签，点击跳转至对应路由。
-/// 未开放的功能（无路由）点击后提示"功能暂未开放"。
+/// 无路由的功能点击后不做响应。
 class ProfileFeatureGrid extends StatelessWidget {
   const ProfileFeatureGrid({super.key});
 
@@ -77,10 +77,6 @@ class _FeatureGridItem extends ConsumerWidget {
           context.go(item.route!);
         } else if (item.route != null) {
           context.push(item.route!);
-        } else {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(const SnackBar(content: Text('功能暂未开放'), behavior: SnackBarBehavior.floating));
         }
       },
       behavior: HitTestBehavior.opaque,

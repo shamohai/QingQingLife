@@ -15,16 +15,14 @@ class InvoiceDataSource implements InvoiceRepository {
 
   const InvoiceDataSource({this.apiClient});
 
-  static const _notAvailable = '发票功能暂未开放，请稍后再试';
-
   @override
   Future<ApiResponse<InvoiceListResult>> getInvoiceList({required int page, required int pageSize, InvoiceStatus? status}) async {
-    return ApiResponse.error(_notAvailable);
+    return ApiResponse.error('');
   }
 
   @override
   Future<ApiResponse<InvoiceDetail>> getInvoiceDetail(String invoiceId) async {
-    return ApiResponse.error(_notAvailable);
+    return ApiResponse.error('');
   }
 }
 

@@ -225,7 +225,7 @@ void main() {
       expect(tester.takeException(), isNull);
       await tester.tap(find.text('立即付款'));
       await tester.pump();
-      expect(find.text('立即付款接口暂未接入'), findsOneWidget);
+      expect(find.text('立即付款接口暂未接入'), findsNothing);
     });
   }
 }
