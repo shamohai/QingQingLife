@@ -109,7 +109,7 @@ class AuthNotifier extends Notifier<AuthStatus> {
     }
   }
 
-  Future<void> phoneBind({required String phone, required String code}) async {
+  Future<ApiResponse<AuthResult>> phoneBind({required String phone, required String code}) async {
     state = AuthStatus.loading;
     final wechatCode = await _session.readPendingWechatCode();
     final response = await _repository.phoneBind(phone: phone, code: code, wechatCode: wechatCode ?? '');
@@ -121,12 +121,13 @@ class AuthNotifier extends Notifier<AuthStatus> {
     } else {
       state = AuthStatus.wechatAuthenticated;
     }
+    return response;
   }
 
   // ── 短信验证码 ──────────────────────────────────────────────────────
 
-  Future<bool> sendSmsCode({required String phone}) async {
-    final response = await _repository.sendSmsCode(phone: phone);
+  Future<bool> sendBindMobileSmsCode({required String phone}) async {
+    final response = await _repository.sendSmsCode(phone: phone, smsType: SmsType.bindUserMobile);
     if (!response.success) {
       AppLogger.warning('SMS code request failed', module: 'auth', event: 'send_sms_failed', data: {'code': response.code, 'message': response.message});
     }

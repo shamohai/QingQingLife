@@ -16,7 +16,7 @@ import '../providers/auth_provider.dart';
 /// 设计稿来源：蓝湖 lanhu_dengluyeshoujihaobangding
 /// 全页背景与登录页一致，复用 assets/images/auth/login_bg.png 与
 /// assets/images/auth/login_bottom_deco.png，不使用 AppBar。
-/// 业务流复用 AuthNotifier.phoneBind / sendSmsCode。
+/// 业务流复用 AuthNotifier.phoneBind / sendBindMobileSmsCode。
 class PhoneBindPage extends ConsumerStatefulWidget {
   const PhoneBindPage({super.key});
 
@@ -27,6 +27,7 @@ class PhoneBindPage extends ConsumerStatefulWidget {
 class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
   final _phoneController = TextEditingController();
   final _codeController = TextEditingController();
+  final _codeFocusNode = FocusNode();
 
   int _countdown = 0;
   bool _sending = false;
@@ -48,6 +49,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
     _countdownTimer?.cancel();
     _phoneController.dispose();
     _codeController.dispose();
+    _codeFocusNode.dispose();
     super.dispose();
   }
 
@@ -94,10 +96,11 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
 
   Future<void> _sendSms() async {
     try {
-      final ok = await ref.read(authProvider.notifier).sendSmsCode(phone: _phoneController.text.trim());
+      final ok = await ref.read(authProvider.notifier).sendBindMobileSmsCode(phone: _phoneController.text.trim());
       if (!mounted) return;
       if (ok) {
         _startCountdown();
+        _codeFocusNode.requestFocus();
       } else {
         _showToast('验证码发送失败，请稍后重试');
       }
@@ -123,8 +126,16 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
       return;
     }
     setState(() => _submitting = true);
-    await ref.read(authProvider.notifier).phoneBind(phone: _phoneController.text.trim(), code: code);
-    if (mounted) setState(() => _submitting = false);
+    try {
+      final response = await ref.read(authProvider.notifier).phoneBind(phone: _phoneController.text.trim(), code: code);
+      if (mounted && !response.success) {
+        _showToast(response.displayMessage);
+      }
+    } catch (_) {
+      if (mounted) _showToast('登录失败，请稍后重试');
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   @override
@@ -342,6 +353,7 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
                 Expanded(
                   child: TextField(
                     controller: _codeController,
+                    focusNode: _codeFocusNode,
                     keyboardType: const TextInputType.numberWithOptions(signed: false),
                     maxLength: 6,
                     inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), LengthLimitingTextInputFormatter(6)],

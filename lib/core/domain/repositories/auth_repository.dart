@@ -1,5 +1,14 @@
 import '../../network/api_response.dart';
 
+/// 短信业务类型，与后端 `SmsType` 枚举值对应。
+enum SmsType {
+  bindUserMobile(3);
+
+  const SmsType(this.value);
+
+  final int value;
+}
+
 /// 认证业务仓库接口
 ///
 /// 定义了用户登录、登出、身份核验及个人信息获取的核心协议。
@@ -14,11 +23,11 @@ abstract class AuthRepository {
   /// 微信授权登录后传入 code 换取 Token，code 由 fluwx 授权回调获取
   Future<ApiResponse<AuthResult>> loginWithWeChatCode({required String code});
 
-  /// 微信登录后绑定手机号
+  /// 微信登录要求补充手机号时，使用手机号、短信验证码和原微信 code 重试登录。
   Future<ApiResponse<AuthResult>> phoneBind({required String phone, required String code, required String wechatCode});
 
   /// 获取指定手机号的短信验证码
-  Future<ApiResponse<void>> sendSmsCode({required String phone});
+  Future<ApiResponse<void>> sendSmsCode({required String phone, required SmsType smsType});
 
   /// 退出当前会话，清理本地持久化的 Token 和用户信息
   /// 退出当前会话：调用服务端 /api/sys/logout，并清理本地持久化的 Token 和用户信息
