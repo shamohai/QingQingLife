@@ -131,15 +131,7 @@ class _ServiceCouponConfirmOrderPageState extends ConsumerState<ServiceCouponCon
   }
 
   Future<void> _showAddressPicker(ServiceCouponOrderAddress? currentAddress) async {
-    List<MemberAddress> addresses;
-    try {
-      addresses = await ref.read(memberAddressesProvider.future);
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('地址加载失败，请稍后重试')));
-      }
-      return;
-    }
+    final addresses = await ref.read(memberAddressesProvider.future);
     if (!mounted) return;
     if (addresses.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('暂无可用收货地址')));

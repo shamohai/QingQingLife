@@ -179,13 +179,11 @@ class _AccountDeletionPageState extends ConsumerState<AccountDeletionPage> {
       height: 30,
       child: Row(
         children: [
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => context.pop(),
-            child: const Padding(
-              padding: EdgeInsets.only(left: 9),
-              child: Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF000000)),
-            ),
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF000000), size: 22),
+            onPressed: () => context.pop(),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
           ),
           const Text(
             '注销协议',

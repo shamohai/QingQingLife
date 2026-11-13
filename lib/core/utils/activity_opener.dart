@@ -1,8 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:qingqinglife/app/router/route_names.dart';
 
@@ -21,10 +19,6 @@ abstract final class ActivityOpener {
     if (baseUri == null || (baseUri.scheme != 'http' && baseUri.scheme != 'https') || baseUri.host.isEmpty) return;
 
     if (!context.mounted) return;
-    if (kIsWeb) {
-      await launchUrl(baseUri, webOnlyWindowName: '_blank');
-      return;
-    }
 
     final queryParams = <String, String>{
       'url': baseUri.toString(),

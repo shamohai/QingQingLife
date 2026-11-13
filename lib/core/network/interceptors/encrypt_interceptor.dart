@@ -128,13 +128,11 @@ class EncryptInterceptor extends Interceptor {
   /// 获取手机型号
   static String _getPhoneModel() {
     if (kIsWeb) return 'Web Browser';
-    try {
-      if (Platform.isAndroid) {
-        return Platform.operatingSystemVersion;
-      } else if (Platform.isIOS) {
-        return 'iPhone';
-      }
-    } catch (_) {}
+    if (Platform.isAndroid) {
+      return Platform.operatingSystemVersion;
+    } else if (Platform.isIOS) {
+      return 'iPhone';
+    }
     return 'Unknown';
   }
 

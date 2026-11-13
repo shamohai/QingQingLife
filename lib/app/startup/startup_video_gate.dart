@@ -161,11 +161,9 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
   }
 
   Future<void> _finishVideo() async {
-    try {
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = '${packageInfo.version}+${packageInfo.buildNumber}';
-      await _storage.putString(_lastPlayedVersionKey, currentVersion);
-    } catch (_) {}
+    final packageInfo = await PackageInfo.fromPlatform();
+    final currentVersion = '${packageInfo.version}+${packageInfo.buildNumber}';
+    await _storage.putString(_lastPlayedVersionKey, currentVersion);
 
     if (!mounted) return;
     setState(() => _showVideo = false);

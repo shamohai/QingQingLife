@@ -70,11 +70,7 @@ class AuthNotifier extends Notifier<AuthStatus> {
       _authSubscriber?.cancel();
       _authSubscriber = null;
       if (response.isSuccessful && response.code != null && response.code!.isNotEmpty) {
-        try {
-          await _doWeChatLogin(response.code!);
-        } catch (_) {
-          state = AuthStatus.unauthenticated;
-        }
+        await _doWeChatLogin(response.code!);
       } else {
         state = AuthStatus.unauthenticated;
       }
@@ -147,8 +143,6 @@ class AuthNotifier extends Notifier<AuthStatus> {
       if (!response.success) {
         AppLogger.warning('Server logout failed: code=${response.code} msg=${response.message}', module: 'auth', event: 'logout_server_failed');
       }
-    } catch (error) {
-      AppLogger.warning('Server logout error: $error', module: 'auth', event: 'logout_server_error');
     } finally {
       _clearUserProfile();
       try {
@@ -186,11 +180,7 @@ class AuthNotifier extends Notifier<AuthStatus> {
   Future<void> _onLoginSuccess() async {
     state = AuthStatus.authenticated;
     // 后台拉取用户资料，不阻塞登录态切换
-    try {
-      await ref.read(userProfileProvider.notifier).load();
-    } catch (e) {
-      AppLogger.warning('Profile load after login failed: $e', module: 'auth', event: 'post_login_profile_failed');
-    }
+    await ref.read(userProfileProvider.notifier).load();
   }
 
   /// 登出 / 注销时重置用户资料，清除页面上的个人信息。

@@ -99,6 +99,7 @@ bool isProtectedPath(String path) {
     '${RouteNames.coupons}/service',
     RouteNames.serviceCouponReceive,
     '${RouteNames.coupons}/service/use',
+    RouteNames.memberLevel,
   };
 
   return protectedPatterns.any((pattern) {

@@ -1,12 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_response.dart';
-import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/network/providers.dart';
 import '../../domain/repositories/member_repository.dart';
 import '../../domain/repositories/member_sign_in_repository.dart';
@@ -20,9 +18,7 @@ import '../models/member_sign_in_models.dart';
 import '../models/service_coupon_model.dart';
 
 /// 统一会员数据源（实现 MemberRepository 与 MemberSignInRepository 接口）
-///
-/// 所有方法只对接真实后端接口，不包含 mock 或本地伪造的业务数据。
-/// 接口失败、未配置网络客户端或接口尚未提供时，统一返回 [ApiResponse.error]，由调用方展示失败状态。
+/// 未配置网络客户端或接口尚未提供时，返回 [ApiResponse.error]；接口请求结果原样返回。
 class MemberDataSource implements MemberRepository, MemberSignInRepository {
   final ApiClient? apiClient;
 
@@ -30,21 +26,12 @@ class MemberDataSource implements MemberRepository, MemberSignInRepository {
 
   static const String _notConfigured = '会员服务未配置';
 
-  /// 统一 POST 调用：网络异常转换为失败响应，不回退到假数据。
+  /// 统一 POST 调用：未配置网络客户端时返回失败响应，其余结果原样返回。
   Future<ApiResponse<T>> _post<T>(String path, {dynamic data, T Function(dynamic)? fromJson}) async {
     final client = apiClient;
     if (client == null) return ApiResponse.error(_notConfigured);
-    try {
-      return await client.post<T>(path, data: data, fromJson: fromJson);
-    } catch (e) {
-      final error = e is DioException ? e.error : e;
-      if (error is NetworkException) return ApiResponse.error(error.toDisplayMessage());
-      return ApiResponse.error('网络请求失败，请稍后重试');
-    }
+    return client.post<T>(path, data: data, fromJson: fromJson);
   }
-
-  /// 后端暂未提供对应接口时的失败响应。
-  ApiResponse<T> _unavailable<T>(String feature) => ApiResponse.error('$feature暂未接入后端接口');
 
   // ── 会员等级 ──────────────────────────────────────────────────────────────
   @override
@@ -126,6 +113,7 @@ class MemberDataSource implements MemberRepository, MemberSignInRepository {
         'id': int.tryParse(address.id ?? '') ?? 0,
         'consignee': address.name,
         'mobile': address.phone,
+        'areaid': address.areaId,
         'address': address.detail,
         'isdefult': address.isDefault,
       },
@@ -141,10 +129,10 @@ class MemberDataSource implements MemberRepository, MemberSignInRepository {
   }
 
   @override
-  Future<ApiResponse<void>> deleteAddress(String addressId) async => _unavailable<void>('删除收货地址');
+  Future<ApiResponse<void>> deleteAddress(String addressId) async => ApiResponse.error('删除收货地址暂未接入后端接口');
 
   @override
-  Future<ApiResponse<void>> setDefaultAddress(String addressId) async => _unavailable<void>('设置默认收货地址');
+  Future<ApiResponse<void>> setDefaultAddress(String addressId) async => ApiResponse.error('设置默认收货地址暂未接入后端接口');
 
   // ── 会员权益与优惠券 ──────────────────────────────────────────────────────
   @override
@@ -239,10 +227,7 @@ class MemberDataSource implements MemberRepository, MemberSignInRepository {
 
   @override
   Future<ApiResponse<void>> revokeServiceCoupon({required int serviceCouponId, required String shareGroup}) {
-    return _post<void>(
-      '/api/promotion/giveservicecouponreovoke',
-      data: <String, dynamic>{'serviceconponid': serviceCouponId, 'sharegroup': shareGroup},
-    );
+    return _post<void>('/api/promotion/giveservicecouponreovoke', data: <String, dynamic>{'serviceconponid': serviceCouponId, 'sharegroup': shareGroup});
   }
 
   @override
@@ -265,10 +250,10 @@ class MemberDataSource implements MemberRepository, MemberSignInRepository {
 
   // ── 会员签到（后端接口暂未提供） ───────────────────────────────────────────
   @override
-  Future<ApiResponse<MemberSignInOverview>> getSignInOverview() async => _unavailable<MemberSignInOverview>('签到总览');
+  Future<ApiResponse<MemberSignInOverview>> getSignInOverview() async => ApiResponse.error('签到总览暂未接入后端接口');
 
   @override
-  Future<ApiResponse<MemberSignInResult>> signIn() async => _unavailable<MemberSignInResult>('会员签到');
+  Future<ApiResponse<MemberSignInResult>> signIn() async => ApiResponse.error('会员签到暂未接入后端接口');
 }
 
 final memberDataSourceProvider = Provider<MemberDataSource>((ref) {

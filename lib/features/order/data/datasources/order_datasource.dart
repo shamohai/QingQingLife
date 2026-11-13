@@ -114,30 +114,6 @@ class OrderDataSource implements OrderRepository {
     if (client == null) return ApiResponse.error(_notConfigured);
     return client.post<void>('/api/order/orderreceipt', data: <String, dynamic>{'orderid': int.tryParse(orderId) ?? 0});
   }
-
-  // ── 以下方法暂无真实接口，统一返回失败结果 ───────────────────────────────
-
-  @override
-  Future<ApiResponse<AfterSaleResult>> applyAfterSale({
-    required String orderId,
-    required String orderItemId,
-    required AfterSaleType type,
-    required String reason,
-    required List<String> images,
-    String? description,
-  }) async => ApiResponse.error(_notAvailable);
-
-  @override
-  Future<ApiResponse<AfterSaleDetail>> getAfterSaleDetail(String afterSaleId) async => ApiResponse.error(_notAvailable);
-
-  @override
-  Future<ApiResponse<void>> deleteOrder(String orderId) async => ApiResponse.error(_notAvailable);
-
-  @override
-  Future<ApiResponse<void>> rebuy(String orderId) async => ApiResponse.error(_notAvailable);
-
-  @override
-  Future<ApiResponse<LogisticsInfo>> getLogistics(String orderId) async => ApiResponse.error(_notAvailable);
 }
 
 final orderDataSourceProvider = Provider<OrderDataSource>((ref) {

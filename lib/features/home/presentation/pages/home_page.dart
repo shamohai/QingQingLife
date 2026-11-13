@@ -127,10 +127,7 @@ class HomePage extends ConsumerWidget {
                 slivers: [
                   // Banner（轮播图，真实 API 数据）
                   SliverPadding(
-                    padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).padding.top + AppSpacing.sm,
-                      bottom: AppSpacing.xs,
-                    ),
+                    padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + AppSpacing.sm, bottom: AppSpacing.xs),
                     sliver: SliverToBoxAdapter(
                       child: carouselAsync.when(
                         data: (banners) => home_widgets.HomeBanner(banners: banners),

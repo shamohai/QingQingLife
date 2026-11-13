@@ -2,10 +2,13 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:qingqinglife/app/router/auth_redirect.dart';
 import 'package:qingqinglife/app/theme/app_colors.dart';
 import 'package:qingqinglife/app/theme/app_spacing.dart';
 import 'package:qingqinglife/app/theme/app_text_styles.dart';
+import 'package:qingqinglife/core/providers/session_provider.dart';
 import 'package:qingqinglife/core/utils/activity_opener.dart';
 import 'package:qingqinglife/core/widgets/app_image.dart';
 import 'package:qingqinglife/features/product/domain/repositories/product_repository.dart';
@@ -318,12 +321,16 @@ class _ActivityCardState extends ConsumerState<_ActivityCard> {
     if (_isOpeningActivity) return;
     setState(() => _isOpeningActivity = true);
     try {
-      await ActivityOpener.open(
-        context: context,
-        ref: ref,
-        actionUrl: widget.block.actionUrl ?? '',
-        activityId: widget.block.id,
-      );
+      // 线上活动 H5 依赖 authtoken 获取 SSO 参数，未登录时先跳转登录页，登录后返回首页
+      await ref.read(sessionProvider.notifier).ensureInitialized();
+      if (!context.mounted) return;
+      if (ref.read(sessionProvider) != SessionState.authenticated) {
+        final returnTo = GoRouterState.of(context).uri.toString();
+        GoRouter.of(context).push(loginLocationFor(returnTo));
+        return;
+      }
+      if (!context.mounted) return;
+      await ActivityOpener.open(context: context, ref: ref, actionUrl: widget.block.actionUrl ?? '', activityId: widget.block.id);
     } finally {
       if (mounted) setState(() => _isOpeningActivity = false);
     }

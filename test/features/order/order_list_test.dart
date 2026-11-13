@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qingqinglife/core/network/api_client.dart';
 import 'package:qingqinglife/core/network/api_response.dart';
+import 'package:qingqinglife/core/network/exceptions/exceptions.dart';
 import 'package:qingqinglife/core/network/providers.dart';
 import 'package:qingqinglife/features/order/data/datasources/order_datasource.dart';
 import 'package:qingqinglife/features/order/presentation/pages/all_orders_page.dart';
@@ -70,7 +71,7 @@ void main() {
     expect(client.requests.length, 2);
     await notifier.search('酒');
     expect(client.requests.last['pageindex'], 1);
-    await notifier.selectTab(4);
+    await notifier.selectTab(5);
     expect(client.requests.last['orderstate'], 160);
     expect(client.requests.last['productname'], '酒');
     await notifier.loadOrders();
@@ -96,10 +97,9 @@ void main() {
     await Future.wait([initial, search]);
     expect(container.read(allOrdersProvider).orders.single.id, '3');
     expect(container.read(allOrdersProvider).activeTabIndex, 3);
-    expect(container.read(allOrdersProvider).error, isNull);
   });
 
-  test('load more errors retain rows and retry the same page without duplicate requests', () async {
+  test('load more errors retain rows, reset loading, and retry the same page', () async {
     final pending = Completer<Map<String, dynamic>>();
     final client = _ApiClient((body) => body['pageindex'] == 1 ? Future.value(_response(ids: [1], total: 21)) : pending.future);
     final container = _container(client);
@@ -109,16 +109,16 @@ void main() {
     await notifier.loadMore();
     expect(client.requests.length, 2);
     pending.complete({'result': 1, 'descr': '请稍后重试'});
-    await first;
+    await expectLater(first, throwsA(isA<ApiException>()));
     final state = container.read(allOrdersProvider);
     expect(state.orders.single.id, '1');
-    expect(state.error, '请稍后重试');
     expect(state.page, 1);
-    expect(state.failedToLoadMore, isTrue);
+    expect(state.isLoadingMore, isFalse);
+    expect(state.hasMore, isTrue);
     client.respond = (_) async => _response(ids: [2], total: 21);
     await notifier.loadMore();
     expect(client.requests.last['pageindex'], 2);
-    expect(container.read(allOrdersProvider).error, isNull);
+    expect(container.read(allOrdersProvider).orders.map((order) => order.id), ['1', '2']);
   });
 
   for (final width in [320.0, 375.0, 440.0]) {
@@ -151,23 +151,18 @@ void main() {
     });
   }
 
-  testWidgets('initial error waits for explicit retry', (tester) async {
+  test('initial failure propagates, clears loading, and explicit retry reloads', () async {
     final client = _ApiClient((_) async => {'result': 1, 'descr': '订单获取失败'});
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [apiClientProvider.overrideWithValue(client)],
-        child: const MaterialApp(home: AllOrdersPage()),
-      ),
-    );
-    await tester.pumpAndSettle();
+    final container = _container(client);
+    final notifier = container.read(allOrdersProvider.notifier);
+    await expectLater(notifier.initialize(), throwsA(isA<ApiException>()));
     expect(client.requests.length, 1);
-    expect(find.text('订单获取失败'), findsOneWidget);
-    await tester.pump(const Duration(seconds: 2));
-    expect(client.requests.length, 1);
+    final failed = container.read(allOrdersProvider);
+    expect(failed.isLoading, isFalse);
+    expect(failed.orders, isEmpty);
     client.respond = (_) async => _response();
-    await tester.tap(find.text('重试'));
-    await tester.pumpAndSettle();
-    expect(find.text('暂无订单'), findsOneWidget);
+    await notifier.loadOrders();
     expect(client.requests.length, 2);
+    expect(container.read(allOrdersProvider).isLoading, isFalse);
   });
 }

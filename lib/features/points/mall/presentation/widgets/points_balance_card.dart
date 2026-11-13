@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../../../app/theme/app_colors.dart';
 import '../../../../../core/widgets/app_empty.dart';
 import '../../../../../core/widgets/app_loading.dart';
-import '../providers/points_mall_paging_providers.dart';
+import '../providers/points_mall_providers.dart';
 import 'points_hot_product_card.dart';
 
 /// 积分余额 + 热门兑换商品 统一白色卡片（顶部覆盖 Banner 底部）

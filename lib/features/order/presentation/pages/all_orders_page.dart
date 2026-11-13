@@ -7,7 +7,6 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_empty.dart';
-import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../providers/all_orders_provider.dart';
 import '../widgets/order_card.dart';
@@ -29,7 +28,8 @@ class _AllOrdersPageState extends ConsumerState<AllOrdersPage> {
     'pending_payment' => 1,
     'pending_shipment' => 2,
     'shipped' => 3,
-    'refunding' => 4,
+    'pending_evaluation' => 4,
+    'refunding' => 5,
     _ => 0,
   };
 
@@ -54,8 +54,7 @@ class _AllOrdersPageState extends ConsumerState<AllOrdersPage> {
   }
 
   void _loadNearBottom() {
-    final state = ref.read(allOrdersProvider);
-    if (_scrollController.position.extentAfter < 240 && state.error == null) {
+    if (_scrollController.position.extentAfter < 240) {
       ref.read(allOrdersProvider.notifier).loadMore();
     }
   }
@@ -104,10 +103,6 @@ class _AllOrdersPageState extends ConsumerState<AllOrdersPage> {
                         padding: const EdgeInsets.fromLTRB(AppSpacing.compactPageMargin, AppSpacing.md, AppSpacing.compactPageMargin, AppSpacing.xxl),
                         sliver: state.isLoading && state.orders.isEmpty
                             ? const SliverToBoxAdapter(child: Center(child: AppLoading()))
-                            : state.orders.isEmpty && state.error != null
-                            ? SliverToBoxAdapter(
-                                child: AppError(message: state.error!, onRetry: notifier.loadOrders),
-                              )
                             : state.orders.isEmpty
                             ? const SliverToBoxAdapter(child: AppEmpty(message: '暂无订单'))
                             : SliverList.builder(
@@ -120,9 +115,7 @@ class _AllOrdersPageState extends ConsumerState<AllOrdersPage> {
                         SliverToBoxAdapter(
                           child: Padding(
                             padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
-                            child: state.error != null
-                                ? AppError(message: state.error!, onRetry: state.failedToLoadMore ? notifier.loadMore : notifier.loadOrders)
-                                : state.isLoadingMore
+                            child: state.isLoadingMore
                                 ? const Center(child: AppLoading())
                                 : Center(
                                     child: state.hasMore
@@ -187,7 +180,7 @@ class _TopNavBar extends StatelessWidget {
             icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 22),
             onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 24, minHeight: 40),
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
           ),
           const Text(
             '全部订单',

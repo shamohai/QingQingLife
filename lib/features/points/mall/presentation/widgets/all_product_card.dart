@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../../../../../core/widgets/app_image.dart';
 import '../../data/models/get_credit_product_list_model.dart';
@@ -33,16 +33,17 @@ class AllProductCard extends StatelessWidget {
                 child: AppNetworkImage(url: item.imgUrl, fit: BoxFit.cover, radius: 0),
               ),
             ),
-            // 名称：最多两行，固定高度
-            Container(
-              height: 40,
-              alignment: Alignment.topLeft,
-              padding: const EdgeInsets.only(top: 6, left: 10, right: 10),
-              child: Text(
-                item.productName,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF1F2024), height: 1.3),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+            // 名称：最多两行，动态分配剩余空间
+            Expanded(
+              child: Container(
+                alignment: Alignment.topLeft,
+                padding: const EdgeInsets.only(top: 4, left: 10, right: 10),
+                child: Text(
+                  item.productName,
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF1F2024), height: 1.3),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ),
             // 价格 + 按钮行
@@ -51,18 +52,24 @@ class AllProductCard extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '${item.creditPrice}',
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFFFF2105)),
-                      ),
-                      const Text(
-                        ' 积分',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFFFF2105)),
-                      ),
-                    ],
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            '${item.creditPrice}',
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFFFF2105)),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const Text(
+                          ' 积分',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFFFF2105)),
+                        ),
+                      ],
+                    ),
                   ),
                   SizedBox(
                     width: 50,

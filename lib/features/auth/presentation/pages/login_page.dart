@@ -253,8 +253,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   /// 设计间距合计 119（60/44/15）。屏幕高度不足时按比例压缩间距，
   /// 避免 Column 溢出；标准屏幕保持设计稿间距不变。
   ///
-  /// Web 环境额外渲染测试登录区（约 190 高），因此大间距按剩余空间收缩，
-  /// 并允许整体滚动，保证测试登录输入框不会被挤出屏幕。
+  /// 大间距（heroGap）必须同时受剩余空间限制（Web 还要扣除测试登录区高度），
+  /// 且整体在所有平台都可滚动，兜底真机小屏 / 系统导航栏占用导致的 bottom overflow。
   Widget _buildMainContent() {
     const double contentHeight = 100.0 + 60 + 54 + 28;
     const double designGap = 60.0 + 44 + 15;
@@ -265,7 +265,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       builder: (context, constraints) {
         final double available = constraints.maxHeight - contentHeight;
         final double scale = (available <= 0 || !available.isFinite) ? 0 : math.min(1.0, available / designGap);
-        final double heroGap = kIsWeb ? math.max(0, math.min(470 * scale, available - webTestPanelHeight)) : 470 * scale;
+        final double panelHeight = kIsWeb ? webTestPanelHeight : 0;
+        final double heroGap = math.max(0, math.min(470 * scale, available - panelHeight));
         final column = Column(
           children: [
             const Center(
@@ -342,8 +343,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ],
         );
 
-        if (!kIsWeb) return column;
-        // Web 下允许滚动，避免小视口或键盘弹出时溢出；至少撑满可用高度。
+        // 允许滚动，避免小视口、键盘弹出或真机系统导航栏占位时溢出；至少撑满可用高度。
         return SingleChildScrollView(
           padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom + 24),
           child: ConstrainedBox(

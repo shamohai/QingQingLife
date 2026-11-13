@@ -106,13 +106,11 @@ class _NotificationListPageState extends ConsumerState<NotificationListPage> {
       height: 44,
       child: Row(
         children: [
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => context.pop(),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              child: Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF14203A)),
-            ),
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF14203A), size: 22),
+            onPressed: () => context.pop(),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
           ),
           const SizedBox(width: 2),
           const Text(

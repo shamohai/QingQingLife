@@ -76,8 +76,10 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.black),
-        onPressed: () => Navigator.of(context).pop(),
+        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 22),
+        onPressed: () => context.pop(),
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
       ),
       title: Text(
         title,

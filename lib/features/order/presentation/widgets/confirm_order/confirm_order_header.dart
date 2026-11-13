@@ -13,7 +13,6 @@ class MallConfirmOrderHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // Exclude the mockup's 50px system status bar; SafeArea supplies it.
       height: 153,
       width: double.infinity,
       padding: const EdgeInsets.only(top: 6, bottom: 17),

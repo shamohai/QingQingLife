@@ -38,28 +38,6 @@ abstract class OrderRepository {
 
   /// 确认收货
   Future<ApiResponse<void>> confirmReceived(String orderId);
-
-  /// 申请售后/退款
-  Future<ApiResponse<AfterSaleResult>> applyAfterSale({
-    required String orderId,
-    required String orderItemId,
-    required AfterSaleType type,
-    required String reason,
-    required List<String> images,
-    String? description,
-  });
-
-  /// 获取售后详情
-  Future<ApiResponse<AfterSaleDetail>> getAfterSaleDetail(String afterSaleId);
-
-  /// 删除订单（仅已完成/已取消）
-  Future<ApiResponse<void>> deleteOrder(String orderId);
-
-  /// 再次购买
-  Future<ApiResponse<void>> rebuy(String orderId);
-
-  /// 获取物流信息
-  Future<ApiResponse<LogisticsInfo>> getLogistics(String orderId);
 }
 
 /// 订单创建结果
@@ -81,35 +59,6 @@ class OrderListResult {
   final bool hasMore;
 
   const OrderListResult({required this.orders, required this.total, required this.page, required this.pageSize, required this.hasMore});
-}
-
-/// 订单摘要（列表展示）
-class OrderSummary {
-  final String id;
-  final String orderNo;
-  final OrderStatus status;
-  final String statusText;
-  final int totalPriceCents;
-  final int productCount;
-  final String? firstProductImage;
-  final String? firstProductName;
-  final OrderType orderType;
-  final DateTime createTime;
-  final DateTime? payTime;
-
-  const OrderSummary({
-    required this.id,
-    required this.orderNo,
-    required this.status,
-    required this.statusText,
-    required this.totalPriceCents,
-    required this.productCount,
-    this.firstProductImage,
-    this.firstProductName,
-    required this.orderType,
-    required this.createTime,
-    this.payTime,
-  });
 }
 
 /// 订单详情
@@ -282,94 +231,5 @@ enum OrderStatus {
   refunded('已退款');
 
   const OrderStatus(this.label);
-  final String label;
-}
-
-/// 售后类型
-enum AfterSaleType {
-  refundOnly('仅退款'),
-  returnRefund('退货退款'),
-  exchange('换货'),
-  repair('维修');
-
-  const AfterSaleType(this.label);
-  final String label;
-}
-
-/// 售后申请结果
-class AfterSaleResult {
-  final String afterSaleId;
-  final String afterSaleNo;
-
-  const AfterSaleResult({required this.afterSaleId, required this.afterSaleNo});
-}
-
-/// 售后详情
-class AfterSaleDetail {
-  final String id;
-  final String afterSaleNo;
-  final AfterSaleType type;
-  final AfterSaleStatus status;
-  final String reason;
-  final List<String> images;
-  final String? description;
-  final int refundAmountCents;
-  final DateTime createTime;
-  final DateTime? handleTime;
-  final String? handleRemark;
-
-  const AfterSaleDetail({
-    required this.id,
-    required this.afterSaleNo,
-    required this.type,
-    required this.status,
-    required this.reason,
-    required this.images,
-    this.description,
-    required this.refundAmountCents,
-    required this.createTime,
-    this.handleTime,
-    this.handleRemark,
-  });
-}
-
-/// 售后状态
-enum AfterSaleStatus {
-  pending('待审核'),
-  approved('已通过'),
-  rejected('已拒绝'),
-  processing('处理中'),
-  completed('已完成');
-
-  const AfterSaleStatus(this.label);
-  final String label;
-}
-
-/// 物流信息
-class LogisticsInfo {
-  final String company;
-  final String trackingNo;
-  final List<LogisticsNode> nodes;
-  final LogisticsStatus status;
-
-  const LogisticsInfo({required this.company, required this.trackingNo, required this.nodes, required this.status});
-}
-
-class LogisticsNode {
-  final DateTime time;
-  final String description;
-  final String? location;
-
-  const LogisticsNode({required this.time, required this.description, this.location});
-}
-
-enum LogisticsStatus {
-  pending('待揽收'),
-  inTransit('运输中'),
-  outForDelivery('派送中'),
-  delivered('已签收'),
-  exception('异常');
-
-  const LogisticsStatus(this.label);
   final String label;
 }

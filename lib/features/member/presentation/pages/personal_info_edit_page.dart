@@ -128,13 +128,11 @@ class _PersonalInfoEditPageState extends ConsumerState<PersonalInfoEditPage> {
       height: 30,
       child: Row(
         children: [
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => context.pop(),
-            child: const Padding(
-              padding: EdgeInsets.only(left: 12, right: 2),
-              child: Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.white),
-            ),
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 22),
+            onPressed: () => context.pop(),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
           ),
           const Text(
             '个人信息',

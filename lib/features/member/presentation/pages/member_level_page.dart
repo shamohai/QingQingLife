@@ -113,13 +113,11 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
         children: [
           Align(
             alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => context.pop(),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 10),
-                child: Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.white),
-              ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 22),
+              onPressed: () => context.pop(),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
             ),
           ),
           const Align(

@@ -78,8 +78,10 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
           child: Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, size: 24, color: AppColors.onSurface),
-                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(Icons.arrow_back_ios_new, size: 22, color: AppColors.onSurface),
+                onPressed: () => context.pop(),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
               ),
               const Text(
                 '积分明细',

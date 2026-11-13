@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../../../../../app/theme/app_colors.dart';
 import '../../../../../app/theme/app_spacing.dart';
@@ -22,7 +22,7 @@ class ConfirmOrderNavBar extends StatelessWidget implements PreferredSizeWidget 
       centerTitle: false,
       titleSpacing: 0,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 22),
+        icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 22),
         onPressed: onBack ?? () => Navigator.of(context).pop(),
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(minWidth: 44, minHeight: 44),

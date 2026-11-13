@@ -204,10 +204,7 @@ class _PagingListViewState<T> extends ConsumerState<PagingListView<T>> {
               children: [
                 Text(pagingData.errorMessage ?? '加载失败'),
                 const SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () => _getNotifier()?.refresh(),
-                  child: const Text('重试'),
-                ),
+                ElevatedButton(onPressed: () => _getNotifier()?.refresh(), child: const Text('重试')),
               ],
             ),
           );
@@ -236,10 +233,7 @@ class _PagingListViewState<T> extends ConsumerState<PagingListView<T>> {
     );
 
     if (widget.enablePullToRefresh) {
-      return RefreshIndicator(
-        onRefresh: () async => await _getNotifier()?.refresh(),
-        child: listView,
-      );
+      return RefreshIndicator(onRefresh: () async => await _getNotifier()?.refresh(), child: listView);
     }
 
     return listView;

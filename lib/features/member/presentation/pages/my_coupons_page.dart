@@ -10,7 +10,7 @@ import '../widgets/coupon_entry_card.dart';
 /// 我的卡券页（/coupons）
 ///
 /// 结构（设计稿）：
-///   白色背景 → 返回栏「我的卡券」→ 三个双段券形入口
+///   浅灰背景 → 返回栏「我的卡券」→ 三个双段券形入口
 ///   → 「更多福利卡敬请期待…」→ 底部湖景背景。
 ///
 /// 三类入口均已接入对应列表页。
@@ -22,11 +22,10 @@ class MyCouponsPage extends StatelessWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF3F5F7),
         body: Stack(
           fit: StackFit.expand,
           children: [
-            Positioned.fill(child: _buildBackground()),
             Positioned(
               left: 0,
               right: 0,
@@ -69,31 +68,16 @@ class MyCouponsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBackground() {
-    return const DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: [0, 0.45, 0.72, 1],
-          colors: [Color(0xFFF8F8F8), Color(0xFFF8F8F8), Color(0xFFFFFFFF), Color(0xFFFFFFFF)],
-        ),
-      ),
-    );
-  }
-
   Widget _buildNavBar(BuildContext context) {
     return SizedBox(
       height: 44,
       child: Row(
         children: [
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => context.pop(),
-            child: const Padding(
-              padding: EdgeInsets.only(left: AppSpacing.md),
-              child: Icon(Icons.arrow_back_ios_new, size: 21, color: Color(0xFF000000)),
-            ),
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF000000), size: 22),
+            onPressed: () => context.pop(),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
           ),
           const SizedBox(width: AppSpacing.sm),
           const Text(

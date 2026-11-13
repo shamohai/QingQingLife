@@ -50,10 +50,6 @@ class NotificationTypeStatCache {
         for (final stat in stats) {'typename': stat.typeName, 'count': stat.count, 'icon': stat.icon, 'type': stat.typeValue, 'unreadcount': stat.unreadCount},
       ],
     };
-    try {
-      await _storage.putString(_key, jsonEncode(wrapper));
-    } catch (_) {
-      // 缓存写入失败不影响功能
-    }
+    await _storage.putString(_key, jsonEncode(wrapper));
   }
 }

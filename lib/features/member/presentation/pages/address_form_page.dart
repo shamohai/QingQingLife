@@ -32,6 +32,8 @@ class AddressFormPage extends ConsumerStatefulWidget {
 class _AddressFormPageState extends ConsumerState<AddressFormPage> {
   /// 导航栏与卡片间距（设计稿：卡片顶 91.5 - 导航栏底 74）
   static const double _navToCardGap = 17.5;
+  static const TextStyle _fieldTextStyle = TextStyle(fontSize: 13.5, color: _Palette.inputText, height: 1.2);
+  static const TextStyle _fieldHintStyle = TextStyle(fontSize: 13.5, color: _Palette.hint, height: 1.2);
 
   late final TextEditingController _nameController;
   late final TextEditingController _phoneController;
@@ -115,25 +117,24 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
   /// 顶部返回栏（标题左对齐，与地址列表页一致）
   Widget _buildNav(BuildContext context) {
     return SizedBox(
-      height: 30,
-      child: Row(
-        children: [
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => context.pop(),
-            child: const Padding(
-              padding: EdgeInsets.only(left: 11, right: 1.5),
-              child: Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.black),
+      height: 56,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 4),
+        child: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 22),
+              onPressed: () => context.pop(),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: Text(
+            const SizedBox(width: 4),
+            Text(
               _isEdit ? '编辑地址' : '新增地址',
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF000000), height: 1.2),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -179,13 +180,13 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
         children: [
           const SizedBox(width: 10),
           Expanded(
-            // 设计稿文字相对输入框中心略偏下 1px，用顶部内边距微调基线
+            // 与所在地区文本使用相同的垂直微调，确保单行字段基线一致。
             child: Padding(
-              padding: const EdgeInsets.only(top: 2),
+              padding: const EdgeInsets.only(top: 3),
               child: TextField(
                 controller: _nameController,
                 maxLines: 1,
-                style: const TextStyle(fontSize: 13.5, color: _Palette.inputText, height: 1.2),
+                style: _fieldTextStyle,
                 cursorColor: _Palette.label,
                 decoration: const InputDecoration(
                   isCollapsed: true,
@@ -195,7 +196,7 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
                   hintText: '请输入姓名',
-                  hintStyle: TextStyle(fontSize: 13.5, color: _Palette.hint),
+                  hintStyle: _fieldHintStyle,
                 ),
               ),
             ),
@@ -216,13 +217,13 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
           const SizedBox(width: 10),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(top: 2),
+              padding: const EdgeInsets.only(top: 3),
               child: TextField(
                 controller: _phoneController,
                 maxLines: 1,
                 keyboardType: TextInputType.phone,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(11)],
-                style: const TextStyle(fontSize: 13.5, color: _Palette.inputText, height: 1.2),
+                style: _fieldTextStyle,
                 cursorColor: _Palette.label,
                 decoration: const InputDecoration(
                   isCollapsed: true,
@@ -232,7 +233,7 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
                   hintText: '请输入手机号码',
-                  hintStyle: TextStyle(fontSize: 13.5, color: _Palette.hint),
+                  hintStyle: _fieldHintStyle,
                 ),
               ),
             ),
@@ -257,12 +258,12 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
             const SizedBox(width: 10),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(top: 3),
+                padding: const EdgeInsets.only(top: 3, left: 15),
                 child: Text(
                   hasRegion ? _regionText : '请选择省、市、区',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 13.5, color: hasRegion ? _Palette.inputText : _Palette.hint, height: 1.2),
+                  style: _fieldTextStyle.copyWith(color: hasRegion ? _Palette.inputText : _Palette.hint),
                 ),
               ),
             ),
@@ -286,7 +287,7 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
           controller: _detailController,
           minLines: 1,
           maxLines: 4,
-          style: const TextStyle(fontSize: 13.5, color: _Palette.inputText, height: 1.2),
+          style: _fieldTextStyle,
           cursorColor: _Palette.label,
           decoration: const InputDecoration(
             isCollapsed: true,
@@ -296,7 +297,7 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
             hintText: '请输入详细地址 例如小区/单元/楼层等',
-            hintStyle: TextStyle(fontSize: 13.5, color: _Palette.hint),
+            hintStyle: _fieldHintStyle,
           ),
         ),
       ),

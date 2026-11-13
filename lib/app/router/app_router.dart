@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -339,21 +339,20 @@ final appRouter = Provider<GoRouter>((ref) {
           );
         },
       ),
-      if (!kIsWeb)
-        GoRoute(
-          path: RouteNames.activityWebView,
-          pageBuilder: (c, s) {
-            final url = s.uri.queryParameters['url'] ?? '';
-            final activityType = s.uri.queryParameters['activityType'];
-            final uri = Uri.tryParse(url);
-            if (uri == null || !(uri.scheme == 'http' || uri.scheme == 'https')) {
-              return const MaterialPage(
-                child: Scaffold(body: Center(child: Text('无效的网页地址'))),
-              );
-            }
-            return MaterialPage(child: ActivityWebViewPage(url: url, activityType: activityType));
-          },
-        ),
+      GoRoute(
+        path: RouteNames.activityWebView,
+        pageBuilder: (c, s) {
+          final url = s.uri.queryParameters['url'] ?? '';
+          final activityType = s.uri.queryParameters['activityType'];
+          final uri = Uri.tryParse(url);
+          if (uri == null || !(uri.scheme == 'http' || uri.scheme == 'https')) {
+            return const MaterialPage(
+              child: Scaffold(body: Center(child: Text('无效的网页地址'))),
+            );
+          }
+          return MaterialPage(child: ActivityWebViewPage(url: url, activityType: activityType));
+        },
+      ),
       GoRoute(
         path: RouteNames.paymentResult,
         pageBuilder: (c, s) => MaterialPage(child: PointsPaymentSuccessPage.fromExtra(s.extra)),

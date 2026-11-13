@@ -111,7 +111,7 @@ class _HomeBannerState extends State<HomeBanner> {
     if (url.startsWith('assets/')) {
       return Image.asset(
         url,
-        fit: BoxFit.cover,
+        fit: BoxFit.fill,
         width: double.infinity,
         height: double.infinity,
         errorBuilder: (context, error, stackTrace) => Container(
@@ -120,7 +120,12 @@ class _HomeBannerState extends State<HomeBanner> {
         ),
       );
     }
-    return AppNetworkImage(url: url, fit: BoxFit.cover);
+    return AppNetworkImage(
+      url: url,
+      fit: BoxFit.fill,
+      width: double.infinity,
+      height: double.infinity,
+    );
   }
 
   @override
