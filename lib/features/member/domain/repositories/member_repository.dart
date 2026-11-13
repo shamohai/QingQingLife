@@ -508,14 +508,7 @@ class CustomerServiceVip {
   /// 服务描述
   final String servicedescr;
 
-  const CustomerServiceVip({
-    this.title = '',
-    this.workwxqrimg = '',
-    this.workwxmppath = '',
-    this.tel = '',
-    this.telname = '',
-    this.servicedescr = '',
-  });
+  const CustomerServiceVip({this.title = '', this.workwxqrimg = '', this.workwxmppath = '', this.tel = '', this.telname = '', this.servicedescr = ''});
 
   factory CustomerServiceVip.fromJson(Map<String, dynamic> json) {
     return CustomerServiceVip(
@@ -543,12 +536,7 @@ class CustomerServiceDefault {
   /// 拉起微信客服失败时的备用电话
   final String fallbacktel;
 
-  const CustomerServiceDefault({
-    this.wxcustomerserviceurl = '',
-    this.workwxcorpid = '',
-    this.servicedescr = '',
-    this.fallbacktel = '',
-  });
+  const CustomerServiceDefault({this.wxcustomerserviceurl = '', this.workwxcorpid = '', this.servicedescr = '', this.fallbacktel = ''});
 
   factory CustomerServiceDefault.fromJson(Map<String, dynamic> json) {
     return CustomerServiceDefault(

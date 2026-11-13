@@ -18,19 +18,14 @@ import '../models/member_sign_in_models.dart';
 import '../models/service_coupon_model.dart';
 
 /// 统一会员数据源（实现 MemberRepository 与 MemberSignInRepository 接口）
-/// 未配置网络客户端或接口尚未提供时，返回 [ApiResponse.error]；接口请求结果原样返回。
+/// 接口请求结果原样返回；尚未提供后端接口的方法返回 [ApiResponse.error]。
 class MemberDataSource implements MemberRepository, MemberSignInRepository {
-  final ApiClient? apiClient;
+  final ApiClient apiClient;
 
-  MemberDataSource({this.apiClient});
+  MemberDataSource({required this.apiClient});
 
-  static const String _notConfigured = '会员服务未配置';
-
-  /// 统一 POST 调用：未配置网络客户端时返回失败响应，其余结果原样返回。
-  Future<ApiResponse<T>> _post<T>(String path, {dynamic data, T Function(dynamic)? fromJson}) async {
-    final client = apiClient;
-    if (client == null) return ApiResponse.error(_notConfigured);
-    return client.post<T>(path, data: data, fromJson: fromJson);
+  Future<ApiResponse<T>> _post<T>(String path, {dynamic data, T Function(dynamic)? fromJson}) {
+    return apiClient.post<T>(path, data: data, fromJson: fromJson);
   }
 
   // ── 会员等级 ──────────────────────────────────────────────────────────────
@@ -129,10 +124,10 @@ class MemberDataSource implements MemberRepository, MemberSignInRepository {
   }
 
   @override
-  Future<ApiResponse<void>> deleteAddress(String addressId) async => ApiResponse.error('删除收货地址暂未接入后端接口');
+  Future<ApiResponse<void>> deleteAddress(String addressId) async => ApiResponse.error('');
 
   @override
-  Future<ApiResponse<void>> setDefaultAddress(String addressId) async => ApiResponse.error('设置默认收货地址暂未接入后端接口');
+  Future<ApiResponse<void>> setDefaultAddress(String addressId) async => ApiResponse.error('');
 
   // ── 会员权益与优惠券 ──────────────────────────────────────────────────────
   @override
@@ -250,10 +245,10 @@ class MemberDataSource implements MemberRepository, MemberSignInRepository {
 
   // ── 会员签到（后端接口暂未提供） ───────────────────────────────────────────
   @override
-  Future<ApiResponse<MemberSignInOverview>> getSignInOverview() async => ApiResponse.error('签到总览暂未接入后端接口');
+  Future<ApiResponse<MemberSignInOverview>> getSignInOverview() async => ApiResponse.error('');
 
   @override
-  Future<ApiResponse<MemberSignInResult>> signIn() async => ApiResponse.error('会员签到暂未接入后端接口');
+  Future<ApiResponse<MemberSignInResult>> signIn() async => ApiResponse.error('');
 }
 
 final memberDataSourceProvider = Provider<MemberDataSource>((ref) {

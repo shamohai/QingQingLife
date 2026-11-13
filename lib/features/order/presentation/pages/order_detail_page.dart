@@ -661,10 +661,10 @@ class _ActionButton extends StatelessWidget {
 
 List<String> _actionsFor(OrderDetail detail) {
   return switch (detail.backendStateCode) {
-    30 => ['取消订单', detail.waitEndPay ? '支付尾款' : '立即付款'],
-    90 => ['申请退款'],
-    110 => ['申请退款', '确认收货'],
-    130 || 140 => ['申请退款'],
+    30 => [if (detail.canCancel) '取消订单', detail.waitEndPay ? '支付尾款' : '立即付款'],
+    90 => [if (detail.canAfterSale) '申请退款'],
+    110 => [if (detail.canAfterSale) '申请退款', '确认收货'],
+    130 || 140 => [if (detail.canAfterSale) '申请退款'],
     160 => ['取消售后'],
     _ => const <String>[],
   };

@@ -93,7 +93,6 @@ class AccountSecurityCard extends ConsumerWidget {
   Widget _buildPhoneValue(BuildContext context, String phoneMasked) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('功能暂未开放'), behavior: SnackBarBehavior.floating)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -13,20 +13,15 @@ import '../models/order_list_response.dart';
 /// 仅通过真实后端接口获取数据。接口不存在或请求失败时返回失败结果，
 /// 由页面的 Error 状态承接，不伪造成功数据（例如不再返回伪造的订单号）。
 class OrderDataSource implements OrderRepository {
-  final ApiClient? apiClient;
+  final ApiClient apiClient;
 
-  OrderDataSource({this.apiClient});
-
-  static const _notConfigured = '接口未配置';
-  static const _notAvailable = '该功能暂未开放，请稍后再试';
+  OrderDataSource({required this.apiClient});
 
   @override
   Future<ApiResponse<OrderListResult>> getOrderList({required int page, required int pageSize, int orderState = 0, String keyword = ''}) async {
-    final client = apiClient;
-    if (client == null) return ApiResponse.error(_notConfigured);
     final search = keyword.trim();
     final isOrderCode = RegExp(r'^[0-9]+$').hasMatch(search);
-    final response = await client.post<OrderListResponse>(
+    final response = await apiClient.post<OrderListResponse>(
       '/api/order/getorderlist',
       data: <String, dynamic>{
         'orderstate': orderState,
@@ -39,7 +34,7 @@ class OrderDataSource implements OrderRepository {
     );
     if (!response.success) return ApiResponse.error(response.message);
     final data = response.data;
-    if (data == null) return ApiResponse.error(_notAvailable);
+    if (data == null) return ApiResponse.error('');
     return ApiResponse.success(data.toDomain(page: page, pageSize: pageSize));
   }
 
@@ -53,14 +48,12 @@ class OrderDataSource implements OrderRepository {
     int? pointsToUse,
     String? remark,
   }) async {
-    return ApiResponse.error(_notAvailable);
+    return ApiResponse.error('');
   }
 
   @override
   Future<ApiResponse<ServiceCouponPreDealData>> preDealServiceCouponOrder({required int serviceCouponId, required int count, int? addressId}) async {
-    final client = apiClient;
-    if (client == null) return ApiResponse.error(_notConfigured);
-    return client.post<ServiceCouponPreDealData>(
+    return apiClient.post<ServiceCouponPreDealData>(
       '/api/order/v2/predealservicecouponorder',
       data: <String, dynamic>{'servicecouponid': serviceCouponId, 'num': count, 'addressid': addressId},
       fromJson: (dynamic json) => ServiceCouponPreDealData.fromJson(Map<String, dynamic>.from(json as Map)),
@@ -75,9 +68,7 @@ class OrderDataSource implements OrderRepository {
     String? remark,
     DateTime? sendTime,
   }) async {
-    final client = apiClient;
-    if (client == null) return ApiResponse.error(_notConfigured);
-    return client.post<ServiceCouponOrderSubmitResult>(
+    return apiClient.post<ServiceCouponOrderSubmitResult>(
       '/api/order/v2/submitservicecouponorder',
       data: <String, dynamic>{
         'servicecouponid': serviceCouponId,
@@ -92,9 +83,7 @@ class OrderDataSource implements OrderRepository {
 
   @override
   Future<ApiResponse<OrderDetail>> getOrderDetail(String orderId) async {
-    final client = apiClient;
-    if (client == null) return ApiResponse.error(_notConfigured);
-    return client.post<OrderDetail>(
+    return apiClient.post<OrderDetail>(
       '/api/order/v2/getorderdetail',
       data: <String, dynamic>{'oid': int.tryParse(orderId) ?? 0},
       fromJson: (dynamic json) => OrderDetailResponse.fromJson(Map<String, dynamic>.from(json as Map)).toDomain(),
@@ -103,16 +92,12 @@ class OrderDataSource implements OrderRepository {
 
   @override
   Future<ApiResponse<void>> cancelOrder(String orderId, [String? reason]) async {
-    final client = apiClient;
-    if (client == null) return ApiResponse.error(_notConfigured);
-    return client.post<void>('/api/order/cancelorder', data: <String, dynamic>{'orderid': int.tryParse(orderId) ?? 0});
+    return apiClient.post<void>('/api/order/cancelorder', data: <String, dynamic>{'orderid': int.tryParse(orderId) ?? 0});
   }
 
   @override
   Future<ApiResponse<void>> confirmReceived(String orderId) async {
-    final client = apiClient;
-    if (client == null) return ApiResponse.error(_notConfigured);
-    return client.post<void>('/api/order/orderreceipt', data: <String, dynamic>{'orderid': int.tryParse(orderId) ?? 0});
+    return apiClient.post<void>('/api/order/orderreceipt', data: <String, dynamic>{'orderid': int.tryParse(orderId) ?? 0});
   }
 }
 

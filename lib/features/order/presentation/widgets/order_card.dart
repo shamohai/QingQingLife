@@ -16,19 +16,12 @@ class OrderCard extends StatelessWidget {
 
   const OrderCard({super.key, required this.item, this.onCancelOrder, this.onConfirmReceived});
 
-  void _showPending(BuildContext context, String action) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$action接口暂未接入')));
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         final orderId = item.id;
-        if (orderId == null || orderId.isEmpty) {
-          _showPending(context, '订单详情');
-          return;
-        }
+        if (orderId == null || orderId.isEmpty) return;
         context.push('/orders/$orderId');
       },
       behavior: HitTestBehavior.opaque,
@@ -318,8 +311,6 @@ class OrderCard extends StatelessWidget {
           _confirmCancel(context);
         } else if (action == OrderListAction.confirm) {
           _confirmReceived(context);
-        } else {
-          _showPending(context, action.label);
         }
       },
       child: Container(
@@ -347,10 +338,7 @@ class OrderCard extends StatelessWidget {
 
   Future<void> _confirmCancel(BuildContext context) async {
     final orderId = item.id;
-    if (orderId == null || orderId.isEmpty || onCancelOrder == null) {
-      _showPending(context, '取消订单');
-      return;
-    }
+    if (orderId == null || orderId.isEmpty || onCancelOrder == null) return;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -381,10 +369,7 @@ class OrderCard extends StatelessWidget {
 
   Future<void> _confirmReceived(BuildContext context) async {
     final orderId = item.id;
-    if (orderId == null || orderId.isEmpty || onConfirmReceived == null) {
-      _showPending(context, '确认收货');
-      return;
-    }
+    if (orderId == null || orderId.isEmpty || onConfirmReceived == null) return;
 
     final confirmed = await showDialog<bool>(
       context: context,
