@@ -150,22 +150,6 @@ class _TabRow extends ConsumerWidget {
               _TabLabel(text: _tabs[i], isActive: state.activeTabIndex == i, onTap: () => notifier.selectTab(i)),
               if (i < _tabs.length - 1) const SizedBox(width: 32),
             ],
-            const Spacer(),
-            // TODO(交互): 「筛选」的筛选维度与交互流程产品未定义，暂为占位入口
-            GestureDetector(
-              onTap: () {},
-              behavior: HitTestBehavior.opaque,
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '筛选',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, color: Color(0xFF1A1D1C)),
-                  ),
-                  Icon(Icons.arrow_drop_down, size: 20, color: Color(0xFF1A1D1C)),
-                ],
-              ),
-            ),
           ],
         ),
       ),
