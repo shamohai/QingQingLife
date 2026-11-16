@@ -43,7 +43,8 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
       final lastPlayedVersion = await _storage.getString(_lastPlayedVersionKey);
-      final currentVersion = '${packageInfo.version}+${packageInfo.buildNumber}';
+      final localMd5 = await _storage.getString('startup_video_local_md5') ?? '';
+      final currentVersion = '${packageInfo.version}+${packageInfo.buildNumber}_$localMd5';
 
       if (!mounted || lastPlayedVersion == currentVersion) {
         _finishWithoutVideo();
@@ -161,9 +162,12 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
   }
 
   Future<void> _finishVideo() async {
-    final packageInfo = await PackageInfo.fromPlatform();
-    final currentVersion = '${packageInfo.version}+${packageInfo.buildNumber}';
-    await _storage.putString(_lastPlayedVersionKey, currentVersion);
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final localMd5 = await _storage.getString('startup_video_local_md5') ?? '';
+      final currentVersion = '${packageInfo.version}+${packageInfo.buildNumber}_$localMd5';
+      await _storage.putString(_lastPlayedVersionKey, currentVersion);
+    } catch (_) {}
 
     if (!mounted) return;
     setState(() => _showVideo = false);

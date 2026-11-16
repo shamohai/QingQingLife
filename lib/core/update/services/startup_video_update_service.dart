@@ -131,9 +131,47 @@ class StartupVideoUpdateService {
     }
   }
 
-  /// 从自有服务器拉取视频配置（兼容 Manifest 格式与单视频 Config 格式）
+  /// 从自有服务器拉取视频配置（优先访问 https://apitest.mall.qkj.com.cn/resources/manifest.json）
   Future<({String videoUrl, String md5})?> _fetchRemoteVideoInfo() async {
-    // 策略 A: 优先尝试请求专用视频配置 config.json
+    // 策略 A: 优先尝试请求标准资源清单 /resources/manifest.json
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '${AppConfig.baseUrl}/resources/manifest.json',
+        options: Options(connectTimeout: const Duration(seconds: 5), receiveTimeout: const Duration(seconds: 5)),
+      );
+      if (response.data != null) {
+        final manifest = ResourceManifest.fromJson(response.data!);
+        final videoMd5 = manifest.resources['assets/video/open.mp4'] ?? manifest.resources['video/open.mp4'];
+        if (videoMd5 != null && videoMd5.isNotEmpty) {
+          final resourcePath = manifest.resources.containsKey('assets/video/open.mp4')
+              ? 'assets/video/open.mp4'
+              : 'video/open.mp4';
+          final fullUrl = '${AppConfig.baseUrl}/resources/$resourcePath';
+          return (videoUrl: fullUrl, md5: videoMd5);
+        }
+      }
+    } catch (_) {
+      // 若 /resources/manifest.json 不存在，尝试后端 API /api/app/resource/manifest
+    }
+
+    // 策略 B: 尝试后端 API 接口 /api/app/resource/manifest
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '${AppConfig.baseUrl}/api/app/resource/manifest',
+        options: Options(connectTimeout: const Duration(seconds: 5), receiveTimeout: const Duration(seconds: 5)),
+      );
+      if (response.data != null) {
+        final manifest = ResourceManifest.fromJson(response.data!);
+        final videoMd5 = manifest.resources['assets/video/open.mp4'] ?? manifest.resources['video/open.mp4'];
+        if (videoMd5 != null && videoMd5.isNotEmpty) {
+          final fullUrl = '${AppConfig.baseUrl}/resources/assets/video/open.mp4';
+          return (videoUrl: fullUrl, md5: videoMd5);
+        }
+      }
+    } catch (_) {
+      // 策略 C: 备用 config.json
+    }
+
     try {
       final response = await _dio.get<Map<String, dynamic>>(
         '${AppConfig.baseUrl}/resources/video/config.json',
@@ -146,28 +184,9 @@ class StartupVideoUpdateService {
         final fullUrl = rawUrl.startsWith('http') ? rawUrl : '${AppConfig.baseUrl}/${rawUrl.startsWith('/') ? rawUrl.substring(1) : rawUrl}';
         return (videoUrl: fullUrl, md5: remoteMd5);
       }
-    } catch (_) {
-      // 若 config.json 不存在，尝试策略 B
-    }
-
-    // 策略 B: 尝试通用 Manifest 清单
-    try {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '${AppConfig.baseUrl}/api/app/resource/manifest',
-        options: Options(connectTimeout: const Duration(seconds: 5), receiveTimeout: const Duration(seconds: 5)),
-      );
-      if (response.data != null) {
-        final manifest = ResourceManifest.fromJson(response.data!);
-        final videoMd5 = manifest.resources['assets/video/open.mp4'];
-        if (videoMd5 != null && videoMd5.isNotEmpty) {
-          final fullUrl = '${AppConfig.baseUrl}/resources/video/open.mp4';
-          return (videoUrl: fullUrl, md5: videoMd5);
-        }
-      }
-    } catch (_) {
-      // 静默失败，不影响应用正常运行
-    }
+    } catch (_) {}
 
     return null;
   }
 }
+
