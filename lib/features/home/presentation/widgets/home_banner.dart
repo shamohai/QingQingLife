@@ -120,12 +120,7 @@ class _HomeBannerState extends State<HomeBanner> {
         ),
       );
     }
-    return AppNetworkImage(
-      url: url,
-      fit: BoxFit.fill,
-      width: double.infinity,
-      height: double.infinity,
-    );
+    return AppNetworkImage(url: url, fit: BoxFit.fill, width: double.infinity, height: double.infinity);
   }
 
   @override
@@ -176,10 +171,7 @@ class _HomeBannerState extends State<HomeBanner> {
                   itemBuilder: (context, index) {
                     final actualIndex = isSingle ? 0 : (index % banners.length);
                     final banner = banners[actualIndex];
-                    return GestureDetector(
-                      onTap: () => _handleTap(actualIndex),
-                      child: _buildImage(banner),
-                    );
+                    return GestureDetector(onTap: () => _handleTap(actualIndex), child: _buildImage(banner));
                   },
                 ),
               ),
@@ -199,11 +191,8 @@ class _HomeBannerState extends State<HomeBanner> {
                         return Container(
                           width: 30,
                           height: 3,
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          decoration: BoxDecoration(
-                            color: isActive ? const Color(0xFF0088FF) : Colors.white.withAlpha(200),
-                            borderRadius: BorderRadius.zero,
-                          ),
+                          margin: EdgeInsets.zero,
+                          decoration: BoxDecoration(color: isActive ? const Color(0xFF0088FF) : Colors.white.withAlpha(200), borderRadius: BorderRadius.zero),
                         );
                       }),
                     ),
