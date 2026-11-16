@@ -7,19 +7,20 @@ import '../../domain/repositories/order_repository.dart';
 
 class ConfirmOrderState {
   const ConfirmOrderState({
-    required this.product,
-    required this.address,
+    this.product,
+    this.address,
     this.quantity = 1,
     this.note = '',
     this.needInvoice = false,
-    this.couponName = '新人券 ¥50.00',
-    this.couponDiscountCents = 5000,
+    this.couponName,
+    this.couponDiscountCents = 0,
     this.paymentMethod = '微信支付',
     this.isSubmitting = false,
   });
 
-  final OrderItem product;
-  final MemberAddress address;
+  /// 结算商品与收货地址由购物车/商品详情传入，未传入时为空，页面展示空态且禁止提交。
+  final OrderItem? product;
+  final MemberAddress? address;
   final int quantity;
   final String note;
   final bool needInvoice;
@@ -28,8 +29,13 @@ class ConfirmOrderState {
   final String paymentMethod;
   final bool isSubmitting;
 
-  int get productTotalCents => product.totalCents * quantity;
-  int get shippingFeeCents => 1000;
+  bool get canSubmit => product != null && address?.id != null && !isSubmitting;
+
+  int get productTotalCents => (product?.priceCents ?? 0) * quantity;
+
+  /// 运费由后端计算，客户端不做估算。
+  int get shippingFeeCents => 0;
+
   int get payableCents {
     final value = productTotalCents + shippingFeeCents - couponDiscountCents;
     return value < 0 ? 0 : value;
@@ -63,31 +69,7 @@ class ConfirmOrderState {
 
 class ConfirmOrderNotifier extends Notifier<ConfirmOrderState> {
   @override
-  ConfirmOrderState build() {
-    return ConfirmOrderState(
-      product: const OrderItem(
-        id: 'confirm-item-1',
-        productId: 'product-1',
-        skuId: 'sku-1',
-        productName: '天佑德电商专供青稞酒特别版本...',
-        skuName: '【规格一】天佑德电商专供青稞酒特别版本42度500ml',
-        imageUrl: 'assets/images/order/confirm-order-product.png',
-        priceCents: 80000,
-        quantity: 1,
-        totalCents: 80000,
-      ),
-      address: const MemberAddress(
-        id: 'addr_1',
-        name: '吴彦祖',
-        phone: '130 9876 9987',
-        province: '甘肃省',
-        city: '兰州市',
-        district: '七里河区',
-        detail: '兰州中心办公楼801室',
-        isDefault: true,
-      ),
-    );
-  }
+  ConfirmOrderState build() => const ConfirmOrderState();
 
   void increment() => state = state.copyWith(quantity: state.quantity + 1);
 
@@ -109,6 +91,11 @@ class ConfirmOrderNotifier extends Notifier<ConfirmOrderState> {
   void clearCoupon() => state = state.copyWith(clearCoupon: true);
 
   Future<ApiResponse<OrderCreateResult>> submit() async {
+    final product = state.product;
+    final addressId = state.address?.id;
+    if (product == null || addressId == null) {
+      return ApiResponse.error('请选择商品与收货地址');
+    }
     state = state.copyWith(isSubmitting: true);
     try {
       final response = await ref
@@ -116,18 +103,18 @@ class ConfirmOrderNotifier extends Notifier<ConfirmOrderState> {
           .createOrder(
             items: [
               OrderItem(
-                id: state.product.id,
-                productId: state.product.productId,
-                skuId: state.product.skuId,
-                productName: state.product.productName,
-                skuName: state.product.skuName,
-                imageUrl: state.product.imageUrl,
-                priceCents: state.product.priceCents,
+                id: product.id,
+                productId: product.productId,
+                skuId: product.skuId,
+                productName: product.productName,
+                skuName: product.skuName,
+                imageUrl: product.imageUrl,
+                priceCents: product.priceCents,
                 quantity: state.quantity,
-                totalCents: state.product.priceCents * state.quantity,
+                totalCents: product.priceCents * state.quantity,
               ),
             ],
-            addressId: state.address.id!,
+            addressId: addressId,
             shippingFeeCents: state.shippingFeeCents,
             couponCode: state.couponName,
             remark: state.note.isEmpty ? null : state.note,

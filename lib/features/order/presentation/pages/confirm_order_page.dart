@@ -84,7 +84,7 @@ class _ConfirmOrderPageState extends ConsumerState<ConfirmOrderPage> {
             ],
           ),
         ),
-        bottomNavigationBar: MallConfirmOrderBottomBar(state: state, onSubmit: state.isSubmitting ? null : () => _submit(context)),
+        bottomNavigationBar: MallConfirmOrderBottomBar(state: state, onSubmit: state.canSubmit ? () => _submit(context) : null),
       ),
     );
   }
@@ -99,7 +99,6 @@ class _ConfirmOrderPageState extends ConsumerState<ConfirmOrderPage> {
         extra: MallPaymentSuccessData(
           orderId: response.data!.orderId,
           orderNo: response.data!.orderNo,
-          transactionNo: 'WX${DateTime.now().millisecondsSinceEpoch}',
           amountCents: state.payableCents,
           discountCents: state.couponDiscountCents,
         ),
@@ -123,7 +122,7 @@ class _ConfirmOrderPageState extends ConsumerState<ConfirmOrderPage> {
         return SizedBox(
           height: height,
           child: MallConfirmOrderAddressSheet(
-            selectedAddressId: ref.read(confirmOrderProvider).address.id,
+            selectedAddressId: ref.read(confirmOrderProvider).address?.id,
             bottomInset: media.padding.bottom,
             onSelect: (address) {
               ref.read(confirmOrderProvider.notifier).setAddress(address);
@@ -153,13 +152,7 @@ class _ConfirmOrderPageState extends ConsumerState<ConfirmOrderPage> {
         final height = (media.size.height - media.padding.top).clamp(0.0, 675.0).toDouble();
         return SizedBox(
           height: height,
-          child: MallConfirmOrderCouponSheet(
-            bottomInset: media.padding.bottom,
-            onUse: () {
-              ref.read(confirmOrderProvider.notifier).selectCoupon(name: '新人券 ¥50.00', discountCents: 5000);
-              Navigator.of(sheetContext).pop();
-            },
-          ),
+          child: MallConfirmOrderCouponSheet(bottomInset: media.padding.bottom),
         );
       },
     );

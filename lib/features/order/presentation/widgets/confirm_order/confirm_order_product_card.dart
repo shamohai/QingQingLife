@@ -25,6 +25,7 @@ class MallConfirmOrderProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final product = state.product;
     return MallConfirmOrderPanel(
       height: 172,
       padding: const EdgeInsets.fromLTRB(10, 15, 10, 13),
@@ -35,7 +36,7 @@ class MallConfirmOrderProductCard extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(AppRadius.md),
-                child: Image.asset(state.product.imageUrl, width: 70, height: 70, fit: BoxFit.cover),
+                child: product == null ? const SizedBox(width: 70, height: 70) : Image.asset(product.imageUrl, width: 70, height: 70, fit: BoxFit.cover),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -45,14 +46,14 @@ class MallConfirmOrderProductCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        state.product.productName,
+                        product?.productName ?? '',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black, fontWeight: FontWeight.w500),
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        state.product.skuName,
+                        product?.skuName ?? '',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontSize: 12, height: 1.2, color: Color(0xFF8E8E93)),
@@ -68,10 +69,9 @@ class MallConfirmOrderProductCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      formatConfirmOrderMoney(state.product.priceCents),
+                      formatConfirmOrderMoney(product?.priceCents ?? 0),
                       style: const TextStyle(fontSize: 20, height: 1.5, fontWeight: FontWeight.w600, color: AppColors.serviceButtonRed),
                     ),
-                    const Text('¥900.00', style: TextStyle(fontSize: 14, height: 1.5, color: Color(0xFF8E8E93))),
                   ],
                 ),
               ),

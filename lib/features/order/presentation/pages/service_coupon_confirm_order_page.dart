@@ -183,7 +183,6 @@ class _ServiceCouponConfirmOrderPageState extends ConsumerState<ServiceCouponCon
       extra: MallPaymentSuccessData(
         orderId: orderId,
         orderNo: orderId,
-        transactionNo: 'WX${DateTime.now().millisecondsSinceEpoch}',
         amountCents: _toCents(result.payableAmount),
         discountCents: _toCents(preDeal.totalDiscount),
       ),

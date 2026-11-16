@@ -8,9 +8,6 @@ abstract class ProductRepository {
 
   /// 获取首页商品数据（轮播、金刚区、热卖等）
   Future<ApiResponse<HomeProductData>> getHomeProductData();
-
-  /// 获取商品列表（分页）
-  Future<ApiResponse<ProductListResult>> getProductList({required int page, required int pageSize, String? categoryId, String? keyword, String? sortBy});
 }
 
 /// 首页商品聚合数据
@@ -201,15 +198,4 @@ class ProductSpec {
   final String value;
 
   const ProductSpec({required this.key, required this.value});
-}
-
-/// 分页商品列表结果
-class ProductListResult {
-  final List<ProductCard> products;
-  final int total;
-  final int page;
-  final int pageSize;
-  final bool hasMore;
-
-  const ProductListResult({required this.products, required this.total, required this.page, required this.pageSize, required this.hasMore});
 }

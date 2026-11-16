@@ -3,12 +3,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 
-/// 商城模拟支付成功页所需的展示数据。
+/// 商城订单提交成功页所需的展示数据。
+///
+/// 后端提交接口只返回订单号，不返回支付交易号，因此不在客户端生成交易号。
 class MallPaymentSuccessData {
   const MallPaymentSuccessData({
     required this.orderId,
     required this.orderNo,
-    required this.transactionNo,
     required this.amountCents,
     required this.discountCents,
     this.paymentMethod = '微信支付',
@@ -16,13 +17,12 @@ class MallPaymentSuccessData {
 
   final String orderId;
   final String orderNo;
-  final String transactionNo;
   final int amountCents;
   final int discountCents;
   final String paymentMethod;
 }
 
-/// 商城订单模拟支付成功页。
+/// 商城订单提交成功页。
 ///
 /// 正常下单流程通过 `extra` 传入 [MallPaymentSuccessData]；
 /// 缺参时显示空态，不再渲染假订单数据。
@@ -132,7 +132,7 @@ class _SuccessHeader extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         const Text(
-          '支付成功',
+          '订单提交成功',
           style: TextStyle(fontSize: 18, height: 1.4, fontWeight: FontWeight.w500, color: Colors.black),
         ),
         const SizedBox(height: 20),
@@ -165,12 +165,8 @@ class _PaymentSummaryCard extends StatelessWidget {
       child: Column(
         children: [
           _InfoRow(label: '订单编号', value: data.orderNo),
-          const SizedBox(height: 24),
-          _InfoRow(label: '交易单号', value: data.transactionNo),
           const SizedBox(height: 14),
           _InfoRow(label: '支付方式', value: data.paymentMethod, leading: Icons.wechat),
-          const SizedBox(height: 14),
-          const _InfoRow(label: '交易状态', value: '支付成功'),
           const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

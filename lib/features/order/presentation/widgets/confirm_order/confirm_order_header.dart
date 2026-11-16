@@ -7,11 +7,12 @@ import '../../../../member/domain/repositories/member_repository.dart';
 class MallConfirmOrderHeader extends StatelessWidget {
   const MallConfirmOrderHeader({super.key, required this.address, required this.onEditAddress});
 
-  final MemberAddress address;
+  final MemberAddress? address;
   final VoidCallback onEditAddress;
 
   @override
   Widget build(BuildContext context) {
+    final current = address;
     return Container(
       height: 153,
       width: double.infinity,
@@ -49,7 +50,7 @@ class MallConfirmOrderHeader extends StatelessWidget {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      '${address.province} ${address.city} ${address.district} 建兰路街道',
+                      current == null ? '请选择收货地址' : '${current.province} ${current.city} ${current.district}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontSize: 14, height: 1.5, color: Color(0xFF8E8E93)),
@@ -68,7 +69,7 @@ class MallConfirmOrderHeader extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      address.detail,
+                      current?.detail ?? '',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontSize: 18, height: 1.5, fontWeight: FontWeight.w500, color: Colors.black),
@@ -87,7 +88,7 @@ class MallConfirmOrderHeader extends StatelessWidget {
             height: 21,
             child: Padding(
               padding: const EdgeInsets.only(left: 24),
-              child: Text('${address.name}   ${address.phone}', style: const TextStyle(fontSize: 14, height: 1.5, color: Colors.black)),
+              child: Text('${current?.name ?? ''}   ${current?.phone ?? ''}', style: const TextStyle(fontSize: 14, height: 1.5, color: Colors.black)),
             ),
           ),
         ],

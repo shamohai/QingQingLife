@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 /// 确认订单页优惠券底部弹层。
+///
+/// 商城普通订单的优惠券列表接口尚未对接，当前只展示空态，不提供假优惠券。
 class MallConfirmOrderCouponSheet extends StatelessWidget {
-  const MallConfirmOrderCouponSheet({super.key, required this.bottomInset, required this.onUse});
+  const MallConfirmOrderCouponSheet({super.key, required this.bottomInset});
 
   final double bottomInset;
-  final VoidCallback onUse;
 
   @override
   Widget build(BuildContext context) {
@@ -34,12 +35,8 @@ class MallConfirmOrderCouponSheet extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: _CouponCard(available: true, onUse: onUse),
-        ),
-        const SizedBox(height: 12),
         const Padding(padding: EdgeInsets.symmetric(horizontal: 15), child: _CouponCard(available: false)),
+        const SizedBox(height: 12),
         SizedBox(height: bottomInset),
       ],
     );
@@ -47,10 +44,9 @@ class MallConfirmOrderCouponSheet extends StatelessWidget {
 }
 
 class _CouponCard extends StatelessWidget {
-  const _CouponCard({required this.available, this.onUse});
+  const _CouponCard({required this.available});
 
   final bool available;
-  final VoidCallback? onUse;
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +120,7 @@ class _CouponCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(100),
                 ),
                 child: TextButton(
-                  onPressed: available ? onUse : null,
+                  onPressed: available ? () {} : null,
                   style: TextButton.styleFrom(padding: EdgeInsets.zero, disabledForegroundColor: Colors.white, shape: const StadiumBorder()),
                   child: Text(available ? '使用' : '不可用', style: const TextStyle(fontSize: 16, height: 1.4, color: Colors.white)),
                 ),

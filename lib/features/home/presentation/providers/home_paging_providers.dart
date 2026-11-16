@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../product/domain/repositories/product_repository.dart';
 import '../../../points/mall/data/models/get_recommend_product_list_model.dart';
 import '../../../points/mall/data/models/get_credit_product_list_model.dart';
 import '../../../../core/presentation/paging/paging_controller_mixin.dart';
@@ -31,25 +30,6 @@ class HomeHotProductsNotifier extends PagingNotifier<CreditMallProduct> {
 }
 
 final homeHotProductsProvider = NotifierProvider.autoDispose<HomeHotProductsNotifier, PagingData<CreditMallProduct>>(HomeHotProductsNotifier.new);
-
-/// 首页商品网格分页 Notifier
-class HomeProductGridNotifier extends PagingNotifier<ProductCard> {
-  @override
-  int get pageSize => 8;
-
-  @override
-  Future<PagingResult<ProductCard>> fetchPage(int page, int pageSize) async {
-    final repository = ref.read(productRepositoryProvider);
-    final response = await repository.getProductList(page: page, pageSize: pageSize);
-    if (!response.success || response.data == null) {
-      throw Exception(response.message);
-    }
-    final result = response.data!;
-    return PagingResult<ProductCard>(items: result.products, hasMore: result.hasMore, totalItems: result.total, totalPages: (result.total / pageSize).ceil());
-  }
-}
-
-final homeProductGridProvider = NotifierProvider.autoDispose<HomeProductGridNotifier, PagingData<ProductCard>>(HomeProductGridNotifier.new);
 
 /// 首页底部推荐商品分页 Notifier（调用 GetCreditProductList 接口）
 /// 接口：POST /api/product/getcreditproductlist，sort=1, asc=false

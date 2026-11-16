@@ -52,13 +52,8 @@ class ProductDataSource implements ProductRepository, ProductDetailContentReposi
     );
   }
 
-  // ── 商品列表 ───────────────────────────────────────────────────────────────
-  @override
-  Future<ApiResponse<ProductListResult>> getProductList({required int page, required int pageSize, String? categoryId, String? keyword, String? sortBy}) async {
-    return ApiResponse.success(ProductListResult(products: const [], total: 0, page: page, pageSize: pageSize, hasMore: false));
-  }
-
   // ── ProductDetailContentRepository 结构化详情 ─────────────────────────────
+  // TODO(API): 实物商品详情接口尚未在项目中定义，接口就绪前返回 null，页面展示"暂无商品详情"。
   @override
   Future<ProductDetailContent?> getDetail(String id) async => null;
 }

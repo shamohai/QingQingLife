@@ -78,8 +78,11 @@ android {
             isDebuggable = true
         }
         release {
-            // Keep builds runnable before production signing is provisioned.
-            signingConfig = signingConfigs.getByName(if (hasReleaseSigningConfig) "release" else "debug")
+            // 发布包必须使用正式签名，禁止回退到 debug 签名。
+            if (!hasReleaseSigningConfig) {
+                throw GradleException("缺少 android/key.properties 正式签名配置，无法构建 release 包")
+            }
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     buildFeatures {

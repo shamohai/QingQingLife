@@ -13,11 +13,8 @@ abstract final class AppConfig {
   static const int defaultConnectTimeout = 15;
   static const int defaultReceiveTimeout = 30;
 
-  /// API Base URL 占位符（待后端对接时替换）
+  /// API Base URL（当前为测试环境，正式发布前必须切换为生产地址）
   static const String baseUrl = 'https://apitest.mall.qkj.com.cn';
-
-  /// 资源 CDN 基础域名（待配置真实 CDN 地址）
-  static const String resourceCdnBaseUrl = 'https://cdn.example.com/qingqinglife';
 
   /// 微信 AppID（中酒批APP）
   static const String wechatAppId = 'wx64999b13fa01a983';

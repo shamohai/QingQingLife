@@ -6,8 +6,6 @@ import '../../domain/models/cart_page_models.dart';
 class CartPageState {
   const CartPageState({required this.addresses, required this.selectedAddress, required this.items, required this.recommendations, this.isManaging = false});
 
-  static const int savingPerUnitCents = 1000;
-
   final List<String> addresses;
   final String selectedAddress;
   final List<CartDisplayItem> items;
@@ -21,12 +19,10 @@ class CartPageState {
 
   int get selectedSubtotalCents => items.where((item) => item.selected).fold(0, (sum, item) => sum + item.priceCents * item.quantity);
 
-  int get selectedSavingsCents => selectedQuantity * savingPerUnitCents;
+  /// 优惠金额需由后端促销接口计算，客户端暂不估算，固定为 0。
+  int get selectedSavingsCents => 0;
 
-  int get selectedPayableCents {
-    final payable = selectedSubtotalCents - selectedSavingsCents;
-    return payable < 0 ? 0 : payable;
-  }
+  int get selectedPayableCents => selectedSubtotalCents;
 
   CartPageState copyWith({
     List<String>? addresses,
