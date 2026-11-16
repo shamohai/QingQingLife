@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qingqinglife/core/network/api_client.dart';
 import 'package:qingqinglife/core/network/api_response.dart';
-import 'package:qingqinglife/core/network/exceptions/exceptions.dart';
 import 'package:qingqinglife/core/network/providers.dart';
 import 'package:qingqinglife/features/order/data/datasources/order_datasource.dart';
 import 'package:qingqinglife/features/order/presentation/pages/all_orders_page.dart';
@@ -99,7 +98,7 @@ void main() {
     expect(container.read(allOrdersProvider).activeTabIndex, 3);
   });
 
-  test('load more errors retain rows, reset loading, and retry the same page', () async {
+  test('load more errors keep rows, set error state, and reset loading', () async {
     final pending = Completer<Map<String, dynamic>>();
     final client = _ApiClient((body) => body['pageindex'] == 1 ? Future.value(_response(ids: [1], total: 21)) : pending.future);
     final container = _container(client);
@@ -109,8 +108,9 @@ void main() {
     await notifier.loadMore();
     expect(client.requests.length, 2);
     pending.complete({'result': 1, 'descr': '请稍后重试'});
-    await expectLater(first, throwsA(isA<ApiException>()));
+    await first;
     final state = container.read(allOrdersProvider);
+    expect(state.error, isNotNull);
     expect(state.orders.single.id, '1');
     expect(state.page, 1);
     expect(state.isLoadingMore, isFalse);
@@ -151,13 +151,14 @@ void main() {
     });
   }
 
-  test('initial failure propagates, clears loading, and explicit retry reloads', () async {
+  test('initial failure sets error state, clears loading, and explicit retry reloads', () async {
     final client = _ApiClient((_) async => {'result': 1, 'descr': '订单获取失败'});
     final container = _container(client);
     final notifier = container.read(allOrdersProvider.notifier);
-    await expectLater(notifier.initialize(), throwsA(isA<ApiException>()));
+    await notifier.initialize();
     expect(client.requests.length, 1);
     final failed = container.read(allOrdersProvider);
+    expect(failed.error, isNotNull);
     expect(failed.isLoading, isFalse);
     expect(failed.orders, isEmpty);
     client.respond = (_) async => _response();

@@ -7,6 +7,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_empty.dart';
+import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../providers/all_orders_provider.dart';
 import '../widgets/order_card.dart';
@@ -103,6 +104,10 @@ class _AllOrdersPageState extends ConsumerState<AllOrdersPage> {
                         padding: const EdgeInsets.fromLTRB(AppSpacing.compactPageMargin, AppSpacing.md, AppSpacing.compactPageMargin, AppSpacing.xxl),
                         sliver: state.isLoading && state.orders.isEmpty
                             ? const SliverToBoxAdapter(child: Center(child: AppLoading()))
+                            : state.orders.isEmpty && state.error != null
+                            ? SliverToBoxAdapter(
+                                child: AppError(message: state.error!, onRetry: notifier.loadOrders),
+                              )
                             : state.orders.isEmpty
                             ? const SliverToBoxAdapter(child: AppEmpty(message: '暂无订单'))
                             : SliverList.builder(

@@ -57,18 +57,7 @@ android {
 
         manifestPlaceholders += mapOf(
             "UMENG_APPKEY" to "6af189d16545637cd6451016",
-            "UMENG_MESSAGE_SECRET" to (System.getenv("UMENG_PUSH_MESSAGE_SECRET") ?: "b297691c5a246570b611c62695b42e8f"),
-            "UMENG_CHANNEL" to "Umeng",
-            "XIAOMI_APP_ID" to "",
-            "XIAOMI_APP_KEY" to "",
-            "OPPO_APP_KEY" to "",
-            "OPPO_APP_SECRET" to "",
-            "MEIZU_APP_ID" to "",
-            "MEIZU_APP_KEY" to "",
-            "HUAWEI_APP_ID" to "",
-            "HONOR_APP_ID" to "",
-            "VIVO_APP_KEY" to "",
-            "VIVO_APP_ID" to ""
+            "UMENG_CHANNEL" to "Umeng"
         )
     }
 
