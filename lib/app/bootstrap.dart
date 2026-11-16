@@ -6,6 +6,7 @@ import 'package:fluwx/fluwx.dart' as fluwx;
 
 import 'config/app_config.dart';
 import 'app.dart';
+import '../core/analytics/umeng_analytics.dart';
 
 /// 应用启动前的引导初始化过程
 ///
@@ -25,6 +26,9 @@ Future<void> bootstrap() async {
   // 微信 SDK 注册：放入后台异步执行，避免阻塞首帧渲染
   // registerApi 在真机上可能耗时较长（特别是微信未安装时），不应阻塞 UI 启动
   unawaited(_registerWeChatAsync());
+
+  // 友盟统计：仅当用户此前已在登录页同意隐私政策时才初始化，后台执行不阻塞首帧。
+  unawaited(UmengAnalytics().initIfConsented());
 
   // 使用 Riverpod 的 ProviderScope 包裹根 Widget，开启状态管理
   runApp(const ProviderScope(child: App()));

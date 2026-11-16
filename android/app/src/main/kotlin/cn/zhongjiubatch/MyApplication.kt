@@ -6,10 +6,9 @@ import com.umeng.commonsdk.UMConfigure
 class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        // 预初始化：不采集设备信息，不上报数据，耗时极少
+        // 预初始化：不采集设备信息，不上报数据。
+        // 正式初始化（UmengCommonSdk.initCommon）由 Dart 层在用户同意隐私政策后调用，
+        // 此处禁止调用 UMConfigure.init，否则未同意时就会采集。
         UMConfigure.preInit(this, "6af189d16545637cd6451016", "Umeng")
-
-        // 友盟统计与推送正式初始化
-        UMConfigure.init(this, "6af189d16545637cd6451016", "Umeng", UMConfigure.DEVICE_TYPE_PHONE, "b297691c5a246570b611c62695b42e8f")
     }
 }

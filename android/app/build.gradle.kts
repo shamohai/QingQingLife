@@ -74,7 +74,11 @@ android {
 
     buildTypes {
         getByName("debug") {
-            signingConfig = signingConfigs.getByName(if (hasReleaseSigningConfig) "release" else "debug")
+            // 微信 SDK（fluwx）需要签名比对，debug 同样必须使用正式证书。
+            if (!hasReleaseSigningConfig) {
+                throw GradleException("缺少 android/key.properties 正式签名配置，debug 包无法通过微信签名校验")
+            }
+            signingConfig = signingConfigs.getByName("release")
             isDebuggable = true
         }
         release {

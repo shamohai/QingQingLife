@@ -26,6 +26,12 @@ class LocalStorage {
     return prefs.getBool(key);
   }
 
+  /// 存储布尔类型数据
+  Future<void> putBool(String key, bool value) async {
+    final prefs = await _prefs;
+    await prefs.setBool(key, value);
+  }
+
   /// 移除指定 key 的数据
   Future<bool> remove(String key) async {
     final prefs = await _prefs;

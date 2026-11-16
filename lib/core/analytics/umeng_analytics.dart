@@ -1,0 +1,51 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:umeng_common_sdk/umeng_common_sdk.dart';
+
+import '../logging/app_logger.dart';
+import '../storage/privacy_consent_storage.dart';
+
+/// 友盟统计服务。
+///
+/// 合规要求：只有用户在登录页同意《用户隐私政策》后，才调用正式初始化函数。
+/// 未同意的用户（包括游客）不初始化、不采集、不上报。
+/// 当前仅接入 Android，iOS 原生尚未配置证书与 AppKey，统一跳过。
+class UmengAnalytics {
+  UmengAnalytics({PrivacyConsentStorage? consentStorage}) : _consentStorage = consentStorage ?? PrivacyConsentStorage();
+
+  // 与 MyApplication.kt 中 preInit 使用的 AppKey 保持一致。
+  static const _androidAppKey = '6af189d16545637cd6451016';
+  static const _channel = 'Umeng';
+
+  final PrivacyConsentStorage _consentStorage;
+  // 静态标记：同一进程内无论创建多少实例，正式初始化只执行一次。
+  static bool _initialized = false;
+
+  static bool get _isSupportedPlatform => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
+  /// 用户同意隐私政策后调用：记录同意状态并完成友盟正式初始化。
+  Future<void> onPrivacyAccepted() async {
+    await _consentStorage.setAccepted(true);
+    await _initialize();
+  }
+
+  /// App 冷启动时调用：仅当用户此前已同意时才初始化，否则什么也不做。
+  Future<void> initIfConsented() async {
+    if (!await _consentStorage.isAccepted()) return;
+    await _initialize();
+  }
+
+  Future<void> _initialize() async {
+    if (_initialized || !_isSupportedPlatform) return;
+    try {
+      await UmengCommonSdk.initCommon(_androidAppKey, '', _channel);
+      UmengCommonSdk.setPageCollectionModeAuto();
+      _initialized = true;
+    } catch (error, stackTrace) {
+      // 统计失败不影响业务流程。
+      AppLogger.warning('友盟初始化失败', module: 'umeng_analytics', error: error, stackTrace: stackTrace);
+    }
+  }
+}
+
+final umengAnalyticsProvider = Provider<UmengAnalytics>((ref) => UmengAnalytics());

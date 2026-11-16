@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -8,6 +9,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/auth_redirect.dart';
 import '../../../../app/router/route_names.dart';
+import '../../../../core/analytics/umeng_analytics.dart';
 import '../../../../core/storage/device_storage.dart';
 import '../../../../core/storage/secure_storage.dart';
 import '../../../../core/widgets/app_loading.dart';
@@ -84,7 +86,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       _agreed = true;
       _showAgreementSheet = false;
     });
+    _recordPrivacyAccepted();
     _doWechatLogin();
+  }
+
+  /// 用户在登录页同意《用户隐私政策》后，才允许初始化友盟统计。
+  void _recordPrivacyAccepted() {
+    unawaited(ref.read(umengAnalyticsProvider).onPrivacyAccepted());
   }
 
   void _onCloseSheet() {
@@ -305,7 +313,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 children: [
                   Checkbox(
                     value: _agreed,
-                    onChanged: (v) => setState(() => _agreed = v ?? false),
+                    onChanged: (v) {
+                      setState(() => _agreed = v ?? false);
+                      if (_agreed) _recordPrivacyAccepted();
+                    },
                     shape: const CircleBorder(),
                     visualDensity: VisualDensity.compact,
                     activeColor: _linkBlue,
