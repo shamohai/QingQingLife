@@ -53,12 +53,10 @@ class _OrderDetailScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final actions = _actionsFor(detail);
     return Scaffold(
       backgroundColor: _OrderDetailTokens.pageBackground,
       appBar: _buildAppBar(context),
-      bottomNavigationBar: actions.isEmpty ? null : _BottomActionBar(actions: actions),
-      body: _OrderDetailBody(detail: detail, hasBottomBar: actions.isNotEmpty),
+      body: _OrderDetailBody(detail: detail),
     );
   }
 }
@@ -95,9 +93,7 @@ class _OrderDetailTokens {
 
 class _OrderDetailBody extends StatelessWidget {
   final OrderDetail detail;
-  final bool hasBottomBar;
-
-  const _OrderDetailBody({required this.detail, required this.hasBottomBar});
+  const _OrderDetailBody({required this.detail});
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +110,7 @@ class _OrderDetailBody extends StatelessWidget {
           else if (_hasAddress(detail.address))
             SliverToBoxAdapter(child: _AddressCard(address: detail.address)),
           SliverToBoxAdapter(child: _OrderContentCard(detail: detail)),
-          SliverToBoxAdapter(child: SizedBox(height: hasBottomBar ? 18 : 28)),
+          SliverToBoxAdapter(child: SizedBox(height: 28)),
         ],
       ),
     );
@@ -595,79 +591,6 @@ class _MetaRow extends StatelessWidget {
       ),
     );
   }
-}
-
-class _BottomActionBar extends StatelessWidget {
-  final List<String> actions;
-
-  const _BottomActionBar({required this.actions});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Color(0x18000000), blurRadius: 5, offset: Offset(0, -1))],
-      ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 80,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              for (var index = 0; index < actions.length; index++) ...[
-                if (index > 0) const SizedBox(width: 8),
-                _ActionButton(label: actions[index], primary: index == actions.length - 1),
-              ],
-              const SizedBox(width: 14),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final String label;
-  final bool primary;
-
-  const _ActionButton({required this.label, required this.primary});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {},
-      child: Container(
-        constraints: const BoxConstraints(minWidth: 96),
-        height: 44,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        alignment: Alignment.center,
-        decoration: primary
-            ? const BoxDecoration(
-                gradient: LinearGradient(colors: [Color(0xFF3152AF), Color(0xFF213775)], begin: Alignment.centerLeft, end: Alignment.centerRight),
-                borderRadius: BorderRadius.all(Radius.circular(999)),
-              )
-            : const BoxDecoration(color: Color(0xFFF3F5F7), borderRadius: BorderRadius.all(Radius.circular(999))),
-        child: Text(
-          label,
-          style: TextStyle(fontSize: 16, fontWeight: primary ? FontWeight.w500 : FontWeight.w400, color: primary ? Colors.white : Colors.black),
-        ),
-      ),
-    );
-  }
-}
-
-List<String> _actionsFor(OrderDetail detail) {
-  return switch (detail.backendStateCode) {
-    30 => [if (detail.canCancel) '取消订单', detail.waitEndPay ? '支付尾款' : '立即付款'],
-    90 => [if (detail.canAfterSale) '申请退款'],
-    110 => [if (detail.canAfterSale) '申请退款', '确认收货'],
-    130 || 140 => [if (detail.canAfterSale) '申请退款'],
-    160 => ['取消售后'],
-    _ => const <String>[],
-  };
 }
 
 String _formatDate(DateTime date) {
