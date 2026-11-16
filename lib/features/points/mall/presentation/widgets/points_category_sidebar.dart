@@ -36,7 +36,7 @@ class _PointsCategorySidebarState extends State<PointsCategorySidebar> {
     final allLabels = widget.labels;
 
     return Container(
-      width: 110, // 侧边栏容器总宽度
+      width: 120, // 侧边栏容器总宽度
       height: widget.height,
       color: const Color(0xFFF3F5F7),
       child: SingleChildScrollView(
@@ -56,7 +56,7 @@ class _PointsCategorySidebarState extends State<PointsCategorySidebar> {
     return GestureDetector(
       onTap: () => widget.onCategoryTap(index),
       child: Container(
-        width: 106,
+        width: 116,
         height: 45,
         alignment: Alignment.center,
         decoration: BoxDecoration(

@@ -192,7 +192,7 @@ class _AddressListPageState extends ConsumerState<AddressListPage> {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20.5, 13, 29.5, 30.5),
+          padding: const EdgeInsets.fromLTRB(20.5, 13, 20.5, 30.5),
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: _onAddAddress,
