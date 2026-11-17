@@ -34,7 +34,7 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(creditProductListProvider.notifier).setCategoryId(widget.categoryId);
+      ref.read(allCreditProductListProvider.notifier).clearPointsFilter(categoryId: widget.categoryId);
     });
   }
 
@@ -51,19 +51,19 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final pagingData = ref.watch(creditProductListProvider);
+    final pagingData = ref.watch(allCreditProductListProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F7),
       body: RefreshIndicator(
         onRefresh: () async {
-          await ref.read(creditProductListProvider.notifier).refresh();
+          await ref.read(allCreditProductListProvider.notifier).refresh();
         },
         child: NotificationListener<ScrollNotification>(
           onNotification: (notification) {
             if (notification.metrics.extentAfter < 200) {
               if (pagingData.hasMore && !pagingData.isLoading && !pagingData.isError) {
-                ref.read(creditProductListProvider.notifier).loadMore();
+                ref.read(allCreditProductListProvider.notifier).loadMore();
               }
             }
             return false;
@@ -100,7 +100,7 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
                             searchController: _searchController,
                             onSearch: (keyword) {
                               FocusScope.of(context).unfocus();
-                              ref.read(creditProductListProvider.notifier).setKeyword(keyword);
+                              ref.read(allCreditProductListProvider.notifier).setKeyword(keyword);
                             },
                           ),
                         ),
@@ -117,7 +117,7 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
                 SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(
-                    child: AppError(message: '加载失败', onRetry: () => ref.read(creditProductListProvider.notifier).refresh()),
+                    child: AppError(message: '加载失败', onRetry: () => ref.read(allCreditProductListProvider.notifier).refresh()),
                   ),
                 )
               else if (pagingData.status == PagingStatus.empty || (pagingData.status == PagingStatus.loaded && pagingData.items.isEmpty))
@@ -162,7 +162,7 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Center(
           child: InkWell(
-            onTap: () => ref.read(creditProductListProvider.notifier).loadMore(),
+            onTap: () => ref.read(allCreditProductListProvider.notifier).loadMore(),
             child: const Text('加载失败，点击重试', style: TextStyle(fontSize: 12, color: Colors.grey)),
           ),
         ),

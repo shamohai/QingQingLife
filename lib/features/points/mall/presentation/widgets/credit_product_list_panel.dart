@@ -135,16 +135,28 @@ class _CreditProductListPanelState extends ConsumerState<CreditProductListPanel>
                     // 积分 + 按钮
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '${item.creditPrice}',
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF2105)),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '${item.creditPrice}',
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFFF2105)),
+                                ),
+                                const Text(
+                                  ' 积分',
+                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Color(0xFFFF2105)),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        const Text(
-                          ' 积分',
-                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Color(0xFFFF2105)),
-                        ),
-                        const Spacer(),
+                        const SizedBox(width: 4),
                         if (isService)
                           OutlinedButton(
                             onPressed: () => GoRouter.of(context).push(RouteNames.serviceProductDetail.replaceFirst(':id', item.productId.toString())),

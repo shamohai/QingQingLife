@@ -134,8 +134,9 @@ abstract final class RouteNames {
   static const String tianyoudeValueInstruction = '/points/tianyoude-value-instruction';
   static const String tianyoudeValueInstructionUrl = 'https://wx.mall.qkj.com.cn/mob/Account/AppTydValueInstruction';
 
-  // 全部商品（categoryid 通过 query 参数传递，默认 0）
+  // 全部商品（支持 query 参数 ?categoryid=xxx，或路径参数 /points/all-products/:categoryId）
   static const String allProducts = '/points/all-products';
+  static const String allProductsCategory = '/points/all-products/:categoryId';
 
   // App 内 H5 页面：常规页面与活动页面保持独立路由和行为。
   static const String webView = '/webview';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
@@ -41,22 +40,8 @@ class _KingKongItem extends StatelessWidget {
   const _KingKongItem({required this.item});
 
   void _handleTap(BuildContext context) {
-    int categoryId = 0;
-    final actionUrl = item.actionUrl ?? '';
-    if (actionUrl.isNotEmpty) {
-      final uri = Uri.tryParse(actionUrl);
-      if (uri != null) {
-        final queryId = uri.queryParameters['categoryid'] ??
-            uri.queryParameters['categoryId'] ??
-            uri.queryParameters['id'];
-        if (queryId != null) {
-          categoryId = int.tryParse(queryId) ?? 0;
-        }
-      }
-    }
-
-    final path = '${RouteNames.allProducts}?categoryid=$categoryId';
-    context.push(path);
+    final link = item.actionUrl;
+    if (link != null) context.push(link);
   }
 
   @override
