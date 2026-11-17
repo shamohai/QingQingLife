@@ -110,24 +110,26 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    '当前积分',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.onSurface),
-                  ),
-                  const SizedBox(height: 4),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      NumberFormat('#,###').format(state.currentPoints),
-                      style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w600, color: AppColors.onSurface, height: 1.1, letterSpacing: -0.5),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '当前积分',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.onSurface),
                     ),
-                  ),
-                  const SizedBox(height: 75),
-                ],
+                    const SizedBox(height: 4),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        NumberFormat('#,###').format(state.currentPoints),
+                        style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w600, color: AppColors.onSurface, height: 1.1, letterSpacing: -0.5),
+                      ),
+                    ),
+                    const SizedBox(height: 75),
+                  ],
+                ),
               ),
               const _DecorationPlaceholder(),
             ],

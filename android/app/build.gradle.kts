@@ -69,6 +69,13 @@ android {
             }
             signingConfig = signingConfigs.getByName("release")
             isDebuggable = true
+            // debug 包同样开启 R8 与资源压缩，减小安装包体积。
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
         release {
             // 发布包必须使用正式签名，禁止回退到 debug 签名。
@@ -76,6 +83,13 @@ android {
                 throw GradleException("缺少 android/key.properties 正式签名配置，无法构建 release 包")
             }
             signingConfig = signingConfigs.getByName("release")
+            // 开启 R8 代码混淆与压缩，并剔除无用的 Android 原生资源。
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     buildFeatures {
