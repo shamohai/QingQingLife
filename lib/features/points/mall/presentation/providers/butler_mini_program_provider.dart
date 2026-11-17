@@ -50,6 +50,9 @@ class ButlerDefaultInfo {
   /// 普通客户微信客服 url
   final String wxcustomerserviceurl;
 
+  /// 普通客户客服小程序路径
+  final String wxcustomerservicemppath;
+
   /// 企微 CorpId，由客服配置接口返回，微信客服启动时使用。
   final String workwxcorpid;
 
@@ -59,11 +62,18 @@ class ButlerDefaultInfo {
   /// 备用电话（拉起微信客服失败时提示用户拨打）
   final String fallbacktel;
 
-  const ButlerDefaultInfo({this.wxcustomerserviceurl = '', this.workwxcorpid = '', this.servicedescr = '', this.fallbacktel = ''});
+  const ButlerDefaultInfo({
+    this.wxcustomerserviceurl = '',
+    this.wxcustomerservicemppath = '',
+    this.workwxcorpid = '',
+    this.servicedescr = '',
+    this.fallbacktel = '',
+  });
 
   factory ButlerDefaultInfo.fromJson(Map<String, dynamic> json) {
     return ButlerDefaultInfo(
       wxcustomerserviceurl: (json['wxcustomerserviceurl'] ?? '').toString(),
+      wxcustomerservicemppath: (json['wxcustomerservicemppath'] ?? '').toString(),
       workwxcorpid: (json['workwxcorpid'] ?? '').toString(),
       servicedescr: (json['servicedescr'] ?? '').toString(),
       fallbacktel: (json['fallbacktel'] ?? '').toString(),
@@ -72,6 +82,7 @@ class ButlerDefaultInfo {
 
   Map<String, dynamic> toJson() => {
     'wxcustomerserviceurl': wxcustomerserviceurl,
+    'wxcustomerservicemppath': wxcustomerservicemppath,
     'workwxcorpid': workwxcorpid,
     'servicedescr': servicedescr,
     'fallbacktel': fallbacktel,

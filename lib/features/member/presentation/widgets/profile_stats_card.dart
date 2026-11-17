@@ -33,7 +33,12 @@ class ProfileStatsCard extends ConsumerWidget {
               const _StatDivider(),
               _StatItem(number: '${state.couponCount}', label: '卡券', onTap: () => context.push(RouteNames.coupons)),
               const _StatDivider(),
-              _StatItem(number: '${state.tianyoudeValue}', label: '天佑德值', showInfoIcon: true),
+              _StatItem(
+                number: '${state.tianyoudeValue}',
+                label: '天佑德值',
+                showInfoIcon: true,
+                onTap: () => context.push(RouteNames.tianyoudeValueInstruction),
+              ),
             ],
           ),
 
@@ -87,27 +92,30 @@ class _StatItem extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: Column(
-          children: [
-            Text(
-              number,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF1A1D1C), height: 1.15),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Color(0xFF666666)),
-                ),
-                if (showInfoIcon) ...[const SizedBox(width: 2), const Icon(Icons.info_outline, size: 13, color: Color(0xFF999999))],
-              ],
-            ),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.xs),
+          child: Column(
+            children: [
+              Text(
+                number,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF1A1D1C), height: 1.15),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: Color(0xFF666666)),
+                  ),
+                  if (showInfoIcon) ...[const SizedBox(width: 2), const Icon(Icons.info_outline, size: 13, color: Color(0xFF999999))],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

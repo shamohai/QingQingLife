@@ -11,26 +11,53 @@ Future<void> launchButlerMiniProgram(BuildContext context, WidgetRef ref) async 
     final info = await ref.read(butlerMiniProgramInfoProvider.future);
     if (!context.mounted) return;
     final path = info?.workwxmppath.trim() ?? '';
-    if (path.isEmpty) {
-      _showMessage(context, '暂无法获取管家服务入口，请稍后重试');
-      return;
-    }
+    await launchMiniProgramPath(
+      context,
+      path: path,
+      serviceName: '管家服务',
+    );
+  } catch (_) {
+    if (!context.mounted) return;
+    _showMessage(context, '打开管家服务失败，请稍后重试');
+  }
+}
 
+Future<void> launchMiniProgramPath(
+  BuildContext context, {
+  required String path,
+  required String serviceName,
+  String? fallbackPhone,
+}) async {
+  String withFallback(String message) {
+    final phone = fallbackPhone?.trim() ?? '';
+    return phone.isEmpty ? message : '$message，可拨打备用电话 $phone';
+  }
+
+  final miniProgramPath = path.trim();
+  if (miniProgramPath.isEmpty) {
+    _showMessage(context, withFallback('暂无法获取$serviceName入口，请稍后重试'));
+    return;
+  }
+
+  try {
     final weChat = fluwx.Fluwx();
     final isInstalled = await weChat.isWeChatInstalled;
     if (!context.mounted) return;
 
     if (!isInstalled) {
-      _showMessage(context, '请先安装微信后再使用管家服务');
+      _showMessage(context, withFallback('请先安装微信，再使用$serviceName'));
       return;
     }
 
-    await weChat.open(
-      target: fluwx.MiniProgram(username: _miniProgramUsername, path: path),
+    final opened = await weChat.open(
+      target: fluwx.MiniProgram(username: _miniProgramUsername, path: miniProgramPath),
     );
+    if (!opened && context.mounted) {
+      _showMessage(context, withFallback('打开$serviceName失败，请稍后重试'));
+    }
   } catch (_) {
     if (!context.mounted) return;
-    _showMessage(context, '打开管家服务失败，请稍后重试');
+    _showMessage(context, withFallback('打开$serviceName失败，请稍后重试'));
   }
 }
 

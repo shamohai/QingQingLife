@@ -396,6 +396,12 @@ final appRouter = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: RouteNames.tianyoudeValueInstruction,
+        pageBuilder: (c, s) => MaterialPage(
+          child: WebViewPage(url: RouteNames.tianyoudeValueInstructionUrl, title: '天佑德值说明'),
+        ),
+      ),
+      GoRoute(
         path: RouteNames.orders,
         pageBuilder: (c, s) => MaterialPage(child: AllOrdersPage(initialStatus: s.uri.queryParameters['status'])),
       ),

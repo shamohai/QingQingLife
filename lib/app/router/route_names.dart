@@ -130,6 +130,10 @@ abstract final class RouteNames {
   static const String pointsRules = '/points/rules';
   static const String pointsRulesUrl = 'https://wx.mall.qkj.com.cn/mob/Account/CreditRule?from=app';
 
+  // 天佑德值说明页
+  static const String tianyoudeValueInstruction = '/points/tianyoude-value-instruction';
+  static const String tianyoudeValueInstructionUrl = 'https://wx.mall.qkj.com.cn/mob/Account/AppTydValueInstruction';
+
   // 全部商品（categoryid 通过 query 参数传递，默认 0）
   static const String allProducts = '/points/all-products';
 

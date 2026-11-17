@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import '../../../app/theme/app_colors.dart';
+
 /// App 内 H5 页面。
 class WebViewPage extends StatefulWidget {
   final String url;
@@ -58,6 +60,9 @@ class _WebViewPageState extends State<WebViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: AppColors.surface,
+        foregroundColor: AppColors.onSurface,
+        surfaceTintColor: Colors.transparent,
         title: Text(widget.title),
         actions: [IconButton(onPressed: _reload, icon: const Icon(Icons.refresh))],
       ),

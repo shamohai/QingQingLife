@@ -527,6 +527,9 @@ class CustomerServiceDefault {
   /// 微信客服 url
   final String wxcustomerserviceurl;
 
+  /// 普通客户客服小程序路径
+  final String wxcustomerservicemppath;
+
   /// 企微 CorpId，拉起微信客服时使用
   final String workwxcorpid;
 
@@ -536,11 +539,18 @@ class CustomerServiceDefault {
   /// 拉起微信客服失败时的备用电话
   final String fallbacktel;
 
-  const CustomerServiceDefault({this.wxcustomerserviceurl = '', this.workwxcorpid = '', this.servicedescr = '', this.fallbacktel = ''});
+  const CustomerServiceDefault({
+    this.wxcustomerserviceurl = '',
+    this.wxcustomerservicemppath = '',
+    this.workwxcorpid = '',
+    this.servicedescr = '',
+    this.fallbacktel = '',
+  });
 
   factory CustomerServiceDefault.fromJson(Map<String, dynamic> json) {
     return CustomerServiceDefault(
       wxcustomerserviceurl: (json['wxcustomerserviceurl'] ?? '').toString(),
+      wxcustomerservicemppath: (json['wxcustomerservicemppath'] ?? '').toString(),
       workwxcorpid: (json['workwxcorpid'] ?? '').toString(),
       servicedescr: (json['servicedescr'] ?? '').toString(),
       fallbacktel: (json['fallbacktel'] ?? '').toString(),
