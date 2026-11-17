@@ -44,13 +44,19 @@ class SessionNotifier extends Notifier<SessionState> {
   Future<void> login(String authToken, {String? refreshToken, String? deviceId}) async {
     _operationGeneration++;
     state = SessionState.loading;
-    final resolvedDeviceId = (deviceId != null && deviceId.isNotEmpty) ? deviceId : await DeviceStorage.getDeviceId();
-    await _storage.writeAuthToken(authToken);
-    await _storage.writeDeviceId(resolvedDeviceId);
-    if (refreshToken != null) {
-      await _storage.writeRefreshToken(refreshToken);
+    try {
+      final resolvedDeviceId = (deviceId != null && deviceId.isNotEmpty) ? deviceId : await DeviceStorage.getDeviceId();
+      await _storage.writeAuthToken(authToken);
+      await _storage.writeDeviceId(resolvedDeviceId);
+      if (refreshToken != null) {
+        await _storage.writeRefreshToken(refreshToken);
+      }
+      state = SessionState.authenticated;
+    } catch (_) {
+      // 存储写入失败时回退到未登录，避免会话状态永久停留在 loading
+      state = SessionState.unauthenticated;
+      rethrow;
     }
-    state = SessionState.authenticated;
   }
 
   Future<void> logout() async {

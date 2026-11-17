@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluwx/fluwx.dart' as fluwx;
@@ -7,6 +8,8 @@ import 'package:fluwx/fluwx.dart' as fluwx;
 import 'config/app_config.dart';
 import 'app.dart';
 import '../core/analytics/umeng_analytics.dart';
+import '../core/logging/app_logger.dart';
+import '../core/logging/log_buffer.dart';
 
 /// 应用启动前的引导初始化过程
 ///
@@ -16,12 +19,17 @@ Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // 日志必须先于第三方 SDK 初始化，才能记录启动阶段的失败。
-  // try {
-  //   await LoggingInitializer.initialize(logEndpoint: '${AppConfig.baseUrl}/api/app-log/batch');
-  //   AppLogger.info('Local log file: ${LoggingInitializer.localFilePath}', module: 'bootstrap');
-  // } catch (e, stackTrace) {
-  //   AppLogger.error('Logging init failed (non-fatal)', module: 'bootstrap', error: e, stackTrace: stackTrace);
-  // }
+  // 本地日志文件仅在 debug 包中启用，便于真机排查问题；失败不影响启动。
+  if (kDebugMode) {
+    try {
+      final logBuffer = LogBuffer();
+      await logBuffer.init();
+      AppLogger.init(buffer: logBuffer);
+      AppLogger.info('App bootstrap, log file: ${logBuffer.localFilePath}', module: 'bootstrap');
+    } catch (_) {
+      // 日志初始化失败不阻断启动
+    }
+  }
 
   // 微信 SDK 注册：放入后台异步执行，避免阻塞首帧渲染
   // registerApi 在真机上可能耗时较长（特别是微信未安装时），不应阻塞 UI 启动

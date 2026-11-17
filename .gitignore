@@ -85,3 +85,4 @@ pubspec.lock
 /.codex/
 /.workbuddy/
 .lanhu_schema.json
+.vscode/launch.json

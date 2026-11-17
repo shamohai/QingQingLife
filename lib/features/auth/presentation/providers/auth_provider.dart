@@ -1,6 +1,7 @@
 import 'package:fluwx/fluwx.dart' as fluwx;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/config/app_config.dart';
 import '../../../../core/domain/repositories/auth_repository.dart';
 import '../../../../core/logging/app_logger.dart';
 import '../../../../core/network/api_response.dart';
@@ -41,12 +42,28 @@ class AuthNotifier extends Notifier<AuthStatus> {
     _authSubscriber?.cancel();
     _authSubscriber = _fluwx.addSubscriber(_handleWeChatResponse);
     try {
-      await _fluwx.authBy(
+      // bootstrap 中的 registerApi 是异步执行的，冷启动后很快点击时可能尚未完成，
+      // 此时 authBy 会直接返回 false 且不会有任何回调。fluwx 允许重复注册，这里再确认一次。
+      await _fluwx.registerApi(appId: AppConfig.wechatAppId);
+      final launched = await _fluwx.authBy(
         which: fluwx.NormalAuth(scope: 'snsapi_userinfo', state: 'wechat_login'),
       );
-    } catch (_) {
+      if (!launched) {
+        // 微信未拉起时不会有授权回调，必须主动复位，否则页面会一直转圈
+        _cancelWeChatSubscriber();
+        AppLogger.warning('WeChat auth launch returned false', module: 'auth', event: 'wechat_auth_launch_failed');
+        state = AuthStatus.unauthenticated;
+      }
+    } catch (e, st) {
+      _cancelWeChatSubscriber();
+      AppLogger.error('WeChat auth launch failed', module: 'auth', event: 'wechat_auth_launch_error', error: e, stackTrace: st);
       state = AuthStatus.unauthenticated;
     }
+  }
+
+  void _cancelWeChatSubscriber() {
+    _authSubscriber?.cancel();
+    _authSubscriber = null;
   }
 
   /// Web 测试环境专用：手动填入 authtoken / devid 模拟登录，跳过微信授权。
@@ -67,8 +84,7 @@ class AuthNotifier extends Notifier<AuthStatus> {
 
   Future<void> _handleWeChatResponse(fluwx.WeChatResponse response) async {
     if (response is fluwx.WeChatAuthResponse) {
-      _authSubscriber?.cancel();
-      _authSubscriber = null;
+      _cancelWeChatSubscriber();
       if (response.isSuccessful && response.code != null && response.code!.isNotEmpty) {
         await _doWeChatLogin(response.code!);
       } else {
@@ -78,16 +94,24 @@ class AuthNotifier extends Notifier<AuthStatus> {
   }
 
   Future<void> _doWeChatLogin(String code) async {
-    final response = await _repository.loginWithWeChatCode(code: code);
-    if (response.success) {
-      final result = response.data!;
-      await _session.login(result.accessToken, refreshToken: result.refreshToken);
-      await _onLoginSuccess();
-    } else if (response.code == 295) {
-      await _session.savePendingWechatCode(code);
-      state = AuthStatus.wechatAuthenticated;
-    } else {
-      state = AuthStatus.unauthenticated;
+    try {
+      final response = await _repository.loginWithWeChatCode(code: code);
+      if (response.success) {
+        final result = response.data!;
+        await _session.login(result.accessToken, refreshToken: result.refreshToken);
+        await _onLoginSuccess();
+      } else if (response.code == 295) {
+        await _session.savePendingWechatCode(code);
+        state = AuthStatus.wechatAuthenticated;
+      } else {
+        AppLogger.warning('WeChat login rejected: code=${response.code} msg=${response.message}', module: 'auth', event: 'wechat_login_rejected');
+        state = AuthStatus.unauthenticated;
+      }
+    } catch (e, st) {
+      // 网络超时、存储写入失败等异常必须复位，否则 authProvider 会永远停在 loading
+      AppLogger.error('WeChat login failed', module: 'auth', event: 'wechat_login_error', error: e, stackTrace: st);
+      // 已进入 authenticated 后的异常（如资料拉取）不应把登录态打回未登录
+      if (state == AuthStatus.loading) state = AuthStatus.unauthenticated;
     }
   }
 

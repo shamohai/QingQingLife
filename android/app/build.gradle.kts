@@ -70,12 +70,12 @@ android {
             signingConfig = signingConfigs.getByName("release")
             isDebuggable = true
             // debug 包同样开启 R8 与资源压缩，减小安装包体积。
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            //isMinifyEnabled = true
+            //isShrinkResources = true
+            // proguardFiles(
+            //     getDefaultProguardFile("proguard-android-optimize.txt"),
+            //    "proguard-rules.pro"
+            // )
         }
         release {
             // 发布包必须使用正式签名，禁止回退到 debug 签名。
