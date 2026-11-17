@@ -25,6 +25,14 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
   // 记录展开状态的月份 Key 集合，默认为空即全部折叠
   final Set<String> _expandedMonths = {};
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(pointsDetailProvider.notifier).loadRecords();
+    });
+  }
+
   void _toggleMonthExpanded(String monthKey) {
     setState(() {
       if (_expandedMonths.contains(monthKey)) {
@@ -38,11 +46,6 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(pointsDetailProvider);
-    final notifier = ref.read(pointsDetailProvider.notifier);
-
-    if (!state.isLoading && state.records.isEmpty && state.errorMessage == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => notifier.loadRecords());
-    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F7),
