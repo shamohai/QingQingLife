@@ -64,26 +64,6 @@ class AuthNotifier extends Notifier<AuthStatus> {
     }
   }
 
-  /// 冷启动恢复微信授权回调。
-  ///
-  /// 应用进程在去微信授权期间被系统回收时，授权结果只会以 Activity Intent 的形式保留，
-  /// fluwx 不会自动投递给 Dart 层。这里注册监听并请求 fluwx 重新解析当前 Intent。
-  /// 没有待处理的微信回调时该调用是空操作。
-  Future<void> resumePendingWeChatAuth() async {
-    await ref.read(sessionProvider.notifier).ensureInitialized();
-    // 已登录则不再处理，避免残留的旧授权 Intent 覆盖当前登录态
-    if (ref.read(sessionProvider) == SessionState.authenticated) return;
-    try {
-      _authSubscriber?.cancel();
-      _authSubscriber = _fluwx.addSubscriber(_handleWeChatResponse);
-      await _fluwx.registerApi(appId: AppConfig.wechatAppId);
-      await _fluwx.attemptToResumeMsgFromWx();
-    } catch (e, st) {
-      _cancelWeChatSubscriber();
-      AppLogger.error('WeChat auth resume failed', module: 'auth', event: 'wechat_auth_resume_error', error: e, stackTrace: st);
-    }
-  }
-
   void _cancelWeChatSubscriber() {
     _authSubscriber?.cancel();
     _authSubscriber = null;
