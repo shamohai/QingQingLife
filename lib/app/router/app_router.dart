@@ -324,6 +324,13 @@ final appRouter = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: RouteNames.allProductsCategory,
+        pageBuilder: (c, s) {
+          final categoryId = int.tryParse(s.pathParameters['categoryId'] ?? '') ?? 0;
+          return MaterialPage(child: AllProductsPage(categoryId: categoryId));
+        },
+      ),
+      GoRoute(
         path: RouteNames.webView,
         pageBuilder: (c, s) {
           final url = s.uri.queryParameters['url'] ?? '';
