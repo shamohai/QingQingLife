@@ -435,7 +435,12 @@ final appRouter = Provider<GoRouter>((ref) {
 class _RouterRefreshListenable extends ChangeNotifier {
   _RouterRefreshListenable(Ref ref) {
     ref.listen<SessionState>(sessionProvider, (previous, next) {
-      if (previous != next) notifyListeners();
+      // 只有退出登录（进入 unauthenticated）才需要刷新路由，以重新校验受保护页面。
+      // 登录过程中的 loading / authenticated 不刷新：
+      // - 登录成功后由登录页自己 pop / go 回到来源页；
+      // - loading 会触发异步 redirect，其结果可能在登录页 pop 之后才应用，
+      //   用过期的 /login 位置重建栈，导致登录页被再次创建并停留在栈顶。
+      if (next == SessionState.unauthenticated) notifyListeners();
     });
   }
 }

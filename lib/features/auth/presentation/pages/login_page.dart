@@ -101,7 +101,39 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   void _doWechatLogin() {
     setState(() => _showLoading = true);
+    _listenLoginResultOnce();
     ref.read(authProvider.notifier).wechatLogin();
+  }
+
+  /// 本次登录只注册一次结果监听，成功或失败后立即释放。
+  ///
+  /// 不放在 [build] 里的 ref.listen：build 会多次执行，监听可能重复注册，
+  /// 导致登录成功后跳转被执行多次，页面叠在栈里停留在登录页。
+  void _listenLoginResultOnce() {
+    late final ProviderSubscription<AuthStatus> subscription;
+    subscription = ref.listenManual<AuthStatus>(authProvider, (previous, next) {
+      if (next == AuthStatus.authenticated) {
+        subscription.close();
+        if (mounted) _goAfterLogin();
+      } else if (next == AuthStatus.unauthenticated) {
+        subscription.close();
+        if (mounted) setState(() => _showLoading = false);
+      }
+    });
+  }
+
+  /// 登录成功后回到来源页。
+  ///
+  /// 登录页通常是从其他页面 push 进来的，此时 pop 可以保留原有路由栈（首页 → 详情页），
+  /// 详情页的后退才能回到首页。只有没有可 pop 的页面（如被路由重定向进入）时，
+  /// 才使用 go 跳转到 from 或"我的"页。
+  void _goAfterLogin() {
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+    final returnTo = safeReturnTo(GoRouterState.of(context).uri.queryParameters['from']);
+    context.go(returnTo ?? RouteNames.profile);
   }
 
   /// Web 测试登录：使用输入的 authtoken + devid 模拟微信授权登录成功后的结果。
@@ -117,6 +149,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       return;
     }
     setState(() => _showLoading = true);
+    _listenLoginResultOnce();
     ref.read(authProvider.notifier).webTestLogin(authToken: authToken, deviceId: deviceId);
   }
 
@@ -128,16 +161,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           final from = safeReturnTo(GoRouterState.of(context).uri.queryParameters['from']);
           final phoneBindLocation = from == null ? RouteNames.phoneBind : Uri(path: RouteNames.phoneBind, queryParameters: {'from': from}).toString();
           context.push(phoneBindLocation);
-        }
-      } else if (previous == AuthStatus.loading && next == AuthStatus.authenticated) {
-        if (mounted) {
-          final returnTo = safeReturnTo(GoRouterState.of(context).uri.queryParameters['from']);
-          final strategy = loginReturnStrategy(hasValidReturnTo: returnTo != null, canPop: context.canPop());
-          if (strategy == LoginReturnStrategy.pop) {
-            context.pop();
-          } else {
-            context.go(returnTo ?? RouteNames.profile);
-          }
         }
       } else if (next == AuthStatus.unauthenticated) {
         if (mounted) setState(() => _showLoading = false);
