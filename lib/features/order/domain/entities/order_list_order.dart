@@ -35,7 +35,6 @@ enum BackendOrderState {
   confirmRequire(60, '确认需求'),
   pendingShipment(90, '待发货'),
   shipped(110, '待收货'),
-  pendingEvaluation(130, '待评价'),
   completed(140, '已完成'),
   afterSale(160, '售后'),
   locked(180, '锁定'),
@@ -59,7 +58,6 @@ enum OrderListAction {
   confirm('确认收货', true),
   cancel('取消订单', false),
   payBalance('支付尾款', true),
-  evaluate('去评价', true),
   afterSale('申请售后', false),
   cancelAfterSale('取消售后', false);
 

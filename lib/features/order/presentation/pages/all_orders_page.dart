@@ -29,8 +29,7 @@ class _AllOrdersPageState extends ConsumerState<AllOrdersPage> {
     'pending_payment' => 1,
     'pending_shipment' => 2,
     'shipped' => 3,
-    'pending_evaluation' => 4,
-    'refunding' => 5,
+    'refunding' => 4,
     _ => 0,
   };
 

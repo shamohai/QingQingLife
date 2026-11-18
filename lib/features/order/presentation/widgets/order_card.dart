@@ -340,21 +340,8 @@ class OrderCard extends StatelessWidget {
     final orderId = item.id;
     if (orderId == null || orderId.isEmpty || onCancelOrder == null) return;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      barrierColor: const Color(0x4D000000),
-      barrierDismissible: true,
-      builder: (dialogContext) => Dialog(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 13),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 414, minHeight: 207, maxHeight: 207),
-          child: _CancelOrderDialog(onCancel: () => Navigator.of(dialogContext).pop(false), onConfirm: () => Navigator.of(dialogContext).pop(true)),
-        ),
-      ),
-    );
-    if (confirmed != true || !context.mounted) return;
+    final confirmed = await showCancelOrderConfirmDialog(context);
+    if (!confirmed || !context.mounted) return;
 
     try {
       await onCancelOrder!(orderId);
@@ -400,6 +387,25 @@ class OrderCard extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('确认收货失败：$message')));
     }
   }
+}
+
+/// 取消订单二次确认弹窗，列表页与订单详情页共用。返回是否确认取消。
+Future<bool> showCancelOrderConfirmDialog(BuildContext context) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    barrierColor: const Color(0x4D000000),
+    barrierDismissible: true,
+    builder: (dialogContext) => Dialog(
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 13),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 414, minHeight: 207, maxHeight: 207),
+        child: _CancelOrderDialog(onCancel: () => Navigator.of(dialogContext).pop(false), onConfirm: () => Navigator.of(dialogContext).pop(true)),
+      ),
+    ),
+  );
+  return confirmed == true;
 }
 
 class _CancelOrderDialog extends StatelessWidget {

@@ -51,7 +51,7 @@ void main() {
     for (final entry in labels.entries) {
       expect(OrderListOrder(typeCode: entry.key).typeLabel, entry.value);
     }
-    expect(BackendOrderState.values.map((state) => state.code), [0, 30, 50, 60, 90, 110, 130, 140, 160, 180, 200, 300]);
+    expect(BackendOrderState.values.map((state) => state.code), [0, 30, 50, 60, 90, 110, 140, 160, 180, 200, 300]);
     final unknown = OrderListOrderModel.fromJson({'orderstate': 999, 'ordertype': 888}).toDomain();
     expect(unknown.stateCode, 999);
     expect(unknown.typeCode, 888);
@@ -72,7 +72,6 @@ void main() {
       'confirm': true,
       'payment': false,
       'payend': true,
-      'evaluate': true,
       'aftersale': true,
       'cancelafter': true,
       'products': [
@@ -114,7 +113,6 @@ void main() {
       OrderListAction.cancelAfterSale,
       OrderListAction.payBalance,
       OrderListAction.confirm,
-      OrderListAction.evaluate,
     ]);
     expect(page.hasMore, isFalse);
   });

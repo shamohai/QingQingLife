@@ -70,7 +70,7 @@ void main() {
     expect(client.requests.length, 2);
     await notifier.search('酒');
     expect(client.requests.last['pageindex'], 1);
-    await notifier.selectTab(5);
+    await notifier.selectTab(4);
     expect(client.requests.last['orderstate'], 160);
     expect(client.requests.last['productname'], '酒');
     await notifier.loadOrders();

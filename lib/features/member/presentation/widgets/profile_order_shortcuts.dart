@@ -10,7 +10,6 @@ enum OrderFilterStatus {
   pendingPayment('pending_payment'),
   pendingShipment('pending_shipment'),
   shipped('shipped'),
-  pendingEvaluation('pending_evaluation'),
   refunding('refunding');
 
   const OrderFilterStatus(this.value);
@@ -19,7 +18,7 @@ enum OrderFilterStatus {
 
 /// 我的订单快捷入口卡片
 ///
-/// 标题行（我的订单 / 全部订单 >）+ 5 个状态入口。
+/// 标题行（我的订单 / 全部订单 >）+ 4 个状态入口。
 /// 角标数量来源于订单状态数量接口 —— 后端暂未提供对应字段，
 /// 当前默认不显示角标（badgeCount > 0 时显示），接入后透传即可。
 class ProfileOrderShortcuts extends StatelessWidget {
@@ -29,7 +28,6 @@ class ProfileOrderShortcuts extends StatelessWidget {
     _OrderShortcutConfig(icon: Icons.payment_outlined, label: '待付款', status: OrderFilterStatus.pendingPayment),
     _OrderShortcutConfig(icon: Icons.inventory_2_outlined, label: '待发货', status: OrderFilterStatus.pendingShipment),
     _OrderShortcutConfig(icon: Icons.local_shipping_outlined, label: '待收货', status: OrderFilterStatus.shipped),
-    _OrderShortcutConfig(icon: Icons.mood_outlined, label: '评价', status: OrderFilterStatus.pendingEvaluation),
     _OrderShortcutConfig(icon: Icons.currency_yuan, label: '退款/售后', status: OrderFilterStatus.refunding),
   ];
 
