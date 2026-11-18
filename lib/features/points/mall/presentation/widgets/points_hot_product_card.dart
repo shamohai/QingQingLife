@@ -49,16 +49,19 @@ class PointsHotProductCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // 左侧：34dp * 14dp 精准移除固定高度与特定 height 约束以支持理想的垂直居中对齐
-                  SizedBox(
-                    width: 60,
-                    child: Text(
-                      '${product.points}积分',
-                      style: const TextStyle(fontSize: 13, color: Color(0xFFFF2105), fontWeight: FontWeight.bold),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  // 左侧：积分数值。积分最大可能为 5 位数（如 20000），宽度不足时自动等比缩小，避免出现省略号
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '${product.points}积分',
+                        style: const TextStyle(fontSize: 13, color: Color(0xFFFF2105), fontWeight: FontWeight.bold),
+                        maxLines: 1,
+                      ),
                     ),
                   ),
+                  const SizedBox(width: 4),
                   // 右侧：25dp * 13dp
                   Container(
                     width: 32,

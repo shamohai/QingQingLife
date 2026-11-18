@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import 'package:qingqinglife/app/theme/app_spacing.dart';
 import 'package:qingqinglife/core/logging/app_logger.dart';
 
 import '../../../../app/router/route_names.dart';
@@ -118,21 +119,24 @@ class _AboutUsPageState extends State<AboutUsPage> {
 
   /// 返回栏（黑字标题，页面为浅色底）
   Widget _buildNavBar(BuildContext context) {
-    return SizedBox(
-      height: 30,
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF000000), size: 22),
-            onPressed: () => context.pop(),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          ),
-          const Text(
-            '关于我们',
-            style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.w400, color: Color(0xFF000000), height: 1.2),
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.pageTopGap),
+      child: SizedBox(
+        height: 30,
+        child: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF000000), size: 22),
+              onPressed: () => context.pop(),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+            ),
+            const Text(
+              '关于我们',
+              style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.w400, color: Color(0xFF000000), height: 1.2),
+            ),
+          ],
+        ),
       ),
     );
   }
