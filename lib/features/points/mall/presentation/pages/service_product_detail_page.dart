@@ -71,7 +71,7 @@ class ServiceProductDetailPage extends ConsumerWidget {
             ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
+                padding: const EdgeInsets.only(left: 13, right: 13, top: 6, bottom: 6),
                 child: ProductVisualCard(product: product),
               ),
             ),
