@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../../app/theme/app_spacing.dart';
 import '../../../../../core/widgets/app_image.dart';
 import '../../data/models/service_product_detail_model.dart';
 
@@ -87,11 +88,11 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final cardWidth = (screenWidth - 28).clamp(0.0, 414.0);
+    final cardWidth = (screenWidth - AppSpacing.compactPageMargin * 2).clamp(0.0, 414.0);
 
     return Container(
       width: cardWidth,
-      margin: const EdgeInsets.symmetric(horizontal: 10),
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
