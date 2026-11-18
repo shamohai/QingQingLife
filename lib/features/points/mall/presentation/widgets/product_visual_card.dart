@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 import '../../../../../core/widgets/app_image.dart';
 import '../../../../../core/widgets/app_loading.dart';
@@ -81,23 +80,13 @@ class ProductVisualCard extends ConsumerWidget {
                     padding: EdgeInsets.symmetric(vertical: 16),
                     child: Center(child: AppLoading()),
                   ),
-                  error: (error, stack) => _buildFallbackContent(),
+                  error: (error, stack) => _buildEmptyContent(),
                   data: (images) {
-                    if (images.isNotEmpty) {
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: images
-                            .map(
-                              (url) => AppNetworkImage(
-                                url: url,
-                                width: double.infinity,
-                                fit: BoxFit.fitWidth,
-                              ),
-                            )
-                            .toList(),
-                      );
-                    }
-                    return _buildFallbackContent();
+                    if (images.isEmpty) return _buildEmptyContent();
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: images.map((url) => AppNetworkImage(url: url, width: double.infinity, fit: BoxFit.fitWidth)).toList(),
+                    );
                   },
                 ),
               ),
@@ -111,28 +100,12 @@ class ProductVisualCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildFallbackContent() {
-    if (product.description.trim().isNotEmpty) {
-      return HtmlWidget(
-        product.description,
-        textStyle: const TextStyle(fontSize: 14, color: Color(0xFF333333), height: 1.6),
-        customStylesBuilder: (element) {
-          if (element.localName == 'img') {
-            return {'width': '100%', 'height': 'auto'};
-          }
-          return null;
-        },
-      );
-    }
+  Widget _buildEmptyContent() {
     return const Padding(
       padding: EdgeInsets.symmetric(vertical: 20),
       child: Center(
-        child: Text(
-          '暂无商品详情',
-          style: TextStyle(fontSize: 14, color: Color(0xFF999999)),
-        ),
+        child: Text('暂无商品详情', style: TextStyle(fontSize: 14, color: Color(0xFF999999))),
       ),
     );
   }
 }
-
