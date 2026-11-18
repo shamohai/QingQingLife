@@ -170,7 +170,7 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
           final mobileStr = (detail.mobile != null && detail.mobile!.isNotEmpty)
               ? detail.mobile!
               : (detail.address.phone.isNotEmpty ? detail.address.phone : '-');
-          final userRemarkStr = (detail.userRemark ?? detail.remark ?? '').trim();
+          final userRemarkStr = (detail.userRemark ?? '').trim();
 
           return _buildCardFields(
             context: context,
