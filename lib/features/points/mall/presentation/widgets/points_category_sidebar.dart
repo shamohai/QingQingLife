@@ -61,7 +61,7 @@ class _PointsCategorySidebarState extends State<PointsCategorySidebar> {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: isActive ? Colors.white : Colors.transparent,
-          borderRadius: isActive ? const BorderRadius.only(topRight: Radius.circular(9), bottomRight: Radius.circular(9)) : null,
+          borderRadius: isActive ? const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)) : null,
         ),
         child: Row(
           children: [
