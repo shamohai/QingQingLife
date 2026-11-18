@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:qingqinglife/app/router/auth_redirect.dart';
 import 'package:qingqinglife/app/theme/app_colors.dart';
 import 'package:qingqinglife/app/theme/app_spacing.dart';
+import 'package:qingqinglife/app/theme/app_radius.dart';
 import 'package:qingqinglife/app/theme/app_text_styles.dart';
 import 'package:qingqinglife/core/providers/session_provider.dart';
 import 'package:qingqinglife/core/utils/activity_opener.dart';
@@ -23,10 +24,7 @@ class HomeActivitySection extends StatelessWidget {
     if (blocks.isEmpty) return const SizedBox.shrink();
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(14)), // 设计稿 14px 圆角
-      ),
+      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(AppRadius.md))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -158,9 +156,9 @@ class _ActivityCardState extends ConsumerState<_ActivityCard> {
 
     return InkWell(
       onTap: () => _openActivity(context),
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: SizedBox(
           width: widget.width,
           height: height,

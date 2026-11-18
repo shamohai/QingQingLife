@@ -69,7 +69,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
 
                           // ==================== 积分卡片（动态高度自然流布局，避免写死总高度导致空白） ====================
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                            padding: AppSpacing.pageHorizontal,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -93,7 +93,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                   floating: true,
                   delegate: _CategoryTabBarDelegate(
                     tabHeight: 53,
-                    margin: const EdgeInsets.only(left: AppSpacing.md, right: AppSpacing.md, top: 5),
+                    margin: const EdgeInsets.only(left: AppSpacing.compactPageMargin, right: AppSpacing.compactPageMargin, top: 5),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -109,7 +109,7 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                   ),
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.only(left: AppSpacing.md, right: AppSpacing.md),
+                  padding: const EdgeInsets.only(left: AppSpacing.compactPageMargin, right: AppSpacing.compactPageMargin),
                   sliver: SliverToBoxAdapter(child: CreditProductListPanel(activeCategoryId: _activeCategoryId)),
                 ),
                 const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),

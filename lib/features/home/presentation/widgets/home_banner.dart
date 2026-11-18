@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/router/route_names.dart';
+import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/theme/app_radius.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../data/models/carousel_model.dart';
 
@@ -131,9 +133,9 @@ class _HomeBannerState extends State<HomeBanner> {
     final isSingle = banners.length <= 1;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: AppSpacing.pageHorizontal,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: SizedBox(
           height: 220,
           width: double.infinity,

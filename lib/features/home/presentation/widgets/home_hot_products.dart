@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/presentation/paging/paging_controller_mixin.dart';
 import '../providers/home_paging_providers.dart';
@@ -21,10 +22,7 @@ class HomeHotProducts extends ConsumerWidget {
         vertical: 5, // 上下边距
         horizontal: 12, // 左右边距
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(14)), // 设计稿 14px 圆角
-      ),
+      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(AppRadius.md))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

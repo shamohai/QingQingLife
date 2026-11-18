@@ -20,7 +20,7 @@ class HomeKingKongGrid extends StatelessWidget {
     return Container(
       // 去掉 height，依靠内边距和网格内容自然撑高
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(14))),
+      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(AppRadius.md))),
       child: GridView.count(
         padding: EdgeInsets.zero,
         shrinkWrap: true,

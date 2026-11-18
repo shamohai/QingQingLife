@@ -106,7 +106,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                 const ProfileHeaderSection(),
                                 if (isAuthenticated)
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                                    padding: AppSpacing.pageHorizontal,
                                     child: MemberSummaryCard(onTap: () => context.push(RouteNames.memberLevel)),
                                   ),
                                 const SizedBox(height: AppSpacing.md),
@@ -115,31 +115,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           ),
 
                           // ── 资产统计卡片 ─────────────────────────────────
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                            child: ProfileStatsCard(),
-                          ),
+                          const Padding(padding: AppSpacing.pageHorizontal, child: ProfileStatsCard()),
                           const SizedBox(height: AppSpacing.md),
 
                           // ── 我的订单 ─────────────────────────────────────
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                            child: ProfileOrderShortcuts(),
-                          ),
+                          const Padding(padding: AppSpacing.pageHorizontal, child: ProfileOrderShortcuts()),
                           const SizedBox(height: AppSpacing.md),
 
                           // ── 管家服务 Banner ──────────────────────────────
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                            child: ProfileButlerBanner(),
-                          ),
+                          const Padding(padding: AppSpacing.pageHorizontal, child: ProfileButlerBanner()),
                           const SizedBox(height: AppSpacing.md),
 
                           // ── 常用功能宫格 ─────────────────────────────────
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                            child: ProfileFeatureGrid(),
-                          ),
+                          const Padding(padding: AppSpacing.pageHorizontal, child: ProfileFeatureGrid()),
 
                           // ── 退出登录 ─────────────────────────────────────
                           const ProfileFooter(),

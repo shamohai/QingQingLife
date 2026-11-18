@@ -9,6 +9,7 @@ import '../../../../../core/widgets/app_share_sheet.dart';
 import '../providers/service_product_detail_provider.dart';
 import '../widgets/bottom_action_bar.dart';
 import '../widgets/hero_section.dart';
+import '../../../../../app/theme/app_spacing.dart';
 import '../widgets/product_info_card.dart';
 import '../widgets/product_visual_card.dart';
 import '../../data/models/service_product_detail_model.dart';
@@ -65,13 +66,13 @@ class ServiceProductDetailPage extends ConsumerWidget {
             ),
             SliverToBoxAdapter(
               child: Container(
-                margin: const EdgeInsets.all(12),
+                margin: const EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: 12),
                 child: ProductInfoCard(product: product),
               ),
             ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.only(left: 13, right: 13, top: 6, bottom: 6),
+                padding: const EdgeInsets.only(left: AppSpacing.compactPageMargin, right: AppSpacing.compactPageMargin, top: 6, bottom: 6),
                 child: ProductVisualCard(product: product),
               ),
             ),

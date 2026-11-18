@@ -127,7 +127,7 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
                 )
               else ...[
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.md, 8, AppSpacing.md, AppSpacing.md),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.compactPageMargin, 8, AppSpacing.compactPageMargin, AppSpacing.md),
                   sliver: SliverGrid(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) => AllProductCard(item: pagingData.items[index], onTap: () => _onProductTap(context, pagingData.items[index])),
@@ -138,7 +138,12 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(AppSpacing.md, 8, AppSpacing.md, AppSpacing.md + MediaQuery.viewPaddingOf(context).bottom),
+                    padding: EdgeInsets.fromLTRB(
+                      AppSpacing.compactPageMargin,
+                      8,
+                      AppSpacing.compactPageMargin,
+                      AppSpacing.md + MediaQuery.viewPaddingOf(context).bottom,
+                    ),
                     child: _buildFooter(context, ref, pagingData),
                   ),
                 ),
