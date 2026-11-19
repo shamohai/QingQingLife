@@ -44,7 +44,7 @@ class HomeHotProducts extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(width: AppSpacing.xs),
-                  Text('热卖商品', style: AppTextStyles.headlineSmall),
+                  Text('热门兑换', style: AppTextStyles.headlineSmall),
                 ],
               ),
               // GestureDetector(

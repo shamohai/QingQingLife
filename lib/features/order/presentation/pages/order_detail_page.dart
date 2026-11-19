@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_image.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../domain/entities/order_list_order.dart';
 import '../../domain/repositories/order_repository.dart';
+import '../providers/all_orders_provider.dart';
 import '../providers/order_detail_provider.dart';
 import '../widgets/order_amount_text.dart';
 import '../widgets/order_card.dart' show showCancelOrderConfirmDialog;
@@ -75,6 +76,10 @@ class _OrderDetailScaffoldState extends ConsumerState<_OrderDetailScaffold> {
         throw ApiException(code: response.code, message: response.message);
       }
       ref.invalidate(orderDetailProvider(widget.orderId));
+      // 列表页若仍存活（从列表 push 进入详情），同步刷新其数据，避免列表显示旧状态。
+      if (ref.exists(allOrdersProvider)) {
+        ref.read(allOrdersProvider.notifier).loadOrders();
+      }
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('订单已取消')));
     } catch (error) {
       if (!mounted) return;

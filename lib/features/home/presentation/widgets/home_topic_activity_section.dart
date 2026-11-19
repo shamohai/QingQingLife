@@ -157,7 +157,7 @@ class _TopicCard extends StatelessWidget {
                         ),
                         alignment: Alignment.center,
                         child: const Text(
-                          '立即参与',
+                          '立即报名',
                           style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Color(0xFFFF2105)),
                         ),
                       ),
