@@ -54,13 +54,12 @@ class AllOrdersState {
 }
 
 class AllOrdersNotifier extends Notifier<AllOrdersState> {
-  static const tabLabels = ['全部订单', '待付款', '待发货', '待收货/待核销', '评价', '售后/退款'];
+  static const tabLabels = ['全部订单', '待付款', '待发货', '待收货/待核销', '售后/退款'];
   static const tabStates = [
     BackendOrderState.all,
     BackendOrderState.pendingPayment,
     BackendOrderState.pendingShipment,
     BackendOrderState.shipped,
-    BackendOrderState.pendingEvaluation,
     BackendOrderState.afterSale,
   ];
   static const pageSize = 20;

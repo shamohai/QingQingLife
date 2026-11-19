@@ -12,10 +12,6 @@ on:
           - adhoc
           - app-store
           - development
-  push:
-    branches:
-      - main
-      - release/*
 
 jobs:
   build-ios:

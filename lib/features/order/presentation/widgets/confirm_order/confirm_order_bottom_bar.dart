@@ -26,13 +26,13 @@ class MallConfirmOrderBottomBar extends StatelessWidget {
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Keep the amount on one line on narrow phones; the source layout
                 // assumes a wider frame, so scale only this compact summary when needed.
                 FittedBox(
                   fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerRight,
+                  alignment: Alignment.centerLeft,
                   child: RichText(
                     maxLines: 1,
                     text: TextSpan(

@@ -6,12 +6,15 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_radius.dart';
+import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../providers/points_detail_provider.dart';
 import '../widgets/points_record_item.dart';
 import '../../../../app/router/route_names.dart';
+
+/// 月份卡片圆角（页面内单独设置，卡片较矮，比全局 AppRadius.md 更小）
+const double _kMonthCardRadius = 10;
 
 /// 积分明细页面
 class PointsDetailPage extends ConsumerStatefulWidget {
@@ -24,6 +27,14 @@ class PointsDetailPage extends ConsumerStatefulWidget {
 class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
   // 记录展开状态的月份 Key 集合，默认为空即全部折叠
   final Set<String> _expandedMonths = {};
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(pointsDetailProvider.notifier).loadRecords();
+    });
+  }
 
   void _toggleMonthExpanded(String monthKey) {
     setState(() {
@@ -38,11 +49,6 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(pointsDetailProvider);
-    final notifier = ref.read(pointsDetailProvider.notifier);
-
-    if (!state.isLoading && state.records.isEmpty && state.errorMessage == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => notifier.loadRecords());
-    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F7),
@@ -200,7 +206,7 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
         });
 
         return ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: 5),
           itemCount: months.length + (state.isLoadingMore ? 1 : 0),
           itemBuilder: (context, index) {
             if (index == months.length) {
@@ -220,7 +226,7 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
               margin: const EdgeInsets.only(bottom: 10),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(AppRadius.lg),
+                borderRadius: BorderRadius.circular(_kMonthCardRadius),
                 boxShadow: const [BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, 1))],
               ),
               child: Column(
@@ -229,7 +235,7 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
                   // 1. 月份 Header 行（标题 + 紧挨着折叠/展开箭头，右侧不显示收益支出）
                   InkWell(
                     onTap: () => _toggleMonthExpanded(monthKey),
-                    borderRadius: BorderRadius.circular(AppRadius.lg),
+                    borderRadius: BorderRadius.circular(_kMonthCardRadius),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       child: Row(

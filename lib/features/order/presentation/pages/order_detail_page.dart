@@ -4,12 +4,16 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../core/network/exceptions/exceptions.dart';
+import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../domain/entities/order_list_order.dart';
 import '../../domain/repositories/order_repository.dart';
+import '../providers/all_orders_provider.dart';
 import '../providers/order_detail_provider.dart';
 import '../widgets/order_amount_text.dart';
+import '../widgets/order_card.dart' show showCancelOrderConfirmDialog;
 
 /// 商城订单详情页。
 ///
@@ -27,7 +31,7 @@ class OrderDetailPage extends ConsumerWidget {
         if (!response.success || response.data == null) {
           return _StateScaffold(body: const Center(child: Text('订单不存在')));
         }
-        return _OrderDetailScaffold(detail: response.data!);
+        return _OrderDetailScaffold(detail: response.data!, orderId: orderId);
       },
       loading: () => const _StateScaffold(body: Center(child: AppLoading())),
       error: (error, stackTrace) => const _StateScaffold(body: Center(child: Text('加载失败'))),
@@ -46,17 +50,95 @@ class _StateScaffold extends StatelessWidget {
   }
 }
 
-class _OrderDetailScaffold extends StatelessWidget {
+class _OrderDetailScaffold extends ConsumerStatefulWidget {
   final OrderDetail detail;
+  final String orderId;
 
-  const _OrderDetailScaffold({required this.detail});
+  const _OrderDetailScaffold({required this.detail, required this.orderId});
+
+  @override
+  ConsumerState<_OrderDetailScaffold> createState() => _OrderDetailScaffoldState();
+}
+
+class _OrderDetailScaffoldState extends ConsumerState<_OrderDetailScaffold> {
+  bool _cancelling = false;
+
+  Future<void> _cancelOrder() async {
+    if (_cancelling) return;
+    final confirmed = await showCancelOrderConfirmDialog(context);
+    if (!confirmed || !mounted) return;
+
+    setState(() => _cancelling = true);
+    try {
+      final response = await ref.read(orderRepositoryProvider).cancelOrder(widget.orderId, '');
+      if (!mounted) return;
+      if (!response.success) {
+        throw ApiException(code: response.code, message: response.message);
+      }
+      ref.invalidate(orderDetailProvider(widget.orderId));
+      // 列表页若仍存活（从列表 push 进入详情），同步刷新其数据，避免列表显示旧状态。
+      if (ref.exists(allOrdersProvider)) {
+        ref.read(allOrdersProvider.notifier).loadOrders();
+      }
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('订单已取消')));
+    } catch (error) {
+      if (!mounted) return;
+      final message = error is NetworkException ? error.message : '请稍后重试';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('取消订单失败：$message')));
+    } finally {
+      if (mounted) setState(() => _cancelling = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _OrderDetailTokens.pageBackground,
       appBar: _buildAppBar(context),
-      body: _OrderDetailBody(detail: detail),
+      body: _OrderDetailBody(detail: widget.detail),
+      bottomNavigationBar: widget.detail.canCancel ? _BottomActionBar(onCancel: _cancelling ? null : _cancelOrder) : null,
+    );
+  }
+}
+
+class _BottomActionBar extends StatelessWidget {
+  final VoidCallback? onCancel;
+
+  const _BottomActionBar({required this.onCancel});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        boxShadow: [BoxShadow(color: Color(0x18000000), blurRadius: 5, offset: Offset(0, -1))],
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 80,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              GestureDetector(
+                onTap: onCancel,
+                child: Container(
+                  constraints: const BoxConstraints(minWidth: 96),
+                  height: 44,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(color: Color(0xFFF3F5F7), borderRadius: BorderRadius.all(Radius.circular(999))),
+                  child: const Text(
+                    '取消订单',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 14),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -260,8 +342,7 @@ class _OrderContentCard extends StatelessWidget {
           if (detail.payTime != null) _MetaRow(label: '付款时间', value: _formatDate(detail.payTime!)),
           if (detail.shipTime != null) _MetaRow(label: '发货时间', value: _formatDate(detail.shipTime!)),
           if (detail.receiveTime != null) _MetaRow(label: '收货时间', value: _formatDate(detail.receiveTime!)),
-          if ((detail.remark ?? detail.userRemark ?? '').trim().isNotEmpty && (detail.remark ?? detail.userRemark) != '【】')
-            _MetaRow(label: '订单备注', value: (detail.remark ?? detail.userRemark!).trim()),
+          if (!detail.isVirtualGoods && (detail.userRemark ?? '').trim().isNotEmpty) _MetaRow(label: '订单备注', value: detail.userRemark!.trim()),
         ],
       ),
     );

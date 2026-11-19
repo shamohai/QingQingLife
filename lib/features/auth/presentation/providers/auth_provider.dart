@@ -20,6 +20,9 @@ final authProvider = NotifierProvider<AuthNotifier, AuthStatus>(() => AuthNotifi
 class AuthNotifier extends Notifier<AuthStatus> {
   fluwx.FluwxCancelable? _authSubscriber;
 
+  /// 本进程内已处理过的微信授权 code，防止同一个回调被重复消费（如 Activity 残留 Intent）。
+  String? _lastHandledWeChatCode;
+
   @override
   AuthStatus build() {
     // Session 是独立的共享状态源。不能 watch 它，否则 token 持久化时
@@ -83,13 +86,19 @@ class AuthNotifier extends Notifier<AuthStatus> {
   }
 
   Future<void> _handleWeChatResponse(fluwx.WeChatResponse response) async {
-    if (response is fluwx.WeChatAuthResponse) {
-      _cancelWeChatSubscriber();
-      if (response.isSuccessful && response.code != null && response.code!.isNotEmpty) {
-        await _doWeChatLogin(response.code!);
-      } else {
-        state = AuthStatus.unauthenticated;
-      }
+    if (response is! fluwx.WeChatAuthResponse) return;
+    final code = response.code ?? '';
+    _cancelWeChatSubscriber();
+    if (state == AuthStatus.authenticated || (code.isNotEmpty && code == _lastHandledWeChatCode)) {
+      return;
+    }
+    if (response.isSuccessful && code.isNotEmpty) {
+      _lastHandledWeChatCode = code;
+      await _doWeChatLogin(code);
+    } else {
+      // errCode -2 为用户取消授权，属于正常路径，这里仍记录以便排查
+      AppLogger.warning('WeChat auth failed', module: 'auth', event: 'wechat_auth_failed', data: {'errCode': response.errCode, 'errStr': response.errStr});
+      state = AuthStatus.unauthenticated;
     }
   }
 
@@ -204,7 +213,11 @@ class AuthNotifier extends Notifier<AuthStatus> {
   Future<void> _onLoginSuccess() async {
     state = AuthStatus.authenticated;
     // 后台拉取用户资料，不阻塞登录态切换
-    await ref.read(userProfileProvider.notifier).load();
+    try {
+      await ref.read(userProfileProvider.notifier).load();
+    } catch (e, st) {
+      AppLogger.error('user profile load after login failed', module: 'auth', event: 'profile_load_after_login_error', error: e, stackTrace: st);
+    }
   }
 
   /// 登出 / 注销时重置用户资料，清除页面上的个人信息。

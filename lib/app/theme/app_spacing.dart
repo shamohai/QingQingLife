@@ -13,7 +13,7 @@ abstract final class AppSpacing {
 
   // ── 紧凑型电商布局语义常量 ────────────────────────────────────────────────
   /// 页面左右外边距（紧凑型推荐 12.0dp）
-  static const double compactPageMargin = md;
+  static const double compactPageMargin = 10;
 
   /// 卡片紧凑内边距（10.0dp 或 12.0dp）
   static const double compactCardPadding = md;

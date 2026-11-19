@@ -86,7 +86,6 @@ class OrderDetail {
   final DateTime? receiveTime;
   final String? logisticsCompany;
   final String? logisticsNo;
-  final String? remark;
   final List<OrderTimeline> timeline;
   final OrderType? orderType;
   final int? pointsCost;
@@ -105,6 +104,10 @@ class OrderDetail {
   final bool canAfterSale;
   final bool waitPay;
   final bool waitEndPay;
+
+  /// 百礼汇产品类型（API: baiLiHuiType）：0 自营实物、1 电子卡券、2 直充话费、3 电商。
+  /// 无值时为 null。
+  final int? baiLiHuiType;
 
   const OrderDetail({
     required this.id,
@@ -131,7 +134,6 @@ class OrderDetail {
     this.receiveTime,
     this.logisticsCompany,
     this.logisticsNo,
-    this.remark,
     required this.timeline,
     this.orderType,
     this.pointsCost,
@@ -142,6 +144,7 @@ class OrderDetail {
     this.payTypeName,
     this.paySerialNumber,
     this.userRemark,
+    this.baiLiHuiType,
     this.canCancel = false,
     this.canCancelAfterSale = false,
     this.canComment = false,
@@ -150,6 +153,12 @@ class OrderDetail {
     this.waitPay = false,
     this.waitEndPay = false,
   });
+
+  /// 是否为虚拟商品（电子卡券、直充话费）。
+  ///
+  /// 仅当 baiLiHuiType 有值且为 1 或 2 时为 true；
+  /// 字段无值（null）时按非虚拟处理，保持默认展示。
+  bool get isVirtualGoods => baiLiHuiType == 1 || baiLiHuiType == 2;
 }
 
 /// 订单商品项

@@ -29,6 +29,7 @@ class PointsCategoryTabBar extends StatelessWidget {
           final category = categories[index];
           final isActive = category.categoryId == activeCategoryId;
           return GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () => onCategoryTap(category.categoryId),
             child: Container(
               height: 44,

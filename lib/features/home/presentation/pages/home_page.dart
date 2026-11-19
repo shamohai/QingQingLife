@@ -143,97 +143,98 @@ class HomePage extends ConsumerWidget {
                     sliver: SliverToBoxAdapter(child: HomeKingKongGrid(items: staticData.kingKongItems)),
                   ),
 
-                  // 每月权益
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.xs),
-                    sliver: SliverToBoxAdapter(
-                      child: Consumer(
-                        builder: (context, ref, child) {
-                          final claimingIds = ref.watch(homeClaimingIdsProvider);
-                          final activeUserServiceId = ref.watch(homeActiveUserServiceIdProvider);
+                  // 每月权益（monthlyserviceinfo 为 null 或无权益商品时不展示）
+                  if (staticData.monthlyBenefits.isNotEmpty)
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.xs),
+                      sliver: SliverToBoxAdapter(
+                        child: Consumer(
+                          builder: (context, ref, child) {
+                            final claimingIds = ref.watch(homeClaimingIdsProvider);
+                            final activeUserServiceId = ref.watch(homeActiveUserServiceIdProvider);
 
-                          return HomeMonthlyBenefits(
-                            benefits: staticData.monthlyBenefits,
-                            claimingIds: claimingIds,
-                            activeUserServiceId: activeUserServiceId,
-                            onImageTap: (benefit) {
-                              final effectiveUserServiceId = activeUserServiceId > 0 ? activeUserServiceId : benefit.userServiceId;
-                              final effectiveIsClaimed = effectiveUserServiceId > 0 || benefit.isReceived;
-                              final effectiveSettlemented = benefit.settlemented;
+                            return HomeMonthlyBenefits(
+                              benefits: staticData.monthlyBenefits,
+                              claimingIds: claimingIds,
+                              activeUserServiceId: activeUserServiceId,
+                              onImageTap: (benefit) {
+                                final effectiveUserServiceId = activeUserServiceId > 0 ? activeUserServiceId : benefit.userServiceId;
+                                final effectiveIsClaimed = effectiveUserServiceId > 0 || benefit.isReceived;
+                                final effectiveSettlemented = benefit.settlemented;
 
-                              if (effectiveIsClaimed && !effectiveSettlemented) {
-                                final path = '${RouteNames.confirmOrder.replaceFirst(':id', benefit.id)}?userServiceId=$effectiveUserServiceId';
-                                GoRouter.of(context).push(path);
-                              } else {
-                                final path = RouteNames.serviceProductDetail.replaceFirst(':id', benefit.id);
-                                GoRouter.of(context).push(path);
-                              }
-                            },
-                            onClaimTap: (benefit) async {
-                              final effectiveUserServiceId = activeUserServiceId > 0 ? activeUserServiceId : benefit.userServiceId;
-                              final effectiveIsClaimed = effectiveUserServiceId > 0 || benefit.isReceived;
-                              final effectiveSettlemented = benefit.settlemented;
-
-                              if (effectiveIsClaimed && !effectiveSettlemented) {
-                                final path = '${RouteNames.confirmOrder.replaceFirst(':id', benefit.id)}?userServiceId=$effectiveUserServiceId';
-                                GoRouter.of(context).push(path);
-                                return;
-                              }
-
-                              if (effectiveIsClaimed && effectiveSettlemented) {
-                                return;
-                              }
-
-                              final serviceIdInt = benefit.serviceId > 0 ? benefit.serviceId : (int.tryParse(benefit.id) ?? 0);
-                              if (serviceIdInt <= 0) {
-                                if (!context.mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('无效的权益ID')));
-                                return;
-                              }
-
-                              final claimingNotifier = ref.read(homeClaimingIdsProvider.notifier);
-                              final claiming = ref.read(homeClaimingIdsProvider);
-                              if (claiming.contains(benefit.id)) return;
-
-                              claimingNotifier.add(benefit.id);
-                              try {
-                                final response = await ref.read(memberRepositoryProvider).receiveUserService(serviceId: serviceIdInt);
-                                if (!context.mounted) return;
-                                if (response.code == 107 || response.message.contains('请登录')) {
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请先登录')));
-                                  GoRouter.of(context).push(RouteNames.login);
-                                  return;
-                                }
-                                if (!response.success || response.data == null) {
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(SnackBar(content: Text(response.message.isNotEmpty ? response.message : '领取失败，请稍后重试')));
-                                  return;
-                                }
-
-                                final result = response.data!;
-                                final newUserServiceId = result.userServiceId;
-
-                                if (newUserServiceId > 0) {
-                                  ref.read(homeActiveUserServiceIdProvider.notifier).set(newUserServiceId);
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('领取成功')));
-
-                                  final confirmPath = '${RouteNames.confirmOrder.replaceFirst(':id', benefit.id)}?userServiceId=$newUserServiceId';
-                                  GoRouter.of(context).push(confirmPath);
+                                if (effectiveIsClaimed && !effectiveSettlemented) {
+                                  final path = '${RouteNames.confirmOrder.replaceFirst(':id', benefit.id)}?userServiceId=$effectiveUserServiceId';
+                                  GoRouter.of(context).push(path);
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result.isDuplicate ? '该权益当月已领取' : '领取失败，未获取到有效权益')));
+                                  final path = RouteNames.serviceProductDetail.replaceFirst(':id', benefit.id);
+                                  GoRouter.of(context).push(path);
                                 }
-                              } catch (e) {
-                                if (!context.mounted) return;
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('领取异常: $e')));
-                              } finally {
-                                claimingNotifier.remove(benefit.id);
-                              }
-                            },
-                          );
-                        },
+                              },
+                              onClaimTap: (benefit) async {
+                                final effectiveUserServiceId = activeUserServiceId > 0 ? activeUserServiceId : benefit.userServiceId;
+                                final effectiveIsClaimed = effectiveUserServiceId > 0 || benefit.isReceived;
+                                final effectiveSettlemented = benefit.settlemented;
+
+                                if (effectiveIsClaimed && !effectiveSettlemented) {
+                                  final path = '${RouteNames.confirmOrder.replaceFirst(':id', benefit.id)}?userServiceId=$effectiveUserServiceId';
+                                  GoRouter.of(context).push(path);
+                                  return;
+                                }
+
+                                if (effectiveIsClaimed && effectiveSettlemented) {
+                                  return;
+                                }
+
+                                final serviceIdInt = benefit.serviceId > 0 ? benefit.serviceId : (int.tryParse(benefit.id) ?? 0);
+                                if (serviceIdInt <= 0) {
+                                  if (!context.mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('无效的权益ID')));
+                                  return;
+                                }
+
+                                final claimingNotifier = ref.read(homeClaimingIdsProvider.notifier);
+                                final claiming = ref.read(homeClaimingIdsProvider);
+                                if (claiming.contains(benefit.id)) return;
+
+                                claimingNotifier.add(benefit.id);
+                                try {
+                                  final response = await ref.read(memberRepositoryProvider).receiveUserService(serviceId: serviceIdInt);
+                                  if (!context.mounted) return;
+                                  if (response.code == 107 || response.message.contains('请登录')) {
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请先登录')));
+                                    GoRouter.of(context).push(RouteNames.login);
+                                    return;
+                                  }
+                                  if (!response.success || response.data == null) {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(content: Text(response.message.isNotEmpty ? response.message : '领取失败，请稍后重试')));
+                                    return;
+                                  }
+
+                                  final result = response.data!;
+                                  final newUserServiceId = result.userServiceId;
+
+                                  if (newUserServiceId > 0) {
+                                    ref.read(homeActiveUserServiceIdProvider.notifier).set(newUserServiceId);
+                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('领取成功')));
+
+                                    final confirmPath = '${RouteNames.confirmOrder.replaceFirst(':id', benefit.id)}?userServiceId=$newUserServiceId';
+                                    GoRouter.of(context).push(confirmPath);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result.isDuplicate ? '该权益当月已领取' : '领取失败，未获取到有效权益')));
+                                  }
+                                } catch (e) {
+                                  if (!context.mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('领取异常: $e')));
+                                } finally {
+                                  claimingNotifier.remove(benefit.id);
+                                }
+                              },
+                            );
+                          },
+                        ),
                       ),
                     ),
-                  ),
 
                   // 热卖商品
                   const SliverPadding(

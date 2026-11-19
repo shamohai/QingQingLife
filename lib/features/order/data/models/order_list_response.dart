@@ -58,7 +58,6 @@ class OrderListOrderModel {
       if (_json['payment'] == true) OrderListAction.payment,
       if (_json['payend'] == true) OrderListAction.payBalance,
       if (_json['confirm'] == true) OrderListAction.confirm,
-      if (_json['evaluate'] == true) OrderListAction.evaluate,
     ],
   );
 }

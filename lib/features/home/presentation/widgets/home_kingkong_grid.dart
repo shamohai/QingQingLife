@@ -20,16 +20,40 @@ class HomeKingKongGrid extends StatelessWidget {
     return Container(
       // 去掉 height，依靠内边距和网格内容自然撑高
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(14))),
-      child: GridView.count(
-        padding: EdgeInsets.zero,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        crossAxisCount: 5,
-        childAspectRatio: 0.78, // 进一步微调 aspect ratio 以确保在不同设备下文字不会发生 3.3 像素的垂直溢出
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 8, // 减少垂直间距，给图标和文字留出更多安全高度
-        children: List.generate(items.length > 10 ? 10 : items.length, (i) => _KingKongItem(item: items[i])),
+      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(AppRadius.md))),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Image.asset(
+                'assets/images/home/kingkong_member.png',
+                width: 24,
+                height: 24,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 24,
+                  height: 24,
+                  decoration: const BoxDecoration(color: Color(0xFFE53935), shape: BoxShape.circle),
+                  child: const Icon(Icons.local_fire_department, size: 10, color: Colors.white),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Text('积分兑换', style: AppTextStyles.headlineSmall),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          GridView.count(
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 5,
+            childAspectRatio: 0.78, // 进一步微调 aspect ratio 以确保在不同设备下文字不会发生 3.3 像素的垂直溢出
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 8, // 减少垂直间距，给图标和文字留出更多安全高度
+            children: List.generate(items.length > 10 ? 10 : items.length, (i) => _KingKongItem(item: items[i])),
+          ),
+        ],
       ),
     );
   }

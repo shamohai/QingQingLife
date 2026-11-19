@@ -62,6 +62,7 @@ class OrderDetailResponse {
       backendTypeCode: typeCode,
       orderTypeLabel: BackendOrderType.fromCode(typeCode)?.label,
       isCreditOrder: isCredit,
+      baiLiHuiType: _int(json['baiLiHuiType']),
       items: products,
       address: OrderAddress(
         id: _text(addressJson['regionid']) ?? '',
@@ -87,7 +88,6 @@ class OrderDetailResponse {
       receiveTime: _date(json['receivetime']),
       logisticsCompany: _text(json['shipcompanyname']),
       logisticsNo: _text(json['shipsn']) ?? _text(shipInfo['mailno']),
-      remark: _text(json['remark']),
       timeline: timeline,
       orderType: orderType,
       pointsCost: pointsCostValue,
