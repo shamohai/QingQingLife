@@ -61,11 +61,11 @@ class CartPage extends ConsumerWidget {
                   padding: const EdgeInsets.fromLTRB(AppSpacing.compactPageMargin, 0, AppSpacing.compactPageMargin, AppSpacing.xl),
                   sliver: SliverLayoutBuilder(
                     builder: (context, constraints) {
-                      final cardWidth = (constraints.crossAxisExtent - AppSpacing.md) / 2;
+                      final cardWidth = (constraints.crossAxisExtent - AppSpacing.compactItemGap) / 2;
                       return SliverGrid(
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          crossAxisSpacing: AppSpacing.md,
+                          crossAxisSpacing: AppSpacing.compactItemGap,
                           mainAxisSpacing: AppSpacing.md,
                           mainAxisExtent: cardWidth + 164,
                         ),

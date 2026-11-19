@@ -1,4 +1,5 @@
 import '../../../../app/theme/app_radius.dart';
+import '../../../../app/theme/app_spacing.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -54,7 +55,7 @@ class HomeBottomRecommendSection extends ConsumerWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.compactItemGap),
             // 右侧列：奇数索引商品
             Expanded(
               child: Column(

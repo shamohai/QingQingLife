@@ -133,7 +133,7 @@ class _AllProductsPageState extends ConsumerState<AllProductsPage> {
                       (context, index) => AllProductCard(item: pagingData.items[index], onTap: () => _onProductTap(context, pagingData.items[index])),
                       childCount: pagingData.items.length,
                     ),
-                    gridDelegate: const ResponsiveProductGridDelegate(crossAxisSpacing: 12, mainAxisSpacing: 12),
+                    gridDelegate: const ResponsiveProductGridDelegate(crossAxisSpacing: AppSpacing.compactItemGap, mainAxisSpacing: 12),
                   ),
                 ),
                 SliverToBoxAdapter(
