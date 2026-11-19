@@ -6,22 +6,13 @@ import '../../providers/confirm_order_provider.dart';
 import 'confirm_order_money.dart';
 import 'confirm_order_panel.dart';
 
-/// 确认订单页商品卡片：商品信息、数量步进器、留言备注。
+/// 确认订单页商品卡片：商品信息、数量步进器。
 class MallConfirmOrderProductCard extends StatelessWidget {
-  const MallConfirmOrderProductCard({
-    super.key,
-    required this.state,
-    required this.noteController,
-    required this.onIncrement,
-    required this.onDecrement,
-    required this.onNoteChanged,
-  });
+  const MallConfirmOrderProductCard({super.key, required this.state, required this.onIncrement, required this.onDecrement});
 
   final ConfirmOrderState state;
-  final TextEditingController noteController;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
-  final ValueChanged<String> onNoteChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -83,32 +74,6 @@ class MallConfirmOrderProductCard extends StatelessWidget {
             child: _QuantityStepper(quantity: state.quantity, onIncrement: onIncrement, onDecrement: onDecrement),
           ),
           const Spacer(),
-          Row(
-            children: [
-              const Text('留言备注', style: TextStyle(fontSize: 16, height: 1.5, color: Colors.black)),
-              const Spacer(),
-              SizedBox(
-                width: 133,
-                height: 24,
-                child: TextField(
-                  controller: noteController,
-                  onChanged: onNoteChanged,
-                  textAlign: TextAlign.right,
-                  style: const TextStyle(fontSize: 16, height: 1.5),
-                  decoration: const InputDecoration(
-                    hintText: '请填写备注信息 >',
-                    hintStyle: TextStyle(fontSize: 16, height: 1.5, color: Color(0xFF8E8E93)),
-                    filled: false,
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );

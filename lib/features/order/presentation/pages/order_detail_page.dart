@@ -342,7 +342,6 @@ class _OrderContentCard extends StatelessWidget {
           if (detail.payTime != null) _MetaRow(label: '付款时间', value: _formatDate(detail.payTime!)),
           if (detail.shipTime != null) _MetaRow(label: '发货时间', value: _formatDate(detail.shipTime!)),
           if (detail.receiveTime != null) _MetaRow(label: '收货时间', value: _formatDate(detail.receiveTime!)),
-          if (!detail.isVirtualGoods && (detail.userRemark ?? '').trim().isNotEmpty) _MetaRow(label: '订单备注', value: detail.userRemark!.trim()),
         ],
       ),
     );
