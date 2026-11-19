@@ -185,12 +185,7 @@ class _DefaultCustomerServiceContentState extends State<_DefaultCustomerServiceC
     if (_opening) return;
     setState(() => _opening = true);
     try {
-      await launchMiniProgramPath(
-        context,
-        path: widget.info.wxcustomerservicemppath,
-        serviceName: '微信客服',
-        fallbackPhone: widget.info.fallbacktel,
-      );
+      await launchMiniProgramPath(context, path: widget.info.wxcustomerservicemppath, serviceName: '微信客服', fallbackPhone: widget.info.fallbacktel);
     } finally {
       if (mounted) setState(() => _opening = false);
     }
@@ -343,15 +338,38 @@ class _QrCodeCard extends StatelessWidget {
 /// 客服电话卡片：白底 r10，标题行两端对齐 + 电话行（蓝色号码 + 30px 蓝圆 call 钮）
 ///
 /// 设计 box_6：414x88，padding 上8 下14 左右10，行距 14。
-class _PhoneCard extends StatelessWidget {
+class _PhoneCard extends StatefulWidget {
   final ServiceCustomerInfo info;
   const _PhoneCard(this.info);
 
+  @override
+  State<_PhoneCard> createState() => _PhoneCardState();
+}
+
+class _PhoneCardState extends State<_PhoneCard> {
+  bool _calling = false;
+
   Future<void> _callPhone() async {
-    final uri = Uri(scheme: 'tel', path: info.phoneNumber);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
+    if (_calling) return;
+    setState(() => _calling = true);
+    try {
+      final phoneNumber = widget.info.phoneNumber.trim();
+      final uri = Uri(scheme: 'tel', path: phoneNumber);
+      final launched = await launchUrl(uri);
+      if (!launched && mounted) {
+        _showMessage('无法拨打电话，请稍后重试');
+      }
+    } catch (_) {
+      if (mounted) _showMessage('无法拨打电话，请稍后重试');
+    } finally {
+      if (mounted) setState(() => _calling = false);
     }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message), behavior: SnackBarBehavior.floating));
   }
 
   @override
@@ -369,33 +387,33 @@ class _PhoneCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  info.phoneLabel.isEmpty ? '客服电话' : info.phoneLabel,
+                  widget.info.phoneLabel.isEmpty ? '客服电话' : widget.info.phoneLabel,
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black, height: 1.4),
                 ),
               ),
-              if (info.phoneSubtitle.isNotEmpty)
+              if (widget.info.phoneSubtitle.isNotEmpty)
                 Text(
-                  info.phoneSubtitle,
+                  widget.info.phoneSubtitle,
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E8F), height: 1.4),
                 ),
             ],
           ),
-          if (info.phoneNumber.isNotEmpty) ...[
+          if (widget.info.phoneNumber.isNotEmpty) ...[
             const SizedBox(height: 14),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 GestureDetector(
-                  onTap: _callPhone,
+                  onTap: _calling ? null : _callPhone,
                   behavior: HitTestBehavior.opaque,
                   child: Text(
-                    info.phoneNumber,
+                    widget.info.phoneNumber,
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceTabActive, height: 1.4),
                   ),
                 ),
                 GestureDetector(
-                  onTap: _callPhone,
+                  onTap: _calling ? null : _callPhone,
                   behavior: HitTestBehavior.opaque,
                   child: SizedBox(
                     width: 30,
@@ -404,7 +422,9 @@ class _PhoneCard extends StatelessWidget {
                       width: 30,
                       height: 30,
                       decoration: const BoxDecoration(color: AppColors.serviceProjectBlue, shape: BoxShape.circle),
-                      child: const Icon(Icons.call, size: 18, color: Colors.white),
+                      child: _calling
+                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : const Icon(Icons.call, size: 18, color: Colors.white),
                     ),
                   ),
                 ),
