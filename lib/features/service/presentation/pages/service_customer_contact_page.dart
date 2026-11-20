@@ -123,8 +123,7 @@ class ServiceCustomerContactPage extends ConsumerWidget {
         info.phoneNumber.isNotEmpty ||
         info.phoneLabel.isNotEmpty ||
         info.phoneSubtitle.isNotEmpty ||
-        info.descriptionHtml.isNotEmpty ||
-        info.rules.isNotEmpty;
+        info.descriptionHtml.isNotEmpty;
 
     return Scaffold(
       backgroundColor: AppColors.servicePageBackground,
@@ -154,7 +153,7 @@ class ServiceCustomerContactPage extends ConsumerWidget {
                   child: Padding(padding: const EdgeInsets.only(top: 10), child: _PhoneCard(info)),
                 ),
               ),
-            if (info.descriptionHtml.isNotEmpty || info.rules.isNotEmpty)
+            if (info.descriptionHtml.isNotEmpty)
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 sliver: SliverToBoxAdapter(
@@ -347,7 +346,7 @@ class _QrCodeCardState extends State<_QrCodeCard> {
       isOpening: _opening,
       onOpeningChanged: (isOpening) => setState(() => _opening = isOpening),
       path: info.workWxMpPath,
-      serviceName: info.contactName.isNotEmpty ? info.contactName : '在线客服',
+      serviceName: '在线客服',
       fallbackPhone: info.phoneNumber,
     );
   }
@@ -395,7 +394,7 @@ class _QrCodeCardState extends State<_QrCodeCard> {
           ),
           const SizedBox(height: 12),
           Text(
-            info.qrCaption,
+            '点击二维码，联系在线客服',
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black, height: 1.4),
           ),
         ],
@@ -511,7 +510,7 @@ class _PhoneCardState extends State<_PhoneCard> {
   }
 }
 
-/// 活动规则卡片：白底 r10，蓝色品牌标语 + "活动规则" 标题 + 规则正文段落
+/// 活动规则卡片：白底 r10，"活动规则" 标题 + 规则正文段落
 ///
 /// 设计 text-wrapper_9：414x356，padding 上8 下24 左右10；标题上边距 8，正文上边距 10。
 class _RulesCard extends StatelessWidget {
@@ -528,29 +527,12 @@ class _RulesCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (info.brandLine.isNotEmpty) ...[
-            Text(
-              info.brandLine,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.serviceTabActive, height: 1.4),
-            ),
-            const SizedBox(height: 8),
-          ],
           Text(
             '活动规则',
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black, height: 1.4),
           ),
           const SizedBox(height: 10),
-          if (info.descriptionHtml.isNotEmpty)
-            HtmlWidget(info.descriptionHtml, baseUrl: Uri.parse(AppConfig.baseUrl))
-          else
-            for (final rule in info.rules)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Text(
-                  rule,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Colors.black, height: 1.5),
-                ),
-              ),
+          HtmlWidget(info.descriptionHtml, baseUrl: Uri.parse(AppConfig.baseUrl)),
         ],
       ),
     );
@@ -559,24 +541,18 @@ class _RulesCard extends StatelessWidget {
 
 class ServiceCustomerInfo {
   final String qrCodeUrl;
-  final String qrCaption;
   final String phoneLabel;
   final String phoneSubtitle;
   final String phoneNumber;
-  final String brandLine;
-  final List<String> rules;
   final String workWxMpPath;
   final String contactName;
   final String descriptionHtml;
 
   const ServiceCustomerInfo({
     required this.qrCodeUrl,
-    required this.qrCaption,
     required this.phoneLabel,
     this.phoneSubtitle = '',
     required this.phoneNumber,
-    required this.brandLine,
-    required this.rules,
     this.workWxMpPath = '',
     this.contactName = '',
     this.descriptionHtml = '',
@@ -591,12 +567,9 @@ class ServiceCustomerInfo {
 
     return ServiceCustomerInfo(
       qrCodeUrl: qrCodeUrl,
-      qrCaption: '点击二维码，联系在线客服',
       phoneLabel: contactRemarkInfo == null ? detail.contactRemark : (contactName.isNotEmpty ? contactName : '客服电话'),
       phoneSubtitle: _contactRemarkValue(contactRemarkInfo, 'ServiceDescr'),
       phoneNumber: phoneNumber,
-      brandLine: '',
-      rules: const [],
       workWxMpPath: workWxMpPath,
       contactName: contactName,
       descriptionHtml: detail.descriptionHtml,
