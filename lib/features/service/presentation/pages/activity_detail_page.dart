@@ -9,6 +9,7 @@ import '../../../../core/providers/session_provider.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../app/theme/app_radius.dart';
+import '../../../../app/theme/app_spacing.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
 import '../providers/offline_activity_detail_provider.dart';
 import '../widgets/activity_detail_info_card.dart';
@@ -41,7 +42,7 @@ class ActivityDetailPage extends ConsumerWidget {
         error: (_, _) => Center(
           child: AppError(message: '加载失败，请稍后重试', onRetry: () => ref.invalidate(offlineActivityDetailProvider(activityId))),
         ),
-        data: (detail) => _buildBody(context, detail),
+        data: (detail) => _buildBody(detail),
       ),
       bottomNavigationBar: detailAsync.when(
         loading: () => const SizedBox.shrink(),
@@ -117,29 +118,21 @@ class ActivityDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, OfflineActivityDetail detail) {
+  Widget _buildBody(OfflineActivityDetail detail) {
     return CustomScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
         SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 13, bottom: 24),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final heroHeight = (constraints.maxWidth - 28) * 180 / 412;
-                final overlap = heroHeight * 50 / 180;
-
-                return Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    ProjectDetailHeroImage(heroAsset: detail.postUrl, horizontalPadding: 14, aspectRatio: 412 / 180),
-                    Padding(
-                      padding: EdgeInsets.only(top: heroHeight - overlap),
-                      child: ActivityDetailInfoCard(detail: detail),
-                    ),
-                  ],
-                );
-              },
+          child: SizedBox(
+            width: double.infinity,
+            child: Column(
+              children: [
+                ProjectDetailHeroImage(heroAsset: detail.postUrl, imageUrls: detail.bannerImages, horizontalPadding: AppSpacing.lg, aspectRatio: 412 / 180),
+                Transform.translate(
+                  offset: const Offset(0, -50),
+                  child: ActivityDetailInfoCard(detail: detail),
+                ),
+              ],
             ),
           ),
         ),

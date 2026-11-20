@@ -126,7 +126,7 @@ class FriendDetailPage extends ConsumerWidget {
             width: double.infinity,
             child: Column(
               children: [
-                ProjectDetailHeroImage(heroAsset: detail.postUrl, horizontalPadding: AppSpacing.lg, aspectRatio: 412 / 180),
+                ProjectDetailHeroImage(heroAsset: detail.postUrl, imageUrls: detail.bannerImages, horizontalPadding: AppSpacing.lg, aspectRatio: 412 / 180),
                 Transform.translate(
                   offset: const Offset(0, -50),
                   child: FriendDetailInfoCard(detail: detail),

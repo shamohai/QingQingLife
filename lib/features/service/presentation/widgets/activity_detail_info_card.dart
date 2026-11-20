@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
-
+import '../../../../app/theme/app_spacing.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-
 import '../../../../app/config/app_config.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
 
@@ -16,7 +15,7 @@ class ActivityDetailInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 13),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,

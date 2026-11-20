@@ -3,7 +3,7 @@
 /// 对应接口：POST /api/promotion/app/activity/getofflineactivitydetail
 /// 请求：{"activityid": "uuid", "authtoken": 0}
 /// 响应：{"detail": {...}, "mysignupinfo": null|{...}, "maxsignupcount": int,
-///        "addresslist": [...], "result": 0, "descr": null, "datatag": ""}
+///        "addresslist": [...], "bannerimages": ["图片链接"], "result": 0, "descr": null, "datatag": ""}
 class OfflineActivityDetail {
   /// 活动 ID
   final String activityId;
@@ -44,6 +44,9 @@ class OfflineActivityDetail {
   /// 活动地址列表
   final List<ActivityAddress> addressList;
 
+  /// Banner 图片链接列表
+  final List<String> bannerImages;
+
   const OfflineActivityDetail({
     required this.activityId,
     required this.title,
@@ -58,6 +61,7 @@ class OfflineActivityDetail {
     required this.maxSignupCount,
     this.mySignupInfo,
     this.addressList = const [],
+    this.bannerImages = const [],
   });
 
   /// 从扁平行数据（已剔除 result/descr/datatag）中解析
@@ -65,6 +69,7 @@ class OfflineActivityDetail {
     final detail = json['detail'] as Map<String, dynamic>? ?? const <String, dynamic>{};
     final mySignupInfoJson = json['mysignupinfo'] as Map<String, dynamic>?;
     final addressListJson = detail['addresslist'] as List<dynamic>?;
+    final bannerImagesJson = detail['bannerimages'] as List<dynamic>?;
     return OfflineActivityDetail(
       activityId: detail['activityid'] as String? ?? '',
       title: detail['title'] as String? ?? '',
@@ -79,6 +84,7 @@ class OfflineActivityDetail {
       maxSignupCount: (json['maxsignupcount'] as num?)?.toInt() ?? 0,
       mySignupInfo: mySignupInfoJson != null ? MySignupInfo.fromJson(mySignupInfoJson) : null,
       addressList: addressListJson?.map((e) => ActivityAddress.fromJson(e as Map<String, dynamic>)).toList() ?? [],
+      bannerImages: bannerImagesJson?.map((e) => e as String).toList() ?? [],
     );
   }
 
