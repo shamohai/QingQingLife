@@ -30,7 +30,6 @@ class ServiceCouponConfirmOrderPage extends ConsumerStatefulWidget {
 }
 
 class _ServiceCouponConfirmOrderPageState extends ConsumerState<ServiceCouponConfirmOrderPage> {
-  late final TextEditingController _remarkController;
   late final int _initialCouponCount;
   int _requestedCouponCount = 1;
   int? _selectedAddressId;
@@ -41,13 +40,6 @@ class _ServiceCouponConfirmOrderPageState extends ConsumerState<ServiceCouponCon
     super.initState();
     _initialCouponCount = widget.initialCount > 0 ? widget.initialCount : 1;
     _requestedCouponCount = _initialCouponCount;
-    _remarkController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _remarkController.dispose();
-    super.dispose();
   }
 
   @override
@@ -108,7 +100,7 @@ class _ServiceCouponConfirmOrderPageState extends ConsumerState<ServiceCouponCon
               onIncrement: preDeal.maxCouponCount > effectiveCount ? () => setState(() => _requestedCouponCount = effectiveCount + 1) : null,
             ),
             const SizedBox(height: 10),
-            _ServiceCouponProductCard(products: preDeal.products, couponCount: effectiveCount, remarkController: _remarkController),
+            _ServiceCouponProductCard(products: preDeal.products, couponCount: effectiveCount),
           ],
         ),
       ),
@@ -162,12 +154,7 @@ class _ServiceCouponConfirmOrderPageState extends ConsumerState<ServiceCouponCon
     setState(() => _isSubmitting = true);
     final response = await ref
         .read(serviceCouponOrderControllerProvider)
-        .submit(
-          serviceCouponId: widget.serviceCouponId,
-          count: effectiveCount,
-          addressId: addressId,
-          remark: _remarkController.text.trim().isEmpty ? null : _remarkController.text.trim(),
-        );
+        .submit(serviceCouponId: widget.serviceCouponId, count: effectiveCount, addressId: addressId);
     if (!mounted) return;
     setState(() => _isSubmitting = false);
 
@@ -347,11 +334,10 @@ class _StepperTapArea extends StatelessWidget {
 }
 
 class _ServiceCouponProductCard extends StatelessWidget {
-  const _ServiceCouponProductCard({required this.products, required this.couponCount, required this.remarkController});
+  const _ServiceCouponProductCard({required this.products, required this.couponCount});
 
   final List<ServiceCouponOrderProduct> products;
   final int couponCount;
-  final TextEditingController remarkController;
 
   @override
   Widget build(BuildContext context) {
@@ -373,36 +359,6 @@ class _ServiceCouponProductCard extends StatelessWidget {
                   child: Divider(height: 1, color: Color(0xFFE3E8F0)),
                 ),
             ],
-          const SizedBox(height: 12),
-          const Divider(height: 1, color: Color(0xFFE3E8F0)),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              const Text('留言备注', style: TextStyle(fontSize: 16, height: 1.4, color: Color(0xFF1F2024))),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: remarkController,
-                  maxLength: 100,
-                  textAlign: TextAlign.right,
-                  textInputAction: TextInputAction.done,
-                  style: const TextStyle(fontSize: 16, height: 1.4, color: Color(0xFF1F2024)),
-                  decoration: const InputDecoration(
-                    counterText: '',
-                    hintText: '请填写备注信息 >',
-                    hintStyle: TextStyle(fontSize: 16, height: 1.4, color: Color(0xFF8E8E93)),
-                    filled: true,
-                    fillColor: Colors.white,
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                  ),
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );

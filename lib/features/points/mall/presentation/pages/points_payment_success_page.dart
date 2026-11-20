@@ -154,7 +154,6 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
         payIntegralCount: pointsDeducted,
         createTimeStr: '-',
         mobileStr: '-',
-        userRemarkStr: '',
         effectiveOrderId: effectiveOrderId,
       );
     }
@@ -170,7 +169,6 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
           final mobileStr = (detail.mobile != null && detail.mobile!.isNotEmpty)
               ? detail.mobile!
               : (detail.address.phone.isNotEmpty ? detail.address.phone : '-');
-          final userRemarkStr = (detail.userRemark ?? '').trim();
 
           return _buildCardFields(
             context: context,
@@ -179,7 +177,6 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
             payIntegralCount: payIntegralCount,
             createTimeStr: createTimeStr,
             mobileStr: mobileStr,
-            userRemarkStr: userRemarkStr,
             effectiveOrderId: effectiveOrderId,
           );
         } else {
@@ -190,7 +187,6 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
             payIntegralCount: pointsDeducted,
             createTimeStr: '-',
             mobileStr: '-',
-            userRemarkStr: '',
             effectiveOrderId: effectiveOrderId,
           );
         }
@@ -206,7 +202,6 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
         payIntegralCount: pointsDeducted,
         createTimeStr: '-',
         mobileStr: '-',
-        userRemarkStr: '',
         effectiveOrderId: effectiveOrderId,
       ),
     );
@@ -219,7 +214,6 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
     required int payIntegralCount,
     required String createTimeStr,
     required String mobileStr,
-    required String userRemarkStr,
     required String effectiveOrderId,
   }) {
     return Column(
@@ -234,7 +228,6 @@ class PointsPaymentSuccessPage extends ConsumerWidget {
         OrderInfoRow(label: '下单时间', value: createTimeStr),
         const SizedBox(height: AppSpacing.sm),
         OrderInfoRow(label: '手机号', value: mobileStr),
-        if (userRemarkStr.isNotEmpty) ...[const SizedBox(height: AppSpacing.sm), OrderInfoRow(label: '用户备注', value: userRemarkStr)],
         const SizedBox(height: AppSpacing.lg),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
