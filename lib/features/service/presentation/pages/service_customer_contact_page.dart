@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,7 +27,7 @@ import '../providers/share_cart_template_detail_provider.dart';
 /// 蓝湖设计稿：服务中心-购酒享服务-确认订单（付款提示）
 /// 结构（MCP Visual IR，440 基准 1:1）：
 ///   - NavRow：返回 24x24 + 动态标题 18px Medium（缺省"联系客服"）
-///   - QrCodeCard：白卡 r10，二维码 210x210 + 说明 16px
+///   - QrCodeCard：白卡 r10，二维码 210x210（中央覆盖联系客服按钮）+ 说明 16px
 ///   - PhoneCard：白卡 r10，"客服电话"(16 黑) + 时间(14 灰)；号码(16 蓝) + 30px 蓝圆 call 钮
 ///   - RulesCard：白卡 r10，蓝色品牌标语 16 + "活动规则" 16 + 规则正文 14/1.5
 /// 卡间距 10、左右边距 14；整页背景 #F3F5F7；卡片无阴影无描边。
@@ -168,6 +170,23 @@ class ServiceCustomerContactPage extends ConsumerWidget {
   }
 }
 
+Future<void> _runMiniProgramLaunch({
+  required BuildContext context,
+  required bool isOpening,
+  required ValueChanged<bool> onOpeningChanged,
+  required String path,
+  required String serviceName,
+  String? fallbackPhone,
+}) async {
+  if (isOpening) return;
+  onOpeningChanged(true);
+  try {
+    await launchMiniProgramPath(context, path: path, serviceName: serviceName, fallbackPhone: fallbackPhone);
+  } finally {
+    if (context.mounted) onOpeningChanged(false);
+  }
+}
+
 class _DefaultCustomerServiceContent extends StatefulWidget {
   const _DefaultCustomerServiceContent({required this.info});
 
@@ -181,14 +200,15 @@ class _DefaultCustomerServiceContentState extends State<_DefaultCustomerServiceC
   bool _opening = false;
   bool _calling = false;
 
-  Future<void> _openWeChatCustomerService() async {
-    if (_opening) return;
-    setState(() => _opening = true);
-    try {
-      await launchMiniProgramPath(context, path: widget.info.wxcustomerservicemppath, serviceName: '微信客服', fallbackPhone: widget.info.fallbacktel);
-    } finally {
-      if (mounted) setState(() => _opening = false);
-    }
+  Future<void> _openWeChatCustomerService() {
+    return _runMiniProgramLaunch(
+      context: context,
+      isOpening: _opening,
+      onOpeningChanged: (isOpening) => setState(() => _opening = isOpening),
+      path: widget.info.wxcustomerservicemppath,
+      serviceName: '微信客服',
+      fallbackPhone: widget.info.fallbacktel,
+    );
   }
 
   Future<void> _callFallbackPhone() async {
@@ -306,15 +326,35 @@ class _NavRow extends StatelessWidget {
   }
 }
 
-/// 在线客服二维码卡片：白底 r10，二维码 210x210 居中 + 说明文字
+/// 在线客服二维码卡片：白底 r10，二维码中央覆盖联系客服按钮，下方显示说明文字
 ///
 /// 设计 box_5：414x313，padding 上29 下28 左右10；内容上下两端对齐。
-class _QrCodeCard extends StatelessWidget {
+class _QrCodeCard extends StatefulWidget {
   final ServiceCustomerInfo info;
   const _QrCodeCard(this.info);
 
   @override
+  State<_QrCodeCard> createState() => _QrCodeCardState();
+}
+
+class _QrCodeCardState extends State<_QrCodeCard> {
+  bool _opening = false;
+
+  Future<void> _openMiniProgram() {
+    final info = widget.info;
+    return _runMiniProgramLaunch(
+      context: context,
+      isOpening: _opening,
+      onOpeningChanged: (isOpening) => setState(() => _opening = isOpening),
+      path: info.workWxMpPath,
+      serviceName: info.contactName.isNotEmpty ? info.contactName : '在线客服',
+      fallbackPhone: info.phoneNumber,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final info = widget.info;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
@@ -322,8 +362,37 @@ class _QrCodeCard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 二维码：一期用切图占位，URL 非网络地址时同样走 AppNetworkImage 本地路径分支
-          AppNetworkImage(url: info.qrCodeUrl, width: 210, height: 210, fit: BoxFit.contain),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              // 二维码：一期用切图占位，URL 非网络地址时同样走 AppNetworkImage 本地路径分支
+              AppNetworkImage(url: info.qrCodeUrl, width: 210, height: 210, fit: BoxFit.contain),
+              SizedBox(
+                width: 132,
+                height: 44,
+                child: FilledButton(
+                  onPressed: _opening ? null : _openMiniProgram,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.serviceProjectBlue,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: AppColors.serviceProjectBlue,
+                    disabledForegroundColor: Colors.white,
+                    padding: EdgeInsets.zero,
+                  ),
+                  child: _opening
+                      ? const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
+                            SizedBox(width: 8),
+                            Text('正在打开...'),
+                          ],
+                        )
+                      : const Text('联系客服'),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
           Text(
             info.qrCaption,
@@ -392,9 +461,14 @@ class _PhoneCardState extends State<_PhoneCard> {
                 ),
               ),
               if (widget.info.phoneSubtitle.isNotEmpty)
-                Text(
-                  widget.info.phoneSubtitle,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E8F), height: 1.4),
+                Flexible(
+                  child: Text(
+                    widget.info.phoneSubtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.right,
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E8F), height: 1.4),
+                  ),
                 ),
             ],
           ),
@@ -491,29 +565,56 @@ class ServiceCustomerInfo {
   final String phoneNumber;
   final String brandLine;
   final List<String> rules;
+  final String workWxMpPath;
+  final String contactName;
   final String descriptionHtml;
 
   const ServiceCustomerInfo({
     required this.qrCodeUrl,
     required this.qrCaption,
     required this.phoneLabel,
-    required this.phoneSubtitle,
+    this.phoneSubtitle = '',
     required this.phoneNumber,
     required this.brandLine,
     required this.rules,
+    this.workWxMpPath = '',
+    this.contactName = '',
     this.descriptionHtml = '',
   });
 
   factory ServiceCustomerInfo.fromTemplate(ShareCartTemplateDetail detail) {
+    final contactRemarkInfo = _decodeContactRemark(detail.contactRemark);
+    final contactName = detail.contactName.isNotEmpty ? detail.contactName : _contactRemarkValue(contactRemarkInfo, 'TelName');
+    final phoneNumber = detail.contacttPhone.isNotEmpty ? detail.contacttPhone : _contactRemarkValue(contactRemarkInfo, 'Tel');
+    final qrCodeUrl = detail.serviceQrImg.isNotEmpty ? detail.serviceQrImg : _contactRemarkValue(contactRemarkInfo, 'WorkWxQrImg');
+    final workWxMpPath = detail.workWxMpPath.isNotEmpty ? detail.workWxMpPath : _contactRemarkValue(contactRemarkInfo, 'WorkWxMpPath');
+
     return ServiceCustomerInfo(
-      qrCodeUrl: detail.serviceQrImg,
-      qrCaption: '长按识别二维码，联系在线客服',
-      phoneLabel: detail.contactRemark,
-      phoneSubtitle: '',
-      phoneNumber: detail.contacttPhone,
+      qrCodeUrl: qrCodeUrl,
+      qrCaption: '点击二维码，联系在线客服',
+      phoneLabel: contactRemarkInfo == null ? detail.contactRemark : (contactName.isNotEmpty ? contactName : '客服电话'),
+      phoneSubtitle: _contactRemarkValue(contactRemarkInfo, 'ServiceDescr'),
+      phoneNumber: phoneNumber,
       brandLine: '',
       rules: const [],
+      workWxMpPath: workWxMpPath,
+      contactName: contactName,
       descriptionHtml: detail.descriptionHtml,
     );
   }
+}
+
+Map<String, dynamic>? _decodeContactRemark(String value) {
+  try {
+    final decoded = jsonDecode(value);
+    return decoded is Map ? Map<String, dynamic>.from(decoded) : null;
+  } on FormatException {
+    return null;
+  }
+}
+
+String _contactRemarkValue(Map<String, dynamic>? info, String key) {
+  if (info == null) return '';
+  final value = info[key] ?? info[key.toLowerCase()];
+  return value?.toString().trim() ?? '';
 }

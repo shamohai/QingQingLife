@@ -28,6 +28,12 @@ class ShareCartTemplateDetail {
   /// 客服微信二维码图片 URL
   final String serviceQrImg;
 
+  /// 企业微信客服小程序路径
+  final String workWxMpPath;
+
+  /// 客服联系人姓名
+  final String contactName;
+
   /// 用户已选购的购物车信息，未选购或未登录时为 null
   final CartInfo? cartInfo;
 
@@ -40,12 +46,15 @@ class ShareCartTemplateDetail {
     required this.contacttPhone,
     required this.contactRemark,
     required this.serviceQrImg,
+    this.workWxMpPath = '',
+    this.contactName = '',
     this.cartInfo,
   });
 
   factory ShareCartTemplateDetail.fromJson(Map<String, dynamic> json) {
     // 扁平响应：templateinfo 字段包裹实际数据
     final Map<String, dynamic> info = (json['templateinfo'] as Map?)?.cast<String, dynamic>() ?? {};
+    final Map<String, dynamic> customerServiceInfo = (json['templatecustomerserviceinfo'] as Map?)?.cast<String, dynamic>() ?? {};
     final Map<String, dynamic>? cartInfoJson = (json['cartinfo'] as Map?)?.cast<String, dynamic>();
     return ShareCartTemplateDetail(
       templateId: (info['templateid'] as num?)?.toInt() ?? 0,
@@ -53,9 +62,11 @@ class ShareCartTemplateDetail {
       headImg: info['headimg'] as String? ?? '',
       requirements: info['requirements'] as String? ?? '',
       descriptionHtml: info['descriptionhtml'] as String? ?? '',
-      contacttPhone: (json['templatecustomerserviceinfo'] as Map?)?['contacttphone'] as String? ?? '',
-      contactRemark: (json['templatecustomerserviceinfo'] as Map?)?['contactremark'] as String? ?? '',
-      serviceQrImg: (json['templatecustomerserviceinfo'] as Map?)?['workwxqrimg'] as String? ?? '',
+      contacttPhone: customerServiceInfo['contacttphone'] as String? ?? '',
+      contactRemark: customerServiceInfo['contactremark'] as String? ?? '',
+      serviceQrImg: customerServiceInfo['workwxqrimg'] as String? ?? '',
+      workWxMpPath: customerServiceInfo['workwxmppath'] as String? ?? '',
+      contactName: customerServiceInfo['contactname'] as String? ?? '',
       cartInfo: cartInfoJson != null ? CartInfo.fromJson(cartInfoJson) : null,
     );
   }
