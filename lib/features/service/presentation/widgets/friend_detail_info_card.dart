@@ -4,6 +4,7 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/config/app_config.dart';
+import '../../../../app/theme/app_spacing.dart';
 import '../../domain/models/offline_activity_detail_model.dart';
 
 /// 挚友报名会详情内容卡片，独立于普通服务预约详情。
@@ -17,7 +18,7 @@ class FriendDetailInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 13),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
