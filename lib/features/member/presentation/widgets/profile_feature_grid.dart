@@ -14,7 +14,7 @@ class ProfileFeatureGrid extends StatelessWidget {
   const ProfileFeatureGrid({super.key});
 
   static const List<_FeatureItem> _items = [
-    _FeatureItem(icon: Icons.photo_camera_outlined, label: '预约报名', route: RouteNames.service, serviceTab: 'fuwu'),
+    // _FeatureItem(icon: Icons.photo_camera_outlined, label: '预约报名', route: RouteNames.service, serviceTab: 'fuwu'),
     _FeatureItem(icon: Icons.diamond_outlined, label: '我的权益', route: RouteNames.memberLevel),
     _FeatureItem(icon: Icons.person_outline, label: '个人信息', route: RouteNames.personalInfo),
     _FeatureItem(icon: Icons.location_on_outlined, label: '收货地址', route: RouteNames.address),
