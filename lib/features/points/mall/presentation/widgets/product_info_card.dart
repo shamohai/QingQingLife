@@ -10,7 +10,10 @@ import '../../data/models/service_product_detail_model.dart';
 class ProductInfoCard extends StatelessWidget {
   final ServiceProductDetail product;
 
-  const ProductInfoCard({super.key, required this.product});
+  /// 权益进入（有 userServiceId）时，用户无需支付积分，积分价格画删除线
+  final bool isBenefit;
+
+  const ProductInfoCard({super.key, required this.product, this.isBenefit = false});
 
   @override
   Widget build(BuildContext context) {
@@ -58,15 +61,29 @@ class ProductInfoCard extends StatelessWidget {
                               padding: const EdgeInsets.only(right: 36),
                               child: Text(
                                 '${product.points}',
-                                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w600, color: Colors.white, height: 1.0),
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                  height: 1.0,
+                                  decoration: isBenefit ? TextDecoration.lineThrough : TextDecoration.none,
+                                  decorationColor: Colors.white,
+                                ),
                               ),
                             ),
-                            const Positioned(
+                            Positioned(
                               right: 0,
                               bottom: 4,
                               child: Text(
                                 '积分',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white, height: 1.0),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                  height: 1.0,
+                                  decoration: isBenefit ? TextDecoration.lineThrough : TextDecoration.none,
+                                  decorationColor: Colors.white,
+                                ),
                               ),
                             ),
                           ],
@@ -78,9 +95,17 @@ class ProductInfoCard extends StatelessWidget {
                         height: 25,
                         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.round)),
                         child: Center(
-                          child: Text(
-                            '市场价:¥${product.marketPrice.toStringAsFixed(2)}',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFFFF2105)),
+                          child: Text.rich(
+                            TextSpan(
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFFFF2105)),
+                              children: [
+                                const TextSpan(text: '市场价:'),
+                                TextSpan(
+                                  text: '¥${product.marketPrice.toStringAsFixed(2)}',
+                                  style: const TextStyle(decoration: TextDecoration.lineThrough, decorationColor: Color(0xFFFF2105)),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

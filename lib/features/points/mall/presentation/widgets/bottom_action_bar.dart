@@ -17,8 +17,9 @@ import 'tips_dialog.dart';
 class BottomActionBar extends ConsumerWidget {
   final ServiceProductDetail product;
   final String productId;
+  final int? userServiceId;
 
-  const BottomActionBar({super.key, required this.product, required this.productId});
+  const BottomActionBar({super.key, required this.product, required this.productId, this.userServiceId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -92,7 +93,7 @@ class BottomActionBar extends ConsumerWidget {
       );
       if (!context.mounted) return;
       if (confirmed == true) {
-        GoRouter.of(context).push(RouteNames.confirmOrder.replaceFirst(':id', effectiveId));
+        GoRouter.of(context).push(RouteNames.confirmOrderPath(productId: effectiveId, userServiceId: userServiceId));
       }
     } else {
       if (!context.mounted) return;

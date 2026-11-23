@@ -11,6 +11,9 @@ class ConfirmOrderProductCard extends StatefulWidget {
   final int quantity;
   final bool isQuantityEditable;
   final bool isQuantityValidating;
+
+  /// 权益进入时无需支付积分，积分价格画删除线
+  final bool isBenefit;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
   final ValueChanged<int> onQuantityChanged;
@@ -21,6 +24,7 @@ class ConfirmOrderProductCard extends StatefulWidget {
     required this.quantity,
     this.isQuantityEditable = true,
     this.isQuantityValidating = false,
+    this.isBenefit = false,
     required this.onIncrement,
     required this.onDecrement,
     required this.onQuantityChanged,
@@ -143,18 +147,38 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
                       children: [
                         Text(
                           '${widget.product.points}',
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFFFF2105)),
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFFFF2105),
+                            decoration: widget.isBenefit ? TextDecoration.lineThrough : TextDecoration.none,
+                            decorationColor: const Color(0xFFFF2105),
+                          ),
                         ),
-                        const Text(
+                        Text(
                           '积分',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFFF2105)),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFFFF2105),
+                            decoration: widget.isBenefit ? TextDecoration.lineThrough : TextDecoration.none,
+                            decorationColor: const Color(0xFFFF2105),
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      '市场价:¥${widget.product.marketPrice.toStringAsFixed(2)}',
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97)),
+                    Text.rich(
+                      TextSpan(
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: Color(0xFF8E8E97)),
+                        children: [
+                          const TextSpan(text: '市场价:'),
+                          TextSpan(
+                            text: '¥${widget.product.marketPrice.toStringAsFixed(2)}',
+                            style: const TextStyle(decoration: TextDecoration.lineThrough, decorationColor: Color(0xFF8E8E97)),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),

@@ -20,7 +20,12 @@ import '../../data/models/service_product_detail_model.dart';
 class ServiceProductDetailPage extends ConsumerWidget {
   final String productId;
 
-  const ServiceProductDetailPage({super.key, required this.productId});
+  /// 每月权益进入时携带的用户权益 id（大于 0 表示权益进入，无需支付积分）
+  final int? userServiceId;
+
+  const ServiceProductDetailPage({super.key, required this.productId, this.userServiceId});
+
+  bool get _isBenefit => (userServiceId ?? 0) > 0;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -67,7 +72,7 @@ class ServiceProductDetailPage extends ConsumerWidget {
             SliverToBoxAdapter(
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: 12),
-                child: ProductInfoCard(product: product),
+                child: ProductInfoCard(product: product, isBenefit: _isBenefit),
               ),
             ),
             SliverToBoxAdapter(
@@ -87,7 +92,7 @@ class ServiceProductDetailPage extends ConsumerWidget {
             top: false,
             left: false,
             right: false,
-            child: BottomActionBar(product: product, productId: productId),
+            child: BottomActionBar(product: product, productId: productId, userServiceId: userServiceId),
           ),
         ),
       ],

@@ -131,6 +131,7 @@ class ConfirmOrderPage extends ConsumerWidget {
                   quantity: orderState.quantity,
                   isQuantityEditable: orderState.isQuantityEditable && !orderState.isPreOrderValidating,
                   isQuantityValidating: orderState.isPreOrderValidating,
+                  isBenefit: orderState.userServiceId > 0,
                   onIncrement: () => ref.read(pointsConfirmOrderProvider(arg).notifier).increment(),
                   onDecrement: () => ref.read(pointsConfirmOrderProvider(arg).notifier).decrement(),
                   onQuantityChanged: (newQty) {
@@ -165,6 +166,7 @@ class ConfirmOrderPage extends ConsumerWidget {
         quantity: orderState.quantity,
         pointsBalance: preInfo.credit,
         isSubmitting: orderState.isSubmitting || orderState.isPreOrderValidating,
+        isBenefit: orderState.userServiceId > 0,
         onSubmit: () => _handleSubmit(ref.context, ref, arg),
       ),
       loading: () => const SizedBox(height: 56),

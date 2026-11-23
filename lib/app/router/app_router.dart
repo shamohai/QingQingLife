@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -294,7 +293,12 @@ final appRouter = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.serviceProductDetail,
-        pageBuilder: (c, s) => MaterialPage(child: ServiceProductDetailPage(productId: s.pathParameters['id']!)),
+        pageBuilder: (c, s) {
+          final userServiceId = int.tryParse(s.uri.queryParameters['userServiceId'] ?? '');
+          return MaterialPage(
+            child: ServiceProductDetailPage(productId: s.pathParameters['id']!, userServiceId: userServiceId),
+          );
+        },
       ),
       GoRoute(
         path: RouteNames.confirmOrder,
@@ -357,7 +361,9 @@ final appRouter = Provider<GoRouter>((ref) {
               child: Scaffold(body: Center(child: Text('无效的网页地址'))),
             );
           }
-          return MaterialPage(child: ActivityWebViewPage(url: url, activityType: activityType));
+          return MaterialPage(
+            child: ActivityWebViewPage(url: url, activityType: activityType),
+          );
         },
       ),
       GoRoute(

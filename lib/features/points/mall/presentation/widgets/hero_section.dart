@@ -62,13 +62,13 @@ class _HeroSectionState extends State<HeroSection> {
 
     return Stack(
       children: [
-        // 1. 真实设计背景轮播图（439×439，覆盖整个 Hero 区域）
+        // 1. 真实设计背景轮播图（宽度撑满，高度适当压缩以适配老旧安卓机屏幕）
         SizedBox(
-          height: 389,
+          height: 340,
           child: images.isEmpty
               ? Container(color: Colors.grey[200])
               : images.length == 1
-              ? AppNetworkImage(url: images.first, fit: BoxFit.cover, width: double.infinity)
+              ? AppNetworkImage(url: images.first, fit: BoxFit.contain, width: double.infinity)
               : Listener(
                   onPointerDown: (_) {
                     _isInteracting = true;
@@ -92,7 +92,7 @@ class _HeroSectionState extends State<HeroSection> {
                       _startTimer();
                     },
                     itemBuilder: (context, index) {
-                      return AppNetworkImage(url: images[index % images.length], fit: BoxFit.cover, width: double.infinity);
+                      return AppNetworkImage(url: images[index % images.length], fit: BoxFit.contain, width: double.infinity);
                     },
                   ),
                 ),

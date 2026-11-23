@@ -137,10 +137,16 @@ class HomePage extends ConsumerWidget {
                     ),
                   ),
 
-                  // 金刚区 (10项 2x5 网格)
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.xs),
-                    sliver: SliverToBoxAdapter(child: HomeKingKongGrid(items: staticData.kingKongItems)),
+                  // // 金刚区 (10项 2x5 网格)
+                  // SliverPadding(
+                  //   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.xs),
+                  //   sliver: SliverToBoxAdapter(child: HomeKingKongGrid(items: staticData.kingKongItems)),
+                  // ),
+
+                  // 热卖商品
+                  const SliverPadding(
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.xs),
+                    sliver: SliverToBoxAdapter(child: HomeHotProducts()),
                   ),
 
                   // 每月权益（monthlyserviceinfo 为 null 或无权益商品时不展示）
@@ -166,7 +172,7 @@ class HomePage extends ConsumerWidget {
                                   final path = '${RouteNames.confirmOrder.replaceFirst(':id', benefit.id)}?userServiceId=$effectiveUserServiceId';
                                   GoRouter.of(context).push(path);
                                 } else {
-                                  final path = RouteNames.serviceProductDetail.replaceFirst(':id', benefit.id);
+                                  final path = RouteNames.serviceProductDetailPath(productId: benefit.id, userServiceId: effectiveUserServiceId);
                                   GoRouter.of(context).push(path);
                                 }
                               },
@@ -235,12 +241,6 @@ class HomePage extends ConsumerWidget {
                         ),
                       ),
                     ),
-
-                  // 热卖商品
-                  const SliverPadding(
-                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.xs),
-                    sliver: SliverToBoxAdapter(child: HomeHotProducts()),
-                  ),
 
                   // 线上活动 (2大图并排)
                   SliverPadding(
