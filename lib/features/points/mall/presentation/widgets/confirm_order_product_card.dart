@@ -14,10 +14,6 @@ class ConfirmOrderProductCard extends StatefulWidget {
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
   final ValueChanged<int> onQuantityChanged;
-  final ValueChanged<String>? onNoteChanged;
-
-  /// 是否展示留言备注（仅实物订单展示；虚拟券订单不需要留言）
-  final bool showNote;
 
   const ConfirmOrderProductCard({
     super.key,
@@ -28,8 +24,6 @@ class ConfirmOrderProductCard extends StatefulWidget {
     required this.onIncrement,
     required this.onDecrement,
     required this.onQuantityChanged,
-    this.onNoteChanged,
-    this.showNote = true,
   });
 
   @override
@@ -38,14 +32,12 @@ class ConfirmOrderProductCard extends StatefulWidget {
 
 class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
   late TextEditingController _qtyController;
-  late TextEditingController _noteController;
   late FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
     _qtyController = TextEditingController(text: '${widget.quantity}');
-    _noteController = TextEditingController();
     _focusNode = FocusNode();
   }
 
@@ -69,7 +61,6 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
   @override
   void dispose() {
     _qtyController.dispose();
-    _noteController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
@@ -223,36 +214,6 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
                     _QtyButton(label: '+', onTap: widget.isQuantityEditable ? widget.onIncrement : null, isMinus: false, enabled: widget.isQuantityEditable),
                   ],
                 ),
-
-                if (widget.showNote) const SizedBox(height: 12),
-
-                // 第二行：留言备注（仅实物订单展示）
-                if (widget.showNote)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        '留言备注',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Color(0xFF1F2024)),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          controller: _noteController,
-                          textAlign: TextAlign.right,
-                          style: const TextStyle(fontSize: 16, color: Color(0xFF1F2024)),
-                          decoration: const InputDecoration(
-                            isDense: true,
-                            contentPadding: EdgeInsets.zero,
-                            border: InputBorder.none,
-                            hintText: '请填写备注信息',
-                            hintStyle: TextStyle(fontSize: 16, color: Color(0xFF8E8E97)),
-                          ),
-                          onChanged: widget.onNoteChanged,
-                        ),
-                      ),
-                    ],
-                  ),
               ],
             ),
           ),

@@ -31,7 +31,6 @@ class PointsConfirmOrderState {
   final bool isQuantityEditable;
   final AsyncValue<PreCreditOrderInfoModel> preOrderInfoAsync;
   final AsyncValue<MemberAddress?> addressAsync;
-  final String note;
   final String redeemerPhone;
   final bool isSubmitting;
   final bool isPreOrderValidating;
@@ -44,7 +43,6 @@ class PointsConfirmOrderState {
     this.isQuantityEditable = true,
     this.preOrderInfoAsync = const AsyncValue.loading(),
     this.addressAsync = const AsyncValue.data(null),
-    this.note = '',
     this.redeemerPhone = '',
     this.isSubmitting = false,
     this.isPreOrderValidating = false,
@@ -58,7 +56,6 @@ class PointsConfirmOrderState {
     bool? isQuantityEditable,
     AsyncValue<PreCreditOrderInfoModel>? preOrderInfoAsync,
     AsyncValue<MemberAddress?>? addressAsync,
-    String? note,
     String? redeemerPhone,
     bool? isSubmitting,
     bool? isPreOrderValidating,
@@ -72,7 +69,6 @@ class PointsConfirmOrderState {
       isQuantityEditable: isQuantityEditable ?? this.isQuantityEditable,
       preOrderInfoAsync: preOrderInfoAsync ?? this.preOrderInfoAsync,
       addressAsync: addressAsync ?? this.addressAsync,
-      note: note ?? this.note,
       redeemerPhone: redeemerPhone ?? this.redeemerPhone,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       isPreOrderValidating: isPreOrderValidating ?? this.isPreOrderValidating,
@@ -193,7 +189,6 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
     _fetchPreOrderInfo(quantity: quantity);
   }
 
-  void setNote(String note) => state = state.copyWith(note: note);
   void setRedeemerPhone(String phone) => state = state.copyWith(redeemerPhone: phone);
 
   /// 提交订单（依据 orderType 分流调用相应 API）
@@ -233,7 +228,7 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
             addressId = int.tryParse(address.id ?? '') ?? 0;
           }
 
-          final req = SubmitCreditOrderReq(pid: pid, num: quantity, addressId: addressId, userServiceId: state.userServiceId, remark: state.note);
+          final req = SubmitCreditOrderReq(pid: pid, num: quantity, addressId: addressId, userServiceId: state.userServiceId);
 
           final resp = await repository.submitCreditOrder(req);
           if (resp.success && resp.data != null) {

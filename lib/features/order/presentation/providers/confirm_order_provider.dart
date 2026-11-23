@@ -10,7 +10,6 @@ class ConfirmOrderState {
     this.product,
     this.address,
     this.quantity = 1,
-    this.note = '',
     this.needInvoice = false,
     this.couponName,
     this.couponDiscountCents = 0,
@@ -22,7 +21,6 @@ class ConfirmOrderState {
   final OrderItem? product;
   final MemberAddress? address;
   final int quantity;
-  final String note;
   final bool needInvoice;
   final String? couponName;
   final int couponDiscountCents;
@@ -45,7 +43,6 @@ class ConfirmOrderState {
     OrderItem? product,
     MemberAddress? address,
     int? quantity,
-    String? note,
     bool? needInvoice,
     String? couponName,
     int? couponDiscountCents,
@@ -57,7 +54,6 @@ class ConfirmOrderState {
       product: product ?? this.product,
       address: address ?? this.address,
       quantity: quantity ?? this.quantity,
-      note: note ?? this.note,
       needInvoice: needInvoice ?? this.needInvoice,
       couponName: clearCoupon ? null : (couponName ?? this.couponName),
       couponDiscountCents: clearCoupon ? 0 : (couponDiscountCents ?? this.couponDiscountCents),
@@ -79,7 +75,6 @@ class ConfirmOrderNotifier extends Notifier<ConfirmOrderState> {
     }
   }
 
-  void setNote(String value) => state = state.copyWith(note: value);
   void setAddress(MemberAddress value) => state = state.copyWith(address: value);
   void setNeedInvoice(bool value) => state = state.copyWith(needInvoice: value);
   void setPaymentMethod(String value) => state = state.copyWith(paymentMethod: value);
@@ -117,7 +112,6 @@ class ConfirmOrderNotifier extends Notifier<ConfirmOrderState> {
             addressId: addressId,
             shippingFeeCents: state.shippingFeeCents,
             couponCode: state.couponName,
-            remark: state.note.isEmpty ? null : state.note,
           );
       state = state.copyWith(isSubmitting: false);
       return response;

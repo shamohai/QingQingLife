@@ -124,22 +124,17 @@ class ConfirmOrderPage extends ConsumerWidget {
 
               const SliverToBoxAdapter(child: SizedBox(height: 10)),
 
-              // 2. 商品卡片（数量及备注）
+              // 2. 商品卡片（数量）
               SliverToBoxAdapter(
                 child: ConfirmOrderProductCard(
                   product: product,
                   quantity: orderState.quantity,
-                  // 仅实物订单（需收货地址）展示留言备注；平台券（recvrMobile）与内部券（none）为虚拟商品，不展示
-                  showNote: recvrType == RecvrType.shipAddress,
                   isQuantityEditable: orderState.isQuantityEditable && !orderState.isPreOrderValidating,
                   isQuantityValidating: orderState.isPreOrderValidating,
                   onIncrement: () => ref.read(pointsConfirmOrderProvider(arg).notifier).increment(),
                   onDecrement: () => ref.read(pointsConfirmOrderProvider(arg).notifier).decrement(),
                   onQuantityChanged: (newQty) {
                     ref.read(pointsConfirmOrderProvider(arg).notifier).setQuantity(newQty);
-                  },
-                  onNoteChanged: (note) {
-                    ref.read(pointsConfirmOrderProvider(arg).notifier).setNote(note);
                   },
                 ),
               ),

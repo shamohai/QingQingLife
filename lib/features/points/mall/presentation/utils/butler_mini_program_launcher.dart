@@ -6,7 +6,8 @@ import '../providers/butler_mini_program_provider.dart';
 
 const _miniProgramUsername = 'gh_c55d2ab30511';
 
-Future<void> launchButlerMiniProgram(BuildContext context, WidgetRef ref) async {
+Future<void> launchButlerMiniProgram(BuildContext context, WidgetRef ref, {String serviceName = ''}) async {
+  final resolvedServiceName = serviceName.trim().isEmpty ? '管家服务' : serviceName.trim();
   try {
     final info = await ref.read(butlerMiniProgramInfoProvider.future);
     if (!context.mounted) return;
@@ -14,11 +15,11 @@ Future<void> launchButlerMiniProgram(BuildContext context, WidgetRef ref) async 
     await launchMiniProgramPath(
       context,
       path: path,
-      serviceName: '管家服务',
+      serviceName: resolvedServiceName,
     );
   } catch (_) {
     if (!context.mounted) return;
-    _showMessage(context, '打开管家服务失败，请稍后重试');
+    _showMessage(context, '打开$resolvedServiceName失败，请稍后重试');
   }
 }
 

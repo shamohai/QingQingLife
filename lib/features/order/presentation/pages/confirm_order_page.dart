@@ -25,20 +25,7 @@ class ConfirmOrderPage extends ConsumerStatefulWidget {
 }
 
 class _ConfirmOrderPageState extends ConsumerState<ConfirmOrderPage> {
-  late final TextEditingController _noteController;
   MallConfirmOrderInvoiceDraft? _invoiceInfoDraft;
-
-  @override
-  void initState() {
-    super.initState();
-    _noteController = TextEditingController(text: ref.read(confirmOrderProvider).note);
-  }
-
-  @override
-  void dispose() {
-    _noteController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,10 +52,8 @@ class _ConfirmOrderPageState extends ConsumerState<ConfirmOrderPage> {
                     children: [
                       MallConfirmOrderProductCard(
                         state: state,
-                        noteController: _noteController,
                         onIncrement: () => ref.read(confirmOrderProvider.notifier).increment(),
                         onDecrement: () => ref.read(confirmOrderProvider.notifier).decrement(),
-                        onNoteChanged: (value) => ref.read(confirmOrderProvider.notifier).setNote(value),
                       ),
                       const SizedBox(height: 10),
                       MallConfirmOrderAmountCard(state: state, onInvoiceTap: () => _showInvoicePage(context), onCouponTap: () => _showCouponSheet(context)),

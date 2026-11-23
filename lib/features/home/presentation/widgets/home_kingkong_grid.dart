@@ -19,7 +19,7 @@ class HomeKingKongGrid extends StatelessWidget {
     if (items.isEmpty) return const SizedBox.shrink();
     return Container(
       // 去掉 height，依靠内边距和网格内容自然撑高
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.md), // 与底部模块卡片内边距(12)保持一致，标题左侧对齐
       decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(AppRadius.md))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
