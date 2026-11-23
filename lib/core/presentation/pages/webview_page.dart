@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../webview/app_webview_user_agent.dart';
 
 /// App 内 H5 页面。
 class WebViewPage extends StatefulWidget {
@@ -27,6 +28,7 @@ class _WebViewPageState extends State<WebViewPage> {
     _controller = WebViewController();
     if (!kIsWeb) {
       _controller
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
         ..setNavigationDelegate(
           NavigationDelegate(
             onProgress: (progress) {
@@ -41,10 +43,14 @@ class _WebViewPageState extends State<WebViewPage> {
               }
             },
           ),
-        )
-        ..setJavaScriptMode(JavaScriptMode.unrestricted);
+        );
     }
-    _controller.loadRequest(Uri.parse(widget.url));
+    _loadPage();
+  }
+
+  Future<void> _loadPage() async {
+    if (!kIsWeb) await applyAppUserAgent(_controller);
+    await _controller.loadRequest(Uri.parse(widget.url));
   }
 
   Future<void> _reload() async {

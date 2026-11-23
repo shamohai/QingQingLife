@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/widgets/app_image.dart';
@@ -26,6 +27,9 @@ class _HeroSectionState extends State<HeroSection> {
   Timer? _timer;
   bool _isInteracting = false;
 
+  /// 图片 url -> 高宽比（height / width），图片加载完成后记录，用于按真实比例展示
+  final Map<String, double> _aspectRatios = {};
+
   List<String> get _images => widget.product.carouselImages.isNotEmpty ? widget.product.carouselImages : [];
 
   @override
@@ -33,7 +37,41 @@ class _HeroSectionState extends State<HeroSection> {
     super.initState();
     final images = _images;
     _pageController = PageController(initialPage: images.length > 1 ? images.length * 1000 : 0);
+    for (final url in images) {
+      _resolveAspectRatio(url);
+    }
     _startTimer();
+  }
+
+  @override
+  void didUpdateWidget(covariant HeroSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    for (final url in _images) {
+      _resolveAspectRatio(url);
+    }
+  }
+
+  void _resolveAspectRatio(String url) {
+    final normalized = normalizeImageUrl(url);
+    if (normalized == null || normalized.startsWith('assets/') || _aspectRatios.containsKey(url)) return;
+    final stream = CachedNetworkImageProvider(normalized).resolve(ImageConfiguration.empty);
+    late final ImageStreamListener listener;
+    listener = ImageStreamListener((info, _) {
+      stream.removeListener(listener);
+      final width = info.image.width;
+      if (!mounted || width == 0) return;
+      setState(() => _aspectRatios[url] = info.image.height / width);
+    }, onError: (_, _) => stream.removeListener(listener));
+    stream.addListener(listener);
+  }
+
+  /// 轮播区域高度：宽度撑满屏幕，高度按当前图片真实比例计算，保证图片完整显示
+  double _carouselHeight(BuildContext context) {
+    final images = _images;
+    if (images.isEmpty) return 340;
+    final ratio = _aspectRatios[images[_currentPage % images.length]];
+    if (ratio == null) return 340;
+    return MediaQuery.sizeOf(context).width * ratio;
   }
 
   void _startTimer() {
@@ -64,11 +102,11 @@ class _HeroSectionState extends State<HeroSection> {
       children: [
         // 1. 真实设计背景轮播图（宽度撑满，高度适当压缩以适配老旧安卓机屏幕）
         SizedBox(
-          height: 340,
+          height: _carouselHeight(context),
           child: images.isEmpty
               ? Container(color: Colors.grey[200])
               : images.length == 1
-              ? AppNetworkImage(url: images.first, fit: BoxFit.contain, width: double.infinity)
+              ? AppNetworkImage(url: images.first, fit: BoxFit.fitWidth, width: double.infinity)
               : Listener(
                   onPointerDown: (_) {
                     _isInteracting = true;
@@ -92,7 +130,7 @@ class _HeroSectionState extends State<HeroSection> {
                       _startTimer();
                     },
                     itemBuilder: (context, index) {
-                      return AppNetworkImage(url: images[index % images.length], fit: BoxFit.contain, width: double.infinity);
+                      return AppNetworkImage(url: images[index % images.length], fit: BoxFit.fitWidth, width: double.infinity);
                     },
                   ),
                 ),

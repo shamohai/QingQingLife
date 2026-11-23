@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -11,9 +9,12 @@ import '../../core/update/services/startup_video_update_service_stub.dart' if (d
 
 /// Controls the one-time startup video shown after an install or app upgrade.
 class StartupVideoGate extends StatefulWidget {
-  const StartupVideoGate({required this.child, super.key});
+  const StartupVideoGate({required this.child, this.onReady, super.key});
 
   final Widget child;
+
+  /// 启动视频结束（或无需播放）后回调，此时 MaterialApp 已挂载，可以安全弹出全局弹窗
+  final VoidCallback? onReady;
 
   @override
   State<StartupVideoGate> createState() => _StartupVideoGateState();
@@ -30,12 +31,13 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
   bool _isReady = false;
   bool _autoplayBlocked = false;
 
+  /// 本次播放所用视频对应的版本标记（在开始播放时确定，避免后台下载完成后被误记为已播放）
+  String _playedVersionKey = '';
+
   @override
   void initState() {
     super.initState();
-    if (!kIsWeb) {
-      _updateService = StartupVideoUpdateService();
-    }
+    _updateService = StartupVideoUpdateService();
     _prepare();
   }
 
@@ -45,48 +47,16 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
       final lastPlayedVersion = await _storage.getString(_lastPlayedVersionKey);
       final localMd5 = await _storage.getString('startup_video_local_md5') ?? '';
       final currentVersion = '${packageInfo.version}+${packageInfo.buildNumber}_$localMd5';
+      _playedVersionKey = currentVersion;
 
       if (!mounted || lastPlayedVersion == currentVersion) {
         _finishWithoutVideo();
         return;
       }
 
-      // -----------------------------------------------------------------
-      // 1. Web 平台：严格保持修改前的原生处理逻辑，直接加载内置 Asset 视频
-      // -----------------------------------------------------------------
-      if (kIsWeb) {
-        final controller = VideoPlayerController.asset(_videoAsset);
-        await controller.initialize();
-        await controller.setLooping(false);
-        controller.addListener(_onVideoChanged);
-
-        if (!mounted) {
-          await controller.dispose();
-          return;
-        }
-
-        setState(() {
-          _controller = controller;
-          _showVideo = true;
-          _isReady = true;
-        });
-        // Chrome blocks audible autoplay. Muting before play allows the
-        // startup video to begin automatically. If autoplay is still
-        // blocked, keep the video visible and let the user start it.
-        await controller.setVolume(0);
-        await _playController(controller);
-        return;
-      }
-
-      // -----------------------------------------------------------------
-      // 2. 原生 App 平台（Android/iOS/Desktop）：支持自有服务器视频热更新
-      // -----------------------------------------------------------------
-      final updateService = _updateService;
-      if (updateService != null) {
-        unawaited(updateService.checkAndDownloadUpdate());
-      }
-
-      final localFile = await updateService?.getValidLocalVideoFile();
+      // 热更新下载由 bootstrap 在启动时后台触发，此处只读取本地已下载的视频；
+      // Web 上 stub 返回 null，自动回退到内置 Asset 视频。
+      final localFile = await _updateService?.getValidLocalVideoFile();
       VideoPlayerController? controller;
 
       if (localFile != null) {
@@ -119,6 +89,10 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
         _showVideo = true;
         _isReady = true;
       });
+      // Web 浏览器会阻止有声自动播放，先静音再播放；原生端保持原音量。
+      if (kIsWeb) {
+        await controller.setVolume(0);
+      }
       await _playController(controller);
     } catch (_) {
       _finishWithoutVideo();
@@ -159,18 +133,20 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
       _showVideo = false;
       _isReady = true;
     });
+    widget.onReady?.call();
   }
 
   Future<void> _finishVideo() async {
-    try {
-      final packageInfo = await PackageInfo.fromPlatform();
-      final localMd5 = await _storage.getString('startup_video_local_md5') ?? '';
-      final currentVersion = '${packageInfo.version}+${packageInfo.buildNumber}_$localMd5';
-      await _storage.putString(_lastPlayedVersionKey, currentVersion);
-    } catch (_) {}
+    // 记录的是开始播放时的版本标记：若后台热更新在播放期间完成，下次打开会因 MD5 变化而重新播放
+    if (_playedVersionKey.isNotEmpty) {
+      try {
+        await _storage.putString(_lastPlayedVersionKey, _playedVersionKey);
+      } catch (_) {}
+    }
 
     if (!mounted) return;
     setState(() => _showVideo = false);
+    widget.onReady?.call();
   }
 
   @override

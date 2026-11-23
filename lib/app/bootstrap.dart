@@ -7,6 +7,7 @@ import 'package:fluwx/fluwx.dart' as fluwx;
 import 'config/app_config.dart';
 import 'app.dart';
 import '../core/analytics/umeng_analytics.dart';
+import '../core/update/services/startup_video_update_service_stub.dart' if (dart.library.io) '../core/update/services/startup_video_update_service.dart';
 
 /// 应用启动前的引导初始化过程
 ///
@@ -29,6 +30,14 @@ Future<void> bootstrap() async {
 
   // 友盟统计：仅当用户此前已在登录页同意隐私政策时才初始化，后台执行不阻塞首帧。
   unawaited(UmengAnalytics().initIfConsented());
+
+  // 先覆盖记录安装包构建号（本地操作，耗时极短），保证后续 CheckUpdate 请求读取到一致的本地状态。
+  await StartupVideoUpdateService().syncAppBuildOnLaunch();
+
+  // 自有服务器热更新：后台静默检测并下载，不阻塞首帧。
+  // 下载结果在下次启动时生效（启动视频 open.mp4 更新后会重新播放）。
+  // Web 平台通过条件导入的 stub 实现，checkAndDownloadUpdate 直接返回 false。
+  unawaited(StartupVideoUpdateService().checkAndDownloadUpdate());
 
   // 使用 Riverpod 的 ProviderScope 包裹根 Widget，开启状态管理
   runApp(const ProviderScope(child: App()));

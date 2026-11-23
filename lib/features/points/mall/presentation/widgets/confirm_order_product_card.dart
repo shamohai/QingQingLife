@@ -175,7 +175,10 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
                           const TextSpan(text: '市场价:'),
                           TextSpan(
                             text: '¥${widget.product.marketPrice.toStringAsFixed(2)}',
-                            style: const TextStyle(decoration: TextDecoration.lineThrough, decorationColor: Color(0xFF8E8E97)),
+                            style: TextStyle(
+                              decoration: widget.isBenefit ? TextDecoration.lineThrough : TextDecoration.none,
+                              decorationColor: const Color(0xFF8E8E97),
+                            ),
                           ),
                         ],
                       ),

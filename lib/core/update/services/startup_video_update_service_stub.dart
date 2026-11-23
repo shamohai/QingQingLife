@@ -2,6 +2,8 @@
 class StartupVideoUpdateService {
   StartupVideoUpdateService();
 
+  Future<void> syncAppBuildOnLaunch() async {}
+
   Future<dynamic> getValidLocalVideoFile() async => null;
 
   Future<bool> checkAndDownloadUpdate() async => false;

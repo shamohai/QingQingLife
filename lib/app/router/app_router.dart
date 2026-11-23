@@ -61,11 +61,15 @@ import '../../features/order/presentation/pages/mall_payment_success_page.dart';
 import '../../features/order/presentation/pages/order_detail_page.dart';
 import 'route_names.dart';
 
+/// 根 Navigator Key：供 MaterialApp 之外（如 builder 中的全局弹窗）获取可用的 context
+final rootNavigatorKey = GlobalKey<NavigatorState>();
+
 final appRouter = Provider<GoRouter>((ref) {
   const devRoute = String.fromEnvironment('QINGQING_DEV_ROUTE');
   final refreshListenable = _RouterRefreshListenable(ref);
   ref.onDispose(refreshListenable.dispose);
   final router = GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: devRoute.isNotEmpty ? devRoute : RouteNames.home,
     debugLogDiagnostics: false,
     refreshListenable: refreshListenable,

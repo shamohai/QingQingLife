@@ -102,7 +102,10 @@ class ProductInfoCard extends StatelessWidget {
                                 const TextSpan(text: '市场价:'),
                                 TextSpan(
                                   text: '¥${product.marketPrice.toStringAsFixed(2)}',
-                                  style: const TextStyle(decoration: TextDecoration.lineThrough, decorationColor: Color(0xFFFF2105)),
+                                  style: TextStyle(
+                                    decoration: isBenefit ? TextDecoration.lineThrough : TextDecoration.none,
+                                    decorationColor: const Color(0xFFFF2105),
+                                  ),
                                 ),
                               ],
                             ),
