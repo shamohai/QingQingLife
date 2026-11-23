@@ -235,6 +235,7 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
     for (final address in addresses) {
       if (address.isDefault) return address;
     }
+    if (addresses.isNotEmpty) return addresses.first;
     return null;
   }
 
