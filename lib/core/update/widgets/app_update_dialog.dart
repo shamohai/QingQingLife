@@ -75,20 +75,60 @@ class _AppUpdateDialogState extends State<_AppUpdateDialog> {
               if (info.releaseNotes.isNotEmpty) ...[const SizedBox(height: 8), Text(info.releaseNotes)],
               if (!isForce) ...[
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Checkbox(value: _dontRemindToday, onChanged: (value) => setState(() => _dontRemindToday = value ?? false)),
-                    const Text('今日不再提醒'),
-                  ],
+                InkWell(
+                  borderRadius: BorderRadius.circular(4),
+                  onTap: () => setState(() => _dontRemindToday = !_dontRemindToday),
+                  child: Row(
+                    children: [
+                      IgnorePointer(
+                        child: Checkbox(value: _dontRemindToday, onChanged: (_) {}),
+                      ),
+                      const Text('今日不再提醒'),
+                    ],
+                  ),
                 ),
               ],
             ],
           ),
         ),
         actions: [
-          if (!isForce) TextButton(onPressed: _onLaterPressed, child: const Text('稍后再说')),
-          ElevatedButton(onPressed: _targetUrl() == null ? null : _onUpdatePressed, child: const Text('立即更新')),
+          if (!isForce) ElevatedButton(onPressed: _onLaterPressed, child: const Text('稍后再说')),
+          _GradientButton(label: '立即更新', onPressed: _targetUrl() == null ? null : _onUpdatePressed),
         ],
+      ),
+    );
+  }
+}
+
+/// 与「提交订单」按钮一致的渐变胶囊按钮；尺寸与文字大小沿用默认 ElevatedButton
+class _GradientButton extends StatelessWidget {
+  const _GradientButton({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = onPressed != null;
+    final textStyle = Theme.of(context).textTheme.labelLarge?.copyWith(color: Colors.white);
+    return Opacity(
+      opacity: enabled ? 1.0 : 0.5,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(999),
+          gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3152AF), Color(0xFF213775)]),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(999),
+            onTap: onPressed,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+              child: Text(label, style: textStyle),
+            ),
+          ),
+        ),
       ),
     );
   }

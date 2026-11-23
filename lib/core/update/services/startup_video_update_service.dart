@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -41,52 +42,84 @@ class StartupVideoUpdateService {
   static const String _localVideoMd5Key = 'startup_video_local_md5';
   static const String _localHotfixVersionKey = 'hot_update_hotfix_version';
   static const String _localAppBuildNumberKey = 'local_app_build_number';
+
   static const String _resourceMd5KeyPrefix = 'resource_md5_';
   static const String _videoFileName = 'open.mp4';
+
+  /// 新下载的待生效视频：只在下次启动时晋升为 open.mp4，本次启动不受影响
+  static const String _pendingVideoFileName = 'open_pending.mp4';
+  static const String _pendingVideoMd5Key = 'startup_video_pending_md5';
   static const String _videoLocalPath = 'assets/video/open.mp4';
-  static const String _resourceDirName = 'hot_update_resources';
+
+  /// 热更新镜像根目录：与 apk 内资源路径一一对应，如 hot_assets/assets/video/open.mp4
+  static const String _resourceDirName = 'hot_assets';
+  static String? _hotRootPath;
 
   /// 热更新 CheckUpdate 接口路径（相对 baseUrl）
 
   /// 获取本地视频保存的目录
   Future<Directory> _getVideoDirectory() async {
-    try {
-      final baseDir = await getApplicationCacheDirectory();
-      final dir = Directory('${baseDir.path}/startup_video');
-      if (!await dir.exists()) {
-        await dir.create(recursive: true);
-      }
-      return dir;
-    } catch (_) {
-      final tempDir = await getTemporaryDirectory();
-      final dir = Directory('${tempDir.path}/startup_video');
-      if (!await dir.exists()) {
-        await dir.create(recursive: true);
-      }
-      return dir;
-    }
-  }
-
-  /// 获取通用资源保存的目录
-  Future<Directory> _getResourceDirectory() async {
-    final baseDir = await getApplicationCacheDirectory();
-    final dir = Directory('${baseDir.path}/$_resourceDirName');
+    final root = await _getResourceDirectory();
+    final dir = Directory('${root.path}/assets/video');
     if (!await dir.exists()) {
       await dir.create(recursive: true);
     }
     return dir;
   }
 
-  /// 启动时记录原生包构建号（buildnumber）。在任何更新请求之前 await 完成。
+  /// 获取通用资源保存的目录
+  Future<Directory> _getResourceDirectory() async {
+    final baseDir = await getApplicationCacheDirectory();
+    final dir = Directory('${baseDir.path}/$_resourceDirName');
+    _hotRootPath = dir.path;
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
+    }
+    return dir;
+  }
+
+  /// 启动时检查原生 apk 构建号（在任何更新请求之前 await 完成）。
   ///
-  /// 仅记录当前 buildnumber，不做覆盖安装时的清理。
+  /// - 首次安装：只记录当前构建号，不做任何清理。
+  /// - 覆盖安装（构建号变化）：删除旧的热更新视频文件及其 MD5 记录，
+  ///   避免旧热更新视频覆盖新 apk 内置的 open.mp4。
+  ///   已记录的「已播放 MD5」（startup_video_played_md5）保留，不删除。
   Future<void> syncAppBuildOnLaunch() async {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
-      await _storage.putString(_localAppBuildNumberKey, packageInfo.buildNumber);
+      final currentBuild = packageInfo.buildNumber;
+      final savedBuild = await _storage.getString(_localAppBuildNumberKey) ?? '';
+
+      if (savedBuild.isNotEmpty && savedBuild != currentBuild) {
+        AppLogger.info('检测到 apk 构建号变化 ($savedBuild -> $currentBuild)，删除旧热更新视频', module: 'startup_video_update');
+        final dir = await _getVideoDirectory();
+        for (final name in [_videoFileName, '$_videoFileName.tmp', _pendingVideoFileName, '$_pendingVideoFileName.tmp']) {
+          final f = File('${dir.path}/$name');
+          if (await f.exists()) await f.delete();
+        }
+        await _storage.remove(_localVideoMd5Key);
+        await _storage.remove(_pendingVideoMd5Key);
+      }
+      await _promotePendingVideo();
+      await _storage.putString(_localAppBuildNumberKey, currentBuild);
     } catch (e) {
-      AppLogger.warning('记录原生 App 构建号异常', module: 'startup_video_update', data: {'error': e.toString()});
+      AppLogger.warning('同步 apk 构建号异常', module: 'startup_video_update', data: {'error': e.toString()});
     }
+  }
+
+  /// 若有已下载完成的待生效视频，在启动时晋升为 open.mp4（先于播放判断执行）
+  Future<void> _promotePendingVideo() async {
+    final dir = await _getVideoDirectory();
+    final pending = File('${dir.path}/$_pendingVideoFileName');
+    final pendingMd5 = await _storage.getString(_pendingVideoMd5Key) ?? '';
+    if (pendingMd5.isEmpty || !await pending.exists()) return;
+
+    final active = File('${dir.path}/$_videoFileName');
+    if (await active.exists()) await active.delete();
+    await pending.rename(active.path);
+    await _storage.putString(_localVideoMd5Key, pendingMd5);
+    await _storage.remove(_pendingVideoMd5Key);
+    AppLogger.info('待生效热更新视频已晋升为开机视频，MD5: $pendingMd5', module: 'startup_video_update');
   }
 
   /// 获取本地存储的合法热更新视频 File（若不存在或损坏则返回 null）
@@ -149,28 +182,30 @@ class StartupVideoUpdateService {
     }
   }
 
-  /// 同步启动视频 open.mp4
+  /// 下载启动视频到待生效文件，不覆盖当前正在使用的 open.mp4
   Future<_SyncOutcome> _syncVideo(ResourceItem item) async {
     final dir = await _getVideoDirectory();
-    final targetFile = File('${dir.path}/$_videoFileName');
+    final activeFile = File('${dir.path}/$_videoFileName');
+    final pendingFile = File('${dir.path}/$_pendingVideoFileName');
 
-    final localMd5 = await _storage.getString(_localVideoMd5Key) ?? '';
-    if (await targetFile.exists() && localMd5.isNotEmpty && localMd5.toLowerCase() == item.md5.toLowerCase()) {
-      return _SyncOutcome.unchanged;
-    }
+    final activeMd5 = await _storage.getString(_localVideoMd5Key) ?? '';
+    final pendingMd5 = await _storage.getString(_pendingVideoMd5Key) ?? '';
+    final sameAsActive = activeMd5.toLowerCase() == item.md5.toLowerCase() && await activeFile.exists();
+    final sameAsPending = pendingMd5.toLowerCase() == item.md5.toLowerCase() && await pendingFile.exists();
+    if (sameAsActive || sameAsPending) return _SyncOutcome.unchanged;
 
-    final ok = await _downloadVerified(item, targetFile, receiveTimeout: const Duration(seconds: 60));
+    final ok = await _downloadVerified(item, pendingFile, receiveTimeout: const Duration(seconds: 60));
     if (!ok) return _SyncOutcome.failed;
 
-    await _storage.putString(_localVideoMd5Key, item.md5);
-    AppLogger.info('启动视频热更新成功，MD5: ${item.md5}', module: 'startup_video_update');
+    await _storage.putString(_pendingVideoMd5Key, item.md5);
+    AppLogger.info('启动视频已下载，将于下次启动生效，MD5: ${item.md5}', module: 'startup_video_update');
     return _SyncOutcome.updated;
   }
 
   /// 同步通用资源（文件名由 localPath 转换而来，避免目录层级冲突）
   Future<_SyncOutcome> _syncResource(ResourceItem item) async {
     final dir = await _getResourceDirectory();
-    final targetFile = File('${dir.path}/${item.localPath.replaceAll('/', '_')}');
+    final targetFile = File('${dir.path}/${item.localPath}');
 
     final storageKey = '$_resourceMd5KeyPrefix${item.localPath}';
     final localMd5 = await _storage.getString(storageKey) ?? '';
@@ -199,6 +234,7 @@ class StartupVideoUpdateService {
         await tmpFile.delete();
       }
 
+      await targetFile.parent.create(recursive: true);
       await _dio.download(
         item.remoteUrl,
         tmpFile.path,
@@ -274,5 +310,20 @@ class StartupVideoUpdateService {
       AppLogger.warning('请求热更新接口失败', module: 'startup_video_update', error: e);
       return null;
     }
+  }
+}
+
+/// 资源读取：优先读取热更新镜像目录中的同名文件，没有则回退到 apk 内置资源
+class HotAssetBundle extends AssetBundle {
+  @override
+  Future<ByteData> load(String key) async {
+    final root = StartupVideoUpdateService._hotRootPath;
+    if (root != null) {
+      final file = File('$root/$key');
+      if (await file.exists()) {
+        return ByteData.sublistView(await file.readAsBytes());
+      }
+    }
+    return rootBundle.load(key);
   }
 }

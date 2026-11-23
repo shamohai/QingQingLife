@@ -9,8 +9,12 @@ import '../core/deeplink/deep_link_receiver.dart';
 import '../core/network/providers.dart';
 import '../core/update/models/app_update_info.dart';
 import '../core/update/providers/app_update_provider.dart';
+import '../core/update/services/startup_video_update_service_stub.dart' if (dart.library.io) '../core/update/services/startup_video_update_service.dart';
 import '../core/update/widgets/app_update_dialog.dart';
 import 'startup/startup_video_gate.dart';
+
+/// 全局资源 bundle：热更新镜像中有同名文件则优先使用
+final _hotAssetBundle = HotAssetBundle();
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -55,7 +59,7 @@ class _AppState extends ConsumerState<App> {
           routerConfig: router,
           localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
           supportedLocales: const [Locale('zh', 'CN')],
-          builder: (context, child) => child ?? const SizedBox.shrink(),
+          builder: (context, child) => DefaultAssetBundle(bundle: _hotAssetBundle, child: child ?? const SizedBox.shrink()),
         ),
       ),
     );

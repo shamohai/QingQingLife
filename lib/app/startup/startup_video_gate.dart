@@ -1,6 +1,7 @@
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../core/logging/app_logger.dart';
@@ -21,8 +22,10 @@ class StartupVideoGate extends StatefulWidget {
 }
 
 class _StartupVideoGateState extends State<StartupVideoGate> {
-  static const _lastPlayedVersionKey = 'startup_video_last_played_version';
+  /// 已播放过的开机视频 MD5（播放完成后才写入，之后不删除）
+  static const _playedMd5Key = 'startup_video_played_md5';
   static const _videoAsset = 'assets/video/open.mp4';
+  static const _hotVideoMd5Key = 'startup_video_local_md5';
 
   final _storage = LocalStorage();
   StartupVideoUpdateService? _updateService;
@@ -30,9 +33,6 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
   bool _showVideo = false;
   bool _isReady = false;
   bool _autoplayBlocked = false;
-
-  /// 本次播放所用视频对应的版本标记（在开始播放时确定，避免后台下载完成后被误记为已播放）
-  String _playedVersionKey = '';
 
   @override
   void initState() {
@@ -43,13 +43,11 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
 
   Future<void> _prepare() async {
     try {
-      final packageInfo = await PackageInfo.fromPlatform();
-      final lastPlayedVersion = await _storage.getString(_lastPlayedVersionKey);
-      final localMd5 = await _storage.getString('startup_video_local_md5') ?? '';
-      final currentVersion = '${packageInfo.version}+${packageInfo.buildNumber}_$localMd5';
-      _playedVersionKey = currentVersion;
+      // 首次安装没有记录 → 播放；之后 MD5 与已播放记录不一致 → 播放
+      final playedMd5 = await _storage.getString(_playedMd5Key) ?? '';
+      final currentMd5 = await _currentVideoMd5();
 
-      if (!mounted || lastPlayedVersion == currentVersion) {
+      if (!mounted || (playedMd5.isNotEmpty && playedMd5 == currentMd5)) {
         _finishWithoutVideo();
         return;
       }
@@ -93,10 +91,23 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
       if (kIsWeb) {
         await controller.setVolume(0);
       }
+      // 开始播放即记录：中途退出也视为已播放，下次不再重复播放
+      try {
+        await _storage.putString(_playedMd5Key, currentMd5);
+      } catch (_) {}
       await _playController(controller);
     } catch (_) {
       _finishWithoutVideo();
     }
+  }
+
+  /// 当前生效的开机视频 MD5：有热更新视频用热更新 MD5，否则计算内置 open.mp4 的 MD5（约 25ms）
+  Future<String> _currentVideoMd5() async {
+    final hotMd5 = await _storage.getString(_hotVideoMd5Key) ?? '';
+    final localFile = await _updateService?.getValidLocalVideoFile();
+    if (localFile != null && hotMd5.isNotEmpty) return hotMd5;
+    final bytes = await rootBundle.load(_videoAsset);
+    return md5.convert(bytes.buffer.asUint8List()).toString();
   }
 
   Future<void> _playController(VideoPlayerController controller) async {
@@ -137,13 +148,6 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
   }
 
   Future<void> _finishVideo() async {
-    // 记录的是开始播放时的版本标记：若后台热更新在播放期间完成，下次打开会因 MD5 变化而重新播放
-    if (_playedVersionKey.isNotEmpty) {
-      try {
-        await _storage.putString(_lastPlayedVersionKey, _playedVersionKey);
-      } catch (_) {}
-    }
-
     if (!mounted) return;
     setState(() => _showVideo = false);
     widget.onReady?.call();
