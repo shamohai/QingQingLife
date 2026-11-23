@@ -5,10 +5,12 @@ import '../../../../../app/theme/app_spacing.dart';
 
 /// 兑换人/手机号接收信息表单（RecvrMobile）
 class ConfirmOrderRedeemerForm extends StatefulWidget {
+  /// 默认充值账号（接口 defaultrechargemobile），作为输入框初始值
+  final String? initialPhone;
   final ValueChanged<String>? onPhoneChanged;
   final VoidCallback onSubmitted;
 
-  const ConfirmOrderRedeemerForm({super.key, this.onPhoneChanged, required this.onSubmitted});
+  const ConfirmOrderRedeemerForm({super.key, this.initialPhone, this.onPhoneChanged, required this.onSubmitted});
 
   @override
   State<ConfirmOrderRedeemerForm> createState() => _ConfirmOrderRedeemerFormState();
@@ -17,6 +19,15 @@ class ConfirmOrderRedeemerForm extends StatefulWidget {
 class _ConfirmOrderRedeemerFormState extends State<ConfirmOrderRedeemerForm> {
   final _phoneController = TextEditingController();
   final _phoneFocus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    final initialPhone = widget.initialPhone?.trim() ?? '';
+    if (initialPhone.isNotEmpty) {
+      _phoneController.text = initialPhone;
+    }
+  }
 
   @override
   void dispose() {
@@ -38,11 +49,7 @@ class _ConfirmOrderRedeemerFormState extends State<ConfirmOrderRedeemerForm> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(
-        left: AppSpacing.compactPageMargin,
-        right: AppSpacing.compactPageMargin,
-        top: AppSpacing.md,
-      ),
+      margin: const EdgeInsets.only(left: AppSpacing.compactPageMargin, right: AppSpacing.compactPageMargin, top: AppSpacing.md),
       padding: const EdgeInsets.only(left: AppSpacing.xxl, top: AppSpacing.lg, bottom: AppSpacing.xxl),
       decoration: BoxDecoration(
         color: Colors.white,

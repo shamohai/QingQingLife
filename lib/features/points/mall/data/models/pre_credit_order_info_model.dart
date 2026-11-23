@@ -69,6 +69,9 @@ class PreCreditOrderInfoModel {
   final int? totalPoints;
   final int credit;
   final int redeemableQuantity;
+
+  /// 默认充值账号（虚拟产品），对应接口字段 defaultrechargemobile
+  final String defaultRechargeMobile;
   final ServiceProductDetail? product;
   final Map<String, dynamic>? rawData;
 
@@ -78,6 +81,7 @@ class PreCreditOrderInfoModel {
     this.totalPoints,
     this.credit = 0,
     this.redeemableQuantity = 0,
+    this.defaultRechargeMobile = '',
     this.product,
     this.rawData,
   });
@@ -117,10 +121,13 @@ class PreCreditOrderInfoModel {
       totalPoints: totalPoints,
       credit: credit,
       redeemableQuantity: quantity,
+      defaultRechargeMobile: _string(json['defaultrechargemobile'] ?? json['DefaultRechargeMobile']),
       product: productDetail,
       rawData: json,
     );
   }
+
+  static String _string(dynamic value) => value == null ? '' : value.toString().trim();
 
   static Map<String, dynamic>? _map(dynamic value) => value is Map ? Map<String, dynamic>.from(value) : null;
 

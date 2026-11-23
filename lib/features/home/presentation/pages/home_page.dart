@@ -172,7 +172,10 @@ class HomePage extends ConsumerWidget {
                                   final path = '${RouteNames.confirmOrder.replaceFirst(':id', benefit.id)}?userServiceId=$effectiveUserServiceId';
                                   GoRouter.of(context).push(path);
                                 } else {
-                                  final path = RouteNames.serviceProductDetailPath(productId: benefit.id, userServiceId: effectiveUserServiceId);
+                                  // 已结算（或未领取）进入商品详情页时不带 userServiceId，
+                                  // 让详情页按普通商品兑换流程处理（需消耗积分，显示市场价删除线规则不受权益影响）
+                                  final detailUserServiceId = effectiveSettlemented ? null : effectiveUserServiceId;
+                                  final path = RouteNames.serviceProductDetailPath(productId: benefit.id, userServiceId: detailUserServiceId);
                                   GoRouter.of(context).push(path);
                                 }
                               },

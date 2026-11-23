@@ -119,8 +119,12 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
           await refreshAddress();
           if (!ref.mounted || requestId != _preOrderRequestId) return;
         }
+        // 默认充值账号仅在用户尚未输入时回填，避免覆盖用户已编辑的手机号
+        final defaultMobile = preInfo.defaultRechargeMobile;
+        final shouldPrefillPhone = preInfo.recvrType == RecvrType.recvrMobile && state.redeemerPhone.isEmpty && defaultMobile.isNotEmpty;
         state = state.copyWith(
           quantity: quantity,
+          redeemerPhone: shouldPrefillPhone ? defaultMobile : null,
           preOrderInfoAsync: AsyncValue.data(preInfo),
           isPreOrderValidating: false,
           clearQuantityValidationError: true,
