@@ -62,6 +62,8 @@
 	<string>用于获取您所在的大致位置，以提供附近的服务与门店信息</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>用于获取您所在的大致位置，以提供附近的服务与门店信息</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSCameraUsageDescription</key>
 	<string>用于拍摄并更换个人头像</string>
 	<key>NSPhotoLibraryUsageDescription</key>
