@@ -25,7 +25,7 @@ class PointsDetailPage extends ConsumerStatefulWidget {
 }
 
 class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
-  // 记录展开状态的月份 Key 集合，默认为空即全部折叠
+  // 记录展开状态的月份 Key 集合；有数据时由 build 中的监听默认展开第一个月份
   final Set<String> _expandedMonths = {};
 
   @override
@@ -49,6 +49,22 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(pointsDetailProvider);
+
+    // 第一个月份变化（首次加载数据或刷新后）时，默认展开第一个月份
+    ref.listen<String>(
+      pointsDetailProvider.select((s) {
+        final months = s.availableMonths;
+        return months.isEmpty ? '' : months.first;
+      }),
+      (previous, next) {
+        if (next.isEmpty) return;
+        setState(() {
+          _expandedMonths
+            ..clear()
+            ..add(next);
+        });
+      },
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F7),
