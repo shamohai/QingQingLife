@@ -466,6 +466,20 @@ class MainShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
   const MainShell({super.key, required this.navigationShell});
   void _goBranch(int index) => navigationShell.goBranch(index, initialLocation: true);
+
+  /// Tab 左滑映射（分支下标）：我的(3)→服务中心(2)→积分商城(1)→首页(0)；首页左滑无动作
+  static const Map<int, int> _swipeLeftTarget = {3: 2, 2: 1, 1: 0};
+
+  /// 左滑切换 Tab 的最小速度（逻辑像素/秒）
+  static const double _minSwipeVelocity = 300;
+
+  void _onHorizontalDragEnd(DragEndDetails details) {
+    final velocity = details.primaryVelocity ?? 0;
+    if (velocity >= -_minSwipeVelocity) return;
+    final target = _swipeLeftTarget[navigationShell.currentIndex];
+    if (target != null) _goBranch(target);
+  }
+
   static const _tabAssets = [
     (selected: 'assets/icon/tab_home_selected.png', unselected: 'assets/icon/tab_home_unselected.png'),
     (selected: 'assets/icon/tab_points_selected.png', unselected: 'assets/icon/tab_points_unselected.png'),
@@ -476,7 +490,11 @@ class MainShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final idx = navigationShell.currentIndex;
     return Scaffold(
-      body: MainShellScope(hasBottomNavigation: true, child: navigationShell),
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onHorizontalDragEnd: _onHorizontalDragEnd,
+        child: MainShellScope(hasBottomNavigation: true, child: navigationShell),
+      ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: Colors.white,

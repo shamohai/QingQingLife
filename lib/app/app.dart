@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'providers/theme_provider.dart';
 import 'router/app_router.dart';
+import 'router/global_swipe_back.dart';
 import 'theme/app_theme.dart';
 import '../core/deeplink/deep_link_receiver.dart';
 import '../core/network/providers.dart';
@@ -59,7 +60,10 @@ class _AppState extends ConsumerState<App> {
           routerConfig: router,
           localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
           supportedLocales: const [Locale('zh', 'CN')],
-          builder: (context, child) => DefaultAssetBundle(bundle: _hotAssetBundle, child: child ?? const SizedBox.shrink()),
+          builder: (context, child) => DefaultAssetBundle(
+            bundle: _hotAssetBundle,
+            child: GlobalSwipeBack(canSwipeBack: () => router.canPop(), onSwipeBack: () => router.pop(), child: child ?? const SizedBox.shrink()),
+          ),
         ),
       ),
     );
