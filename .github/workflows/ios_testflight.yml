@@ -57,7 +57,7 @@ jobs:
             -authenticationKeyID "$API_KEY_ID" \
             -authenticationKeyIssuerID "$ISSUER_ID" \
             DEVELOPMENT_TEAM="$TEAM_ID" \
-            CODE_SIGN_STYLE=Automatic \
+            CODE_SIGNING_ALLOWED=NO \
             FLUTTER_BUILD_NAME=1.0.0 \
             FLUTTER_BUILD_NUMBER=${{ github.run_number }} \
             archive
