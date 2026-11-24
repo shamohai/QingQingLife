@@ -40,6 +40,8 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+      # Pods 静态库不需要签名（只有 Runner 的 App 包需要签名），避免 empty code signing identity
+      config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
       # 只支持 64 位：真机仅 arm64（不再支持 armv7），模拟器保留 x86_64 供 Intel Mac 使用
       config.build_settings['VALID_ARCHS[sdk=iphoneos*]'] = 'arm64'
       config.build_settings['VALID_ARCHS[sdk=iphonesimulator*]'] = 'arm64 x86_64'
