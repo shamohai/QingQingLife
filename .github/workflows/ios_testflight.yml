@@ -131,6 +131,19 @@ jobs:
           IDENTITY=$(security find-identity -v -p codesigning "$KEYCHAIN" | grep "Apple Distribution" | head -n 1 | awk '{print $2}')
           echo "Signing identity: $IDENTITY"
 
+          # 内嵌第三方 framework 的 MinimumOSVersion 必须不低于 App 的部署目标（ITMS-90208）
+          # WechatOpenSDK 自身声明为 12.0，与 App 的 15.0 不一致，这里统一为 15.0
+          MIN_OS=$(/usr/libexec/PlistBuddy -c "Print :MinimumOSVersion" "$APP_DIR/Info.plist")
+          find "$APP_DIR/Frameworks" -name "*.framework" -maxdepth 1 -print0 | while IFS= read -r -d '' fw; do
+            if [ -f "$fw/Info.plist" ]; then
+              CUR=$(/usr/libexec/PlistBuddy -c "Print :MinimumOSVersion" "$fw/Info.plist" 2>/dev/null || echo "")
+              if [ -n "$CUR" ]; then
+                /usr/libexec/PlistBuddy -c "Set :MinimumOSVersion $MIN_OS" "$fw/Info.plist"
+                echo "Set MinimumOSVersion for $(basename "$fw"): $CUR -> $MIN_OS"
+              fi
+            fi
+          done
+
           # 先签名内嵌的 framework / dylib（包括 WechatOpenSDK），再签名 App 本身
           find "$APP_DIR" \( -name "*.framework" -o -name "*.dylib" \) -print0 | while IFS= read -r -d '' item; do
             xattr -cr "$item"
