@@ -3,17 +3,14 @@
 <plist version="1.0">
 <dict>
 	<key>method</key>
-	<string>ad-hoc</string>
-	<key>signingStyle</key>
-	<string>manual</string>
-	<key>compileBitcode</key>
-	<false/>
-	<key>thinning</key>
-	<string>&lt;none&gt;</string>
-	<key>provisioningProfiles</key>
-	<dict>
-		<key>com.zhongjiupi.app</key>
-		<string>com.zhongjiupi.app AdHoc Provisioning Profile</string>
-	</dict>
+	<string>app-store-connect</string>
+	<key>teamID</key>
+	<string>3RER9Y7YDT</string>
+	<key>uploadBitcode</key>
+  <false/>
+  <key>uploadSymbols</key>
+  <true/>
+  <key>signingStyle</key>
+  <string>automatic</string>
 </dict>
 </plist>
