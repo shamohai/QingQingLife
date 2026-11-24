@@ -114,7 +114,19 @@ jobs:
           cp -R "$RUNNER_TEMP/Runner.xcarchive/Products/Applications/Runner.app" "$WORK/Payload/"
 
           cp "$PROFILE" "$APP_DIR/embedded.mobileprovision"
-          /usr/libexec/PlistBuddy -x -c "Print :Entitlements" "$RUNNER_TEMP/profile.plist" > "$RUNNER_TEMP/entitlements.plist"
+          # 只保留 App 必需的 entitlements，不使用描述文件里的全部内容（其中的 iCloud 通配符会被 App Store 拒绝）
+          APP_ID=$(/usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" "$RUNNER_TEMP/profile.plist")
+          TEAM=$(/usr/libexec/PlistBuddy -c "Print :TeamIdentifier:0" "$RUNNER_TEMP/profile.plist")
+          printf '%s\n' \
+            '<?xml version="1.0" encoding="UTF-8"?>' \
+            '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' \
+            '<plist version="1.0"><dict>' \
+            "<key>application-identifier</key><string>${APP_ID}</string>" \
+            "<key>com.apple.developer.team-identifier</key><string>${TEAM}</string>" \
+            '<key>get-task-allow</key><false/>' \
+            '</dict></plist>' > "$RUNNER_TEMP/entitlements.plist"
+          plutil -lint "$RUNNER_TEMP/entitlements.plist"
+          echo "Entitlements: $APP_ID"
 
           IDENTITY=$(security find-identity -v -p codesigning "$KEYCHAIN" | grep "Apple Distribution" | head -n 1 | awk '{print $2}')
           echo "Signing identity: $IDENTITY"
