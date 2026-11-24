@@ -3,7 +3,7 @@ description: 青轻生活 - 会员制电商 Flutter App
 
 publish_to: "none"
 
-version: 1.0.0+1
+version: 2.1.9+1
 
 environment:
   sdk: ^3.13.2
