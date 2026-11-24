@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../../app/theme/app_spacing.dart';
+import '../../data/models/recharge_mobile_validator.dart';
 
 /// 兑换人/手机号接收信息表单（RecvrMobile）
 class ConfirmOrderRedeemerForm extends StatefulWidget {
@@ -38,8 +39,8 @@ class _ConfirmOrderRedeemerFormState extends State<ConfirmOrderRedeemerForm> {
 
   void _submit() {
     final phone = _phoneController.text.trim();
-    if (phone.isEmpty || phone.length != 11 || !RegExp(r'^\d+$').hasMatch(phone)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请输入正确的11位手机号')));
+    if (!RechargeMobileValidator.isValid(phone)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(RechargeMobileValidator.errorMessage)));
       _phoneFocus.requestFocus();
       return;
     }

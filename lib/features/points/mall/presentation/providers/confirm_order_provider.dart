@@ -6,6 +6,7 @@ import '../../../../../core/providers/repository_providers.dart';
 import '../../../../member/domain/repositories/member_repository.dart';
 import '../../data/models/points_submit_order_models.dart';
 import '../../data/models/pre_credit_order_info_model.dart';
+import '../../data/models/recharge_mobile_validator.dart';
 
 /// 确认订单页面参数
 class PointsConfirmOrderArg {
@@ -287,8 +288,8 @@ class PointsConfirmOrderNotifier extends Notifier<PointsConfirmOrderState> {
             receiveName = address.name;
             mobile = address.phone;
           } else if (preInfo.recvrType == RecvrType.recvrMobile) {
-            if (state.redeemerPhone.trim().isEmpty || state.redeemerPhone.length != 11) {
-              return ApiResponse.error('请输入正确的11位手机号');
+            if (!RechargeMobileValidator.isValid(state.redeemerPhone)) {
+              return ApiResponse.error(RechargeMobileValidator.errorMessage);
             }
             mobile = state.redeemerPhone.trim();
           }
