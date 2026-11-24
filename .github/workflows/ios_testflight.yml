@@ -7,7 +7,7 @@ on:
 jobs:
   testflight:
     name: Build & Upload to TestFlight
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 60
 
     steps:
@@ -28,6 +28,13 @@ jobs:
 
       - name: Install Flutter dependencies
         run: flutter pub get
+
+      - name: Select Xcode 26.6
+        # macos-26 镜像预装 Xcode 26.6（iOS 26 SDK），显式指定以避免默认版本变化
+        run: |
+          sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
 
       - name: Write App Store Connect API key
         env:
