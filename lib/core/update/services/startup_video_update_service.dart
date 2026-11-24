@@ -209,7 +209,9 @@ class StartupVideoUpdateService {
 
     final storageKey = '$_resourceMd5KeyPrefix${item.localPath}';
     final localMd5 = await _storage.getString(storageKey) ?? '';
-    if (await targetFile.exists() && localMd5.isNotEmpty && localMd5.toLowerCase() == item.md5.toLowerCase()) {
+    final exists = await targetFile.exists();
+    // [日志调试-已注释] AppLogger.warning('资源同步检查: ${item.localPath} exists=$exists localMd5=$localMd5 remoteMd5=${item.md5} target=${targetFile.path}', module: 'hot_asset');
+    if (exists && localMd5.isNotEmpty && localMd5.toLowerCase() == item.md5.toLowerCase()) {
       return _SyncOutcome.unchanged;
     }
 
@@ -256,6 +258,7 @@ class StartupVideoUpdateService {
         await targetFile.delete();
       }
       await tmpFile.rename(targetFile.path);
+      // [日志调试-已注释] AppLogger.warning('热更新文件已落盘: ${targetFile.path} size=${await targetFile.length()}', module: 'hot_asset');
       return true;
     } catch (e) {
       AppLogger.error('下载热更新文件异常 (${item.localPath})', module: 'startup_video_update', error: e);
@@ -315,15 +318,27 @@ class StartupVideoUpdateService {
 
 /// 资源读取：优先读取热更新镜像目录中的同名文件，没有则回退到 apk 内置资源
 class HotAssetBundle extends AssetBundle {
+  // [日志调试-已注释] static final Set<String> _logged = <String>{};
+
   @override
   Future<ByteData> load(String key) async {
     final root = StartupVideoUpdateService._hotRootPath;
     if (root != null) {
       final file = File('$root/$key');
       if (await file.exists()) {
+        // [日志调试-已注释] _logOnce(key, 'bundle 命中热更新文件: $key -> ${file.path}');
         return ByteData.sublistView(await file.readAsBytes());
       }
+      // [日志调试-已注释] _logOnce(key, 'bundle 未命中，回退内置: $key (查找 ${file.path})');
     }
+    // [日志调试-已注释] else _logOnce(key, 'bundle 未初始化 _hotRootPath，走内置: $key');
     return rootBundle.load(key);
   }
+
+  // [日志调试-已注释]
+  // static void _logOnce(String key, String message) {
+  //   if (_logged.add(key)) {
+  //     AppLogger.warning(message, module: 'hot_asset');
+  //   }
+  // }
 }
