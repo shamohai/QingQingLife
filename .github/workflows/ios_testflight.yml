@@ -29,6 +29,12 @@ jobs:
       - name: Install Flutter dependencies
         run: flutter pub get
 
+      - name: Install CocoaPods dependencies
+        # umeng_common_sdk 仅提供 podspec，需要通过 CocoaPods 集成（依赖 UMCommon / UMDevice）
+        run: |
+          cd ios
+          pod install --repo-update
+
       - name: Select Xcode 26.6
         # macos-26 镜像预装 Xcode 26.6（iOS 26 SDK），显式指定以避免默认版本变化
         run: |
