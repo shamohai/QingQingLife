@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../share/activity_share_message.dart';
 import '../../webview/app_webview_user_agent.dart';
+import '../../widgets/app_share_sheet.dart';
 
 /// App 内 H5 页面。
 class WebViewPage extends StatefulWidget {
@@ -20,6 +22,7 @@ class _WebViewPageState extends State<WebViewPage> {
   late final WebViewController _controller;
   int _loadingProgress = 0;
   String? _errorMessage;
+  bool _isShareSheetOpen = false;
 
   @override
   void initState() {
@@ -29,6 +32,7 @@ class _WebViewPageState extends State<WebViewPage> {
     if (!kIsWeb) {
       _controller
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..addJavaScriptChannel('AppShare', onMessageReceived: (message) => _handleShareMessage(message.message))
         ..setNavigationDelegate(
           NavigationDelegate(
             onProgress: (progress) {
@@ -51,6 +55,23 @@ class _WebViewPageState extends State<WebViewPage> {
   Future<void> _loadPage() async {
     if (!kIsWeb) await applyAppUserAgent(_controller);
     await _controller.loadRequest(Uri.parse(widget.url));
+  }
+
+  /// 与活动页 AppShare 协议一致：H5 传入 JSON 字符串，缺省字段回退到当前页面信息。
+  Future<void> _handleShareMessage(String message) async {
+    if (!mounted || _isShareSheetOpen) return;
+    final shareMessage = ActivityShareMessage.tryParse(message);
+    if (shareMessage == null) return;
+
+    _isShareSheetOpen = true;
+    try {
+      final currentUrl = await _controller.currentUrl();
+      if (!mounted) return;
+      final payload = shareMessage.toSharePayload(fallbackTitle: widget.title, fallbackUrl: currentUrl);
+      await AppShareSheet.show(context: context, payload: payload);
+    } finally {
+      _isShareSheetOpen = false;
+    }
   }
 
   Future<void> _reload() async {

@@ -6,6 +6,8 @@ import '../../core/deeplink/app_link.dart';
 import '../../core/providers/session_provider.dart';
 import 'auth_redirect.dart';
 import 'main_shell_scope.dart';
+import 'swipe_back_page.dart';
+import 'tab_page_view.dart';
 
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/points/mall/presentation/pages/points_mall_page.dart';
@@ -95,18 +97,19 @@ final appRouter = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: RouteNames.login,
-        pageBuilder: (c, s) => const MaterialPage(child: LoginPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: LoginPage()),
       ),
       GoRoute(
         path: RouteNames.phoneBind,
-        pageBuilder: (c, s) => const MaterialPage(child: PhoneBindPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: PhoneBindPage()),
       ),
       GoRoute(
         path: RouteNames.productDetail,
-        pageBuilder: (c, s) => MaterialPage(child: ProductDetailPage(productId: s.pathParameters['id']!)),
+        pageBuilder: (c, s) => SwipeBackPage(child: ProductDetailPage(productId: s.pathParameters['id']!)),
       ),
-      StatefulShellRoute.indexedStack(
+      StatefulShellRoute(
         builder: (c, s, ns) => MainShell(navigationShell: ns),
+        navigatorContainerBuilder: (c, ns, children) => MainTabPageView(navigationShell: ns, children: children),
         branches: [
           StatefulShellBranch(
             routes: [
@@ -116,7 +119,7 @@ final appRouter = Provider<GoRouter>((ref) {
                 routes: [
                   GoRoute(
                     path: 'product/:id',
-                    pageBuilder: (c, s) => MaterialPage(child: ProductDetailPage(productId: s.pathParameters['id']!)),
+                    pageBuilder: (c, s) => SwipeBackPage(child: ProductDetailPage(productId: s.pathParameters['id']!)),
                   ),
                 ],
               ),
@@ -138,41 +141,41 @@ final appRouter = Provider<GoRouter>((ref) {
                 routes: [
                   GoRoute(
                     path: 'records',
-                    pageBuilder: (c, s) => MaterialPage(child: ServiceRecordsPage(activeTab: s.uri.queryParameters['activeTab'] ?? 'reservation')),
+                    pageBuilder: (c, s) => SwipeBackPage(child: ServiceRecordsPage(activeTab: s.uri.queryParameters['activeTab'] ?? 'reservation')),
                   ),
                   GoRoute(
                     path: 'booking-success',
-                    pageBuilder: (c, s) => MaterialPage(child: ServiceBookingSuccessPage.fromExtra(s.extra)),
+                    pageBuilder: (c, s) => SwipeBackPage(child: ServiceBookingSuccessPage.fromExtra(s.extra)),
                   ),
                   GoRoute(
                     path: 'booking-record-detail',
-                    pageBuilder: (c, s) => MaterialPage(
+                    pageBuilder: (c, s) => SwipeBackPage(
                       child: ServiceBookingRecordDetailPage(id: s.uri.queryParameters['id'] ?? '', type: s.uri.queryParameters['type'] ?? ''),
                     ),
                   ),
                   GoRoute(
                     path: 'reservation/:id',
-                    pageBuilder: (c, s) => MaterialPage(child: ReservationServiceDetailPage(serviceId: s.pathParameters['id']!)),
+                    pageBuilder: (c, s) => SwipeBackPage(child: ReservationServiceDetailPage(serviceId: s.pathParameters['id']!)),
                   ),
                   GoRoute(
                     path: 'friend/:id',
-                    pageBuilder: (c, s) => MaterialPage(child: FriendDetailPage(activityId: s.pathParameters['id']!)),
+                    pageBuilder: (c, s) => SwipeBackPage(child: FriendDetailPage(activityId: s.pathParameters['id']!)),
                   ),
                   GoRoute(
                     path: 'activity/:id',
-                    pageBuilder: (c, s) => MaterialPage(child: ActivityDetailPage(activityId: s.pathParameters['id']!)),
+                    pageBuilder: (c, s) => SwipeBackPage(child: ActivityDetailPage(activityId: s.pathParameters['id']!)),
                   ),
                   GoRoute(
                     name: 'serviceBookingForm',
                     path: 'project/:id/book',
                     pageBuilder: (c, s) {
                       final detail = s.extra as ReservationServiceDetail?;
-                      return MaterialPage(child: ServiceBookingFormPage(detail: detail!));
+                      return SwipeBackPage(child: ServiceBookingFormPage(detail: detail!));
                     },
                   ),
                   GoRoute(
                     path: 'template/:id/:userServiceId',
-                    pageBuilder: (c, s) => MaterialPage(
+                    pageBuilder: (c, s) => SwipeBackPage(
                       child: ServiceTemplateDetailPage(
                         templateId: int.tryParse(s.pathParameters['id']!) ?? 0,
                         userServiceId: int.tryParse(s.pathParameters['userServiceId']!) ?? 0,
@@ -195,63 +198,63 @@ final appRouter = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.memberLevel,
-        pageBuilder: (c, s) => MaterialPage(child: const MemberLevelPage()),
+        pageBuilder: (c, s) => SwipeBackPage(child: const MemberLevelPage()),
       ),
       GoRoute(
         path: RouteNames.memberServiceTemplateDetail,
-        pageBuilder: (c, s) => MaterialPage(child: _buildServiceTemplateDetailPage(s)),
+        pageBuilder: (c, s) => SwipeBackPage(child: _buildServiceTemplateDetailPage(s)),
       ),
       GoRoute(
         path: RouteNames.memberSignIn,
-        pageBuilder: (c, s) => const MaterialPage(child: MemberSignInPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: MemberSignInPage()),
       ),
       GoRoute(
         path: RouteNames.personalInfo,
-        pageBuilder: (c, s) => const MaterialPage(child: PersonalInfoPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: PersonalInfoPage()),
         routes: [
           GoRoute(
             path: 'edit',
-            pageBuilder: (c, s) => const MaterialPage(child: PersonalInfoEditPage()),
+            pageBuilder: (c, s) => const SwipeBackPage(child: PersonalInfoEditPage()),
           ),
           GoRoute(
             path: 'account-deletion',
-            pageBuilder: (c, s) => const MaterialPage(child: AccountDeletionPage()),
+            pageBuilder: (c, s) => const SwipeBackPage(child: AccountDeletionPage()),
           ),
         ],
       ),
       GoRoute(
         path: RouteNames.aboutUs,
-        pageBuilder: (c, s) => const MaterialPage(child: AboutUsPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: AboutUsPage()),
       ),
       GoRoute(
         path: RouteNames.coupons,
-        pageBuilder: (c, s) => const MaterialPage(child: MyCouponsPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: MyCouponsPage()),
       ),
       GoRoute(
         path: RouteNames.couponList,
-        pageBuilder: (c, s) => const MaterialPage(child: CouponListPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: CouponListPage()),
       ),
       GoRoute(
         path: RouteNames.lockedRedPacketList,
-        pageBuilder: (c, s) => const MaterialPage(child: LockedRedPacketListPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: LockedRedPacketListPage()),
       ),
       GoRoute(
         path: RouteNames.cashCouponShareReceive,
-        pageBuilder: (c, s) => MaterialPage(child: CashCouponShareReceivePage(shareCode: s.uri.queryParameters['sharecode'] ?? '')),
+        pageBuilder: (c, s) => SwipeBackPage(child: CashCouponShareReceivePage(shareCode: s.uri.queryParameters['sharecode'] ?? '')),
       ),
       GoRoute(
         path: RouteNames.serviceCouponList,
-        pageBuilder: (c, s) => const MaterialPage(child: ServiceCouponListPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: ServiceCouponListPage()),
       ),
       GoRoute(
         path: RouteNames.serviceCouponUse,
-        pageBuilder: (c, s) => MaterialPage(child: ServiceCouponUsePage(coupon: s.extra as ServiceCouponInfo)),
+        pageBuilder: (c, s) => SwipeBackPage(child: ServiceCouponUsePage(coupon: s.extra as ServiceCouponInfo)),
       ),
       GoRoute(
         path: RouteNames.serviceCouponReceive,
         pageBuilder: (c, s) {
           final query = s.uri.queryParameters;
-          return MaterialPage(
+          return SwipeBackPage(
             child: ServiceCouponReceivePage(
               shareGroupId: query['sharegroupid'] ?? '',
               serviceCouponId: int.tryParse(query['serviceconponid'] ?? '') ?? 0,
@@ -265,28 +268,28 @@ final appRouter = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.appLinkDispatch,
         // 正常链接已被 redirect 提前跳走，本页只承接非法链接的错误提示。
-        pageBuilder: (c, s) => const MaterialPage(child: LinkDispatchPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: LinkDispatchPage()),
       ),
       GoRoute(
         path: RouteNames.address,
-        pageBuilder: (c, s) => const MaterialPage(child: AddressListPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: AddressListPage()),
       ),
       GoRoute(
         path: RouteNames.addressAdd,
-        pageBuilder: (c, s) => const MaterialPage(child: AddressFormPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: AddressFormPage()),
       ),
       GoRoute(
         path: RouteNames.addressEdit,
-        pageBuilder: (c, s) => MaterialPage(child: AddressFormPage(initial: s.extra is MemberAddress ? s.extra as MemberAddress : null)),
+        pageBuilder: (c, s) => SwipeBackPage(child: AddressFormPage(initial: s.extra is MemberAddress ? s.extra as MemberAddress : null)),
       ),
       GoRoute(
         path: RouteNames.notifications,
-        pageBuilder: (c, s) => const MaterialPage(child: NotificationListPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: NotificationListPage()),
       ),
       GoRoute(
         path: RouteNames.customerService,
         pageBuilder: (c, s) {
-          return MaterialPage(
+          return SwipeBackPage(
             child: ServiceCustomerContactPage(
               id: s.uri.queryParameters['id'],
               title: s.uri.queryParameters['title'],
@@ -299,7 +302,7 @@ final appRouter = Provider<GoRouter>((ref) {
         path: RouteNames.serviceProductDetail,
         pageBuilder: (c, s) {
           final userServiceId = int.tryParse(s.uri.queryParameters['userServiceId'] ?? '');
-          return MaterialPage(
+          return SwipeBackPage(
             child: ServiceProductDetailPage(productId: s.pathParameters['id']!, userServiceId: userServiceId),
           );
         },
@@ -309,7 +312,7 @@ final appRouter = Provider<GoRouter>((ref) {
         pageBuilder: (c, s) {
           final userServiceIdStr = s.uri.queryParameters['userServiceId'];
           final userServiceId = userServiceIdStr != null ? int.tryParse(userServiceIdStr) : null;
-          return MaterialPage(
+          return SwipeBackPage(
             child: ConfirmOrderPage(productId: s.pathParameters['id']!, userServiceId: userServiceId),
           );
         },
@@ -319,7 +322,7 @@ final appRouter = Provider<GoRouter>((ref) {
         pageBuilder: (c, s) {
           final serviceCouponId = int.tryParse(s.pathParameters['id'] ?? '') ?? 0;
           final initialCount = int.tryParse(s.uri.queryParameters['count'] ?? '') ?? 1;
-          return MaterialPage(
+          return SwipeBackPage(
             child: ServiceCouponConfirmOrderPage(serviceCouponId: serviceCouponId, initialCount: initialCount),
           );
         },
@@ -328,14 +331,14 @@ final appRouter = Provider<GoRouter>((ref) {
         path: RouteNames.allProducts,
         pageBuilder: (c, s) {
           final categoryId = int.tryParse(s.uri.queryParameters['categoryid'] ?? '') ?? 0;
-          return MaterialPage(child: AllProductsPage(categoryId: categoryId));
+          return SwipeBackPage(child: AllProductsPage(categoryId: categoryId));
         },
       ),
       GoRoute(
         path: RouteNames.allProductsCategory,
         pageBuilder: (c, s) {
           final categoryId = int.tryParse(s.pathParameters['categoryId'] ?? '') ?? 0;
-          return MaterialPage(child: AllProductsPage(categoryId: categoryId));
+          return SwipeBackPage(child: AllProductsPage(categoryId: categoryId));
         },
       ),
       GoRoute(
@@ -345,11 +348,11 @@ final appRouter = Provider<GoRouter>((ref) {
           final title = s.uri.queryParameters['title'] ?? '活动详情';
           final uri = Uri.tryParse(url);
           if (uri == null || !(uri.scheme == 'http' || uri.scheme == 'https')) {
-            return const MaterialPage(
+            return const SwipeBackPage(
               child: Scaffold(body: Center(child: Text('无效的网页地址'))),
             );
           }
-          return MaterialPage(
+          return SwipeBackPage(
             child: WebViewPage(url: url, title: title),
           );
         },
@@ -361,34 +364,34 @@ final appRouter = Provider<GoRouter>((ref) {
           final activityType = s.uri.queryParameters['activityType'];
           final uri = Uri.tryParse(url);
           if (uri == null || !(uri.scheme == 'http' || uri.scheme == 'https')) {
-            return const MaterialPage(
+            return const SwipeBackPage(
               child: Scaffold(body: Center(child: Text('无效的网页地址'))),
             );
           }
-          return MaterialPage(
+          return SwipeBackPage(
             child: ActivityWebViewPage(url: url, activityType: activityType),
           );
         },
       ),
       GoRoute(
         path: RouteNames.paymentResult,
-        pageBuilder: (c, s) => MaterialPage(child: PointsPaymentSuccessPage.fromExtra(s.extra)),
+        pageBuilder: (c, s) => SwipeBackPage(child: PointsPaymentSuccessPage.fromExtra(s.extra)),
       ),
       GoRoute(
         path: RouteNames.cart,
-        pageBuilder: (c, s) => const MaterialPage(child: CartPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: CartPage()),
       ),
       GoRoute(
         path: RouteNames.checkout,
-        pageBuilder: (c, s) => const MaterialPage(child: CartPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: CartPage()),
       ),
       GoRoute(
         path: RouteNames.mallConfirmOrder,
-        pageBuilder: (c, s) => const MaterialPage(child: mall_order.ConfirmOrderPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: mall_order.ConfirmOrderPage()),
       ),
       GoRoute(
         path: RouteNames.mallPaymentSuccess,
-        pageBuilder: (c, s) => MaterialPage(child: MallPaymentSuccessPage.fromExtra(s.extra)),
+        pageBuilder: (c, s) => SwipeBackPage(child: MallPaymentSuccessPage.fromExtra(s.extra)),
       ),
       GoRoute(
         path: RouteNames.serviceCart,
@@ -397,44 +400,44 @@ final appRouter = Provider<GoRouter>((ref) {
           final cartId = int.tryParse(s.uri.queryParameters['cartId'] ?? '') ?? 0;
           final headImg = s.uri.queryParameters['headImg'];
           final userServiceId = int.tryParse(s.uri.queryParameters['userServiceId'] ?? '') ?? 0;
-          return MaterialPage(
+          return SwipeBackPage(
             child: ServiceCartPage(templateId: templateId, cartId: cartId, headImg: headImg, userServiceId: userServiceId),
           );
         },
       ),
       GoRoute(
         path: RouteNames.pointsDetail,
-        pageBuilder: (c, s) => const MaterialPage(child: PointsDetailPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: PointsDetailPage()),
       ),
       GoRoute(
         path: RouteNames.pointsRules,
-        pageBuilder: (c, s) => MaterialPage(
+        pageBuilder: (c, s) => SwipeBackPage(
           child: WebViewPage(url: RouteNames.pointsRulesUrl, title: '积分规则'),
         ),
       ),
       GoRoute(
         path: RouteNames.tianyoudeValueInstruction,
-        pageBuilder: (c, s) => MaterialPage(
+        pageBuilder: (c, s) => SwipeBackPage(
           child: WebViewPage(url: RouteNames.tianyoudeValueInstructionUrl, title: '天佑德值说明'),
         ),
       ),
       GoRoute(
         path: RouteNames.orders,
-        pageBuilder: (c, s) => MaterialPage(child: AllOrdersPage(initialStatus: s.uri.queryParameters['status'])),
+        pageBuilder: (c, s) => SwipeBackPage(child: AllOrdersPage(initialStatus: s.uri.queryParameters['status'])),
       ),
       GoRoute(
         path: RouteNames.invoiceCenter,
-        pageBuilder: (c, s) => const MaterialPage(child: InvoiceCenterPage()),
+        pageBuilder: (c, s) => const SwipeBackPage(child: InvoiceCenterPage()),
         routes: [
           GoRoute(
             path: 'detail/:id',
-            pageBuilder: (c, s) => MaterialPage(child: InvoiceDetailPage(invoiceId: s.pathParameters['id']!)),
+            pageBuilder: (c, s) => SwipeBackPage(child: InvoiceDetailPage(invoiceId: s.pathParameters['id']!)),
           ),
         ],
       ),
       GoRoute(
         path: RouteNames.orderDetail,
-        pageBuilder: (c, s) => MaterialPage(child: OrderDetailPage(orderId: s.pathParameters['id']!)),
+        pageBuilder: (c, s) => SwipeBackPage(child: OrderDetailPage(orderId: s.pathParameters['id']!)),
       ),
     ],
   );
@@ -467,19 +470,6 @@ class MainShell extends StatelessWidget {
   const MainShell({super.key, required this.navigationShell});
   void _goBranch(int index) => navigationShell.goBranch(index, initialLocation: true);
 
-  /// Tab 左滑映射（分支下标）：我的(3)→服务中心(2)→积分商城(1)→首页(0)；首页左滑无动作
-  static const Map<int, int> _swipeLeftTarget = {3: 2, 2: 1, 1: 0};
-
-  /// 左滑切换 Tab 的最小速度（逻辑像素/秒）
-  static const double _minSwipeVelocity = 300;
-
-  void _onHorizontalDragEnd(DragEndDetails details) {
-    final velocity = details.primaryVelocity ?? 0;
-    if (velocity >= -_minSwipeVelocity) return;
-    final target = _swipeLeftTarget[navigationShell.currentIndex];
-    if (target != null) _goBranch(target);
-  }
-
   static const _tabAssets = [
     (selected: 'assets/icon/tab_home_selected.png', unselected: 'assets/icon/tab_home_unselected.png'),
     (selected: 'assets/icon/tab_points_selected.png', unselected: 'assets/icon/tab_points_unselected.png'),
@@ -490,11 +480,7 @@ class MainShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final idx = navigationShell.currentIndex;
     return Scaffold(
-      body: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onHorizontalDragEnd: _onHorizontalDragEnd,
-        child: MainShellScope(hasBottomNavigation: true, child: navigationShell),
-      ),
+      body: MainShellScope(hasBottomNavigation: true, child: navigationShell),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
