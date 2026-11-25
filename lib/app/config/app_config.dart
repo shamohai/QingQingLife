@@ -21,7 +21,7 @@ abstract final class AppConfig {
   static const String appStoreUrl = '';
 
   /// 微信 AppID（中酒批APP）
-  static const String wechatAppId = 'wx64999b13fa01a983';
+  static const String wechatAppId = 'wxeb8af78de10ef6d2';
 
   /// App 内部导航使用的 Deep Link Scheme。
   static const String appScheme = 'qingqinglife';

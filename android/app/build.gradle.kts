@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    namespace = "cn.zhongjiubatch"
+    namespace = "cn.zhongjiumoment"
     compileSdk = 37
     //compileSdk = flutter.compileSdkVersion
     ndkVersion = "28.2.13676358"
@@ -46,7 +46,7 @@ android {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
 
         // applicationId = "com.qingkejiu.qingqinglife"
-        applicationId = "cn.zhongjiubatch"
+        applicationId = "cn.zhongjiumoment"
 
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
