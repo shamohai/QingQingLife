@@ -21,6 +21,9 @@ class _MainTabPageViewState extends State<MainTabPageView> {
   GoRouter? _router;
   bool _locked = false;
 
+  /// 程序触发的翻页动画进行中。动画途经的中间页不应被当作用户滑动，否则会切到错误的分支。
+  bool _programmaticScroll = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -43,11 +46,15 @@ class _MainTabPageViewState extends State<MainTabPageView> {
     super.didUpdateWidget(oldWidget);
     final idx = widget.navigationShell.currentIndex;
     if (idx != oldWidget.navigationShell.currentIndex && _controller.hasClients && _controller.page?.round() != idx) {
-      _controller.animateToPage(idx, duration: const Duration(milliseconds: 260), curve: Curves.easeOutCubic);
+      _programmaticScroll = true;
+      _controller.animateToPage(idx, duration: const Duration(milliseconds: 260), curve: Curves.easeOutCubic).whenComplete(() {
+        if (mounted) _programmaticScroll = false;
+      });
     }
   }
 
   void _onPageChanged(int index) {
+    if (_programmaticScroll) return;
     if (index != widget.navigationShell.currentIndex) {
       widget.navigationShell.goBranch(index, initialLocation: true);
     }
