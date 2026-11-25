@@ -49,7 +49,9 @@ class ServiceTabBar extends StatelessWidget {
               final isSelected = selectedTab == tabKey;
               return SizedBox(
                 width: tabWidth,
+                height: 44,
                 child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: () => onTabChanged(tabKey),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
