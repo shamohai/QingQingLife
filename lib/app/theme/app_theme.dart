@@ -14,19 +14,21 @@ abstract final class AppTheme {
     brightness: Brightness.light,
 
     // Color scheme
+    // 容器色与 outline 在 ColorScheme 构造函数中为私有参数，需通过 copyWith 设置
     colorScheme: const ColorScheme.light(
       primary: AppColors.primary,
       onPrimary: AppColors.onPrimary,
-      primaryContainer: AppColors.primaryContainer,
-      onPrimaryContainer: AppColors.onPrimaryContainer,
       secondary: AppColors.secondary,
       onSecondary: AppColors.onSecondary,
-      secondaryContainer: AppColors.secondaryContainer,
-      onSecondaryContainer: AppColors.onSecondaryContainer,
       surface: AppColors.surface,
       onSurface: AppColors.onSurface,
       error: AppColors.error,
       onError: AppColors.onError,
+    ).copyWith(
+      primaryContainer: AppColors.primaryContainer,
+      onPrimaryContainer: AppColors.onPrimaryContainer,
+      secondaryContainer: AppColors.secondaryContainer,
+      onSecondaryContainer: AppColors.onSecondaryContainer,
       outline: AppColors.outline,
     ),
 
@@ -96,19 +98,21 @@ abstract final class AppTheme {
     useMaterial3: true,
     brightness: Brightness.dark,
 
+    // 容器色与 outline 在 ColorScheme 构造函数中为私有参数，需通过 copyWith 设置
     colorScheme: const ColorScheme.dark(
       primary: AppColors.darkPrimary,
       onPrimary: AppColors.darkOnPrimary,
-      primaryContainer: AppColors.darkPrimaryContainer,
-      onPrimaryContainer: AppColors.darkOnPrimaryContainer,
       secondary: AppColors.darkSecondary,
       onSecondary: AppColors.darkOnSecondary,
-      secondaryContainer: AppColors.darkSecondaryContainer,
-      onSecondaryContainer: AppColors.darkOnSecondaryContainer,
       surface: AppColors.darkSurface,
       onSurface: AppColors.darkOnSurface,
       error: AppColors.darkError,
       onError: AppColors.darkOnError,
+    ).copyWith(
+      primaryContainer: AppColors.darkPrimaryContainer,
+      onPrimaryContainer: AppColors.darkOnPrimaryContainer,
+      secondaryContainer: AppColors.darkSecondaryContainer,
+      onSecondaryContainer: AppColors.darkOnSecondaryContainer,
       outline: AppColors.darkOutline,
     ),
 

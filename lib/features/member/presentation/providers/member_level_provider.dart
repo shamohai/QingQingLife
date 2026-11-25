@@ -67,6 +67,9 @@ class MemberMonthlyCoupon {
   final int pid;
   final String? productImg;
 
+  /// 权益是否已核销（getrankdetail services[].settlemented）
+  final bool settlemented;
+
   const MemberMonthlyCoupon({
     required this.serviceId,
     this.serviceCode = '',
@@ -82,6 +85,7 @@ class MemberMonthlyCoupon {
     this.bailihuiType = 0,
     this.pid = 0,
     this.productImg,
+    this.settlemented = false,
   });
 
   MemberMonthlyCoupon copyWith({bool? isReceived, bool? hasReceived, int? userServiceId}) {
@@ -98,6 +102,7 @@ class MemberMonthlyCoupon {
       productType: productType,
       userServiceId: userServiceId ?? this.userServiceId,
       bailihuiType: bailihuiType,
+      settlemented: settlemented,
       pid: pid,
       productImg: productImg,
     );
@@ -491,6 +496,7 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
               isReceived: monthlyHasReceived || e.isreceived,
               hasOwned: monthlyHasOwned,
               hasReceived: monthlyHasReceived || e.isreceived,
+              settlemented: monthlyService?.settlemented ?? false,
               instanceType: monthlyInstanceType,
               receivedDate: e.receiveddate,
               productType: e.producttype,
@@ -513,6 +519,7 @@ class MemberLevelNotifier extends Notifier<MemberLevelState> {
             isReceived: e.hasreceived,
             hasOwned: e.hasowned,
             hasReceived: e.hasreceived,
+            settlemented: e.settlemented,
             instanceType: e.instancetype,
             userServiceId: monthlyUserServiceId ?? e.userserviceid ?? 0,
           ),

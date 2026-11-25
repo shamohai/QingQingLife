@@ -9,6 +9,7 @@ import 'package:qingqinglife/features/home/data/models/weimeng_activity_location
 
 import '../../../core/logging/app_logger.dart';
 import '../../share/activity_share_message.dart';
+import '../../webview/app_webview_user_agent.dart';
 import '../../widgets/app_share_sheet.dart';
 
 /// 活动专用 H5 页面，提供 AppShare JavaScriptChannel，不影响常规 WebView。
@@ -97,13 +98,7 @@ class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
     final finalUrl = await _buildFinalUrl();
     if (finalUrl == null) return;
     AppLogger.debug('线上活动 WebView 加载 URL: $finalUrl', module: 'activity_webview');
-    try {
-      final defaultUA = await controller.getUserAgent();
-      final customUA = (defaultUA != null && defaultUA.isNotEmpty) ? '$defaultUA QingQingLife/1.0.0 qqshApp/1.0.0' : 'QingQingLife/1.0.0 qqshApp/1.0.0';
-      await controller.setUserAgent(customUA);
-    } catch (_) {
-      await controller.setUserAgent('QingQingLife/1.0.0 qqshApp/1.0.0');
-    }
+    await applyAppUserAgent(controller);
     if (mounted) {
       await controller.loadRequest(Uri.parse(finalUrl));
     }

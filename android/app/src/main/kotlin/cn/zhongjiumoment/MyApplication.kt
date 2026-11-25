@@ -1,4 +1,4 @@
-package cn.zhongjiubatch
+package cn.zhongjiumoment
 
 import android.app.Application
 import com.umeng.commonsdk.UMConfigure

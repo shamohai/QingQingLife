@@ -1,4 +1,4 @@
-package cn.zhongjiubatch.wxapi
+package cn.zhongjiumoment.wxapi
 
 import com.jarvan.fluwx.wxapi.FluwxWXEntryActivity
 

@@ -8,6 +8,7 @@ class ConfirmOrderBottomBar extends ConsumerWidget {
   final int quantity;
   final int pointsBalance;
   final bool isSubmitting;
+  final bool isBenefit;
   final VoidCallback onSubmit;
 
   const ConfirmOrderBottomBar({
@@ -16,13 +17,16 @@ class ConfirmOrderBottomBar extends ConsumerWidget {
     required this.quantity,
     required this.pointsBalance,
     this.isSubmitting = false,
+    this.isBenefit = false,
     required this.onSubmit,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 合计积分始终按单价 × 数量展示
     final totalPoints = product.points * quantity;
-    final isPointsEnough = pointsBalance >= totalPoints;
+    // 权益进入无需支付积分，跳过余额校验；普通商品需积分余额足够才可提交
+    final isPointsEnough = isBenefit || pointsBalance >= totalPoints;
     final isClickable = isPointsEnough && !isSubmitting;
 
     return Container(
@@ -63,14 +67,28 @@ class ConfirmOrderBottomBar extends ConsumerWidget {
                               Flexible(
                                 child: Text(
                                   '$totalPoints',
-                                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500, color: Color(0xFFFE273D), height: 1.1),
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w500,
+                                    color: const Color(0xFFFE273D),
+                                    height: 1.1,
+                                    decoration: isBenefit ? TextDecoration.lineThrough : TextDecoration.none,
+                                    decorationColor: const Color(0xFFFE273D),
+                                  ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               const SizedBox(width: 2),
-                              const Text(
+                              Text(
                                 '积分',
-                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFFFE273D), height: 1.1),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: const Color(0xFFFE273D),
+                                  height: 1.1,
+                                  decoration: isBenefit ? TextDecoration.lineThrough : TextDecoration.none,
+                                  decorationColor: const Color(0xFFFE273D),
+                                ),
                               ),
                             ],
                           ),

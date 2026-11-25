@@ -40,10 +40,10 @@
         </activity>
         <!-- 微信授权回调 -->
         <activity
-            android:name="cn.zhongjiubatch.wxapi.WXEntryActivity"
+            android:name="cn.zhongjiumoment.wxapi.WXEntryActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:taskAffinity="cn.zhongjiubatch"
+            android:taskAffinity="cn.zhongjiumoment"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <meta-data
             android:name="flutterEmbedding"

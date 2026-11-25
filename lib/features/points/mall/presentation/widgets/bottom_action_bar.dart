@@ -17,34 +17,36 @@ import 'tips_dialog.dart';
 class BottomActionBar extends ConsumerWidget {
   final ServiceProductDetail product;
   final String productId;
+  final int? userServiceId;
 
-  const BottomActionBar({super.key, required this.product, required this.productId});
+  const BottomActionBar({super.key, required this.product, required this.productId, this.userServiceId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      height: 80,
       decoration: const BoxDecoration(
         color: Colors.white,
         boxShadow: [BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, -2))],
       ),
       child: SafeArea(
         top: false,
-        bottom: true,
-        child: Center(
-          child: GestureDetector(
-            onTap: () => _handleExchange(context, ref),
-            child: Container(
-              width: 337,
-              height: 42,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(999),
-                gradient: const LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Color(0xFF3152AF), Color(0xFF213775)]),
-              ),
-              child: const Center(
-                child: Text(
-                  '立即兑换',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
+        child: SizedBox(
+          height: 62,
+          child: Center(
+            child: GestureDetector(
+              onTap: () => _handleExchange(context, ref),
+              child: Container(
+                width: 337,
+                height: 42,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(999),
+                  gradient: const LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Color(0xFF3152AF), Color(0xFF213775)]),
+                ),
+                child: const Center(
+                  child: Text(
+                    '立即兑换',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
+                  ),
                 ),
               ),
             ),
@@ -92,7 +94,7 @@ class BottomActionBar extends ConsumerWidget {
       );
       if (!context.mounted) return;
       if (confirmed == true) {
-        GoRouter.of(context).push(RouteNames.confirmOrder.replaceFirst(':id', effectiveId));
+        GoRouter.of(context).push(RouteNames.confirmOrderPath(productId: effectiveId, userServiceId: userServiceId));
       }
     } else {
       if (!context.mounted) return;

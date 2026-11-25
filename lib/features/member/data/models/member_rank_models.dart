@@ -319,6 +319,9 @@ class SysServiceItem {
   /// 用户是否已领取此权益
   final bool hasreceived;
 
+  /// 权益是否已核销
+  final bool settlemented;
+
   /// 用户权益绑定信息
   final ServiceBindInfo? bindinfo;
 
@@ -332,6 +335,7 @@ class SysServiceItem {
     this.icon,
     this.hasowned = false,
     this.hasreceived = false,
+    this.settlemented = false,
     this.bindinfo,
   });
 
@@ -357,6 +361,7 @@ class SysServiceItem {
       icon: json['icon'] as String?,
       hasowned: _asBool(json['hasowned']),
       hasreceived: _asBool(json['hasreceived']),
+      settlemented: _asBool(json['settlemented']),
       bindinfo: json['bindinfo'] == null ? null : ServiceBindInfo.fromJson(json['bindinfo'] as Map<String, dynamic>),
     );
   }
@@ -372,6 +377,7 @@ class SysServiceItem {
       icon: icon,
       hasowned: hasowned ?? this.hasowned,
       hasreceived: hasreceived ?? this.hasreceived,
+      settlemented: settlemented,
       bindinfo: bindinfo ?? this.bindinfo,
     );
   }

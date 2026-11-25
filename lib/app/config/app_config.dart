@@ -16,8 +16,12 @@ abstract final class AppConfig {
   /// API Base URL（当前为测试环境，正式发布前必须切换为生产地址）
   static const String baseUrl = 'https://apitest.mall.qkj.com.cn';
 
+  /// iOS App Store 应用页地址（如 https://apps.apple.com/cn/app/idxxxxxxxx）
+  /// TODO: 上线前填写真实地址；接口文档未提供该字段，为空时 iOS 回退到接口返回的 fileurl。
+  static const String appStoreUrl = '';
+
   /// 微信 AppID（中酒批APP）
-  static const String wechatAppId = 'wx64999b13fa01a983';
+  static const String wechatAppId = 'wxeb8af78de10ef6d2';
 
   /// App 内部导航使用的 Deep Link Scheme。
   static const String appScheme = 'qingqinglife';

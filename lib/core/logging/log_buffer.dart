@@ -60,6 +60,8 @@ class LogBuffer {
 
   bool get isEmpty => _queue.isEmpty;
   int get length => _queue.length;
+
+  /// 取日志时优先使用外部存储路径（USB / 文件管理器可直接访问）
   String get localFilePath => _externalFile?.path ?? _localFile?.path ?? 'memory';
 
   void _removeExpired() {
@@ -68,12 +70,19 @@ class LogBuffer {
     _saveToFile();
   }
 
-  Future<void> _saveToFile() async {
+  /// 串行写入：所有保存排队执行，避免并发写同一文件时内容交错
+  Future<void> _pendingWrite = Future.value();
+
+  void _saveToFile() {
+    _pendingWrite = _pendingWrite.then((_) => _writeNow()).catchError((_) {});
+  }
+
+  Future<void> _writeNow() async {
     if (kIsWeb || _localFile == null) return;
-    final entries = _queue.length > _maxLocalSize ? _queue.sublist(_queue.length - _maxLocalSize) : _queue;
+    final entries = _queue.length > _maxLocalSize ? _queue.sublist(_queue.length - _maxLocalSize) : List<LogEntry>.from(_queue);
     final content = const JsonEncoder.withIndent('  ').convert(entries.map((e) => e.toJson()).toList());
-    await _localFile!.writeAsString(content);
-    await _externalFile?.writeAsString(content);
+    await _localFile!.writeAsString(content, flush: true);
+    await _externalFile?.writeAsString(content, flush: true);
   }
 
   Future<void> _loadFromFile() async {

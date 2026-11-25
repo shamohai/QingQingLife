@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../../app/theme/app_spacing.dart';
+import '../../data/models/recharge_mobile_validator.dart';
 
 /// 兑换人/手机号接收信息表单（RecvrMobile）
 class ConfirmOrderRedeemerForm extends StatefulWidget {
+  /// 默认充值账号（接口 defaultrechargemobile），作为输入框初始值
+  final String? initialPhone;
   final ValueChanged<String>? onPhoneChanged;
   final VoidCallback onSubmitted;
 
-  const ConfirmOrderRedeemerForm({super.key, this.onPhoneChanged, required this.onSubmitted});
+  const ConfirmOrderRedeemerForm({super.key, this.initialPhone, this.onPhoneChanged, required this.onSubmitted});
 
   @override
   State<ConfirmOrderRedeemerForm> createState() => _ConfirmOrderRedeemerFormState();
@@ -19,6 +22,15 @@ class _ConfirmOrderRedeemerFormState extends State<ConfirmOrderRedeemerForm> {
   final _phoneFocus = FocusNode();
 
   @override
+  void initState() {
+    super.initState();
+    final initialPhone = widget.initialPhone?.trim() ?? '';
+    if (initialPhone.isNotEmpty) {
+      _phoneController.text = initialPhone;
+    }
+  }
+
+  @override
   void dispose() {
     _phoneController.dispose();
     _phoneFocus.dispose();
@@ -27,8 +39,8 @@ class _ConfirmOrderRedeemerFormState extends State<ConfirmOrderRedeemerForm> {
 
   void _submit() {
     final phone = _phoneController.text.trim();
-    if (phone.isEmpty || phone.length != 11 || !RegExp(r'^\d+$').hasMatch(phone)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('请输入正确的11位手机号')));
+    if (!RechargeMobileValidator.isValid(phone)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(RechargeMobileValidator.errorMessage)));
       _phoneFocus.requestFocus();
       return;
     }
@@ -38,11 +50,7 @@ class _ConfirmOrderRedeemerFormState extends State<ConfirmOrderRedeemerForm> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(
-        left: AppSpacing.compactPageMargin,
-        right: AppSpacing.compactPageMargin,
-        top: AppSpacing.md,
-      ),
+      margin: const EdgeInsets.only(left: AppSpacing.compactPageMargin, right: AppSpacing.compactPageMargin, top: AppSpacing.md),
       padding: const EdgeInsets.only(left: AppSpacing.xxl, top: AppSpacing.lg, bottom: AppSpacing.xxl),
       decoration: BoxDecoration(
         color: Colors.white,

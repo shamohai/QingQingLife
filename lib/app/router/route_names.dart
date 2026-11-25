@@ -67,12 +67,21 @@ abstract final class RouteNames {
   // 积分商城服务商品详情
   static const String serviceProductDetail = '/points/service/:id';
 
-  static String serviceProductDetailPath({required String productId}) {
-    return serviceProductDetail.replaceFirst(':id', Uri.encodeComponent(productId));
+  static String serviceProductDetailPath({required String productId, int? userServiceId}) {
+    final path = serviceProductDetail.replaceFirst(':id', Uri.encodeComponent(productId));
+    if (userServiceId == null || userServiceId <= 0) return path;
+    return Uri(path: path, queryParameters: {'userServiceId': '$userServiceId'}).toString();
   }
 
   // 积分商城服务商品确认订单
   static const String confirmOrder = '/points/service/:id/confirm';
+
+  static String confirmOrderPath({required String productId, int? userServiceId}) {
+    final path = confirmOrder.replaceFirst(':id', Uri.encodeComponent(productId));
+    if (userServiceId == null || userServiceId <= 0) return path;
+    return Uri(path: path, queryParameters: {'userServiceId': '$userServiceId'}).toString();
+  }
+
   // 服务券支付订单确认
   static const String serviceCouponConfirmOrder = '/points/service/:id/coupon-order';
 

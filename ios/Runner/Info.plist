@@ -24,7 +24,7 @@
 					<string>weixin</string>
 					<key>CFBundleSchemes</key>
 					<array>
-							<string>wx64999b13fa01a983</string>
+							<string>wxeb8af78de10ef6d2</string>
 					</array>
 			</dict>
 			<dict>
@@ -60,6 +60,10 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>用于获取您所在的大致位置，以提供附近的服务与门店信息</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>用于获取您所在的大致位置，以提供附近的服务与门店信息</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSCameraUsageDescription</key>
 	<string>用于拍摄并更换个人头像</string>
 	<key>NSPhotoLibraryUsageDescription</key>

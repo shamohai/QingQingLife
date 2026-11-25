@@ -25,7 +25,7 @@ class PointsDetailPage extends ConsumerStatefulWidget {
 }
 
 class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
-  // 记录展开状态的月份 Key 集合，默认为空即全部折叠
+  // 记录展开状态的月份 Key 集合；有数据时由 build 中的监听默认展开第一个月份
   final Set<String> _expandedMonths = {};
 
   @override
@@ -50,6 +50,22 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(pointsDetailProvider);
 
+    // 第一个月份变化（首次加载数据或刷新后）时，默认展开第一个月份
+    ref.listen<String>(
+      pointsDetailProvider.select((s) {
+        final months = s.availableMonths;
+        return months.isEmpty ? '' : months.first;
+      }),
+      (previous, next) {
+        if (next.isEmpty) return;
+        setState(() {
+          _expandedMonths
+            ..clear()
+            ..add(next);
+        });
+      },
+    );
+
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F7),
       body: SafeArea(
@@ -65,7 +81,7 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
             // 2. Banner 内容区（AppBar + 当前积分）
             _buildBannerContent(context, state),
             // 3. 独立月份卡片列表：作为 Root Stack 的直接子节点，设置 top 偏移实现重叠，确保手势完全可以正常响应
-            Padding(padding: const EdgeInsets.only(top: 180), child: _buildRecordList(context, state)),
+            Padding(padding: const EdgeInsets.only(top: 196), child: _buildRecordList(context, state)),
           ],
         ),
       ),
@@ -112,7 +128,7 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
         ),
         // 余额展示区
         Padding(
-          padding: const EdgeInsets.only(left: 32, top: 24, right: 22),
+          padding: const EdgeInsets.only(left: 26, top: 24, right: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

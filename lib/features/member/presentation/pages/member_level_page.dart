@@ -182,6 +182,12 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
   }
 
   Future<void> _handleMonthlyCouponTap(BuildContext context, MemberMonthlyCoupon coupon) async {
+    // 已领取且已核销：仅提示，不做跳转
+    if (coupon.hasReceived && coupon.settlemented) {
+      _showMessage(context, '本月权益已领取');
+      return;
+    }
+
     final result = await ref.read(memberLevelProvider.notifier).useMonthlyCoupon(coupon);
     if (!context.mounted) return;
     await _handleBenefitResult(context, result);

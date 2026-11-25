@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/widgets/app_image.dart';
@@ -26,6 +27,9 @@ class _HeroSectionState extends State<HeroSection> {
   Timer? _timer;
   bool _isInteracting = false;
 
+  /// 图片 url -> 高宽比（height / width），图片加载完成后记录，用于按真实比例展示
+  final Map<String, double> _aspectRatios = {};
+
   List<String> get _images => widget.product.carouselImages.isNotEmpty ? widget.product.carouselImages : [];
 
   @override
@@ -33,7 +37,41 @@ class _HeroSectionState extends State<HeroSection> {
     super.initState();
     final images = _images;
     _pageController = PageController(initialPage: images.length > 1 ? images.length * 1000 : 0);
+    for (final url in images) {
+      _resolveAspectRatio(url);
+    }
     _startTimer();
+  }
+
+  @override
+  void didUpdateWidget(covariant HeroSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    for (final url in _images) {
+      _resolveAspectRatio(url);
+    }
+  }
+
+  void _resolveAspectRatio(String url) {
+    final normalized = normalizeImageUrl(url);
+    if (normalized == null || normalized.startsWith('assets/') || _aspectRatios.containsKey(url)) return;
+    final stream = CachedNetworkImageProvider(normalized).resolve(ImageConfiguration.empty);
+    late final ImageStreamListener listener;
+    listener = ImageStreamListener((info, _) {
+      stream.removeListener(listener);
+      final width = info.image.width;
+      if (!mounted || width == 0) return;
+      setState(() => _aspectRatios[url] = info.image.height / width);
+    }, onError: (_, _) => stream.removeListener(listener));
+    stream.addListener(listener);
+  }
+
+  /// 轮播区域高度：宽度撑满屏幕，高度按当前图片真实比例计算，保证图片完整显示
+  double _carouselHeight(BuildContext context) {
+    final images = _images;
+    if (images.isEmpty) return 340;
+    final ratio = _aspectRatios[images[_currentPage % images.length]];
+    if (ratio == null) return 340;
+    return MediaQuery.sizeOf(context).width * ratio;
   }
 
   void _startTimer() {
@@ -62,13 +100,13 @@ class _HeroSectionState extends State<HeroSection> {
 
     return Stack(
       children: [
-        // 1. 真实设计背景轮播图（439×439，覆盖整个 Hero 区域）
+        // 1. 真实设计背景轮播图（宽度撑满，高度适当压缩以适配老旧安卓机屏幕）
         SizedBox(
-          height: 389,
+          height: _carouselHeight(context),
           child: images.isEmpty
               ? Container(color: Colors.grey[200])
               : images.length == 1
-              ? AppNetworkImage(url: images.first, fit: BoxFit.cover, width: double.infinity)
+              ? AppNetworkImage(url: images.first, fit: BoxFit.fitWidth, width: double.infinity)
               : Listener(
                   onPointerDown: (_) {
                     _isInteracting = true;
@@ -92,51 +130,44 @@ class _HeroSectionState extends State<HeroSection> {
                       _startTimer();
                     },
                     itemBuilder: (context, index) {
-                      return AppNetworkImage(url: images[index % images.length], fit: BoxFit.cover, width: double.infinity);
+                      return AppNetworkImage(url: images[index % images.length], fit: BoxFit.fitWidth, width: double.infinity);
                     },
                   ),
                 ),
         ),
 
-        // 2. 返回胶囊按钮（设计稿：margin-top=50, margin-left=24）
+        // 2. 返回按钮
         Positioned(
           top: statusBarHeight + 4,
-          child: Container(
-            height: 44,
-            decoration: BoxDecoration(color: const Color(0x4D000000), borderRadius: BorderRadius.circular(6)),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 22),
-                  onPressed: widget.onBack,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(right: 10),
-                  child: Text(
-                    '商品详情',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
-                  ),
-                ),
-              ],
+          left: 16,
+          child: Material(
+            color: const Color(0x4D000000),
+            shape: const CircleBorder(),
+            clipBehavior: Clip.antiAlias,
+            child: IconButton(
+              tooltip: '返回',
+              onPressed: widget.onBack,
+              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
+              constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+              padding: EdgeInsets.zero,
             ),
           ),
         ),
 
-        // 3. 右上角分享按钮，与返回胶囊保持相同的顶部安全区偏移。
+        // 3. 右上角分享按钮，与返回按钮保持相同的顶部安全区偏移和尺寸。
         Positioned(
-          top: statusBarHeight + 2,
+          top: statusBarHeight + 4,
           right: 16,
           child: Material(
             color: const Color(0x4D000000),
-            borderRadius: BorderRadius.circular(6),
+            shape: const CircleBorder(),
+            clipBehavior: Clip.antiAlias,
             child: IconButton(
               tooltip: '分享',
               onPressed: widget.onShare,
-              icon: const Icon(Icons.share_outlined, color: Colors.white, size: 22),
-              constraints: const BoxConstraints(minWidth: 44, minHeight: 40),
+              icon: const Icon(Icons.share_outlined, color: Colors.white, size: 18),
+              constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+              padding: EdgeInsets.zero,
             ),
           ),
         ),
