@@ -91,14 +91,15 @@ class StartupVideoUpdateService {
       final savedBuild = await _storage.getString(_localAppBuildNumberKey) ?? '';
 
       if (savedBuild.isNotEmpty && savedBuild != currentBuild) {
-        AppLogger.info('检测到 apk 构建号变化 ($savedBuild -> $currentBuild)，删除旧热更新视频', module: 'startup_video_update');
-        final dir = await _getVideoDirectory();
-        for (final name in [_videoFileName, '$_videoFileName.tmp', _pendingVideoFileName, '$_pendingVideoFileName.tmp']) {
-          final f = File('${dir.path}/$name');
-          if (await f.exists()) await f.delete();
-        }
+        AppLogger.info('检测到 apk 构建号变化 ($savedBuild -> $currentBuild)，清除全部热更新镜像（hot_assets）', module: 'startup_video_update');
+        // 整个 hot_assets 目录（图片 + 启动视频）都属于旧 apk 的热更新，新 apk 已内置最新资源，全部清除
+        final root = await _getResourceDirectory();
+        if (await root.exists()) await root.delete(recursive: true);
+        await _getResourceDirectory();
         await _storage.remove(_localVideoMd5Key);
         await _storage.remove(_pendingVideoMd5Key);
+        // 不重置 hotfixversion：保持与服务端的版本记录一致。
+        // 资源 MD5 记录（resource_md5_*）无需删除：目录已不存在，同步时会因文件缺失而重新下载。
       }
       await _promotePendingVideo();
       await _storage.putString(_localAppBuildNumberKey, currentBuild);
@@ -210,7 +211,7 @@ class StartupVideoUpdateService {
     final storageKey = '$_resourceMd5KeyPrefix${item.localPath}';
     final localMd5 = await _storage.getString(storageKey) ?? '';
     final exists = await targetFile.exists();
-    // [日志调试-已注释] AppLogger.warning('资源同步检查: ${item.localPath} exists=$exists localMd5=$localMd5 remoteMd5=${item.md5} target=${targetFile.path}', module: 'hot_asset');
+    // [日志调试-已注释] AppLogger.warning('资源同步检查: ${item.localPath} exists=$exists localMd5=$localMd5 remoteMd5=${item.md5} target=${targetFile.path}', module: 'hot_assets');
     if (exists && localMd5.isNotEmpty && localMd5.toLowerCase() == item.md5.toLowerCase()) {
       return _SyncOutcome.unchanged;
     }
@@ -258,7 +259,7 @@ class StartupVideoUpdateService {
         await targetFile.delete();
       }
       await tmpFile.rename(targetFile.path);
-      // [日志调试-已注释] AppLogger.warning('热更新文件已落盘: ${targetFile.path} size=${await targetFile.length()}', module: 'hot_asset');
+      // [日志调试-已注释] AppLogger.warning('热更新文件已落盘: ${targetFile.path} size=${await targetFile.length()}', module: 'hot_assets');
       return true;
     } catch (e) {
       AppLogger.error('下载热更新文件异常 (${item.localPath})', module: 'startup_video_update', error: e);
@@ -338,7 +339,7 @@ class HotAssetBundle extends AssetBundle {
   // [日志调试-已注释]
   // static void _logOnce(String key, String message) {
   //   if (_logged.add(key)) {
-  //     AppLogger.warning(message, module: 'hot_asset');
+  //     AppLogger.warning(message, module: 'hot_assets');
   //   }
   // }
 }
