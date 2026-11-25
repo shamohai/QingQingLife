@@ -24,28 +24,29 @@ class BottomActionBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      height: 80,
       decoration: const BoxDecoration(
         color: Colors.white,
         boxShadow: [BoxShadow(color: Color(0x1A000000), blurRadius: 4, offset: Offset(0, -2))],
       ),
       child: SafeArea(
         top: false,
-        bottom: true,
-        child: Center(
-          child: GestureDetector(
-            onTap: () => _handleExchange(context, ref),
-            child: Container(
-              width: 337,
-              height: 42,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(999),
-                gradient: const LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Color(0xFF3152AF), Color(0xFF213775)]),
-              ),
-              child: const Center(
-                child: Text(
-                  '立即兑换',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
+        child: SizedBox(
+          height: 80,
+          child: Center(
+            child: GestureDetector(
+              onTap: () => _handleExchange(context, ref),
+              child: Container(
+                width: 337,
+                height: 42,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(999),
+                  gradient: const LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Color(0xFF3152AF), Color(0xFF213775)]),
+                ),
+                child: const Center(
+                  child: Text(
+                    '立即兑换',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
+                  ),
                 ),
               ),
             ),

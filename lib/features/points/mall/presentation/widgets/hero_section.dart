@@ -136,45 +136,38 @@ class _HeroSectionState extends State<HeroSection> {
                 ),
         ),
 
-        // 2. 返回胶囊按钮（设计稿：margin-top=50, margin-left=24）
+        // 2. 返回按钮
         Positioned(
           top: statusBarHeight + 4,
-          child: Container(
-            height: 44,
-            decoration: BoxDecoration(color: const Color(0x4D000000), borderRadius: BorderRadius.circular(6)),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 22),
-                  onPressed: widget.onBack,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(right: 10),
-                  child: Text(
-                    '商品详情',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
-                  ),
-                ),
-              ],
+          left: 16,
+          child: Material(
+            color: const Color(0x4D000000),
+            shape: const CircleBorder(),
+            clipBehavior: Clip.antiAlias,
+            child: IconButton(
+              tooltip: '返回',
+              onPressed: widget.onBack,
+              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
+              constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+              padding: EdgeInsets.zero,
             ),
           ),
         ),
 
-        // 3. 右上角分享按钮，与返回胶囊保持相同的顶部安全区偏移。
+        // 3. 右上角分享按钮，与返回按钮保持相同的顶部安全区偏移和尺寸。
         Positioned(
-          top: statusBarHeight + 2,
+          top: statusBarHeight + 4,
           right: 16,
           child: Material(
             color: const Color(0x4D000000),
-            borderRadius: BorderRadius.circular(6),
+            shape: const CircleBorder(),
+            clipBehavior: Clip.antiAlias,
             child: IconButton(
               tooltip: '分享',
               onPressed: widget.onShare,
-              icon: const Icon(Icons.share_outlined, color: Colors.white, size: 22),
-              constraints: const BoxConstraints(minWidth: 44, minHeight: 40),
+              icon: const Icon(Icons.share_outlined, color: Colors.white, size: 18),
+              constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+              padding: EdgeInsets.zero,
             ),
           ),
         ),

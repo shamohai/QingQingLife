@@ -88,23 +88,26 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                   ),
                 ),
 
-                SliverPersistentHeader(
-                  pinned: true,
-                  floating: true,
-                  delegate: _CategoryTabBarDelegate(
-                    tabHeight: 53,
+                SliverToBoxAdapter(
+                  child: Container(
                     margin: const EdgeInsets.only(left: AppSpacing.compactPageMargin, right: AppSpacing.compactPageMargin, top: 5),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        productsAsync.when(
-                          loading: () => const SizedBox(height: 44, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
-                          error: (_, _) => const SizedBox(height: 44),
-                          data: (catData) =>
-                              PointsCategoryTabBar(categories: catData.categories, activeCategoryId: _activeCategoryId, onCategoryTap: _onCategoryChanged),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
+                      child: Container(
+                        color: const Color(0xFF213775),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            productsAsync.when(
+                              loading: () => const SizedBox(height: 44, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
+                              error: (_, _) => const SizedBox(height: 44),
+                              data: (catData) =>
+                                  PointsCategoryTabBar(categories: catData.categories, activeCategoryId: _activeCategoryId, onCategoryTap: _onCategoryChanged),
+                            ),
+                            const SizedBox(height: 4),
+                          ],
                         ),
-                        const SizedBox(height: 4),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -120,35 +123,5 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
         ],
       ),
     );
-  }
-}
-
-class _CategoryTabBarDelegate extends SliverPersistentHeaderDelegate {
-  final double tabHeight;
-  final EdgeInsets margin;
-  final Widget child;
-
-  const _CategoryTabBarDelegate({required this.tabHeight, this.margin = EdgeInsets.zero, required this.child});
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      margin: margin,
-      child: ClipRRect(
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
-        child: Container(color: const Color(0xFF213775), child: child),
-      ),
-    );
-  }
-
-  @override
-  double get maxExtent => tabHeight;
-
-  @override
-  double get minExtent => tabHeight;
-
-  @override
-  bool shouldRebuild(covariant _CategoryTabBarDelegate oldDelegate) {
-    return tabHeight != oldDelegate.tabHeight || margin != oldDelegate.margin || child != oldDelegate.child;
   }
 }

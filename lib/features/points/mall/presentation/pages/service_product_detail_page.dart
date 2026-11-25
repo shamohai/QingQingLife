@@ -88,12 +88,7 @@ class ServiceProductDetailPage extends ConsumerWidget {
           left: 0,
           right: 0,
           bottom: 0,
-          child: SafeArea(
-            top: false,
-            left: false,
-            right: false,
-            child: BottomActionBar(product: product, productId: productId, userServiceId: userServiceId),
-          ),
+          child: BottomActionBar(product: product, productId: productId, userServiceId: userServiceId),
         ),
       ],
     );

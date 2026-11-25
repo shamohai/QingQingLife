@@ -68,96 +68,83 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F7),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            // 1. 渐变背景：高度 330px
-            // Container(
-            //   height: 330,
-            //   // decoration: const BoxDecoration(
-            //   //   gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFFFC65E), Color(0xFFF3F5F7)]),
-            //   // ),
-            // ),
-            // 2. Banner 内容区（AppBar + 当前积分）
-            _buildBannerContent(context, state),
-            // 3. 独立月份卡片列表：作为 Root Stack 的直接子节点，设置 top 偏移实现重叠，确保手势完全可以正常响应
-            Padding(padding: const EdgeInsets.only(top: 180), child: _buildRecordList(context, state)),
-          ],
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF3F5F7),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 22, color: AppColors.onSurface),
+          onPressed: () => context.pop(),
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
         ),
-      ),
-    );
-  }
-
-  // ── Banner 内容区：AppBar + 余额展示 ──────────────────────────────
-  Widget _buildBannerContent(BuildContext context, PointsDetailState state) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // AppBar 行
-        Padding(
-          padding: const EdgeInsets.only(right: 15, top: 8),
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, size: 22, color: AppColors.onSurface),
-                onPressed: () => context.pop(),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-              ),
-              const Text(
-                '积分明细',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.onSurface),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: () {
-                  if (kIsWeb) {
-                    launchUrl(Uri.parse(RouteNames.pointsRulesUrl), webOnlyWindowName: '_blank');
-                  } else {
-                    GoRouter.of(context).push(RouteNames.pointsRules);
-                  }
-                },
-                child: const Text(
+        title: const Text(
+          '积分明细',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.onSurface),
+        ),
+        centerTitle: false,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 15),
+            child: GestureDetector(
+              onTap: () {
+                if (kIsWeb) {
+                  launchUrl(Uri.parse(RouteNames.pointsRulesUrl), webOnlyWindowName: '_blank');
+                } else {
+                  GoRouter.of(context).push(RouteNames.pointsRules);
+                }
+              },
+              child: const Center(
+                child: Text(
                   '积分说明',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400, color: AppColors.onSurface),
                 ),
               ),
-            ],
+            ),
           ),
-        ),
-        // 余额展示区
-        Padding(
-          padding: const EdgeInsets.only(left: 32, top: 24, right: 22),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '当前积分',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.onSurface),
-                    ),
-                    const SizedBox(height: 4),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        NumberFormat('#,###').format(state.currentPoints),
-                        style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w600, color: AppColors.onSurface, height: 1.1, letterSpacing: -0.5),
-                      ),
-                    ),
-                    const SizedBox(height: 75),
-                  ],
+        ],
+      ),
+      body: Column(
+        children: [
+          _buildBalanceCard(context, state),
+          Expanded(
+            child: _buildRecordList(context, state),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── 余额展示区 ──────────────────────────────────────────────
+  Widget _buildBalanceCard(BuildContext context, PointsDetailState state) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(32, 12, 22, 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '当前积分',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.onSurface),
                 ),
-              ),
-              const _DecorationPlaceholder(),
-            ],
+                const SizedBox(height: 4),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    NumberFormat('#,###').format(state.currentPoints),
+                    style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w600, color: AppColors.onSurface, height: 1.1, letterSpacing: -0.5),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          const _DecorationPlaceholder(),
+        ],
+      ),
     );
   }
 
