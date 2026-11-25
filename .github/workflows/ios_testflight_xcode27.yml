@@ -6,6 +6,10 @@ name: iOS TestFlight - Xcode 27 (experimental)
 on:
   workflow_dispatch:
 
+# 构建号手动指定：每次上传前递增，必须大于 App Store Connect 中该版本已有的最大构建号
+env:
+  BUILD_NUMBER: "19"
+
 jobs:
   testflight:
     name: Build & Upload to TestFlight (Xcode 27)
@@ -100,7 +104,7 @@ jobs:
             DEVELOPMENT_TEAM="$TEAM_ID" \
             CODE_SIGNING_ALLOWED=NO \
             FLUTTER_BUILD_NAME=2.1.9 \
-            FLUTTER_BUILD_NUMBER=${{ github.run_number }} \
+            FLUTTER_BUILD_NUMBER=${{ env.BUILD_NUMBER }} \
             archive
 
       - name: Sign app and package IPA
