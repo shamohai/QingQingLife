@@ -46,9 +46,9 @@ class ShareCartTemplateDetail {
     required this.contacttPhone,
     required this.contactRemark,
     required this.serviceQrImg,
-    this.workWxMpPath = '',
-    this.contactName = '',
-    this.cartInfo,
+    required this.workWxMpPath,
+    required this.contactName,
+    required this.cartInfo,
   });
 
   factory ShareCartTemplateDetail.fromJson(Map<String, dynamic> json) {
