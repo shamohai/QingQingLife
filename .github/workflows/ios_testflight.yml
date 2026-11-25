@@ -7,7 +7,7 @@ on:
 
 # 构建号手动指定：每次上传前递增，必须大于 App Store Connect 中该版本已有的最大构建号
 env:
-  BUILD_NUMBER: "20"
+  BUILD_NUMBER: "21"
 
 jobs:
   testflight:
@@ -22,13 +22,13 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
           cache: true
 
       - name: Install Flutter dependencies
