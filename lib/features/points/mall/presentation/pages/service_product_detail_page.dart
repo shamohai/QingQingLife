@@ -81,7 +81,7 @@ class ServiceProductDetailPage extends ConsumerWidget {
                 child: ProductVisualCard(product: product),
               ),
             ),
-            SliverToBoxAdapter(child: SizedBox(height: 67 + bottomInset)),
+            SliverToBoxAdapter(child: SizedBox(height: 72 + bottomInset)),
           ],
         ),
         Positioned(
