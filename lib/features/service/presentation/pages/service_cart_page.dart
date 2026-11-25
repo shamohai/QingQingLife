@@ -430,6 +430,47 @@ class _ServiceCartPageState extends ConsumerState<ServiceCartPage> {
       }
 
       final uri = Uri(path: RouteNames.customerService, queryParameters: {'templateId': widget.templateId.toString()});
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) => PopScope(
+          canPop: false,
+          child: Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.check_circle_outline, size: 40, color: AppColors.success),
+                  const SizedBox(height: 16),
+                  const Text(
+                    '订单提交成功',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.black),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.serviceTabActive,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.round)),
+                        elevation: 0,
+                      ),
+                      child: const Text('联系客服付款', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      if (!context.mounted) return;
       await context.push(uri.toString());
     } on NetworkException catch (error) {
       if (!context.mounted) return;

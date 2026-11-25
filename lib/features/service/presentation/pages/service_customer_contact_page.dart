@@ -545,49 +545,25 @@ class ServiceCustomerInfo {
   final String phoneSubtitle;
   final String phoneNumber;
   final String workWxMpPath;
-  final String contactName;
   final String descriptionHtml;
 
   const ServiceCustomerInfo({
     required this.qrCodeUrl,
     required this.phoneLabel,
-    this.phoneSubtitle = '',
+    required this.phoneSubtitle,
     required this.phoneNumber,
-    this.workWxMpPath = '',
-    this.contactName = '',
-    this.descriptionHtml = '',
+    required this.workWxMpPath,
+    required this.descriptionHtml,
   });
 
   factory ServiceCustomerInfo.fromTemplate(ShareCartTemplateDetail detail) {
-    final contactRemarkInfo = _decodeContactRemark(detail.contactRemark);
-    final contactName = detail.contactName.isNotEmpty ? detail.contactName : _contactRemarkValue(contactRemarkInfo, 'TelName');
-    final phoneNumber = detail.contacttPhone.isNotEmpty ? detail.contacttPhone : _contactRemarkValue(contactRemarkInfo, 'Tel');
-    final qrCodeUrl = detail.serviceQrImg.isNotEmpty ? detail.serviceQrImg : _contactRemarkValue(contactRemarkInfo, 'WorkWxQrImg');
-    final workWxMpPath = detail.workWxMpPath.isNotEmpty ? detail.workWxMpPath : _contactRemarkValue(contactRemarkInfo, 'WorkWxMpPath');
-
     return ServiceCustomerInfo(
-      qrCodeUrl: qrCodeUrl,
-      phoneLabel: contactRemarkInfo == null ? detail.contactRemark : (contactName.isNotEmpty ? contactName : '客服电话'),
-      phoneSubtitle: _contactRemarkValue(contactRemarkInfo, 'ServiceDescr'),
-      phoneNumber: phoneNumber,
-      workWxMpPath: workWxMpPath,
-      contactName: contactName,
+      qrCodeUrl: detail.serviceQrImg.isNotEmpty ? detail.serviceQrImg : '',
+      phoneLabel: detail.contactName.isNotEmpty ? detail.contactName : '客服电话',
+      phoneSubtitle: detail.contactRemark.isNotEmpty ? detail.contactRemark : '',
+      phoneNumber: detail.contacttPhone.isNotEmpty ? detail.contacttPhone : '',
+      workWxMpPath: detail.workWxMpPath.isNotEmpty ? detail.workWxMpPath : '',
       descriptionHtml: detail.descriptionHtml,
     );
   }
-}
-
-Map<String, dynamic>? _decodeContactRemark(String value) {
-  try {
-    final decoded = jsonDecode(value);
-    return decoded is Map ? Map<String, dynamic>.from(decoded) : null;
-  } on FormatException {
-    return null;
-  }
-}
-
-String _contactRemarkValue(Map<String, dynamic>? info, String key) {
-  if (info == null) return '';
-  final value = info[key] ?? info[key.toLowerCase()];
-  return value?.toString().trim() ?? '';
 }
