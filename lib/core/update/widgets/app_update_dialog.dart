@@ -46,10 +46,10 @@ class _AppUpdateDialogState extends State<_AppUpdateDialog> {
     super.dispose();
   }
 
-  /// 更新说明区域的高度上限：屏幕高度的 45%，限定在 200–360 之间，避免小屏超出
+  /// 更新说明区域的高度上限：屏幕高度的 45%，限定在 180–360 之间，避免小屏超出
   double _bodyMaxHeight(BuildContext context) {
     final screenHeight = MediaQuery.sizeOf(context).height;
-    return (screenHeight * 0.45).clamp(200.0, 360.0);
+    return (screenHeight * 0.45).clamp(180.0, 360.0);
   }
 
   Future<void> _onUpdatePressed() async {
@@ -99,7 +99,7 @@ class _AppUpdateDialogState extends State<_AppUpdateDialog> {
                 child: SizedBox(
                   width: double.infinity,
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: 200, maxHeight: _bodyMaxHeight(context)),
+                    constraints: BoxConstraints(minHeight: 180, maxHeight: _bodyMaxHeight(context)),
                     child: Scrollbar(
                       controller: _scrollController,
                       thumbVisibility: true,

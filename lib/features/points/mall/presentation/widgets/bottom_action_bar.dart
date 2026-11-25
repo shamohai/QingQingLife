@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -31,21 +31,24 @@ class BottomActionBar extends ConsumerWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 62,
-          child: Center(
-            child: GestureDetector(
-              onTap: () => _handleExchange(context, ref),
-              child: Container(
-                width: 337,
-                height: 42,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(999),
-                  gradient: const LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Color(0xFF3152AF), Color(0xFF213775)]),
-                ),
-                child: const Center(
-                  child: Text(
-                    '立即兑换',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
+          height: 67,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 15, bottom: 10),
+            child: Center(
+              child: GestureDetector(
+                onTap: () => _handleExchange(context, ref),
+                child: Container(
+                  width: 337,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(999),
+                    gradient: const LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Color(0xFF3152AF), Color(0xFF213775)]),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      '立即兑换',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
+                    ),
                   ),
                 ),
               ),
