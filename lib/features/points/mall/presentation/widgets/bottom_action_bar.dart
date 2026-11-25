@@ -31,7 +31,7 @@ class BottomActionBar extends ConsumerWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 80,
+          height: 62,
           child: Center(
             child: GestureDetector(
               onTap: () => _handleExchange(context, ref),
