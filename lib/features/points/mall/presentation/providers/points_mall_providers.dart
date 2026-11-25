@@ -1,12 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../core/providers/repository_providers.dart';
+import '../../../../../core/providers/session_provider.dart';
 import '../../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/models/get_recommend_product_list_model.dart';
 import '../../data/models/points_product_model.dart';
 
 /// 积分商城顶部积分卡片数据：来自个人资料接口，失败时抛出由页面兜底展示。
+///
+/// 监听 [sessionProvider]：退出登录（或未登录）时直接返回 0，登录切换后自动重新拉取，
+/// 避免退出后仍展示上一个账号的积分。
 final pointsMallProfilePointsProvider = FutureProvider<({int points, int expiringPoints})>((ref) async {
+  final session = ref.watch(sessionProvider);
+  if (session != SessionState.authenticated) {
+    return (points: 0, expiringPoints: 0);
+  }
   final response = await ref.read(authProvider.notifier).getCurrentUser();
   if (!response.success || response.data == null) {
     throw Exception(response.message);

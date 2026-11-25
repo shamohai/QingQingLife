@@ -200,8 +200,8 @@ class _ConfirmOrderProductCardState extends State<ConfirmOrderProductCard> {
                   children: [
                     _QtyButton(label: '-', onTap: widget.isQuantityEditable ? widget.onDecrement : null, isMinus: true, enabled: widget.isQuantityEditable),
                     Container(
-                      width: 36,
-                      height: 28,
+                      width: 44,
+                      height: 34,
                       decoration: BoxDecoration(
                         color: widget.isQuantityEditable ? Colors.white : const Color(0xFFF3F5F7),
                         border: const Border.symmetric(horizontal: BorderSide(color: Color(0xFFD9D9D9), width: 1.0)),
@@ -268,8 +268,8 @@ class _QtyButton extends StatelessWidget {
       onTap: enabled ? onTap : null,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        width: 18,
-        height: 28,
+        width: 38,
+        height: 34,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: enabled ? const Color(0xFFF3F5F7) : const Color(0xFFEBEBEB),
@@ -278,7 +278,7 @@ class _QtyButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w400, color: enabled ? const Color(0xFF000000) : const Color(0xFFA0A0A0), height: 1.0),
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w400, color: enabled ? const Color(0xFF000000) : const Color(0xFFA0A0A0), height: 1.0),
         ),
       ),
     );

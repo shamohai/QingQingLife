@@ -400,8 +400,12 @@ Future<bool> showCancelOrderConfirmDialog(BuildContext context) async {
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 13),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 414, minHeight: 207, maxHeight: 207),
-        child: _CancelOrderDialog(onCancel: () => Navigator.of(dialogContext).pop(false), onConfirm: () => Navigator.of(dialogContext).pop(true)),
+        constraints: const BoxConstraints(maxWidth: 414, minHeight: 140, maxHeight: 140),
+        child: _CancelOrderDialog(
+          compact: true,
+          onCancel: () => Navigator.of(dialogContext).pop(false),
+          onConfirm: () => Navigator.of(dialogContext).pop(true),
+        ),
       ),
     ),
   );
@@ -413,24 +417,32 @@ class _CancelOrderDialog extends StatelessWidget {
   final VoidCallback onCancel;
   final VoidCallback onConfirm;
 
-  const _CancelOrderDialog({this.title = '你确定要取消订单吗？', required this.onCancel, required this.onConfirm});
+  /// 紧凑样式（取消订单弹窗使用）：更矮的高度、更小的字号，适配小屏设备
+  final bool compact;
+
+  const _CancelOrderDialog({this.title = '你确定要取消订单吗？', required this.onCancel, required this.onConfirm, this.compact = false});
 
   @override
   Widget build(BuildContext context) {
+    final titleFontSize = compact ? 18.0 : 20.0;
+    final buttonFontSize = compact ? 22.0 : 24.0;
+    final titlePaddingTop = compact ? 24.0 : 48.0;
+    final buttonAreaHeight = compact ? 52.0 : 79.0;
+
     return DecoratedBox(
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 48),
+            padding: EdgeInsets.only(top: titlePaddingTop),
             child: Text(
               title,
-              style: TextStyle(fontSize: 20, height: 1.4, fontWeight: FontWeight.w500, color: Colors.black),
+              style: TextStyle(fontSize: titleFontSize, height: 1.4, fontWeight: FontWeight.w500, color: Colors.black),
             ),
           ),
           const Spacer(),
           SizedBox(
-            height: 79,
+            height: buttonAreaHeight,
             child: DecoratedBox(
               decoration: const BoxDecoration(
                 border: Border(top: BorderSide(color: Color(0xFFE5E5E5))),
@@ -438,14 +450,14 @@ class _CancelOrderDialog extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: _CancelOrderDialogButton(label: '取消', color: Color(0xFF8E8E93), onPressed: onCancel),
+                    child: _CancelOrderDialogButton(label: '取消', color: Color(0xFF8E8E93), onPressed: onCancel, fontSize: buttonFontSize),
                   ),
                   const SizedBox(
                     height: double.infinity,
                     child: VerticalDivider(width: 1, thickness: 1, color: Color(0xFFE5E5E5)),
                   ),
                   Expanded(
-                    child: _CancelOrderDialogButton(label: '确认', color: Color(0xFF213775), onPressed: onConfirm),
+                    child: _CancelOrderDialogButton(label: '确认', color: Color(0xFF213775), onPressed: onConfirm, fontSize: buttonFontSize),
                   ),
                 ],
               ),
@@ -461,8 +473,9 @@ class _CancelOrderDialogButton extends StatelessWidget {
   final String label;
   final Color color;
   final VoidCallback onPressed;
+  final double fontSize;
 
-  const _CancelOrderDialogButton({required this.label, required this.color, required this.onPressed});
+  const _CancelOrderDialogButton({required this.label, required this.color, required this.onPressed, this.fontSize = 24});
 
   @override
   Widget build(BuildContext context) {
@@ -471,7 +484,7 @@ class _CancelOrderDialogButton extends StatelessWidget {
       style: TextButton.styleFrom(
         foregroundColor: color,
         shape: const RoundedRectangleBorder(),
-        textStyle: const TextStyle(fontSize: 24, height: 1.4, fontWeight: FontWeight.w500),
+        textStyle: TextStyle(fontSize: fontSize, height: 1.4, fontWeight: FontWeight.w500),
       ),
       child: Text(label),
     );
