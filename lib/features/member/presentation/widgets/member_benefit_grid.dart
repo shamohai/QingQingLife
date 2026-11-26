@@ -188,7 +188,15 @@ class _BenefitIcon extends StatelessWidget {
     if (iconUrl.isEmpty) return fallback;
 
     return ClipOval(
-      child: AppNetworkImage(url: iconUrl, width: 46, height: 46, fit: BoxFit.cover, memCacheWidth: 92, memCacheHeight: 92, errorWidget: fallback),
+      child: AppNetworkImage(
+        url: iconUrl,
+        width: 46,
+        height: 46,
+        fit: BoxFit.cover,
+        memCacheWidth: (46 * MediaQuery.devicePixelRatioOf(context)).round(),
+        memCacheHeight: (46 * MediaQuery.devicePixelRatioOf(context)).round(),
+        errorWidget: fallback,
+      ),
     );
   }
 }

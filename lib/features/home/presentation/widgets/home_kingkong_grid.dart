@@ -81,7 +81,12 @@ class _KingKongItem extends StatelessWidget {
             width: 44, // 44x44 图标尺寸，为 5 列网格和文字保留充足空间
             height: 44,
             child: item.iconUrl.isNotEmpty
-                ? AppNetworkImage(url: item.iconUrl, fit: BoxFit.contain, memCacheWidth: 88, memCacheHeight: 88)
+                ? AppNetworkImage(
+                    url: item.iconUrl,
+                    fit: BoxFit.contain,
+                    memCacheWidth: (44 * MediaQuery.devicePixelRatioOf(context)).round(),
+                    memCacheHeight: (44 * MediaQuery.devicePixelRatioOf(context)).round(),
+                  )
                 : Container(
                     decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(AppRadius.md)),
                     child: const Center(child: Icon(Icons.category_outlined, size: 24, color: Colors.grey)),

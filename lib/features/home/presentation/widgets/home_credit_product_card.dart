@@ -15,6 +15,8 @@ class HomeCreditProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     const cardWidth = 95.0;
     const imageHeight = 95.0;
+    // memCache 单位是物理像素，需按设备像素比换算，否则高分屏上图片会被放大发糊
+    final dpr = MediaQuery.devicePixelRatioOf(context);
 
     return SizedBox(
       width: cardWidth,
@@ -29,8 +31,8 @@ class HomeCreditProductCard extends StatelessWidget {
               width: cardWidth,
               height: imageHeight,
               fit: BoxFit.cover,
-              memCacheWidth: cardWidth.toInt(),
-              memCacheHeight: imageHeight.toInt(),
+              memCacheWidth: (cardWidth * dpr).round(),
+              memCacheHeight: (imageHeight * dpr).round(),
             ),
           ),
           const SizedBox(height: 6),

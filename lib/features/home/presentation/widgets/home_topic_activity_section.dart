@@ -99,6 +99,8 @@ class _TopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // memCache 单位是物理像素，需按设备像素比换算，否则高分屏上图片会被放大发糊
+    final dpr = MediaQuery.devicePixelRatioOf(context);
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -122,8 +124,8 @@ class _TopicCard extends StatelessWidget {
                           fit: BoxFit.cover,
                           width: cardWidth,
                           height: imageHeight,
-                          memCacheWidth: cardWidth.toInt(),
-                          memCacheHeight: imageHeight.toInt(),
+                          memCacheWidth: (cardWidth * dpr).round(),
+                          memCacheHeight: (imageHeight * dpr).round(),
                         )
                       : Container(width: cardWidth, height: imageHeight, color: AppColors.surfaceVariant),
                 ),
