@@ -152,7 +152,7 @@ class ActivityDetailPage extends ConsumerWidget {
           'assets/images/service/activity_detail_back.png',
           width: 24,
           height: 24,
-          errorBuilder: (context, error, stackTrace) => const Icon(Icons.arrow_back, color: Colors.black, size: 24),
+          errorBuilder: (context, error, stackTrace) => const Icon(Icons.arrow_back, color: Colors.black, size: 22),
         ),
         onPressed: () => Navigator.of(context).pop(),
       ),
