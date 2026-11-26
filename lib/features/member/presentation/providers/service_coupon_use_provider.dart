@@ -51,7 +51,7 @@ class ServiceCouponUseNotifier extends Notifier<ServiceCouponUseState> {
 
   /// 更新使用数量；超过明细 [ServiceCouponInfo.num] 时返回被限制后的最大值。
   int? setCount(int count) {
-    final maxCount = _maxCount;
+    final maxCount = this.maxCount;
     if (count > maxCount) {
       if (state.count != maxCount) {
         state = state.copyWith(count: maxCount);
@@ -97,7 +97,7 @@ class ServiceCouponUseNotifier extends Notifier<ServiceCouponUseState> {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => unawaited(refresh()));
   }
 
-  int get _maxCount {
+  int get maxCount {
     final num = state.coupon?.num ?? 0;
     return num > 0 ? num : 1;
   }

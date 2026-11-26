@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,13 +23,18 @@ class ServiceCouponUsePage extends ConsumerStatefulWidget {
 }
 
 class _ServiceCouponUsePageState extends ConsumerState<ServiceCouponUsePage> {
+  static const Duration _quantityValidationDelay = Duration(seconds: 2);
+
   late final TextEditingController _countController;
+  late final FocusNode _countFocusNode;
+  Timer? _quantityValidationTimer;
   bool _handledUsed = false;
 
   @override
   void initState() {
     super.initState();
     _countController = TextEditingController(text: '1');
+    _countFocusNode = FocusNode();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(serviceCouponUseProvider.notifier).initialize(widget.coupon);
     });
@@ -35,7 +42,9 @@ class _ServiceCouponUsePageState extends ConsumerState<ServiceCouponUsePage> {
 
   @override
   void dispose() {
+    _quantityValidationTimer?.cancel();
     _countController.dispose();
+    _countFocusNode.dispose();
     super.dispose();
   }
 
@@ -43,7 +52,9 @@ class _ServiceCouponUsePageState extends ConsumerState<ServiceCouponUsePage> {
   Widget build(BuildContext context) {
     ref.listen<ServiceCouponUseState>(serviceCouponUseProvider, (previous, next) {
       final inputCount = int.tryParse(_countController.text);
-      if (inputCount != next.count) _setCountText(next.count);
+      if (!_countFocusNode.hasFocus && _quantityValidationTimer == null && inputCount != null && inputCount > 0 && inputCount != next.count) {
+        _setCountText(next.count);
+      }
       if (next.used && !_handledUsed) {
         _handledUsed = true;
         WidgetsBinding.instance.addPostFrameCallback((_) => _handleUsed());
@@ -132,17 +143,12 @@ class _ServiceCouponUsePageState extends ConsumerState<ServiceCouponUsePage> {
             width: 42,
             child: TextField(
               controller: _countController,
+              focusNode: _countFocusNode,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               textAlign: TextAlign.center,
-              onChanged: (value) {
-                final count = int.tryParse(value) ?? 1;
-                final maxCount = ref.read(serviceCouponUseProvider.notifier).setCount(count);
-                if (maxCount != null) {
-                  _setCountText(maxCount);
-                  _showMaxCountMessage(maxCount);
-                }
-              },
+              onTapOutside: (_) => _countFocusNode.unfocus(),
+              onChanged: _onCountChanged,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1A1D1C), height: 1.2),
               decoration: InputDecoration(
                 isDense: true,
@@ -238,8 +244,49 @@ class _ServiceCouponUsePageState extends ConsumerState<ServiceCouponUsePage> {
         ..showSnackBar(const SnackBar(content: Text('服务券信息无效，请刷新后重试'), behavior: SnackBarBehavior.floating));
       return;
     }
-    final count = state.count > 0 ? state.count : 1;
-    await context.push(RouteNames.serviceCouponConfirmOrderPath(serviceCouponId: coupon.serviceCouponId, count: count));
+    final count = int.tryParse(_countController.text);
+    if (count == null || count <= 0) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('请输入服务券数量'), behavior: SnackBarBehavior.floating));
+      _countFocusNode.requestFocus();
+      return;
+    }
+    _quantityValidationTimer?.cancel();
+    _quantityValidationTimer = null;
+    final notifier = ref.read(serviceCouponUseProvider.notifier);
+    final maxCount = notifier.setCount(count);
+    final submittedCount = maxCount ?? count;
+    if (maxCount != null) {
+      _setCountText(maxCount);
+      _showMaxCountMessage(maxCount);
+    }
+    await context.push(RouteNames.serviceCouponConfirmOrderPath(serviceCouponId: coupon.serviceCouponId, count: submittedCount));
+  }
+
+  void _onCountChanged(String value) {
+    _quantityValidationTimer?.cancel();
+    _quantityValidationTimer = null;
+
+    final count = int.tryParse(value);
+    if (count == null || count <= 0) return;
+
+    final notifier = ref.read(serviceCouponUseProvider.notifier);
+    if (count <= notifier.maxCount) {
+      notifier.setCount(count);
+      return;
+    }
+
+    _quantityValidationTimer = Timer(_quantityValidationDelay, () {
+      _quantityValidationTimer = null;
+      if (!mounted || int.tryParse(_countController.text) != count) return;
+
+      final maxCount = ref.read(serviceCouponUseProvider.notifier).setCount(count);
+      if (maxCount != null) {
+        _setCountText(maxCount);
+        _showMaxCountMessage(maxCount);
+      }
+    });
   }
 
   void _setCountText(int count) {
