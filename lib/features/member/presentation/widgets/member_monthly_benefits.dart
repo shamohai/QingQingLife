@@ -175,7 +175,13 @@ class _CouponFace extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            AppNetworkImage(url: productImage, fit: BoxFit.cover, memCacheWidth: 184, memCacheHeight: 184, errorWidget: fallbackBackground),
+            AppNetworkImage(
+              url: productImage,
+              fit: BoxFit.cover,
+              memCacheWidth: (92 * MediaQuery.devicePixelRatioOf(context)).round(),
+              memCacheHeight: (92 * MediaQuery.devicePixelRatioOf(context)).round(),
+              errorWidget: fallbackBackground,
+            ),
             const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.transparent, Color(0x99000000)]),

@@ -9,6 +9,10 @@ import '../../core/storage/local_storage.dart';
 import '../../core/update/services/startup_video_update_service_stub.dart' if (dart.library.io) '../../core/update/services/startup_video_update_service.dart';
 
 /// Controls the one-time startup video shown after an install or app upgrade.
+/// 演示开关：为 true 时每次冷启动（包括后台关闭后重新进入）都播放开机视频。
+/// 正式版请改为 false，恢复「仅安装/升级后播放一次」的逻辑。
+const bool kDemoAlwaysShowStartupVideo = true;
+
 class StartupVideoGate extends StatefulWidget {
   const StartupVideoGate({required this.child, this.onReady, super.key});
 
@@ -47,7 +51,8 @@ class _StartupVideoGateState extends State<StartupVideoGate> {
       final playedMd5 = await _storage.getString(_playedMd5Key) ?? '';
       final currentMd5 = await _currentVideoMd5();
 
-      if (!mounted || (playedMd5.isNotEmpty && playedMd5 == currentMd5)) {
+      final skipByPlayedRecord = !kDemoAlwaysShowStartupVideo && playedMd5.isNotEmpty && playedMd5 == currentMd5;
+      if (!mounted || skipByPlayedRecord) {
         _finishWithoutVideo();
         return;
       }

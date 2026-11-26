@@ -49,5 +49,8 @@ Future<void> bootstrap() async {
 
 // 异步注册微信 SDK，不阻塞启动流程
 Future<void> _registerWeChatAsync() async {
-  await fluwx.Fluwx().registerApi(appId: AppConfig.wechatAppId);
+  await fluwx.Fluwx().registerApi(
+    appId: AppConfig.wechatAppId,
+    universalLink: AppConfig.wechatUniversalLink,
+  );
 }

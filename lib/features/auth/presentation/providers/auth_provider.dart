@@ -47,7 +47,7 @@ class AuthNotifier extends Notifier<AuthStatus> {
     try {
       // bootstrap 中的 registerApi 是异步执行的，冷启动后很快点击时可能尚未完成，
       // 此时 authBy 会直接返回 false 且不会有任何回调。fluwx 允许重复注册，这里再确认一次。
-      await _fluwx.registerApi(appId: AppConfig.wechatAppId);
+      await _fluwx.registerApi(appId: AppConfig.wechatAppId, universalLink: AppConfig.wechatUniversalLink);
       final launched = await _fluwx.authBy(
         which: fluwx.NormalAuth(scope: 'snsapi_userinfo', state: 'wechat_login'),
       );

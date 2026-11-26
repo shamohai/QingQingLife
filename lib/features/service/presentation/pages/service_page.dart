@@ -45,6 +45,20 @@ class ServicePage extends ConsumerWidget {
       }
     }
 
+    // Tab 顺序索引：0=服务预约, 1=挚友报名会, 2=活动报名, 3=购酒享服务
+    int tabIndex(String tab) {
+      switch (tab) {
+        case 'zhiyouhui':
+          return 1;
+        case 'huodong':
+          return 2;
+        case 'goujiu':
+          return 3;
+        default:
+          return 0; // fuwu
+      }
+    }
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(statusBarColor: Colors.white, statusBarIconBrightness: Brightness.dark, statusBarBrightness: Brightness.light),
       child: Scaffold(
@@ -58,14 +72,17 @@ class ServicePage extends ConsumerWidget {
                 children: [
                   // 顶部固定 Tab 栏
                   ServiceTabBar(selectedTab: selectedTab, onTabChanged: (tab) => ref.read(selectedTabProvider.notifier).update(tab)),
-                  // 可滚动内容区
+                  // 可滚动内容区：使用 IndexedStack 保持所有 Tab 状态（滚动位置、图片渲染、Item 状态），避免切换时重建
                   Expanded(
-                    child: switch (selectedTab) {
-                      'huodong' => _buildOfflineActivityBody(ref, onItemTap),
-                      'goujiu' => _buildGoujiuBody(context, ref),
-                      'zhiyouhui' => _buildZhiyouhuiBody(ref, onItemTap),
-                      _ => _buildFuwuBody(ref, onItemTap),
-                    },
+                    child: IndexedStack(
+                      index: tabIndex(selectedTab),
+                      children: [
+                        _buildFuwuBody(ref, onItemTap), // 0: 服务预约
+                        _buildZhiyouhuiBody(ref, onItemTap), // 1: 挚友报名会
+                        _buildOfflineActivityBody(ref, onItemTap), // 2: 活动报名
+                        _buildGoujiuBody(context, ref), // 3: 购酒享服务
+                      ],
+                    ),
                   ),
                 ],
               ),

@@ -145,7 +145,12 @@ class MemberSummaryCard extends ConsumerWidget {
               SizedBox(
                 width: 84,
                 height: 84,
-                child: AppNetworkImage(url: levelIconUrl, fit: BoxFit.contain, memCacheWidth: 168, memCacheHeight: 168),
+                child: AppNetworkImage(
+                  url: levelIconUrl,
+                  fit: BoxFit.contain,
+                  memCacheWidth: (84 * MediaQuery.devicePixelRatioOf(context)).round(),
+                  memCacheHeight: (84 * MediaQuery.devicePixelRatioOf(context)).round(),
+                ),
               )
             else if (!profileMode)
               const SizedBox(width: 84, height: 84)

@@ -23,6 +23,9 @@ abstract final class AppConfig {
   /// 微信 AppID（中酒批APP）
   static const String wechatAppId = 'wxeb8af78de10ef6d2';
 
+  /// 微信 iOS Universal Link，需与 apple-app-site-association 及微信开放平台配置一致。
+  static const String wechatUniversalLink = 'https://wx.mall.qkj.com.cn/ulink/';
+
   /// App 内部导航使用的 Deep Link Scheme。
   static const String appScheme = 'qingqinglife';
 
