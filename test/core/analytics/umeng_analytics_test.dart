@@ -8,14 +8,14 @@ import 'package:qingqinglife/core/storage/privacy_consent_storage.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('tracks GoRouter pages manually after privacy consent', () async {
+  test('tracks GoRouter pages on iOS after privacy consent', () async {
     final calls = <MethodCall>[];
     const channel = MethodChannel('umeng_common_sdk');
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, (call) async {
       calls.add(call);
       return null;
     });
-    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     addTearDown(() {
       debugDefaultTargetPlatformOverride = null;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
@@ -39,6 +39,7 @@ void main() {
       'onPageEnd',
       'onPageStart',
     ]);
+    expect(calls.first.arguments, ['6af189d16545637cd6451016', '6af18a53863270068cbda647', 'Umeng', null]);
     expect(calls.where((call) => call.method == 'onPageStart').map((call) => call.arguments), [
       ['/home'],
       ['/orders/:id'],

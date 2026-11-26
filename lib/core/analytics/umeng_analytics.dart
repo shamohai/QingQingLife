@@ -10,12 +10,13 @@ import '../storage/privacy_consent_storage.dart';
 ///
 /// 合规要求：只有用户在登录页同意《用户隐私政策》后，才调用正式初始化函数。
 /// 未同意的用户（包括游客）不初始化、不采集、不上报。
-/// 当前仅接入 Android，iOS 原生尚未配置证书与 AppKey，统一跳过。
+/// Android 与 iOS 使用各自在友盟后台创建的 AppKey。
 class UmengAnalytics {
   UmengAnalytics({PrivacyConsentStorage? consentStorage}) : _consentStorage = consentStorage ?? PrivacyConsentStorage();
 
   // 与 MyApplication.kt 中 preInit 使用的 AppKey 保持一致。
   static const _androidAppKey = '6af189d16545637cd6451016';
+  static const _iosAppKey = '6af18a53863270068cbda647';
   static const _channel = 'Umeng';
 
   final PrivacyConsentStorage _consentStorage;
@@ -26,7 +27,7 @@ class UmengAnalytics {
   static String? _currentPageName;
   static String? _currentPageKey;
 
-  static bool get _isSupportedPlatform => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  static bool get _isSupportedPlatform => !kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS);
 
   /// 用户同意隐私政策后调用：记录同意状态并完成友盟正式初始化。
   Future<void> onPrivacyAccepted() async {
@@ -43,7 +44,7 @@ class UmengAnalytics {
   Future<void> _initialize() async {
     if (_initialized || !_isSupportedPlatform) return;
     try {
-      await UmengCommonSdk.initCommon(_androidAppKey, '', _channel);
+      await UmengCommonSdk.initCommon(_androidAppKey, _iosAppKey, _channel);
       UmengCommonSdk.setPageCollectionModeManual();
       _initialized = true;
       _startCurrentPage();
