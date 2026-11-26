@@ -28,6 +28,9 @@ class ReservationServiceDetail {
   /// 预约须知
   final String reservationRemark;
 
+  /// 轮播图图片列表
+  final List<String> bannerImages;
+
   /// 用户自身的预约信息（后端尚未提供，当前为 null）
   final Map<String, dynamic>? myReservationInfo;
 
@@ -43,6 +46,7 @@ class ReservationServiceDetail {
     required this.showIdNo,
     required this.maxReservationCount,
     required this.reservationRemark,
+    required this.bannerImages,
     this.myReservationInfo,
     this.calendar,
   });
@@ -63,6 +67,7 @@ class ReservationServiceDetail {
       showIdNo: detail['showidno'] as bool? ?? false,
       maxReservationCount: (detail['maxreservationcount'] as num?)?.toInt() ?? 0,
       reservationRemark: detail['reservationremark'] as String? ?? '',
+      bannerImages: (detail['bannerimages'] as List<dynamic>?)?.map((e) => e as String).toList() ?? const <String>[],
       myReservationInfo: myReservationInfo,
       calendar: calendar,
     );

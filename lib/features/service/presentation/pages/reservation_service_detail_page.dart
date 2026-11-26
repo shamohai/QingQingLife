@@ -37,15 +37,13 @@ class ReservationServiceDetailPage extends ConsumerWidget {
       ),
       body: detailAsync.when(
         loading: () => const Center(child: AppLoading()),
-              error: (error, stack) {
-                String errorMessage = '加载失败，请稍后重试';
-                if (error is ApiException) {
-                  errorMessage = error.toDisplayMessage(fallback: '加载失败，请稍后重试');
-                }
-                return Center(
-                  child: AppError(message: errorMessage),
-                );
-              },
+        error: (error, stack) {
+          String errorMessage = '加载失败，请稍后重试';
+          if (error is ApiException) {
+            errorMessage = error.toDisplayMessage(fallback: '加载失败，请稍后重试');
+          }
+          return Center(child: AppError(message: errorMessage));
+        },
         data: (detail) => _buildBody(detail),
       ),
       bottomNavigationBar: detailAsync.when(
@@ -65,7 +63,7 @@ class ReservationServiceDetailPage extends ConsumerWidget {
             width: double.infinity,
             child: Column(
               children: [
-                ProjectDetailHeroImage(heroAsset: detail.headImgUrl, horizontalPadding: AppSpacing.lg, aspectRatio: 412 / 180),
+                ProjectDetailHeroImage(heroAsset: detail.headImgUrl, imageUrls: detail.bannerImages, horizontalPadding: AppSpacing.lg, aspectRatio: 412 / 180),
                 Transform.translate(
                   offset: const Offset(0, -50),
                   child: ReservationServiceDetailInfoCard(detail: detail),
