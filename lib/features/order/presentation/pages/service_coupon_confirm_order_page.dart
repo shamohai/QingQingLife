@@ -378,7 +378,14 @@ class _ServiceCouponProductRow extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(AppRadius.xs),
-          child: AppNetworkImage(url: product.imgUrl ?? '', width: 70, height: 70, fit: BoxFit.cover, memCacheWidth: 140, memCacheHeight: 140),
+          child: AppNetworkImage(
+            url: product.imgUrl ?? '',
+            width: 70,
+            height: 70,
+            fit: BoxFit.cover,
+            memCacheWidth: (70 * MediaQuery.devicePixelRatioOf(context)).round(),
+            memCacheHeight: (70 * MediaQuery.devicePixelRatioOf(context)).round(),
+          ),
         ),
         const SizedBox(width: 10),
         Expanded(

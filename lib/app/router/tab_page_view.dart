@@ -36,9 +36,16 @@ class _MainTabPageViewState extends State<MainTabPageView> {
     }
   }
 
+  /// 路由通知可能早于真正出栈发出，此时 canPop() 仍为 true。
+  /// 若只在通知时读取，之后不再有通知，锁定状态会一直残留。因此推迟到下一帧再读取。
   void _onRouteChanged() {
-    final locked = _router?.canPop() ?? false;
-    if (locked != _locked && mounted) setState(() => _locked = locked);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncLock());
+  }
+
+  void _syncLock() {
+    if (!mounted || _router == null) return;
+    final locked = _router!.canPop();
+    if (locked != _locked) setState(() => _locked = locked);
   }
 
   @override

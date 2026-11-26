@@ -61,22 +61,6 @@ class PointsHotProductCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  // 右侧：25dp * 13dp
-                  Container(
-                    width: 32,
-                    height: 14,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFFFF2105), width: 1),
-                      borderRadius: BorderRadius.circular(67),
-                    ),
-                    child: Text(
-                      '兑换',
-                      style: TextStyle(fontSize: 11, color: const Color(0xFFFF2105), fontWeight: FontWeight.w500, height: 1.1),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
                 ],
               ),
             ),

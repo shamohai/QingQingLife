@@ -128,7 +128,10 @@ class _SwipeBackRoute<T> extends PageRoute<T> {
   }
 }
 
-/// 捕获全屏横向拖拽并转交给路由。内部横向滚动组件会先参与手势竞争，因此不会被抢走。
+/// 返回手势只在屏幕左边缘触发，与 iOS 原生一致。
+///
+/// 手势区域覆盖在页面之上（不包裹整页），因此页面中部的触摸（如 WebView 原生滚动、
+/// 横向列表）不会被拦截。区域宽度取值与 Cupertino 的左边缘宽度一致，并兼容刘海屏安全区。
 class _SwipeBackGesture extends StatelessWidget {
   const _SwipeBackGesture({required this.onStart, required this.onUpdate, required this.onEnd, required this.child});
 
@@ -137,15 +140,30 @@ class _SwipeBackGesture extends StatelessWidget {
   final void Function(double velocity, double width) onEnd;
   final Widget child;
 
+  /// 左边缘可触发返回的宽度（逻辑像素）
+  static const double _edgeWidth = 20.0;
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onHorizontalDragStart: (_) => onStart(),
-      onHorizontalDragUpdate: (details) => onUpdate(details.primaryDelta ?? 0, context.size?.width ?? 0),
-      onHorizontalDragEnd: (details) => onEnd(details.primaryVelocity ?? 0, context.size?.width ?? 0),
-      onHorizontalDragCancel: () => onEnd(0, context.size?.width ?? 0),
-      child: child,
+    final leftInset = MediaQuery.paddingOf(context).left;
+    return Stack(
+      fit: StackFit.passthrough,
+      children: [
+        child,
+        PositionedDirectional(
+          start: 0,
+          top: 0,
+          bottom: 0,
+          width: leftInset > _edgeWidth ? leftInset : _edgeWidth,
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onHorizontalDragStart: (_) => onStart(),
+            onHorizontalDragUpdate: (details) => onUpdate(details.primaryDelta ?? 0, context.size?.width ?? 0),
+            onHorizontalDragEnd: (details) => onEnd(details.primaryVelocity ?? 0, context.size?.width ?? 0),
+            onHorizontalDragCancel: () => onEnd(0, context.size?.width ?? 0),
+          ),
+        ),
+      ],
     );
   }
 }
