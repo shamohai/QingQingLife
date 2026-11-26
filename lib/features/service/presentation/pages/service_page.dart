@@ -100,41 +100,57 @@ class ServicePage extends ConsumerWidget {
     return activitiesAsync.when(
       data: (activities) {
         if (activities.isEmpty) {
-          return const SizedBox(height: 200, child: AppEmpty(message: '暂无活动'));
+          return RefreshIndicator(
+            onRefresh: () async => ref.invalidate(offlineActivityListProvider),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: const [SizedBox(height: 200, child: AppEmpty(message: '暂无活动'))],
+            ),
+          );
         }
-        return ListView(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.sm),
-          children: [
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 14, bottom: 14),
-                      child: OfflineActivityListItem(item: activities[0], onTap: () => onItemTap(activities[0].activityId)),
-                    ),
-                    for (int i = 1; i < activities.length; i++)
-                      Column(
-                        children: [
-                          Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 14, bottom: 14),
-                            child: OfflineActivityListItem(item: activities[i], onTap: () => onItemTap(activities[i].activityId)),
-                          ),
-                        ],
+        return RefreshIndicator(
+          onRefresh: () async => ref.invalidate(offlineActivityListProvider),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.sm),
+            children: [
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 14, bottom: 14),
+                        child: OfflineActivityListItem(item: activities[0], onTap: () => onItemTap(activities[0].activityId)),
                       ),
-                  ],
+                      for (int i = 1; i < activities.length; i++)
+                        Column(
+                          children: [
+                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 14, bottom: 14),
+                              child: OfflineActivityListItem(item: activities[i], onTap: () => onItemTap(activities[i].activityId)),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
       loading: () => const AppLoading(),
-      error: (_, _) => const SizedBox(height: 200, child: AppEmpty(message: '加载失败，请重试')),
+      error: (_, _) => RefreshIndicator(
+        onRefresh: () async => ref.invalidate(offlineActivityListProvider),
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: const [SizedBox(height: 200, child: AppEmpty(message: '加载失败，请重试'))],
+        ),
+      ),
     );
   }
 
@@ -145,41 +161,57 @@ class ServicePage extends ConsumerWidget {
     return asyncList.when(
       data: (services) {
         if (services.isEmpty) {
-          return const SizedBox(height: 200, child: AppEmpty(message: '暂无服务'));
+          return RefreshIndicator(
+            onRefresh: () async => ref.invalidate(reservationServiceListProvider),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: const [SizedBox(height: 200, child: AppEmpty(message: '暂无服务'))],
+            ),
+          );
         }
-        return ListView(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.sm),
-          children: [
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 14, bottom: 14),
-                      child: ReservationServiceListItem(item: services[0], onBookTap: () => onItemTap(services[0].serviceId.toString())),
-                    ),
-                    for (int i = 1; i < services.length; i++)
-                      Column(
-                        children: [
-                          Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 14, bottom: 14),
-                            child: ReservationServiceListItem(item: services[i], onBookTap: () => onItemTap(services[i].serviceId.toString())),
-                          ),
-                        ],
+        return RefreshIndicator(
+          onRefresh: () async => ref.invalidate(reservationServiceListProvider),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.sm),
+            children: [
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 14, bottom: 14),
+                        child: ReservationServiceListItem(item: services[0], onBookTap: () => onItemTap(services[0].serviceId.toString())),
                       ),
-                  ],
+                      for (int i = 1; i < services.length; i++)
+                        Column(
+                          children: [
+                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 14, bottom: 14),
+                              child: ReservationServiceListItem(item: services[i], onBookTap: () => onItemTap(services[i].serviceId.toString())),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
       loading: () => const AppLoading(),
-      error: (_, _) => const SizedBox(height: 200, child: AppEmpty(message: '加载失败，请重试')),
+      error: (_, _) => RefreshIndicator(
+        onRefresh: () async => ref.invalidate(reservationServiceListProvider),
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: const [SizedBox(height: 200, child: AppEmpty(message: '加载失败，请重试'))],
+        ),
+      ),
     );
   }
 
@@ -189,41 +221,57 @@ class ServicePage extends ConsumerWidget {
     return activitiesAsync.when(
       data: (activities) {
         if (activities.isEmpty) {
-          return const SizedBox(height: 200, child: AppEmpty(message: '暂无挚友报名会'));
+          return RefreshIndicator(
+            onRefresh: () async => ref.invalidate(zhiyouhuiActivityListProvider),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: const [SizedBox(height: 200, child: AppEmpty(message: '暂无挚友报名会'))],
+            ),
+          );
         }
-        return ListView(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.sm),
-          children: [
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 14, bottom: 14),
-                      child: FriendActivityListItem(item: activities[0], onTap: () => onItemTap(activities[0].activityId)),
-                    ),
-                    for (int i = 1; i < activities.length; i++)
-                      Column(
-                        children: [
-                          Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 14, bottom: 14),
-                            child: FriendActivityListItem(item: activities[i], onTap: () => onItemTap(activities[i].activityId)),
-                          ),
-                        ],
+        return RefreshIndicator(
+          onRefresh: () async => ref.invalidate(zhiyouhuiActivityListProvider),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.sm),
+            children: [
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 14, bottom: 14),
+                        child: FriendActivityListItem(item: activities[0], onTap: () => onItemTap(activities[0].activityId)),
                       ),
-                  ],
+                      for (int i = 1; i < activities.length; i++)
+                        Column(
+                          children: [
+                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 16, endIndent: 14),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 14, bottom: 14),
+                              child: FriendActivityListItem(item: activities[i], onTap: () => onItemTap(activities[i].activityId)),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
       loading: () => const AppLoading(),
-      error: (_, _) => const SizedBox(height: 200, child: AppEmpty(message: '加载失败，请重试')),
+      error: (_, _) => RefreshIndicator(
+        onRefresh: () async => ref.invalidate(zhiyouhuiActivityListProvider),
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: const [SizedBox(height: 200, child: AppEmpty(message: '加载失败，请重试'))],
+        ),
+      ),
     );
   }
 
@@ -232,47 +280,71 @@ class ServicePage extends ConsumerWidget {
     return templatesAsync.when(
       data: (templates) {
         if (templates.isEmpty) {
-          return const Center(child: AppEmpty(message: '暂无购酒享服务'));
+          return RefreshIndicator(
+            onRefresh: () async => ref.invalidate(shareCartTemplateProvider),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: const [
+                Center(
+                  child: SizedBox(height: 200, child: AppEmpty(message: '暂无购酒享服务')),
+                ),
+              ],
+            ),
+          );
         }
-        return ListView(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.sm),
-          children: [
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 14, bottom: 14),
-                      child: ShareCartTemplateItem(
-                        template: templates[0],
-                        onTap: () => context.push(RouteNames.serviceTemplateDetailPath(templateId: templates[0].templateId)),
+        return RefreshIndicator(
+          onRefresh: () async => ref.invalidate(shareCartTemplateProvider),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.compactPageMargin, vertical: AppSpacing.sm),
+            children: [
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppRadius.md)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 14, bottom: 14),
+                        child: ShareCartTemplateItem(
+                          template: templates[0],
+                          onTap: () => context.push(RouteNames.serviceTemplateDetailPath(templateId: templates[0].templateId)),
+                        ),
                       ),
-                    ),
-                    for (int i = 1; i < templates.length; i++)
-                      Column(
-                        children: [
-                          Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 0, endIndent: 0),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 14, bottom: 14),
-                            child: ShareCartTemplateItem(
-                              template: templates[i],
-                              onTap: () => context.push(RouteNames.serviceTemplateDetailPath(templateId: templates[i].templateId)),
+                      for (int i = 1; i < templates.length; i++)
+                        Column(
+                          children: [
+                            Divider(height: 1, thickness: 0.5, color: AppColors.serviceDivider, indent: 0, endIndent: 0),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 14, bottom: 14),
+                              child: ShareCartTemplateItem(
+                                template: templates[i],
+                                onTap: () => context.push(RouteNames.serviceTemplateDetailPath(templateId: templates[i].templateId)),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                  ],
+                          ],
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
       loading: () => const AppLoading(),
-      error: (_, _) => const Center(child: AppEmpty(message: '加载失败，请重试')),
+      error: (_, _) => RefreshIndicator(
+        onRefresh: () async => ref.invalidate(shareCartTemplateProvider),
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: const [
+            Center(
+              child: SizedBox(height: 200, child: AppEmpty(message: '加载失败，请重试')),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
