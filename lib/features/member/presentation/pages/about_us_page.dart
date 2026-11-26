@@ -7,6 +7,7 @@ import 'package:qingqinglife/app/theme/app_spacing.dart';
 import 'package:qingqinglife/core/logging/app_logger.dart';
 
 import '../../../../app/router/route_names.dart';
+import '../../../../core/widgets/app_page_header.dart';
 
 /// 关于我们页（/member/about-us）
 ///
@@ -79,7 +80,7 @@ class _AboutUsPageState extends State<AboutUsPage> {
                 child: Column(
                   children: [
                     _buildNavBar(context),
-                    const SizedBox(height: 56),
+                    const SizedBox(height: 42),
                     Image.asset('assets/icon/logo.png', width: 101.5, height: 101.5, fit: BoxFit.contain),
                     const SizedBox(height: 13.3),
                     Text(
@@ -121,22 +122,13 @@ class _AboutUsPageState extends State<AboutUsPage> {
   Widget _buildNavBar(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: AppSpacing.pageTopGap),
-      child: SizedBox(
-        height: 30,
-        child: Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF000000), size: 22),
-              onPressed: () => context.pop(),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-            ),
-            const Text(
-              '关于我们',
-              style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.w400, color: Color(0xFF000000), height: 1.2),
-            ),
-          ],
-        ),
+      child: AppPageHeader(
+        title: '关于我们',
+        onBack: () => context.pop(),
+        titleStyle: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w400, color: Color(0xFF000000), height: 1.2),
+        iconColor: const Color(0xFF000000),
+        backgroundColor: Colors.transparent,
+        titleSpacing: 0,
       ),
     );
   }

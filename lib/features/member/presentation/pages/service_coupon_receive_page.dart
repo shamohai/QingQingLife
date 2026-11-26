@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_page_header.dart';
 import '../providers/service_coupon_receive_provider.dart';
 
 /// 好友转赠服务券领取页（/coupons/service/receive）。
@@ -107,23 +108,22 @@ class ServiceCouponReceivePage extends ConsumerWidget {
   }
 
   Widget _buildNavBar(BuildContext context) {
-    return SizedBox(
-      height: 44,
-      child: Row(
-        children: [
-          InkResponse(
-            onTap: () => context.go(RouteNames.home),
-            radius: 22,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-              child: Icon(Icons.home_outlined, size: 21, color: Colors.white),
-            ),
+    return AppPageHeader(
+      left: InkResponse(
+        onTap: () => context.go(RouteNames.home),
+        radius: 22,
+        child: const SizedBox(
+          width: 37,
+          height: 44,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+            child: Icon(Icons.home_outlined, size: 21, color: Colors.white),
           ),
-          const Text(
-            '卡券领取',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Colors.white, height: 1.2),
-          ),
-        ],
+        ),
+      ),
+      center: const Text(
+        '卡券领取',
+        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Colors.white, height: 1.2),
       ),
     );
   }

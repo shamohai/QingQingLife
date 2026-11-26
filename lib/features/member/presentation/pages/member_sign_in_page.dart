@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_page_header.dart';
 import '../../data/models/member_sign_in_models.dart';
 import '../providers/member_sign_in_provider.dart';
 import '../widgets/member_sign_in_calendar_grid.dart';
@@ -85,22 +86,11 @@ class _MemberSignInPageState extends ConsumerState<MemberSignInPage> {
 
   /// 顶部返回栏（标题左对齐）
   Widget _buildNav(BuildContext context) {
-    return SizedBox(
-      height: 44,
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF1A2A47), size: 22),
-            onPressed: () => context.pop(),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          ),
-          const Text(
-            '会员签到',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1A2A47)),
-          ),
-        ],
-      ),
+    return AppPageHeader(
+      title: '会员签到',
+      onBack: () => context.pop(),
+      titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1A2A47)),
+      iconColor: const Color(0xFF1A2A47),
     );
   }
 

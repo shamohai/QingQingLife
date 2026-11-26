@@ -12,6 +12,7 @@ import '../../../../core/providers/session_provider.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_page_header.dart';
 import '../providers/share_cart_template_detail_provider.dart';
 
 /// 购酒享服务模板详情页面
@@ -46,7 +47,7 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
 
     return Scaffold(
       backgroundColor: AppColors.servicePageBackground,
-      appBar: _buildAppBar(context, detailAsync),
+      appBar: _buildAppBar(context),
       body: detailAsync.when(
         loading: () => const Center(child: AppLoading()),
         error: (_, _) => Center(
@@ -59,8 +60,8 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
   }
 
   /// AppBar：动态标题取自模板名称
-  PreferredSizeWidget _buildAppBar(BuildContext context, AsyncValue<dynamic> asyncValue) {
-    String title = '服务详情';
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    const title = '服务详情';
     /*final String? foundName = asyncValue.maybeWhen(
       data: (detail) {
         final name = (detail as dynamic).templateName as String?;
@@ -71,21 +72,14 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
     if (foundName != null) {
       title = foundName.length > 12 ? '${foundName.substring(0, 12)}…' : foundName;
     }*/
-    return AppBar(
+    return AppPageHeader(
+      title: title,
+      onBack: () => context.pop(),
       backgroundColor: AppColors.servicePageBackground,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 22),
-        onPressed: () => context.pop(),
-        padding: EdgeInsets.zero,
-        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-      ),
-      title: Text(
-        title,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
-      ),
-      centerTitle: false,
+      titleStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
+      iconColor: Colors.black,
+      height: kToolbarHeight,
+      safeAreaTop: true,
     );
   }
 
@@ -222,7 +216,7 @@ class _ServiceTemplateDetailPageState extends ConsumerState<ServiceTemplateDetai
     final session = ref.read(sessionProvider.notifier);
     await session.ensureInitialized();
     final isLoggedIn = ref.read(sessionProvider) == SessionState.authenticated;
-    
+
     if (!context.mounted) return;
 
     if (!isLoggedIn) {

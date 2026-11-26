@@ -9,6 +9,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_page_header.dart';
 import '../providers/points_detail_provider.dart';
 import '../widgets/points_record_item.dart';
 import '../../../../app/router/route_names.dart';
@@ -96,34 +97,24 @@ class _PointsDetailPageState extends ConsumerState<PointsDetailPage> {
       children: [
         // AppBar 行
         Padding(
-          padding: const EdgeInsets.only(right: 15, top: 8),
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, size: 22, color: AppColors.onSurface),
-                onPressed: () => context.pop(),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+          padding: const EdgeInsets.only(top: 8, right: 15),
+          child: AppPageHeader(
+            title: '积分明细',
+            onBack: () => context.pop(),
+            titleStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.onSurface),
+            right: GestureDetector(
+              onTap: () {
+                if (kIsWeb) {
+                  launchUrl(Uri.parse(RouteNames.pointsRulesUrl), webOnlyWindowName: '_blank');
+                } else {
+                  GoRouter.of(context).push(RouteNames.pointsRules);
+                }
+              },
+              child: const Text(
+                '积分说明',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400, color: AppColors.onSurface),
               ),
-              const Text(
-                '积分明细',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.onSurface),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: () {
-                  if (kIsWeb) {
-                    launchUrl(Uri.parse(RouteNames.pointsRulesUrl), webOnlyWindowName: '_blank');
-                  } else {
-                    GoRouter.of(context).push(RouteNames.pointsRules);
-                  }
-                },
-                child: const Text(
-                  '积分说明',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400, color: AppColors.onSurface),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
         // 余额展示区

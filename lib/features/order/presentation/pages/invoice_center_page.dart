@@ -7,6 +7,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_page_header.dart';
 import '../providers/invoice_center_provider.dart';
 import '../widgets/invoice_card.dart';
 
@@ -114,16 +115,22 @@ class _AppBarRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 16, top: 10, bottom: 10),
-      child: Row(
-        children: [
-          GestureDetector(onTap: () => Navigator.of(context).pop(), child: Image.asset('assets/images/order/icon_back.png', width: 24, height: 24)),
-          const SizedBox(width: 12),
-          const Text(
-            '发票中心',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1A1D1C)),
+      padding: const EdgeInsets.only(left: 16),
+      child: AppPageHeader(
+        height: 44,
+        left: GestureDetector(
+          onTap: () => Navigator.of(context).pop(),
+          behavior: HitTestBehavior.opaque,
+          child: SizedBox(
+            width: 36,
+            height: 44,
+            child: Align(alignment: Alignment.centerLeft, child: Image.asset('assets/images/order/icon_back.png', width: 24, height: 24)),
           ),
-        ],
+        ),
+        center: const Text(
+          '发票中心',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1A1D1C)),
+        ),
       ),
     );
   }

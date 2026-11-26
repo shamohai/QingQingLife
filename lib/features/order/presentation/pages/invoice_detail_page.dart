@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_page_header.dart';
 import '../../domain/repositories/invoice_repository.dart';
 import '../providers/invoice_detail_provider.dart';
 
@@ -61,8 +62,8 @@ class _InvoiceDetailPageState extends ConsumerState<InvoiceDetailPage> {
                 child: Column(
                   children: [
                     _buildNavBar(context),
-                    // 卡片上沿与导航栏底部的距离（设计稿卡片顶 170 - 状态栏 44 - 导航栏 30 = 96）
-                    const SizedBox(height: 96),
+                    // 统一标题栏高度后收回差值，保持卡片原有位置。
+                    const SizedBox(height: 82),
                     _buildCard(context, state),
                   ],
                 ),
@@ -154,26 +155,12 @@ class _InvoiceDetailPageState extends ConsumerState<InvoiceDetailPage> {
   }
 
   /// 透明返回栏（叠在头部插画上，白字标题）
-  ///
-  /// 与 personal_info_page.dart 的 _buildNavBar 逻辑保持一致：
-  /// 固定高 30、返回图标左内边距 12 / 右 2、图标 20、标题 15 w500。
   Widget _buildNavBar(BuildContext context) {
-    return SizedBox(
-      height: 30,
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 22),
-            onPressed: () => context.pop(),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          ),
-          const Text(
-            '申请记录',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white, height: 1.2),
-          ),
-        ],
-      ),
+    return AppPageHeader(
+      title: '申请记录',
+      onBack: () => context.pop(),
+      titleStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white, height: 1.2),
+      iconColor: Colors.white,
     );
   }
 

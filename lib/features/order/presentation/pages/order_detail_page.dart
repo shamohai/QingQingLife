@@ -8,6 +8,7 @@ import '../../../../core/network/exceptions/exceptions.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_page_header.dart';
 import '../../domain/entities/order_list_order.dart';
 import '../../domain/repositories/order_repository.dart';
 import '../providers/all_orders_provider.dart';
@@ -144,22 +145,14 @@ class _BottomActionBar extends StatelessWidget {
 }
 
 PreferredSizeWidget _buildAppBar(BuildContext context) {
-  return AppBar(
+  return AppPageHeader(
+    title: '订单详情',
+    onBack: () => context.pop(),
     backgroundColor: _OrderDetailTokens.headerStart,
-    elevation: 0,
-    scrolledUnderElevation: 0,
-    centerTitle: false,
-    titleSpacing: 0,
-    leading: IconButton(
-      icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 22),
-      onPressed: () => context.pop(),
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-    ),
-    title: const Text(
-      '订单详情',
-      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500, color: AppColors.onSurface),
-    ),
+    titleStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500, color: AppColors.onSurface),
+    iconColor: AppColors.onSurface,
+    height: kToolbarHeight,
+    safeAreaTop: true,
   );
 }
 

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_page_header.dart';
 import '../models/coupon_entry.dart';
 import '../widgets/coupon_entry_card.dart';
 
@@ -69,23 +70,12 @@ class MyCouponsPage extends StatelessWidget {
   }
 
   Widget _buildNavBar(BuildContext context) {
-    return SizedBox(
-      height: 44,
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF000000), size: 22),
-            onPressed: () => context.pop(),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          const Text(
-            '我的卡券',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF000000), height: 1.2),
-          ),
-        ],
-      ),
+    return AppPageHeader(
+      title: '我的卡券',
+      onBack: () => context.pop(),
+      titleStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF000000), height: 1.2),
+      iconColor: Colors.black,
+      titleSpacing: AppSpacing.sm,
     );
   }
 
