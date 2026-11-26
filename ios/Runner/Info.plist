@@ -22,7 +22,7 @@
 					<string>Editor</string>
 					<key>CFBundleURLName</key>
 					<string>weixin</string>
-					<key>CFBundleSchemes</key>
+					<key>CFBundleURLSchemes</key>
 					<array>
 							<string>wxeb8af78de10ef6d2</string>
 					</array>
