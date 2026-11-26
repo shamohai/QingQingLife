@@ -7,6 +7,7 @@ import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/network/exceptions/exceptions.dart';
 import '../../domain/models/reservation_service_detail_model.dart';
 import '../providers/reservation_service_detail_provider.dart';
 import '../widgets/project_detail_hero_image.dart';
@@ -36,9 +37,15 @@ class ReservationServiceDetailPage extends ConsumerWidget {
       ),
       body: detailAsync.when(
         loading: () => const Center(child: AppLoading()),
-        error: (error, stack) => Center(
-          child: AppError(message: '加载失败，请稍后重试', onRetry: () => ref.invalidate(reservationServiceDetailProvider(id))),
-        ),
+              error: (error, stack) {
+                String errorMessage = '加载失败，请稍后重试';
+                if (error is ApiException) {
+                  errorMessage = error.toDisplayMessage(fallback: '加载失败，请稍后重试');
+                }
+                return Center(
+                  child: AppError(message: errorMessage),
+                );
+              },
         data: (detail) => _buildBody(detail),
       ),
       bottomNavigationBar: detailAsync.when(
