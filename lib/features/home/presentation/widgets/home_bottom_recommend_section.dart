@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 
@@ -120,8 +122,13 @@ class _ProductCard extends StatelessWidget {
 
   const _ProductCard({required this.product});
 
+  /// 无货判定：warning 字段包含“无货”即视为暂时无货（与小程序一致）
+  bool get _isOutOfStock => product.warning?.contains('无货') ?? false;
+
   @override
   Widget build(BuildContext context) {
+    final outOfStock = _isOutOfStock;
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFFFFFFF),
@@ -130,32 +137,40 @@ class _ProductCard extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(8),
       child: InkWell(
-        onTap: () {
-          // 点击跳转积分商品详情页
-          context.push(RouteNames.serviceProductDetail.replaceFirst(':id', '${product.productId}'));
-        },
+        // 无货商品不可点击跳转
+        onTap: outOfStock
+            ? null
+            : () {
+                // 点击跳转积分商品详情页
+                context.push(RouteNames.serviceProductDetail.replaceFirst(':id', '${product.productId}'));
+              },
         borderRadius: BorderRadius.circular(AppRadius.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // 商品图片，圆角 9dp
+            // 商品图片，圆角 4dp；无货时叠加灰色蒙层与斜向“暂时缺货”印章
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
-              child: AppNetworkImage(
-                url: product.imgUrl,
-                width: double.infinity,
-                height: 140,
-                fit: BoxFit.cover,
-                errorWidget: Container(
-                  height: 140,
-                  color: const Color(0xFFF5F5F5),
-                  child: const Icon(Icons.image_not_supported_outlined, color: Colors.grey),
-                ),
+              child: Stack(
+                children: [
+                  AppNetworkImage(
+                    url: product.imgUrl,
+                    width: double.infinity,
+                    height: 140,
+                    fit: BoxFit.cover,
+                    errorWidget: Container(
+                      height: 140,
+                      color: const Color(0xFFF5F5F5),
+                      child: const Icon(Icons.image_not_supported_outlined, color: Colors.grey),
+                    ),
+                  ),
+                  if (outOfStock) ...[Positioned.fill(child: ColoredBox(color: const Color(0x80000000))), const Positioned.fill(child: _OutOfStockStamp())],
+                ],
               ),
             ),
             const SizedBox(height: 6),
-            // 会员价/积分专享标签 + 商品名称（2行）
+            // 名称行
             Text.rich(
               TextSpan(
                 children: [
@@ -187,26 +202,7 @@ class _ProductCard extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 6),
-            // 提示信息标签（如有）
-            if (product.warning != null && product.warning!.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFD9D9D9), width: 0.5),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    product.warning!,
-                    style: const TextStyle(color: Color(0xFF8E8E93), fontSize: 9),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 10),
             // 积分/价格与购物车行
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -241,6 +237,98 @@ class _ProductCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// 无货印章（分步调整中）：双环保持不变；水平文字条左右贴边，高度占蒙层 1/4，内部为“暂时缺货”
+class _OutOfStockStamp extends StatelessWidget {
+  const _OutOfStockStamp();
+
+  static const _stampSize = 104.0;
+  static const _outerRadius = _stampSize / 2; // 外环半径 52
+  static const _innerRadius = 30.0; // 内环半径
+  static const _starRadius = (_outerRadius + _innerRadius) / 2; // 星标位于两环正中
+  static const _starCount = 12;
+  static const _strokeColor = Color(0xD9FFFFFF);
+  static const _barHeightFactor = 0.25; // 文字长方形高度占蒙层 1/4
+  static const _barAngle = math.pi / 12; // 顺时针 15°
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // 双环 + 星标（保持不变）
+        Center(
+          child: SizedBox(
+            width: _stampSize,
+            height: _stampSize,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: _strokeColor, width: 2),
+                  ),
+                ),
+                Container(
+                  width: _innerRadius * 2,
+                  height: _innerRadius * 2,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: _strokeColor, width: 2),
+                  ),
+                ),
+                for (int i = 0; i < _starCount; i++)
+                  Transform.translate(
+                    offset: Offset(
+                      math.cos(2 * math.pi * i / _starCount - math.pi / 2) * _starRadius,
+                      math.sin(2 * math.pi * i / _starCount - math.pi / 2) * _starRadius,
+                    ),
+                    child: const Icon(Icons.star, size: 6, color: _strokeColor),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        // 文字长方形（框 + 文字整体）：顺时针 15°，左下角贴蒙层左边，右上角贴蒙层右边
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final maskWidth = constraints.maxWidth;
+            final barHeight = constraints.maxHeight * _barHeightFactor; // 高度占蒙层 1/4
+            const angle = _barAngle;
+            // 旋转后左下角到右上角的水平距离 = w·cosθ + h·sinθ，令其等于蒙层宽度
+            final barWidth = (maskWidth - barHeight * math.sin(angle)) / math.cos(angle);
+            return Center(
+              child: Transform.rotate(
+                angle: angle,
+                child: Container(
+                  width: barWidth,
+                  height: barHeight,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(border: Border.all(color: const Color(0xE6FFFFFF), width: 2)),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: const Text(
+                      '暂时缺货',
+                      style: TextStyle(
+                        color: Color(0xE6FFFFFF),
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 8,
+                        height: 1.1,
+                        shadows: [Shadow(color: Color(0x66000000), blurRadius: 2, offset: Offset(0, 1))],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }

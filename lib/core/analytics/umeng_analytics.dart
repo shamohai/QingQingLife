@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:umeng_common_sdk/umeng_common_sdk.dart';
 
@@ -20,6 +21,10 @@ class UmengAnalytics {
   final PrivacyConsentStorage _consentStorage;
   // 静态标记：同一进程内无论创建多少实例，正式初始化只执行一次。
   static bool _initialized = false;
+  static bool _appResumed = true;
+  static bool _pageStarted = false;
+  static String? _currentPageName;
+  static String? _currentPageKey;
 
   static bool get _isSupportedPlatform => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
@@ -39,12 +44,55 @@ class UmengAnalytics {
     if (_initialized || !_isSupportedPlatform) return;
     try {
       await UmengCommonSdk.initCommon(_androidAppKey, '', _channel);
-      UmengCommonSdk.setPageCollectionModeAuto();
+      UmengCommonSdk.setPageCollectionModeManual();
       _initialized = true;
+      _startCurrentPage();
     } catch (error, stackTrace) {
       // 统计失败不影响业务流程。
       AppLogger.warning('友盟初始化失败', module: 'umeng_analytics', error: error, stackTrace: stackTrace);
     }
+  }
+
+  /// 由 GoRouter 全局路由监听调用；页面名使用路由模板，不包含实际参数。
+  void trackPage({required String pageName, required String pageKey}) {
+    if (pageName.isEmpty || (pageName == _currentPageName && pageKey == _currentPageKey)) return;
+
+    _endCurrentPage();
+    _currentPageName = pageName;
+    _currentPageKey = pageKey;
+    _startCurrentPage();
+  }
+
+  /// 页面进入后台时结束当前页，回到前台后重新开始统计。
+  void onAppLifecycleChanged(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (_appResumed) return;
+      _appResumed = true;
+      _startCurrentPage();
+      return;
+    }
+
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      if (!_appResumed) return;
+      _appResumed = false;
+      _endCurrentPage();
+    }
+  }
+
+  static void _startCurrentPage() {
+    final pageName = _currentPageName;
+    if (!_initialized || !_isSupportedPlatform || !_appResumed || _pageStarted || pageName == null) return;
+
+    UmengCommonSdk.onPageStart(pageName);
+    _pageStarted = true;
+  }
+
+  static void _endCurrentPage() {
+    final pageName = _currentPageName;
+    if (!_initialized || !_isSupportedPlatform || !_pageStarted || pageName == null) return;
+
+    UmengCommonSdk.onPageEnd(pageName);
+    _pageStarted = false;
   }
 }
 

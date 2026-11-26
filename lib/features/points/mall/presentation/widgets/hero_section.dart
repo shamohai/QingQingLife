@@ -147,7 +147,7 @@ class _HeroSectionState extends State<HeroSection> {
             child: IconButton(
               tooltip: '返回',
               onPressed: widget.onBack,
-              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
+              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 22),
               constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
               padding: EdgeInsets.zero,
             ),
