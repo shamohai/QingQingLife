@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/deeplink/app_link.dart';
+import '../../core/analytics/umeng_analytics.dart';
 import '../../core/providers/session_provider.dart';
 import 'auth_redirect.dart';
 import 'main_shell_scope.dart';
@@ -441,9 +442,39 @@ final appRouter = Provider<GoRouter>((ref) {
       ),
     ],
   );
-  ref.onDispose(router.dispose);
+  final analytics = ref.read(umengAnalyticsProvider);
+  void trackCurrentPage() {
+    final configuration = router.routerDelegate.currentConfiguration;
+    if (configuration.isEmpty) return;
+    analytics.trackPage(pageName: _activeRouteFullPath(configuration), pageKey: configuration.last.pageKey.value);
+  }
+
+  router.routerDelegate.addListener(trackCurrentPage);
+  trackCurrentPage();
+  ref.onDispose(() {
+    router.routerDelegate.removeListener(trackCurrentPage);
+    router.dispose();
+  });
   return router;
 });
+
+String _activeRouteFullPath(RouteMatchList configuration) {
+  final imperativeMatches = _findImperativeMatches(configuration.matches);
+  return imperativeMatches == null ? configuration.fullPath : _activeRouteFullPath(imperativeMatches);
+}
+
+RouteMatchList? _findImperativeMatches(List<RouteMatchBase> matches) {
+  for (final match in matches.reversed) {
+    if (match is ImperativeRouteMatch) {
+      return _findImperativeMatches(match.matches.matches) ?? match.matches;
+    }
+    if (match is ShellRouteMatch) {
+      final nestedMatches = _findImperativeMatches(match.matches);
+      if (nestedMatches != null) return nestedMatches;
+    }
+  }
+  return null;
+}
 
 class _RouterRefreshListenable extends ChangeNotifier {
   _RouterRefreshListenable(Ref ref) {

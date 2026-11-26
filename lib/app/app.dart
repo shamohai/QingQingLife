@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/analytics/umeng_analytics.dart';
 import 'providers/theme_provider.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
@@ -23,12 +24,29 @@ class App extends ConsumerStatefulWidget {
   ConsumerState<App> createState() => _AppState();
 }
 
-class _AppState extends ConsumerState<App> {
+class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   /// 等待弹出的 apk 升级信息（启动视频播放期间拿到的结果会先暂存）
   AppUpdateInfo? _pendingUpdate;
 
   /// 启动视频是否已结束，MaterialApp 已挂载
   bool _appReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    ref.read(umengAnalyticsProvider).onAppLifecycleChanged(state);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
