@@ -20,17 +20,17 @@ class ShareCartTemplateItem extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: Row(
-        children: [
-          // 左侧网络图片 100x100
-          ClipRRect(borderRadius: BorderRadius.circular(AppRadius.sm), child: _NetworkImage(template.headImg, size: 100)),
-          const SizedBox(width: AppSpacing.sm),
-          // 中间文字
-          Expanded(
-            child: SizedBox(
-              height: 112,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 左侧网络图片 100x100
+            ClipRRect(borderRadius: BorderRadius.circular(AppRadius.sm), child: _NetworkImage(template.headImg, size: 100)),
+            const SizedBox(width: AppSpacing.sm),
+            // 中间文字区域：自适应高度，按钮靠底
+            Expanded(
               child: Padding(
-                padding: EdgeInsets.only(top: AppSpacing.sm),
+                padding: EdgeInsets.only(top: AppSpacing.sm, bottom: AppSpacing.sm),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -78,8 +78,8 @@ class ShareCartTemplateItem extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
