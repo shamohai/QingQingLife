@@ -85,9 +85,7 @@ class _FloatIconButton extends StatelessWidget {
         width: 56,
         height: 56,
         decoration: BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: Colors.white, width: 1),
+          color: AppColors.serviceFloatBg, shape: BoxShape.circle
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
