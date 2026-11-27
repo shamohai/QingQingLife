@@ -65,7 +65,7 @@ class ReservationServiceDetailPage extends ConsumerWidget {
               children: [
                 ProjectDetailHeroImage(heroAsset: detail.headImgUrl, imageUrls: detail.bannerImages, horizontalPadding: AppSpacing.lg, aspectRatio: 412 / 180),
                 Transform.translate(
-                  offset: const Offset(0, -50),
+                  offset: const Offset(0, -20),
                   child: ReservationServiceDetailInfoCard(detail: detail),
                 ),
               ],
