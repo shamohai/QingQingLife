@@ -34,7 +34,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 5), // 与 home_page.dart 保持一致（上下边距 5dp）
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      padding: const EdgeInsets.fromLTRB(8, 10, 8, 4), // 底部收紧，减少热门兑换下方留白
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(9),
@@ -149,14 +149,16 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
               ),
             ),
           ),
-          // ── 热门商品横向滚动列表 ──
-          SizedBox(height: 180, child: HotProductsListView(controller: _scrollController)),
+          // ── 热门商品横向滚动列表（高度 = 卡片真实渲染高度，运行时测量）──
+          HotProductsListView(controller: _scrollController),
         ],
       ),
     );
   }
 }
 
+/// 热门商品横向列表：SingleChildScrollView(横向) + Row，高度由卡片真实布局决定，
+/// 不写死高度，也不做运行时测量，避免字体缩放与平台差异导致的溢出或留白。
 class HotProductsListView extends ConsumerWidget {
   final ScrollController controller;
 
@@ -171,23 +173,24 @@ class HotProductsListView extends ConsumerWidget {
       error: (_, _) => const SizedBox.shrink(),
       data: (items) {
         if (items.isEmpty) return const AppEmpty(message: '暂无热门商品');
-        return ListView.builder(
+        return SingleChildScrollView(
           controller: controller,
           scrollDirection: Axis.horizontal,
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.only(right: 16),
-          itemCount: items.length,
-          itemBuilder: (context, index) => Padding(
-            padding: EdgeInsets.only(right: index == items.length - 1 ? 0 : 8),
-            child: PointsHotProductCard(
-              product: items[index],
-              onTap: () {
-                final product = items[index];
-                //if (product.type == PointsProductType.service) {
-                GoRouter.of(context).push('/points/service/${product.id}');
-                //}
-              },
-            ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var i = 0; i < items.length; i++) ...[
+                if (i > 0) const SizedBox(width: 8),
+                PointsHotProductCard(
+                  product: items[i],
+                  onTap: () {
+                    GoRouter.of(context).push('/points/service/${items[i].id}');
+                  },
+                ),
+              ],
+            ],
           ),
         );
       },

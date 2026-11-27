@@ -9,8 +9,12 @@ class PointsHotProductCard extends StatelessWidget {
 
   const PointsHotProductCard({super.key, required this.product, this.onTap});
 
+  /// 名称区域高度：3 行 × 12sp × 1.5，随系统字体缩放，避免大字体下被裁切
+  static double _nameAreaHeight(TextScaler scaler) => scaler.scale(12) * 1.5 * 3;
+
   @override
   Widget build(BuildContext context) {
+    final scaler = MediaQuery.textScalerOf(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -30,10 +34,10 @@ class PointsHotProductCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 5),
-            // 下面是名称：67dp * 37dp
+            // 下面是名称：宽度 100，高度按 3 行设计
             SizedBox(
               width: 100,
-              height: 55,
+              height: _nameAreaHeight(scaler),
               child: Text(
                 product.name,
                 style: const TextStyle(fontSize: 12, color: Color(0xFF000000), fontWeight: FontWeight.w500, height: 1.5),
@@ -41,8 +45,6 @@ class PointsHotProductCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            //const SizedBox(height: 2),
-            // 名称下面是个 row
             SizedBox(
               width: 100,
               child: Row(

@@ -7,6 +7,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/presentation/paging/paging_controller_mixin.dart';
+import '../../../points/mall/data/models/get_recommend_product_list_model.dart';
 import '../providers/home_paging_providers.dart';
 import 'home_credit_product_card.dart';
 
@@ -65,46 +66,61 @@ class HomeHotProducts extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          SizedBox(
-            height: 190,
-            child: Consumer(
-              builder: (context, ref, child) {
-                final pagingData = ref.watch(homeHotProductsProvider);
-                if (pagingData.status == PagingStatus.initial) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (context.mounted) {
-                      ref.read(homeHotProductsProvider.notifier).loadFirstPage();
-                    }
-                  });
-                }
+          Consumer(
+            builder: (context, ref, child) {
+              final pagingData = ref.watch(homeHotProductsProvider);
+              if (pagingData.status == PagingStatus.initial) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (context.mounted) {
+                    ref.read(homeHotProductsProvider.notifier).loadFirstPage();
+                  }
+                });
+              }
 
-                if (pagingData.isLoading && pagingData.items.isEmpty) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (pagingData.isError && pagingData.items.isEmpty) {
-                  return Center(child: Text(pagingData.errorMessage ?? '加载失败'));
-                }
-                if (pagingData.items.isEmpty) {
-                  return const Center(child: Text('暂无数据'));
-                }
+              if (pagingData.isLoading && pagingData.items.isEmpty) {
+                return const SizedBox(height: 160, child: Center(child: CircularProgressIndicator()));
+              }
+              if (pagingData.isError && pagingData.items.isEmpty) {
+                return SizedBox(height: 60, child: Center(child: Text(pagingData.errorMessage ?? '加载失败')));
+              }
+              if (pagingData.items.isEmpty) {
+                return const SizedBox(height: 60, child: Center(child: Text('暂无数据')));
+              }
 
-                return ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.zero,
-                  itemCount: pagingData.items.length,
-                  separatorBuilder: (context, index) => const SizedBox(width: AppSpacing.sm),
-                  itemBuilder: (context, index) {
-                    final product = pagingData.items[index];
-                    return GestureDetector(
-                      onTap: () => context.push(RouteNames.serviceProductDetail.replaceFirst(':id', '${product.productId}')),
-                      child: HomeCreditProductCard(product: product),
-                    );
-                  },
-                );
-              },
-            ),
+              return HotProductsStrip(items: pagingData.items);
+            },
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 横向商品列表。
+///
+/// 使用 SingleChildScrollView(横向) + Row：高度由卡片真实布局决定，
+/// 不写死高度，也不做运行时测量，因此字体缩放与不同平台下都不会溢出或留白。
+/// 数据量每页约 10 条，一次性构建的开销可以接受。
+class HotProductsStrip extends StatelessWidget {
+  final List<CreditMallProduct> items;
+
+  const HotProductsStrip({super.key, required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = 0; i < items.length; i++) ...[
+            if (i > 0) const SizedBox(width: AppSpacing.sm),
+            GestureDetector(
+              onTap: () => context.push(RouteNames.serviceProductDetail.replaceFirst(':id', '${items[i].productId}')),
+              child: HomeCreditProductCard(product: items[i]),
+            ),
+          ],
         ],
       ),
     );

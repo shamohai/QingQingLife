@@ -20,8 +20,13 @@ class PointsMallPage extends ConsumerStatefulWidget {
   ConsumerState<PointsMallPage> createState() => _PointsMallPageState();
 }
 
-/// 积分商城顶部 Banner：静态设计资源，不走接口
-const _kPointsBannerAsset = 'assets/images/points/banner.jpg';
+/// 积分商城顶部 Banner：静态设计资源，不走接口（轮播 banner1-4）
+const _kPointsBannerAssets = [
+  'assets/images/points/banner1.png',
+  'assets/images/points/banner2.png',
+  'assets/images/points/banner3.png',
+  'assets/images/points/banner4.png',
+];
 
 class _PointsMallPageState extends ConsumerState<PointsMallPage> {
   int _activeCategoryId = 0;
@@ -64,7 +69,10 @@ class _PointsMallPageState extends ConsumerState<PointsMallPage> {
                         children: [
                           Padding(
                             padding: EdgeInsets.only(top: statusBarHeight),
-                            child: const SizedBox(height: 260, child: PointsBanner(imageUrl: _kPointsBannerAsset, height: 260, autoPlay: false)),
+                            child: SizedBox(
+                              height: 260,
+                              child: PointsBanner(imageUrl: _kPointsBannerAssets[0], imageUrls: _kPointsBannerAssets, height: 260),
+                            ),
                           ),
 
                           // ==================== 积分卡片（动态高度自然流布局，避免写死总高度导致空白） ====================
