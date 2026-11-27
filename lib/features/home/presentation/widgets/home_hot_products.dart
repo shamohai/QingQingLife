@@ -98,67 +98,31 @@ class HomeHotProducts extends ConsumerWidget {
 
 /// 横向商品列表。
 ///
-/// 列表高度不写死：布局完成后读取一张真实卡片的渲染高度（运行时测量），
-/// 因此高度始终与当前字体缩放下的卡片实际高度一致，既不溢出也不留白。
-class HotProductsStrip extends StatefulWidget {
+/// 使用 SingleChildScrollView(横向) + Row：高度由卡片真实布局决定，
+/// 不写死高度，也不做运行时测量，因此字体缩放与不同平台下都不会溢出或留白。
+/// 数据量每页约 10 条，一次性构建的开销可以接受。
+class HotProductsStrip extends StatelessWidget {
   final List<CreditMallProduct> items;
 
   const HotProductsStrip({super.key, required this.items});
 
   @override
-  State<HotProductsStrip> createState() => HotProductsStripState();
-}
-
-class HotProductsStripState extends State<HotProductsStrip> {
-  final _measureKey = GlobalKey();
-  double? _height;
-
-  void _scheduleMeasure() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final box = _measureKey.currentContext?.findRenderObject();
-      if (box is! RenderBox || !box.hasSize) return;
-      final h = box.size.height;
-      if (h != _height) {
-        setState(() => _height = h);
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    // 依赖字体缩放：字体变化时重建并重新测量高度
-    MediaQuery.textScalerOf(context);
-    _scheduleMeasure();
-    final height = _height;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // 测量用：Offstage 仍会布局但不绘制、不占空间、不响应点击
-        Offstage(
-          child: HomeCreditProductCard(key: _measureKey, product: widget.items.first),
-        ),
-        if (height != null)
-          SizedBox(
-            height: height,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.zero,
-              itemCount: widget.items.length,
-              separatorBuilder: (context, index) => const SizedBox(width: AppSpacing.sm),
-              itemBuilder: (context, index) {
-                final product = widget.items[index];
-                return GestureDetector(
-                  onTap: () => context.push(RouteNames.serviceProductDetail.replaceFirst(':id', '${product.productId}')),
-                  child: HomeCreditProductCard(product: product),
-                );
-              },
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = 0; i < items.length; i++) ...[
+            if (i > 0) const SizedBox(width: AppSpacing.sm),
+            GestureDetector(
+              onTap: () => context.push(RouteNames.serviceProductDetail.replaceFirst(':id', '${items[i].productId}')),
+              child: HomeCreditProductCard(product: items[i]),
             ),
-          ),
-      ],
+          ],
+        ],
+      ),
     );
   }
 }
