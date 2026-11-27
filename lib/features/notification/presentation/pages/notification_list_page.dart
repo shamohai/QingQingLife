@@ -7,6 +7,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_page_header.dart';
 import '../../../member/presentation/providers/user_profile_provider.dart';
 import '../../domain/models/notification_models.dart';
 import '../providers/notification_list_provider.dart';
@@ -102,25 +103,13 @@ class _NotificationListPageState extends ConsumerState<NotificationListPage> {
 
   /// 顶部返回栏：标题左对齐，右侧与标题同行放置「全部已读」小刷子
   Widget _buildAppBar(NotificationListState state, NotificationListNotifier notifier) {
-    return SizedBox(
-      height: 44,
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF14203A), size: 22),
-            onPressed: () => context.pop(),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          ),
-          const SizedBox(width: 2),
-          const Text(
-            '通知列表',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Color(0xFF14203A)),
-          ),
-          const Spacer(),
-          _buildMarkAllReadButton(state, notifier),
-        ],
-      ),
+    return AppPageHeader(
+      title: '通知列表',
+      onBack: () => context.pop(),
+      titleStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Color(0xFF14203A)),
+      iconColor: const Color(0xFF14203A),
+      titleSpacing: 2,
+      right: _buildMarkAllReadButton(state, notifier),
     );
   }
 

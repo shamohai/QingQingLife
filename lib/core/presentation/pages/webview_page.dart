@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../widgets/app_page_header.dart';
 import '../../share/activity_share_message.dart';
 import '../../webview/app_webview_user_agent.dart';
 import '../../widgets/app_share_sheet.dart';
@@ -86,12 +87,29 @@ class _WebViewPageState extends State<WebViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppPageHeader(
+        title: widget.title,
+        onBack: () => Navigator.of(context).maybePop(),
+        centerTitle: true,
         backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.onSurface,
-        surfaceTintColor: Colors.transparent,
-        title: Text(widget.title),
-        actions: [IconButton(onPressed: _reload, icon: const Icon(Icons.refresh))],
+        titleStyle:
+            Theme.of(context).appBarTheme.titleTextStyle ??
+            Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.onSurface) ??
+            const TextStyle(color: AppColors.onSurface),
+        iconColor: AppColors.onSurface,
+        height: kToolbarHeight,
+        safeAreaTop: true,
+        right: SizedBox(
+          width: 44,
+          height: kToolbarHeight,
+          child: IconButton(
+            tooltip: '重新加载',
+            onPressed: _reload,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+            icon: const Icon(Icons.refresh, color: AppColors.onSurface),
+          ),
+        ),
       ),
       body: SafeArea(
         top: false,

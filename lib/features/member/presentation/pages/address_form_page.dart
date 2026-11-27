@@ -8,6 +8,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
+import '../../../../core/widgets/app_page_header.dart';
 import '../../domain/repositories/member_repository.dart';
 import '../providers/member_addresses_provider.dart';
 
@@ -116,26 +117,12 @@ class _AddressFormPageState extends ConsumerState<AddressFormPage> {
 
   /// 顶部返回栏（标题左对齐，与地址列表页一致）
   Widget _buildNav(BuildContext context) {
-    return SizedBox(
+    return AppPageHeader(
+      title: _isEdit ? '编辑地址' : '新增地址',
+      onBack: () => context.pop(),
+      titleStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface),
       height: 56,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 4),
-        child: Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 22),
-              onPressed: () => context.pop(),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-            ),
-            const SizedBox(width: 4),
-            Text(
-              _isEdit ? '编辑地址' : '新增地址',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: AppColors.onSurface),
-            ),
-          ],
-        ),
-      ),
+      titleSpacing: 4,
     );
   }
 

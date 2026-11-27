@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_page_header.dart';
 import '../providers/cash_coupon_share_provider.dart';
 
 /// 好友分享的待解锁红包领取页。
@@ -102,18 +103,13 @@ class _CashCouponShareReceivePageState extends ConsumerState<CashCouponShareRece
   }
 
   Widget _buildNavBar(BuildContext context) {
-    return SizedBox(
-      height: 44,
-      child: Row(
-        children: [
-          IconButton(
-            tooltip: '返回首页',
-            onPressed: () => context.go(RouteNames.home),
-            icon: const Icon(Icons.home_outlined, size: 21, color: Colors.white),
-          ),
-          const Text('红包领取', style: TextStyle(fontSize: 13, color: Colors.white)),
-        ],
+    return AppPageHeader(
+      left: IconButton(
+        tooltip: '返回首页',
+        onPressed: () => context.go(RouteNames.home),
+        icon: const Icon(Icons.home_outlined, size: 21, color: Colors.white),
       ),
+      center: const Text('红包领取', style: TextStyle(fontSize: 13, color: Colors.white)),
     );
   }
 

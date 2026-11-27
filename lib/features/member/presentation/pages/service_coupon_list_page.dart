@@ -9,6 +9,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_page_header.dart';
 import '../../data/models/coupon_group_model.dart';
 import '../../data/models/service_coupon_model.dart';
 import '../providers/service_coupon_list_provider.dart';
@@ -72,22 +73,11 @@ class _ServiceCouponListPageState extends ConsumerState<ServiceCouponListPage> {
   }
 
   Widget _buildNavBar(BuildContext context) {
-    return SizedBox(
-      height: 44,
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF000000), size: 22),
-            onPressed: () => context.pop(),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          ),
-          const Text(
-            '天佑德服务券',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Color(0xFF000000), height: 1.2),
-          ),
-        ],
-      ),
+    return AppPageHeader(
+      title: '天佑德服务券',
+      onBack: () => context.pop(),
+      titleStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Color(0xFF000000), height: 1.2),
+      iconColor: Colors.black,
     );
   }
 

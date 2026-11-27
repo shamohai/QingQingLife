@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +11,7 @@ import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_page_header.dart';
 
 import 'package:qingqinglife/features/points/mall/presentation/providers/butler_mini_program_provider.dart';
 import 'package:qingqinglife/features/points/mall/presentation/utils/butler_mini_program_launcher.dart';
@@ -297,29 +296,22 @@ class _NavRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 6, 0, 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          GestureDetector(
-            onTap: onBack,
-            behavior: HitTestBehavior.opaque,
-            child: SizedBox(
-              width: 44,
-              height: 44,
-              // 返回箭头切图与 activity_detail_back.png 同源（MD5 一致），复用现有资源
-              child: Image.asset('assets/images/service/activity_detail_back.png', width: 24, height: 24),
-            ),
+      child: AppPageHeader(
+        height: 44,
+        left: GestureDetector(
+          onTap: onBack,
+          behavior: HitTestBehavior.opaque,
+          child: SizedBox(width: 44, height: 44, child: Image.asset('assets/images/service/activity_detail_back.png', width: 24, height: 24)),
+        ),
+        center: Padding(
+          padding: const EdgeInsets.only(left: 4),
+          child: Text(
+            title?.isNotEmpty == true ? title! : '联系客服',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black, height: 1.33),
           ),
-          const SizedBox(width: 4),
-          Expanded(
-            child: Text(
-              title?.isNotEmpty == true ? title! : '联系客服',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black, height: 1.33),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

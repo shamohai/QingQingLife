@@ -10,6 +10,7 @@ import 'package:qingqinglife/core/logging/app_logger.dart';
 
 import '../../../../core/providers/repository_providers.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
+import '../../../../core/widgets/app_page_header.dart';
 import '../providers/user_profile_provider.dart';
 import '../widgets/personal_info_form_card.dart';
 import '../widgets/user_avatar_image.dart';
@@ -65,8 +66,8 @@ class _PersonalInfoEditPageState extends ConsumerState<PersonalInfoEditPage> {
                 child: Column(
                   children: [
                     _buildNavBar(context),
-                    // 头像上沿与导航栏底部的距离（设计稿 158.7 - 状态栏 44 - 导航栏 30 ≈ 85）
-                    const SizedBox(height: 85),
+                    // 标题栏统一为 44 高，收回差值以保持头像在设计稿中的位置。
+                    const SizedBox(height: 71),
                     _buildHeader(profileState),
                   ],
                 ),
@@ -124,22 +125,11 @@ class _PersonalInfoEditPageState extends ConsumerState<PersonalInfoEditPage> {
 
   /// 透明返回栏（叠在插画上，白字标题）
   Widget _buildNavBar(BuildContext context) {
-    return SizedBox(
-      height: 30,
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 22),
-            onPressed: () => context.pop(),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          ),
-          const Text(
-            '个人信息',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white, height: 1.2),
-          ),
-        ],
-      ),
+    return AppPageHeader(
+      title: '个人信息',
+      onBack: () => context.pop(),
+      titleStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.white, height: 1.2),
+      iconColor: Colors.white,
     );
   }
 

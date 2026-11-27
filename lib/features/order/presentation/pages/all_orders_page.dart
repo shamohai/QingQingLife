@@ -9,6 +9,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_page_header.dart';
 import '../providers/all_orders_provider.dart';
 import '../widgets/order_card.dart';
 
@@ -176,16 +177,16 @@ class _TopNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 0),
-      child: Row(
+    return AppPageHeader(
+      height: 44,
+      left: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 22),
+        onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+      ),
+      center: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.onSurface, size: 22),
-            onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          ),
           const Text(
             '全部订单',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
@@ -257,13 +258,6 @@ class _TopNavBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          // IconButton(
-          //   tooltip: '筛选订单',
-          //   onPressed: () {},
-          //   padding: EdgeInsets.zero,
-          //   constraints: const BoxConstraints(minWidth: 28, minHeight: 40),
-          //   icon: Image.asset('assets/images/order/icon_filter.png', width: 28, height: 22),
-          // ),
         ],
       ),
     );

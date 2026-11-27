@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_names.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_page_header.dart';
 import '../../data/models/service_coupon_model.dart';
 import '../providers/service_coupon_use_provider.dart';
 import '../widgets/service_coupon_code_card.dart';
@@ -108,22 +109,11 @@ class _ServiceCouponUsePageState extends ConsumerState<ServiceCouponUsePage> {
   }
 
   Widget _buildNavBar(BuildContext context) {
-    return SizedBox(
-      height: 44,
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF000000), size: 22),
-            onPressed: () => context.pop(),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          ),
-          const Text(
-            '服务券兑换',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Color(0xFF000000), height: 1.2),
-          ),
-        ],
-      ),
+    return AppPageHeader(
+      title: '服务券兑换',
+      onBack: () => context.pop(),
+      titleStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Color(0xFF000000), height: 1.2),
+      iconColor: Colors.black,
     );
   }
 

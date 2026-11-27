@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_share_sheet.dart';
 import '../../../../core/widgets/app_empty.dart';
 import '../../../../core/widgets/app_error.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_page_header.dart';
 import '../../data/models/member_rank_models.dart';
 import '../providers/cash_coupon_share_provider.dart';
 import '../providers/member_level_provider.dart';
@@ -107,27 +108,12 @@ class _MemberLevelPageState extends ConsumerState<MemberLevelPage> {
 
   /// 顶部返回栏（透明背景叠在渐变上，白字标题）
   Widget _buildAppBar(BuildContext context) {
-    return SizedBox(
-      height: 44,
-      child: Stack(
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 22),
-              onPressed: () => context.pop(),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-            ),
-          ),
-          const Align(
-            child: Text(
-              '会员详情',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.white),
-            ),
-          ),
-        ],
-      ),
+    return AppPageHeader(
+      title: '会员详情',
+      onBack: () => context.pop(),
+      titleStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.white),
+      iconColor: Colors.white,
+      centerTitle: true,
     );
   }
 
