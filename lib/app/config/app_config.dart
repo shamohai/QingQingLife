@@ -10,8 +10,8 @@ abstract final class AppConfig {
   static const int appVersionCode = 1;
 
   /// 默认网络超时（秒）
-  static const int defaultConnectTimeout = 15;
-  static const int defaultReceiveTimeout = 30;
+  static const int defaultConnectTimeout = 60;
+  static const int defaultReceiveTimeout = 60;
 
   /// API Base URL（当前为测试环境，正式发布前必须切换为生产地址）
   static const String baseUrl = 'https://apitest.mall.qkj.com.cn';

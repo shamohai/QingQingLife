@@ -216,7 +216,7 @@ class StartupVideoUpdateService {
       return _SyncOutcome.unchanged;
     }
 
-    final ok = await _downloadVerified(item, targetFile, receiveTimeout: const Duration(seconds: 30));
+    final ok = await _downloadVerified(item, targetFile, receiveTimeout: const Duration(seconds: 60));
     if (!ok) return _SyncOutcome.failed;
 
     await _storage.putString(storageKey, item.md5);
@@ -241,7 +241,7 @@ class StartupVideoUpdateService {
       await _dio.download(
         item.remoteUrl,
         tmpFile.path,
-        options: Options(receiveTimeout: receiveTimeout, connectTimeout: const Duration(seconds: 15)),
+        options: Options(receiveTimeout: receiveTimeout, connectTimeout: const Duration(seconds: 60)),
       );
 
       if (!await tmpFile.exists() || await tmpFile.length() <= 0) {
@@ -298,7 +298,7 @@ class StartupVideoUpdateService {
 
       final manifestResponse = await _dio.get<dynamic>(
         fileUrl,
-        options: Options(connectTimeout: const Duration(seconds: 5), receiveTimeout: const Duration(seconds: 10)),
+        options: Options(connectTimeout: const Duration(seconds: 60), receiveTimeout: const Duration(seconds: 60)),
       );
       final raw = manifestResponse.data;
       final json = raw is String ? jsonDecode(raw) : raw;

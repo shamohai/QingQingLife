@@ -5,12 +5,16 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import 'package:qingqinglife/core/location/activity_location_service.dart';
+import 'package:qingqinglife/core/location/device_location_service.dart';
 import 'package:qingqinglife/features/home/data/models/weimeng_activity_location.dart';
 
 import '../../../core/logging/app_logger.dart';
 import '../../share/activity_share_message.dart';
 import '../../webview/app_webview_user_agent.dart';
 import '../../widgets/app_share_sheet.dart';
+
+/// 活动定位失败时的提示文案（沿用原文案）。
+const String _locationErrorMessage = '无法获取当前位置，请开启定位权限后重试';
 
 /// 活动专用 H5 页面，提供 AppShare JavaScriptChannel，不影响常规 WebView。
 class ActivityWebViewPage extends ConsumerStatefulWidget {
@@ -24,15 +28,27 @@ class ActivityWebViewPage extends ConsumerStatefulWidget {
   ConsumerState<ActivityWebViewPage> createState() => _ActivityWebViewPageState();
 }
 
-class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
+class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> with WidgetsBindingObserver {
   WebViewController? _controller;
   int _loadingProgress = 0;
   String? _errorMessage;
   bool _isShareSheetOpen = false;
 
+  /// 定位失败原因；非空且可打开设置时，错误区域按钮变为「打开定位设置」。
+  LocationFailure? _locationFailure;
+
+  /// 已跳转到系统设置页，等待用户返回后自动重新获取位置。
+  bool _awaitingSettings = false;
+
+  bool get _needsLocation {
+    final actType = widget.activityType?.trim().toLowerCase();
+    return actType == 'drinkmapactivity' || actType == 'drinkrankactivity';
+  }
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     if (kIsWeb) {
       // Web 端 webview_flutter 未实现 JS Channel 等接口，改为拼接后用新窗口打开。
       _openOnWeb();
@@ -60,14 +76,43 @@ class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
     _setupUserAgentAndLoad();
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// 从系统设置页返回前台时，若刚才跳转过设置页，则自动重新获取位置。
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _awaitingSettings) {
+      _awaitingSettings = false;
+      _reload();
+    }
+  }
+
   /// 构造最终 URL（与移动端逻辑一致），Web 端仅打印并在新窗口打开。
-  /// 微盟活动需要 SSO 参数：获取失败时返回 null 并展示错误，不再带着空 token 加载 H5。
+  /// 微盟活动先获取定位，定位失败则不请求 SSO 参数，也不加载 H5。
   Future<String?> _buildFinalUrl() async {
     var finalUrl = widget.url;
     final actType = widget.activityType?.trim().toLowerCase();
     debugPrint('[线上活动] 原始URL (activityType=$actType): ${widget.url}');
-    if (actType == 'drinkmapactivity' || actType == 'drinkrankactivity') {
-      final response = await ref.read(activityLocationServiceProvider).getWeimengActivityLocation();
+    if (_needsLocation) {
+      final locationResult = await ref.read(deviceLocationServiceProvider).getPosition();
+      if (locationResult case LocationError(failure: final failure)) {
+        debugPrint('[线上活动] 定位失败: $failure');
+        if (mounted) {
+          setState(() {
+            _errorMessage = _locationErrorMessage;
+            _locationFailure = failure;
+          });
+        }
+        return null;
+      }
+      final position = (locationResult as LocationSuccess).position;
+      _locationFailure = null;
+
+      final response = await ref.read(activityLocationServiceProvider).getWeimengActivityLocation(position: position);
       if (!response.success || response.data == null) {
         final message = response.message.isNotEmpty ? response.message : '获取活动信息失败，请稍后重试';
         debugPrint('[线上活动] 获取微盟 SSO 参数失败: code=${response.code}, message=$message');
@@ -132,9 +177,21 @@ class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
     await _setupUserAgentAndLoad();
   }
 
+  /// 错误区域按钮：定位失败且可打开设置时跳转设置页，否则重新加载。
+  Future<void> _onErrorAction() async {
+    final failure = _locationFailure;
+    if (failure != null && failure.canOpenSettings) {
+      _awaitingSettings = true;
+      await ref.read(deviceLocationServiceProvider).openSettingsFor(failure);
+      return;
+    }
+    await _reload();
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = _controller;
+    final canOpenSettings = _locationFailure?.canOpenSettings ?? false;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -155,7 +212,7 @@ class _ActivityWebViewPageState extends ConsumerState<ActivityWebViewPage> {
                         children: [
                           Text(_errorMessage!),
                           const SizedBox(height: 12),
-                          FilledButton(onPressed: _reload, child: const Text('重新加载')),
+                          FilledButton(onPressed: _onErrorAction, child: Text(canOpenSettings ? '打开定位设置' : '重新加载')),
                         ],
                       ),
                     ),
