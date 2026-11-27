@@ -41,27 +41,10 @@ class HomeCreditProductCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          // 商品名称（"自营"标签在名称正前方，背景色为 #213775），最多 3 行
-          Text.rich(
-            TextSpan(
-              children: [
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 4),
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                    decoration: BoxDecoration(color: const Color(0xFF213775), borderRadius: BorderRadius.circular(3)),
-                    child: const Text(
-                      '自营',
-                      style: TextStyle(fontSize: 8, fontWeight: FontWeight.w600, color: Colors.white),
-                    ),
-                  ),
-                ),
-                TextSpan(text: product.productName, style: AppTextStyles.bodySmall.copyWith(fontSize: 12)),
-              ],
-            ),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
+          // 商品名称：固定 3 行高度（随字体缩放），不显示"自营"标签
+          SizedBox(
+            height: MediaQuery.textScalerOf(context).scale(12) * 1.33 * 3,
+            child: Text(product.productName, style: AppTextStyles.bodySmall.copyWith(fontSize: 12), maxLines: 3, overflow: TextOverflow.ellipsis),
           ),
           const SizedBox(height: 4),
           // 价格 + 右侧购物车图标
