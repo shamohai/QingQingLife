@@ -149,11 +149,8 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
               ),
             ),
           ),
-          // ── 热门商品横向滚动列表 ──
-          SizedBox(
-            height: PointsHotProductCard.totalHeight(context),
-            child: HotProductsListView(controller: _scrollController),
-          ),
+          // ── 热门商品横向滚动列表（高度 = 卡片真实渲染高度，运行时测量）──
+          HotProductsMeasuredList(controller: _scrollController),
         ],
       ),
     );
@@ -194,6 +191,71 @@ class HotProductsListView extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// 热门商品横向列表：高度运行时测量。
+/// 布局后读取一张真实卡片的渲染高度，再把列表高度设为该值，
+/// 与字体缩放、内容高度始终一致，不依赖估算公式。
+class HotProductsMeasuredList extends ConsumerStatefulWidget {
+  final ScrollController controller;
+
+  const HotProductsMeasuredList({super.key, required this.controller});
+
+  @override
+  ConsumerState<HotProductsMeasuredList> createState() => _HotProductsMeasuredListState();
+}
+
+class _HotProductsMeasuredListState extends ConsumerState<HotProductsMeasuredList> {
+  final _measureKey = GlobalKey();
+  double? _height;
+
+  void _scheduleMeasure() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final box = _measureKey.currentContext?.findRenderObject();
+      if (box is! RenderBox || !box.hasSize) return;
+      final h = box.size.height;
+      if (h != _height) {
+        setState(() => _height = h);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 依赖字体缩放：字体变化时重建并重新测量
+    MediaQuery.textScalerOf(context);
+
+    final productsData = ref.watch(pointsMallHotProductsProvider);
+    final firstItem = productsData.whenOrNull(data: (items) => items.isNotEmpty ? items.first : null);
+
+    // 有数据时才需要测量（空数据/加载/错误时直接走 HotProductsListView 的占位逻辑）
+    if (firstItem != null) {
+      _scheduleMeasure();
+    }
+
+    final height = _height;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (firstItem != null)
+          // 测量用：Offstage 仍布局但不绘制、不占空间、不响应点击
+          Offstage(
+            child: PointsHotProductCard(key: _measureKey, product: firstItem),
+          ),
+        if (firstItem == null)
+          // 加载 / 错误 / 空数据：走原占位逻辑，不设固定高度
+          HotProductsListView(controller: widget.controller)
+        else
+          // 有数据：首帧测量完成前用卡片估算的最小高度占位，测量后替换为真实高度
+          SizedBox(
+            height: height ?? 0,
+            child: HotProductsListView(controller: widget.controller),
+          ),
+      ],
     );
   }
 }

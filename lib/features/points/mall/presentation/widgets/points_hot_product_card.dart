@@ -12,13 +12,6 @@ class PointsHotProductCard extends StatelessWidget {
   /// 名称区域高度：3 行 × 12sp × 1.5，随系统字体缩放，避免大字体下被裁切
   static double _nameAreaHeight(TextScaler scaler) => scaler.scale(12) * 1.5 * 3;
 
-  /// 卡片总高度（图片 100 + 间距 5 + 名称区 + 价格行），供外层横向列表使用
-  static double totalHeight(BuildContext context) {
-    final scaler = MediaQuery.textScalerOf(context);
-    final priceHeight = scaler.scale(13) * 1.5; // 价格行实测约 19px，取 1.5 倍行高保证不小于实际高度
-    return 100 + 5 + _nameAreaHeight(scaler) + priceHeight;
-  }
-
   @override
   Widget build(BuildContext context) {
     final scaler = MediaQuery.textScalerOf(context);
