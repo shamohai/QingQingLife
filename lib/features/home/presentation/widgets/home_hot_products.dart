@@ -7,6 +7,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/presentation/paging/paging_controller_mixin.dart';
+import '../../../points/mall/data/models/get_recommend_product_list_model.dart';
 import '../providers/home_paging_providers.dart';
 import 'home_credit_product_card.dart';
 
@@ -65,48 +66,99 @@ class HomeHotProducts extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
+          Consumer(
+            builder: (context, ref, child) {
+              final pagingData = ref.watch(homeHotProductsProvider);
+              if (pagingData.status == PagingStatus.initial) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (context.mounted) {
+                    ref.read(homeHotProductsProvider.notifier).loadFirstPage();
+                  }
+                });
+              }
+
+              if (pagingData.isLoading && pagingData.items.isEmpty) {
+                return const SizedBox(height: 160, child: Center(child: CircularProgressIndicator()));
+              }
+              if (pagingData.isError && pagingData.items.isEmpty) {
+                return SizedBox(height: 60, child: Center(child: Text(pagingData.errorMessage ?? '加载失败')));
+              }
+              if (pagingData.items.isEmpty) {
+                return const SizedBox(height: 60, child: Center(child: Text('暂无数据')));
+              }
+
+              return HotProductsStrip(items: pagingData.items);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 横向商品列表。
+///
+/// 列表高度不写死：布局完成后读取一张真实卡片的渲染高度（运行时测量），
+/// 因此高度始终与当前字体缩放下的卡片实际高度一致，既不溢出也不留白。
+class HotProductsStrip extends StatefulWidget {
+  final List<CreditMallProduct> items;
+
+  const HotProductsStrip({super.key, required this.items});
+
+  @override
+  State<HotProductsStrip> createState() => HotProductsStripState();
+}
+
+class HotProductsStripState extends State<HotProductsStrip> {
+  final _measureKey = GlobalKey();
+  double? _height;
+
+  void _scheduleMeasure() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final box = _measureKey.currentContext?.findRenderObject();
+      if (box is! RenderBox || !box.hasSize) return;
+      final h = box.size.height;
+      if (h != _height) {
+        setState(() => _height = h);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 依赖字体缩放：字体变化时重建并重新测量高度
+    MediaQuery.textScalerOf(context);
+    _scheduleMeasure();
+    final height = _height;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // 测量用：Offstage 仍会布局但不绘制、不占空间、不响应点击
+        Offstage(
+          child: HomeCreditProductCard(key: _measureKey, product: widget.items.first),
+        ),
+        if (height != null)
           SizedBox(
-            height: 190,
-            child: Consumer(
-              builder: (context, ref, child) {
-                final pagingData = ref.watch(homeHotProductsProvider);
-                if (pagingData.status == PagingStatus.initial) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (context.mounted) {
-                      ref.read(homeHotProductsProvider.notifier).loadFirstPage();
-                    }
-                  });
-                }
-
-                if (pagingData.isLoading && pagingData.items.isEmpty) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (pagingData.isError && pagingData.items.isEmpty) {
-                  return Center(child: Text(pagingData.errorMessage ?? '加载失败'));
-                }
-                if (pagingData.items.isEmpty) {
-                  return const Center(child: Text('暂无数据'));
-                }
-
-                return ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  padding: EdgeInsets.zero,
-                  itemCount: pagingData.items.length,
-                  separatorBuilder: (context, index) => const SizedBox(width: AppSpacing.sm),
-                  itemBuilder: (context, index) {
-                    final product = pagingData.items[index];
-                    return GestureDetector(
-                      onTap: () => context.push(RouteNames.serviceProductDetail.replaceFirst(':id', '${product.productId}')),
-                      child: HomeCreditProductCard(product: product),
-                    );
-                  },
+            height: height,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.zero,
+              itemCount: widget.items.length,
+              separatorBuilder: (context, index) => const SizedBox(width: AppSpacing.sm),
+              itemBuilder: (context, index) {
+                final product = widget.items[index];
+                return GestureDetector(
+                  onTap: () => context.push(RouteNames.serviceProductDetail.replaceFirst(':id', '${product.productId}')),
+                  child: HomeCreditProductCard(product: product),
                 );
               },
             ),
           ),
-        ],
-      ),
+      ],
     );
   }
 }

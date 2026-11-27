@@ -34,7 +34,7 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 5), // 与 home_page.dart 保持一致（上下边距 5dp）
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      padding: const EdgeInsets.fromLTRB(8, 10, 8, 4), // 底部收紧，减少热门兑换下方留白
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(9),
@@ -150,7 +150,10 @@ class _PointsBalanceCardState extends ConsumerState<PointsBalanceCard> {
             ),
           ),
           // ── 热门商品横向滚动列表 ──
-          SizedBox(height: 180, child: HotProductsListView(controller: _scrollController)),
+          SizedBox(
+            height: PointsHotProductCard.totalHeight(context),
+            child: HotProductsListView(controller: _scrollController),
+          ),
         ],
       ),
     );
