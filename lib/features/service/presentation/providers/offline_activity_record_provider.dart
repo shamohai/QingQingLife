@@ -5,13 +5,19 @@ import '../../../../core/presentation/paging/paging_list_view.dart';
 import '../../data/datasources/service_remote_datasource.dart';
 import '../../domain/models/offline_activity_record_item.dart';
 
-/// 活动报名记录分页 Notifier
+/// 活动报名记录分页 Notifier（保持缓存避免 Tab 切换重复请求）
 ///
 /// 调用 POST /api/promotion/app/activity/getmyofflineactivitylist
 /// 支持 pageIndex / pageSize 分页加载。
 class OfflineActivityRecordNotifier extends PagingNotifier<OfflineActivityRecordItem> {
   @override
   int get pageSize => 10;
+
+  @override
+  PagingData<OfflineActivityRecordItem> build() {
+    ref.keepAlive(); // 保持缓存，Tab 切换不重新加载
+    return super.build();
+  }
 
   @override
   Future<PagingResult<OfflineActivityRecordItem>> fetchPage(int page, int pageSize) async {
@@ -22,6 +28,6 @@ class OfflineActivityRecordNotifier extends PagingNotifier<OfflineActivityRecord
   }
 }
 
-final myOfflineActivityRecordProvider = NotifierProvider.autoDispose<OfflineActivityRecordNotifier, PagingData<OfflineActivityRecordItem>>(
+final myOfflineActivityRecordProvider = NotifierProvider<OfflineActivityRecordNotifier, PagingData<OfflineActivityRecordItem>>(
   OfflineActivityRecordNotifier.new,
 );
