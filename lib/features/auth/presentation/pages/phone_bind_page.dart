@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:async';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
@@ -39,6 +40,10 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
   static const Color _textGray = Color(0xFF8E8E93);
   static const Color _inputBorder = Color(0x1A213775); // #213775 @ 10%
 
+  /// 协议链接点击识别器，dispose 时释放。
+  late final TapGestureRecognizer _serviceAgreementTap = TapGestureRecognizer()..onTap = () => _openAgreement(RouteNames.userServiceAgreementUrl, '用户服务协议');
+  late final TapGestureRecognizer _privacyPolicyTap = TapGestureRecognizer()..onTap = () => _openAgreement(RouteNames.userPrivacyPolicyUrl, '用户隐私政策');
+
   // 手机号：以 1 开头，后 10 位数字，共 11 位。
   static final RegExp _phoneRegex = RegExp(r'^1\d{10}$');
   // 验证码：6 位数字。
@@ -50,7 +55,15 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
     _phoneController.dispose();
     _codeController.dispose();
     _codeFocusNode.dispose();
+    _serviceAgreementTap.dispose();
+    _privacyPolicyTap.dispose();
     super.dispose();
+  }
+
+  /// 打开协议 H5 页面（与“我的-关于我们”使用同一 WebView 路由）。
+  Future<void> _openAgreement(String url, String title) async {
+    final route = Uri(path: RouteNames.webView, queryParameters: {'url': url, 'title': title});
+    await context.push(route.toString());
   }
 
   void _showToast(String msg) {
@@ -262,11 +275,13 @@ class _PhoneBindPageState extends ConsumerState<PhoneBindPage> {
                                     const TextSpan(text: '登录及接受'),
                                     TextSpan(
                                       text: '《用户服务协议》',
+                                      recognizer: _serviceAgreementTap,
                                       style: TextStyle(color: _linkBlue, fontWeight: FontWeight.w500),
                                     ),
                                     const TextSpan(text: '和'),
                                     TextSpan(
                                       text: '《用户隐私政策》',
+                                      recognizer: _privacyPolicyTap,
                                       style: TextStyle(color: _linkBlue, fontWeight: FontWeight.w500),
                                     ),
                                   ],

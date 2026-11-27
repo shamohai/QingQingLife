@@ -17,7 +17,7 @@ class WeChatThumbnailHelper {
 
   final Dio _dio;
 
-  WeChatThumbnailHelper({Dio? dio}) : _dio = dio ?? Dio(BaseOptions(connectTimeout: const Duration(seconds: 4), receiveTimeout: const Duration(seconds: 4)));
+  WeChatThumbnailHelper({Dio? dio}) : _dio = dio ?? Dio(BaseOptions(connectTimeout: const Duration(seconds: 60), receiveTimeout: const Duration(seconds: 60)));
 
   /// 从网络 URL 获取图片并自适应缩放到 ≤ 30KB。
   ///

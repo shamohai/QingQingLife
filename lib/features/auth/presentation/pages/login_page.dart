@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -50,6 +51,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   static const Color _linkBlue = Color(0xFF0088FF);
   static const Color _textGray = Color(0xFF8E8E93);
 
+  /// 协议链接点击识别器，dispose 时释放。
+  late final TapGestureRecognizer _serviceAgreementTap = TapGestureRecognizer()..onTap = () => _openAgreement(RouteNames.userServiceAgreementUrl, '用户服务协议');
+  late final TapGestureRecognizer _privacyPolicyTap = TapGestureRecognizer()..onTap = () => _openAgreement(RouteNames.userPrivacyPolicyUrl, '用户隐私政策');
+
   @override
   void initState() {
     super.initState();
@@ -70,6 +75,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   void dispose() {
     _deviceIdController.dispose();
     _authTokenController.dispose();
+    _serviceAgreementTap.dispose();
+    _privacyPolicyTap.dispose();
     super.dispose();
   }
 
@@ -97,6 +104,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   void _onCloseSheet() {
     setState(() => _showAgreementSheet = false);
+  }
+
+  /// 打开协议 H5 页面（与“我的-关于我们”使用同一 WebView 路由）。
+  Future<void> _openAgreement(String url, String title) async {
+    final route = Uri(path: RouteNames.webView, queryParameters: {'url': url, 'title': title});
+    await context.push(route.toString());
   }
 
   void _doWechatLogin() {
@@ -236,11 +249,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       const SizedBox(height: 6),
                       Center(
                         child: RichText(
-                          text: const TextSpan(
-                            style: TextStyle(fontSize: 15, height: 1.0),
+                          text: TextSpan(
+                            style: const TextStyle(fontSize: 15, height: 1.0),
                             children: [
                               TextSpan(
                                 text: '《用户服务协议》',
+                                recognizer: _serviceAgreementTap,
                                 style: TextStyle(color: _linkBlue, fontWeight: FontWeight.w500, letterSpacing: -2),
                               ),
                               TextSpan(
@@ -249,6 +263,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               ),
                               TextSpan(
                                 text: '《用户隐私政策》',
+                                recognizer: _privacyPolicyTap,
                                 style: TextStyle(color: _linkBlue, fontWeight: FontWeight.w500, letterSpacing: -2),
                               ),
                             ],
@@ -356,11 +371,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           const TextSpan(text: '登录即代表您已同意'),
                           TextSpan(
                             text: '《用户服务协议》',
+                            recognizer: _serviceAgreementTap,
                             style: const TextStyle(color: _linkBlue, fontWeight: FontWeight.w500),
                           ),
                           const TextSpan(text: '和'),
                           TextSpan(
                             text: '《用户隐私政策》',
+                            recognizer: _privacyPolicyTap,
                             style: const TextStyle(color: _linkBlue, fontWeight: FontWeight.w500),
                           ),
                           const TextSpan(text: '，未注册的手机号验证后将自动创建青轻生活账号。'),

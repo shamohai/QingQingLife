@@ -29,7 +29,7 @@ class CheckUpdateClient {
         apiPath,
         data: {'hotfixversion': localHotfixVersion},
         fromJson: (data) => Map<String, dynamic>.from(data as Map),
-        options: Options(connectTimeout: const Duration(seconds: 5), receiveTimeout: const Duration(seconds: 5)),
+        options: Options(connectTimeout: const Duration(seconds: 60), receiveTimeout: const Duration(seconds: 60)),
       );
       if (!response.success) {
         AppLogger.warning('CheckUpdate 返回失败: ${response.message}', module: 'check_update', data: {'code': response.code});
